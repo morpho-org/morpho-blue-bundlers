@@ -2,26 +2,18 @@
 pragma solidity ^0.8.0;
 
 import {IPool} from "contracts/interfaces/IPool.sol";
-import {ISupplyAllocator} from "contracts/interfaces/ISupplyAllocator.sol";
 
 import {Math} from "@morpho-utils/math/Math.sol";
 import {PoolLib} from "contracts/libraries/PoolLib.sol";
-import {PoolAddress} from "contracts/libraries/PoolAddress.sol";
 import {BytesLib, POOL_OFFSET} from "contracts/libraries/BytesLib.sol";
 
-contract SupplyAllocator is ISupplyAllocator {
+import {BaseSupplyAllocator} from "contracts/BaseSupplyAllocator.sol";
+
+contract SupplyNaiveAllocator is BaseSupplyAllocator {
     using PoolLib for IPool;
     using BytesLib for bytes;
 
-    address internal immutable FACTORY;
-
-    constructor(address factory) {
-        FACTORY = factory;
-    }
-
-    function getPool(address collateral, address asset) internal view returns (IPool) {
-        return IPool(PoolAddress.computeAddress(FACTORY, collateral, asset));
-    }
+    constructor(address factory) BaseSupplyAllocator(factory) {}
 
     function allocateSupply(address asset, uint256 amount, bytes memory collateralization)
         external

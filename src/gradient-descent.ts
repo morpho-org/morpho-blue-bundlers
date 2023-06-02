@@ -6,7 +6,7 @@ export const maximize = function (
 ) {
   const dim = x0.length;
 
-  let x = x0;
+  let x = x0.slice();
   let fx = fnc(x);
 
   let pfx = fx;
@@ -16,17 +16,14 @@ export const maximize = function (
   for (; i < 10_000; ++i) {
     const g = grd(x);
 
-    let xn = x.slice();
+    for (let j = 0; j < dim; j++) x[j] += g[j];
 
-    for (let j = 0; j < dim; j++) xn[j] = xn[j] + g[j];
+    fx = fnc(x);
 
-    fx = fnc(xn);
-
-    if (fx > pfx) best = { x: xn, fx };
+    if (fx > pfx) best = { x: x.slice(), fx };
 
     if (Math.abs(pfx - fx) < improvement || isNaN(fx) || Math.abs(fx) >= Infinity) break;
 
-    x = xn;
     pfx = fx;
   }
 
