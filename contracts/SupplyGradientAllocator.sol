@@ -26,4 +26,6 @@ contract SupplyGradientAllocator is BaseSupplyAllocator {
         view
         returns (bytes memory allocation)
     {}
+
+    function _interests(int256 x, uint256 a, uint256 b) internal returns (int256) {}
 }
