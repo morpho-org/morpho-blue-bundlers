@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.21;
 
-import {Market, IBlue} from "@morpho-blue/interfaces/IBlue.sol";
+import {MarketLib, Id, Market} from "@morpho-blue/libraries/MarketLib.sol";
+import {IBlue} from "@morpho-blue/interfaces/IBlue.sol";
+import {IBlueRepayCallback} from "@morpho-blue/interfaces/IBlueCallbacks.sol";
 import {IIrm} from "@morpho-blue/interfaces/IIrm.sol";
 import {IERC20} from "@morpho-blue/interfaces/IERC20.sol";
 import {IOracle} from "@morpho-blue/interfaces/IOracle.sol";
@@ -24,8 +26,20 @@ struct MarketNoLLTV {
     IOracle collateralOracle;
     IIrm irm;
 }
-contract BorrowerModule {
-    mapping(address borrower => mapping(address manager => mapping(bytes marketNoLltvId => BorrowManagementParams allowStruct))) public managementParams;
+
+contract BorrowerModule is IBlueRepayCallback {
+    using MarketLib for Market;
+
+    IBlue public immutable blue;
+
+    mapping(
+        address borrower
+            => mapping(address manager => mapping(bytes marketNoLltvId => BorrowManagementParams allowStruct))
+    ) public managementParams;
+
+    constructor(address newBlue) {
+        blue = IBlue(newBlue);
+    }
 
     function marketNoLltvToBytes(MarketNoLLTV memory marketNoLltv) internal pure returns (bytes memory) {
         return abi.encode(marketNoLltv);
@@ -59,21 +73,40 @@ contract BorrowerModule {
             collateralOracle: market.collateralOracle,
             irm: market.irm
         });
-        BorrowManagementParams storage params = managementParams[borrower][msg.sender][marketNoLltvToBytes(marketNoLLTV)];
+        BorrowManagementParams storage params =
+            managementParams[borrower][msg.sender][marketNoLltvToBytes(marketNoLLTV)];
         require(newLltv != market.lltv, "BorrowerModule: newLltv is the same as current lltv");
-        if(newLltv > market.lltv) require(params.increaseLltvAllowed && newLltv <= params.maxLltv, "BorrowerModule: increaseLltv not allowed");
-        else require(params.decreaseLltvAllowed && newLltv >= params.minLltv, "BorrowerModule: decreaseLltv not allowed");
+        if (newLltv > market.lltv) {
+            require(params.increaseLltvAllowed && newLltv <= params.maxLltv, "BorrowerModule: increaseLltv not allowed");
+        } else {
+            require(params.decreaseLltvAllowed && newLltv >= params.minLltv, "BorrowerModule: decreaseLltv not allowed");
+        }
 
         _moveLltv(market, borrower, newLltv);
     }
 
     function _moveLltv(Market memory market, address borrower, uint256 newLltv) internal {
         // Repay all debt in old market.
-        // Withdraw all collateral in old market.
-        // Deposit all collateral in new market.
-        // Borrow all debt in new market.
+        blue.repay(market, type(uint256).max, borrower, abi.encode(market, borrower, newLltv));
+        // Logic continues in the callback function onBlueRepay.
     }
 
+    function onBlueRepay(uint256 amount, bytes calldata data) external override {
+        require(msg.sender == address(blue), "BorrowerModule: invalid caller");
+        (Market memory market, address borrower, uint256 newLltv) = abi.decode(data, (Market, address, uint256));
+        // After a repay:
+        // Withdraw all collateral in old market.
+        uint256 collateral = blue.collateral(market.id(), borrower);
+        blue.withdrawCollateral(market, collateral, borrower);
 
+        // Change context to new market.
+        market.lltv = newLltv;
+
+        // Deposit all collateral in new market.
+        blue.supplyCollateral(market, collateral, borrower, hex"");
+        // Borrow all debt in new market.
+        blue.borrow(market, amount, borrower);
+
+        // After this call, blue should retrieve the borrowed funds.
+    }
 }
-
