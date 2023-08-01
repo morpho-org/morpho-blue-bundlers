@@ -7,6 +7,7 @@ import {IBlueRepayCallback} from "@morpho-blue/interfaces/IBlueCallbacks.sol";
 import {IIrm} from "@morpho-blue/interfaces/IIrm.sol";
 import {IERC20} from "@morpho-blue/interfaces/IERC20.sol";
 import {IOracle} from "@morpho-blue/interfaces/IOracle.sol";
+import {SafeTransferLib, ERC20} from "@solmate/utils/SafeTransferLib.sol";
 
 // This contract should be able to let borrowers delegate responbility to a third party to:
 // 1. Move their position from an LLTV to a specified higher LLTV. (liquidation protection)
@@ -29,6 +30,7 @@ struct MarketNoLLTV {
 
 contract BorrowerModule is IBlueRepayCallback {
     using MarketLib for Market;
+    using SafeTransferLib for ERC20;
 
     IBlue public immutable blue;
 
@@ -103,10 +105,19 @@ contract BorrowerModule is IBlueRepayCallback {
         market.lltv = newLltv;
 
         // Deposit all collateral in new market.
+        _approveMaxBlue(address(market.collateralAsset));
         blue.supplyCollateral(market, collateral, borrower, hex"");
         // Borrow all debt in new market.
+        _approveMaxBlue(address(market.borrowableAsset));
         blue.borrow(market, amount, borrower);
 
         // After this call, blue should retrieve the borrowed funds.
+    }
+
+    /// @dev Gives the max approval to the Morpho contract to spend the given `asset` if not already approved.
+    function _approveMaxBlue(address asset) private {
+        if (ERC20(asset).allowance(address(this), address(blue)) == 0) {
+            ERC20(asset).safeApprove(address(blue), type(uint256).max);
+        }
     }
 }
