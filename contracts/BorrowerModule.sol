@@ -53,7 +53,7 @@ contract BorrowerModule is IBlueRepayCallback {
         managementParams[msg.sender][manager][marketNoLltvToBytes(marketNoLltv)].increaseLltvAllowed = allowed;
     }
 
-    function allowDecreaseLltvAllowed(MarketNoLLTV memory marketNoLltv, address manager, bool allowed) external {
+    function setDecreaseLltvAllowed(MarketNoLLTV memory marketNoLltv, address manager, bool allowed) external {
         managementParams[msg.sender][manager][marketNoLltvToBytes(marketNoLltv)].decreaseLltvAllowed = allowed;
     }
 
