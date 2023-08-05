@@ -28,7 +28,7 @@ struct MarketNoLLTV {
     IIrm irm;
 }
 
-contract BorrowerModule is IBlueRepayCallback {
+contract LLTVManagementModule is IBlueRepayCallback {
     using MarketLib for Market;
     using SafeTransferLib for ERC20;
 
