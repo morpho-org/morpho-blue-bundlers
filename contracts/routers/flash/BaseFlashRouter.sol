@@ -41,7 +41,7 @@ abstract contract BaseFlashRouter is BaseSelfMulticall {
         require(_initiator != address(0), Errors.ALREADY_INITIATED);
     }
 
-    function _onCallback(bytes calldata data) internal {
+    function _onCallback(bytes memory data) internal {
         _checkInitiated();
 
         bytes[] memory calls = abi.decode(data, (bytes[]));

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.21;
 
-import {Market} from "@morpho-blue/interfaces/IBlue.sol";
+import {Market} from "@morpho-blue/interfaces/IMorpho.sol";
 import {ISupplyVault} from "contracts/interfaces/ISupplyVault.sol";
 import {IVaultAllocationManager} from "contracts/interfaces/IVaultAllocationManager.sol";
 
@@ -54,7 +54,7 @@ contract SupplyVault is ISupplyVault, ERC4626, Ownable, InternalSupplyRouter {
         virtual
         onlyRiskManager
     {
-        address _asset = address(market.borrowableAsset);
+        address _asset = address(market.borrowableToken);
         if (_asset != asset()) revert InconsistentAsset(_asset);
 
         _config.add(market, marketConfig);
