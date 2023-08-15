@@ -1,0 +1,6 @@
+EVMBulkerTest:invariantBulkerBalanceOfZero() (runs: 256, calls: 3840, reverts: 2326)
+EVMBulkerTest:invariantBulkerPositionZero() (runs: 256, calls: 3840, reverts: 2330)
+EVMBulkerTest:testRepayWithdrawCollateral(uint256,address) (runs: 256, μ: 425259, ~: 425228)
+EVMBulkerTest:testRepayWithdrawCollateralViaCallback(uint256,address) (runs: 256, μ: 428320, ~: 428288)
+EVMBulkerTest:testSupplyCollateralBorrow(uint256,address) (runs: 256, μ: 371592, ~: 371560)
+EVMBulkerTest:testSupplyCollateralBorrowViaCallback(uint256,address) (runs: 256, μ: 375072, ~: 375040)
