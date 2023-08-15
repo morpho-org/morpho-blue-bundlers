@@ -3,10 +3,12 @@ pragma solidity ^0.8.0;
 
 import "contracts/bulkers/EVMBulker.sol";
 
+import "@morpho-blue/libraries/MathLib.sol";
+
 import "./BaseBulkerTest.sol";
 
 contract EVMBulkerTest is BaseBulkerTest {
-    using FixedPointMathLib for uint256;
+    using MathLib for uint256;
 
     EVMBulker private bulker;
 

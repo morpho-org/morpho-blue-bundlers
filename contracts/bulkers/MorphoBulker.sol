@@ -3,6 +3,7 @@ pragma solidity 0.8.21;
 
 import {IMorphoBulker} from "./interfaces/IMorphoBulker.sol";
 import {Market, Signature, Authorization, IMorpho} from "@morpho-blue/interfaces/IMorpho.sol";
+import {ErrorsLib as MorphoErrorsLib} from "@morpho-blue/libraries/ErrorsLib.sol";
 
 import {Errors} from "./libraries/Errors.sol";
 
@@ -63,7 +64,13 @@ abstract contract MorphoBulker is BaseBulker, IMorphoBulker {
     function morphoSetAuthorizationWithSig(Authorization calldata authorization, Signature calldata signature)
         external
     {
-        MORPHO.setAuthorizationWithSig(authorization, signature);
+        try MORPHO.setAuthorizationWithSig(authorization, signature) {
+            return;
+        } catch Error(string memory reason) {
+            // Do not revert if someone frontran the transaction.
+            if (keccak256(bytes(reason)) == keccak256(bytes(MorphoErrorsLib.INVALID_NONCE))) return;
+            else revert(reason);
+        }
     }
 
     /// @dev Supplies `amount` of `asset` of `onBehalf` using permit2 in a single tx.

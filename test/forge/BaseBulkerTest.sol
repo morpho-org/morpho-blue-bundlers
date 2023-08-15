@@ -12,10 +12,10 @@ import "@forge-std/Test.sol";
 import "@forge-std/console2.sol";
 
 contract BaseBulkerTest is Test {
+    using MathLib for uint256;
     using MarketLib for Market;
     using SharesMathLib for uint256;
     using stdStorage for StdStorage;
-    using FixedPointMathLib for uint256;
 
     uint256 internal constant MIN_AMOUNT = 1000;
     uint256 internal constant MAX_AMOUNT = 2 ** 64;
