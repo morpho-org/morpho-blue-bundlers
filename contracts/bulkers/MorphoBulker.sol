@@ -64,13 +64,8 @@ abstract contract MorphoBulker is BaseBulker, IMorphoBulker {
     function morphoSetAuthorizationWithSig(Authorization calldata authorization, Signature calldata signature)
         external
     {
-        try MORPHO.setAuthorizationWithSig(authorization, signature) {
-            return;
-        } catch Error(string memory reason) {
-            // Do not revert if someone frontran the transaction.
-            if (keccak256(bytes(reason)) == keccak256(bytes(MorphoErrorsLib.INVALID_NONCE))) return;
-            else revert(reason);
-        }
+        if (MORPHO.isAuthorized(_initiator, address(this)) == authorization.isAuthorized) return;
+        else MORPHO.setAuthorizationWithSig(authorization, signature);
     }
 
     /// @dev Supplies `amount` of `asset` of `onBehalf` using permit2 in a single tx.

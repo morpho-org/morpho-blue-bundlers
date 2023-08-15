@@ -13,6 +13,4 @@ library Errors {
     string internal constant ZERO_SHARES = "zero shares";
 
     string internal constant ONLY_WNATIVE = "only wrapped native";
-
-    string internal constant SET_AUTHORIZATION_FAILED = "set authorization failed";
 }
