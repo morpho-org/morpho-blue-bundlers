@@ -6,7 +6,7 @@ import "contracts/bundlers/EVMBundler.sol";
 import "./BaseBundlerTest.sol";
 
 contract EVMBundlerTest is BaseBundlerTest {
-    using FixedPointMathLib for uint256;
+    using MathLib for uint256;
 
     EVMBundler private bundler;
 
