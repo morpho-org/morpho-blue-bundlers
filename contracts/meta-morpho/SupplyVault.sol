@@ -4,13 +4,14 @@ pragma solidity 0.8.21;
 import {ISupplyVault} from "./interfaces/ISupplyVault.sol";
 import {IVaultAllocationManager} from "./interfaces/IVaultAllocationManager.sol";
 
+import {MorphoLib} from "../libraries/MorphoLib.sol";
+
 import {Events} from "./libraries/Events.sol";
 import {MarketAllocation} from "./libraries/Types.sol";
 import {UnauthorizedMarket, InconsistentAsset, SupplyCapExceeded} from "./libraries/Errors.sol";
 import {MarketConfig, MarketConfigData, ConfigSet, ConfigSetLib} from "./libraries/ConfigSetLib.sol";
 import {Id, MarketParams, MarketLib} from "@morpho-blue/libraries/MarketLib.sol";
 import {SharesMathLib} from "@morpho-blue/libraries/SharesMathLib.sol";
-import {MorphoLib} from "@morpho-blue/libraries/periphery/MorphoLib.sol";
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {InternalSupplyRouter, ERC2771Context, IMorpho} from "./InternalSupplyRouter.sol";
@@ -171,8 +172,8 @@ contract SupplyVault is ISupplyVault, ERC4626, Ownable, InternalSupplyRouter {
     }
 
     function _supply(MarketAllocation memory allocation, address onBehalf) internal override {
-        Id id = allocation.market.id();
-        if (!_config.contains(id)) revert UnauthorizedMarket(allocation.market);
+        Id id = allocation.marketParams.id();
+        if (!_config.contains(id)) revert UnauthorizedMarket(allocation.marketParams);
 
         MarketConfig storage market = _market(id);
 
