@@ -24,10 +24,13 @@ contract UniswapV3Oracle is UniswapV3CollateralAdapter, UniswapV3BorrowableAdapt
         address borrowablePool,
         uint32 collateralPriceDelay,
         uint32 borrowablePriceDelay,
+        address collateralToken,
+        address borrowableToken,
+        address quoteToken,
         uint256 scale
     )
-        UniswapV3CollateralAdapter(collateralPool, collateralPriceDelay)
-        UniswapV3BorrowableAdapter(borrowablePool, borrowablePriceDelay)
+        UniswapV3CollateralAdapter(collateralPool, collateralPriceDelay, collateralToken, quoteToken)
+        UniswapV3BorrowableAdapter(borrowablePool, borrowablePriceDelay, borrowableToken, quoteToken)
     {
         PRICE_SCALE = scale;
     }
@@ -42,9 +45,9 @@ contract UniswapV3Oracle is UniswapV3CollateralAdapter, UniswapV3BorrowableAdapt
 
     function price() external view returns (uint256) {
         return FullMath.mulDiv(
-            UNI_V3_COLLATERAL_POOL.price(UNI_V3_COLLATERAL_DELAY),
+            UNI_V3_COLLATERAL_POOL.price(UNI_V3_COLLATERAL_DELAY, COLLATERAL_TOKEN, COLLATERAL_QUOTE_TOKEN),
             PRICE_SCALE,
-            UNI_V3_BORROWABLE_POOL.price(UNI_V3_BORROWABLE_DELAY)
+            UNI_V3_BORROWABLE_POOL.price(UNI_V3_BORROWABLE_DELAY, BORROWABLE_TOKEN, BORROWABLE_QUOTE_TOKEN)
         );
     }
 }

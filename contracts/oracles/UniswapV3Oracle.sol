@@ -12,7 +12,9 @@ import {UniswapV3CollateralAdapter} from "./adapters/UniswapV3CollateralAdapter.
 contract UniswapV3Oracle is UniswapV3CollateralAdapter, IOracle {
     using UniswapV3PoolLib for IUniswapV3Pool;
 
-    constructor(address pool, uint32 delay) UniswapV3CollateralAdapter(pool, delay) {}
+    constructor(address pool, uint32 delay, address collateralToken, address quoteToken)
+        UniswapV3CollateralAdapter(pool, delay, collateralToken, quoteToken)
+    {}
 
     function FEED_COLLATERAL() external view returns (string memory, address) {
         return (OracleFeed.UNISWAP_V3, address(UNI_V3_COLLATERAL_POOL));
@@ -21,6 +23,6 @@ contract UniswapV3Oracle is UniswapV3CollateralAdapter, IOracle {
     function FEED_BORROWABLE() external view returns (string memory, address) {}
 
     function price() external view returns (uint256) {
-        return UNI_V3_COLLATERAL_POOL.price(UNI_V3_COLLATERAL_DELAY);
+        return UNI_V3_COLLATERAL_POOL.price(UNI_V3_COLLATERAL_DELAY, COLLATERAL_TOKEN, COLLATERAL_QUOTE_TOKEN);
     }
 }

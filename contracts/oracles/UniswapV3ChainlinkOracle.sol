@@ -22,8 +22,15 @@ contract UniswapV3ChainlinkOracle is UniswapV3CollateralAdapter, ChainlinkBorrow
     /// @dev The scale must be 1e36 * 10^(decimals of borrowable token - decimals of collateral token).
     uint256 public immutable PRICE_SCALE;
 
-    constructor(address pool, address feed, uint32 collateralPriceDelay, uint256 scale)
-        UniswapV3CollateralAdapter(pool, collateralPriceDelay)
+    constructor(
+        address pool,
+        address feed,
+        uint32 collateralPriceDelay,
+        uint256 scale,
+        address collateralToken,
+        address quoteToken
+    )
+        UniswapV3CollateralAdapter(pool, collateralPriceDelay, collateralToken, quoteToken)
         ChainlinkBorrowableAdapter(feed)
     {
         PRICE_SCALE = scale;
@@ -39,7 +46,8 @@ contract UniswapV3ChainlinkOracle is UniswapV3CollateralAdapter, ChainlinkBorrow
 
     function price() external view returns (uint256) {
         return FullMath.mulDiv(
-            UNI_V3_COLLATERAL_POOL.price(UNI_V3_COLLATERAL_DELAY) * CHAINLINK_BORROWABLE_PRICE_SCALE,
+            UNI_V3_COLLATERAL_POOL.price(UNI_V3_COLLATERAL_DELAY, COLLATERAL_TOKEN, COLLATERAL_QUOTE_TOKEN)
+                * CHAINLINK_BORROWABLE_PRICE_SCALE,
             PRICE_SCALE, // Using FullMath to avoid overflowing because of PRICE_SCALE.
             CHAINLINK_BORROWABLE_FEED.price() * WAD
         );
