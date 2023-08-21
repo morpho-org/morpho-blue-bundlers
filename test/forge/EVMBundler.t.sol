@@ -14,7 +14,7 @@ contract EVMBundlerTest is BaseBundlerTest {
     function setUp() public override {
         super.setUp();
 
-        bundler = new EVMBundler(address(morpho));
+        bundler = new EVMBundler(address(morpho), address(bundlerGateway));
 
         vm.startPrank(USER);
         borrowableAsset.approve(address(bundler), type(uint256).max);
@@ -76,7 +76,7 @@ contract EVMBundlerTest is BaseBundlerTest {
         collateralAsset.setBalance(USER, collateralAmount);
 
         vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
+        bundlerGateway.callBundler(address(bundler), block.timestamp, data);
 
         _testSupplyCollateralBorrow(amount, collateralAmount, receiver);
     }
@@ -104,7 +104,7 @@ contract EVMBundlerTest is BaseBundlerTest {
         collateralAsset.setBalance(USER, collateralAmount);
 
         vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
+        bundlerGateway.callBundler(address(bundler), block.timestamp, data);
 
         _testSupplyCollateralBorrow(amount, collateralAmount, receiver);
     }
@@ -148,7 +148,7 @@ contract EVMBundlerTest is BaseBundlerTest {
         data[2] = abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, receiver));
 
         vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
+        bundlerGateway.callBundler(address(bundler), block.timestamp, data);
 
         _testRepayWithdrawCollateral(collateralAmount, receiver);
     }
@@ -177,7 +177,7 @@ contract EVMBundlerTest is BaseBundlerTest {
         data[0] = abi.encodeCall(MorphoBundler.morphoRepay, (marketParams, amount, 0, USER, abi.encode(callbackData)));
 
         vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
+        bundlerGateway.callBundler(address(bundler), block.timestamp, data);
 
         _testRepayWithdrawCollateral(collateralAmount, receiver);
     }

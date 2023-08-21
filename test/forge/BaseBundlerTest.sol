@@ -3,11 +3,13 @@ pragma solidity ^0.8.0;
 
 // import {SigUtils} from "@morpho-blue/../test/helpers/SigUtils.sol";
 import {IMorpho, MorphoLib} from "@morpho-blue/libraries/periphery/MorphoLib.sol";
+import {IBundlerGateway} from "contracts/bundlers/interfaces/IBundlerGateway.sol";
 
 import "@morpho-blue/Morpho.sol";
 import {ERC20Mock} from "./mocks/ERC20Mock.sol";
 import {OracleMock} from "@morpho-blue/mocks/OracleMock.sol";
 import {IrmMock} from "@morpho-blue/mocks/IrmMock.sol";
+import {BundlerGateway} from "contracts/bundlers/BundlerGateway.sol";
 
 import "@forge-std/Test.sol";
 import "@forge-std/console2.sol";
@@ -35,6 +37,8 @@ contract BaseBundlerTest is Test {
     IrmMock internal irm;
     MarketParams internal marketParams;
     Id internal id;
+
+    IBundlerGateway internal bundlerGateway;
 
     function setUp() public virtual {
         // Create Blue.
@@ -64,5 +68,7 @@ contract BaseBundlerTest is Test {
 
         vm.prank(SUPPLIER);
         borrowableAsset.approve(address(morpho), type(uint256).max);
+
+        bundlerGateway = new BundlerGateway();
     }
 }

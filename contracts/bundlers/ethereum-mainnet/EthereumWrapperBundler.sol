@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.21;
 
+import {BaseBundler} from "../BaseBundler.sol";
 import {ERC4626Bundler} from "../ERC4626Bundler.sol";
 import {WNativeBundler} from "../WNativeBundler.sol";
 import {StEthBundler} from "./StEthBundler.sol";
@@ -16,5 +17,5 @@ contract EthereumWrapperBundler is ERC4626Bundler, WNativeBundler, StEthBundler 
 
     /* CONSTRUCTOR */
 
-    constructor() WNativeBundler(WETH) {}
+    constructor(address bundlerGateway) WNativeBundler(WETH) BaseBundler(bundlerGateway) {}
 }
