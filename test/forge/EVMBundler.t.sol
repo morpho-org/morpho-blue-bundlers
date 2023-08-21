@@ -130,6 +130,7 @@ contract EVMBundlerTest is BaseBundlerTest {
     function testRepayWithdrawCollateral(uint256 amount, address receiver) public {
         vm.assume(receiver != address(0));
         vm.assume(receiver != address(morpho));
+        vm.assume(receiver != address(bundler));
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 

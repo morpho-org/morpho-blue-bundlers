@@ -42,8 +42,9 @@ abstract contract BaseBundler is BaseSelfMulticall {
     }
 
     /// @notice Executes multiple actions on another `bundler` contract passing along the required `data`.
-    function callBundler(address bundler, bytes[] calldata data) external onlyGateway setInitiator {
+    function callBundler(address bundler, bytes[] calldata data) external {
         require(bundler != address(0), ErrorsLib.ZERO_ADDRESS);
+        require(_initiator != address(0), ErrorsLib.UNINITIATED);
 
         BUNDLER_GATEWAY.callBundler(bundler, block.timestamp, data);
     }
