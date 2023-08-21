@@ -44,13 +44,14 @@ contract ChainlinkOracleTest is Test {
         assertEq(chainlinkOracle.PRICE_SCALE(), SCALE);
     }
 
-    function testNegativePrice(int256 price) public {
-        vm.assume(price < 0);
+    function testNegativeCollateralPrice(int256 collateralPrice, uint256 borrowablePrice) public {
+        borrowablePrice = bound(borrowablePrice, 1, type(uint128).max);
+        vm.assume(collateralPrice < 0);
 
-        collateralFeed.setLatestAnswer(int256(price));
+        borrowableFeed.setLatestAnswer(int256(borrowablePrice));
+        collateralFeed.setLatestAnswer(int256(collateralPrice));
 
-        vm.expectRevert();
-        chainlinkOracle.price();
+        assertEq(chainlinkOracle.price(), 0);
     }
 
     function testPrice(

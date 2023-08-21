@@ -6,7 +6,7 @@ import {IChainlinkAggregatorV3} from "../adapters/interfaces/IChainlinkAggregato
 library ChainlinkAggregatorV3Lib {
     function price(IChainlinkAggregatorV3 aggregator) internal view returns (uint256) {
         (, int256 answer,,,) = aggregator.latestRoundData();
-        require(answer > 0, "ChainlinkAggregatorV3Lib: price is negative");
+        if (answer < 0) return 0;
         return uint256(answer);
     }
 }
