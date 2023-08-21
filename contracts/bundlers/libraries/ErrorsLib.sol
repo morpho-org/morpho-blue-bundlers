@@ -2,6 +2,8 @@
 pragma solidity ^0.8.0;
 
 library ErrorsLib {
+    string internal constant NOT_GATEWAY = "not gateway";
+
     string internal constant UNINITIATED = "uninitiated";
 
     string internal constant DEADLINE_EXPIRED = "deadline expired";

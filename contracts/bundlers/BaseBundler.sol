@@ -24,7 +24,7 @@ abstract contract BaseBundler is BaseSelfMulticall {
     /* MODIFIERS */
 
     modifier onlyGateway() {
-        require(msg.sender == address(BUNDLER_GATEWAY), "not gateway");
+        require(msg.sender == address(BUNDLER_GATEWAY), ErrorsLib.NOT_GATEWAY);
         _;
     }
 
