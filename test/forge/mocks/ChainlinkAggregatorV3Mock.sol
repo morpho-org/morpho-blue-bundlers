@@ -22,7 +22,7 @@ contract ChainlinkAggregatorV3Mock is IChainlinkAggregatorV3 {
         _answer = newAnswer;
     }
 
-    function setStartedAt(uint8 newStartedAt) external {
+    function setStartedAt(uint256 newStartedAt) external {
         _startedAt = newStartedAt;
     }
 
