@@ -7,14 +7,23 @@ contract ChainlinkAggregatorV3Mock is IChainlinkAggregatorV3 {
     string public description = "desciption";
     uint256 public version = 1;
     uint8 public decimals;
-    int256 latestAnswer;
+    int256 internal _answer;
+    uint256 internal _startedAt;
+
+    constructor(string memory newDescription) {
+        description = newDescription;
+    }
 
     function setDecimals(uint8 newDecimals) external {
         decimals = newDecimals;
     }
 
-    function setLatestAnswer(int256 newAnswer) external {
-        latestAnswer = newAnswer;
+    function setAnswer(int256 newAnswer) external {
+        _answer = newAnswer;
+    }
+
+    function setStartedAt(uint8 newStartedAt) external {
+        _startedAt = newStartedAt;
     }
 
     function getRoundData(uint80)
@@ -22,7 +31,7 @@ contract ChainlinkAggregatorV3Mock is IChainlinkAggregatorV3 {
         view
         returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
     {
-        return (1, latestAnswer, 0, 0, 0);
+        return (uint80(block.number), _answer, _startedAt, _startedAt, uint80(block.number));
     }
 
     function latestRoundData()
@@ -30,6 +39,6 @@ contract ChainlinkAggregatorV3Mock is IChainlinkAggregatorV3 {
         view
         returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
     {
-        return (1, latestAnswer, 0, 0, 0);
+        return (uint80(block.number), _answer, _startedAt, _startedAt, uint80(block.number));
     }
 }

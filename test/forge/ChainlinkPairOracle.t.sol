@@ -28,8 +28,8 @@ contract ChainlinkOracleTest is Test {
         collateral = new ERC20Mock("Collateral", "COL", 18);
         borrowable = new ERC20Mock("Borrowable", "BOR", 8);
 
-        collateralFeed = new ChainlinkAggregatorV3Mock();
-        borrowableFeed = new ChainlinkAggregatorV3Mock();
+        collateralFeed = new ChainlinkAggregatorV3Mock("Collateral Feed");
+        borrowableFeed = new ChainlinkAggregatorV3Mock("Borrowable Feed");
 
         collateralFeed.setDecimals(COLLATERAL_DECIMALS);
         borrowableFeed.setDecimals(BORROWABLE_DECIMALS);
@@ -55,7 +55,7 @@ contract ChainlinkOracleTest is Test {
     function testNegativePrice(int256 price) public {
         vm.assume(price < 0);
 
-        collateralFeed.setLatestAnswer(int256(price));
+        collateralFeed.setAnswer(int256(price));
 
         vm.expectRevert();
         chainlinkOracle.price();
@@ -84,14 +84,14 @@ contract ChainlinkOracleTest is Test {
         collateralPrice *= 10 ** collateralFeedDecimals;
         borrowablePrice *= 10 ** borrowableFeedDecimals;
 
-        collateralFeed = new ChainlinkAggregatorV3Mock();
-        borrowableFeed = new ChainlinkAggregatorV3Mock();
+        collateralFeed = new ChainlinkAggregatorV3Mock("Collateral Feed");
+        borrowableFeed = new ChainlinkAggregatorV3Mock("Borrowable Feed");
 
         collateralFeed.setDecimals(uint8(collateralFeedDecimals));
         borrowableFeed.setDecimals(uint8(borrowableFeedDecimals));
 
-        collateralFeed.setLatestAnswer(int256(collateralPrice));
-        borrowableFeed.setLatestAnswer(int256(borrowablePrice));
+        collateralFeed.setAnswer(int256(collateralPrice));
+        borrowableFeed.setAnswer(int256(borrowablePrice));
 
         uint256 scale = 10 ** (36 + borrowableDecimals - collateralDecimals);
 
