@@ -15,16 +15,35 @@ contract UniswapV3PoolMock is IUniswapV3Pool {
     uint128 public liquidity;
     mapping(int16 => uint256) public tickBitmap;
 
+    int56[] internal _tickCumulatives;
+
     constructor(address newToken0, address newToken1) {
         token0 = newToken0;
         token1 = newToken1;
+    }
+
+    function setTickCumulatives(int56[] memory newTickCumulatives) public {
+        _tickCumulatives = newTickCumulatives;
+    }
+
+    function setTickCumulatives(int56 tickCumulatives0, int56 tickCumulatives1) external {
+        int56[] memory newTickCumulatives = new int56[](2);
+        newTickCumulatives[0] = tickCumulatives0;
+        newTickCumulatives[1] = tickCumulatives1;
+        _tickCumulatives = newTickCumulatives;
     }
 
     function observe(uint32[] calldata secondsAgos)
         external
         view
         returns (int56[] memory tickCumulatives, uint160[] memory secondsPerLiquidityCumulativeX128s)
-    {}
+    {
+        tickCumulatives = new int56[](secondsAgos.length);
+        secondsPerLiquidityCumulativeX128s = new uint160[](secondsAgos.length);
+        for (uint256 i = 0; i < secondsAgos.length; i++) {
+            tickCumulatives[i] = _tickCumulatives[i];
+        }
+    }
 
     function slot0() external pure returns (uint160, int24, uint16, uint16, uint16, uint8, bool) {
         return (0, 0, 0, 0, 0, 0, false);
