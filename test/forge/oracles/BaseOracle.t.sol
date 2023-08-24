@@ -22,6 +22,6 @@ contract BaseOracleTest is Test {
 
     function testBaseOracleZeroScaleFactor() public {
         vm.expectRevert(bytes(ErrorsLib.ZERO_INPUT));
-        IOracle noopOracle = new NoopOracleMock(0);
+        new NoopOracleMock(0);
     }
 }
