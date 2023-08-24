@@ -19,7 +19,7 @@ contract ChainlinkAggregatorV3LibTest is Test {
         mockLib = new ChainlinkAggregatorV3LibMock();
     }
 
-    function testChainlinkAggregatorV3LibNegativePrice(int256 price) public {
+    function testNegativePrice(int256 price) public {
         price = bound(price, type(int256).min, 0);
         priceFeed.setAnswer(price);
 
@@ -27,14 +27,14 @@ contract ChainlinkAggregatorV3LibTest is Test {
         mockLib.price(IChainlinkAggregatorV3(priceFeed));
     }
 
-    function testChainlinkAggregatorV3Lib(int256 price) public {
+    function testPrice(int256 price) public {
         price = bound(price, 1, type(int256).max);
         priceFeed.setAnswer(price);
 
         assertEq(mockLib.price(IChainlinkAggregatorV3(priceFeed)), uint256(price));
     }
 
-    function testChainlinkAggregatorV3LibSequencerDown(int256 price, uint256 gracePeriod) public {
+    function testSequencerDown(int256 price, uint256 gracePeriod) public {
         price = bound(price, type(int256).min, 0);
         priceFeed.setAnswer(price);
         sequencerUptimeFeed.setAnswer(1); // sequencer is down
@@ -43,12 +43,7 @@ contract ChainlinkAggregatorV3LibTest is Test {
         mockLib.price(IChainlinkAggregatorV3(priceFeed), IChainlinkAggregatorV3(sequencerUptimeFeed), gracePeriod);
     }
 
-    function testChainlinkAggregatorV3LibGracePeriodNotOver(
-        int256 price,
-        uint256 timestamp,
-        uint128 startedAt,
-        uint128 gracePeriod
-    ) public {
+    function testGracePeriodNotOver(int256 price, uint256 timestamp, uint128 startedAt, uint128 gracePeriod) public {
         timestamp = bound(timestamp, startedAt, uint256(startedAt) + uint256(gracePeriod));
         vm.warp(timestamp);
 
@@ -61,12 +56,7 @@ contract ChainlinkAggregatorV3LibTest is Test {
         mockLib.price(IChainlinkAggregatorV3(priceFeed), IChainlinkAggregatorV3(sequencerUptimeFeed), gracePeriod);
     }
 
-    function testChainlinkAggregatorV3LibSequencerUp(
-        int256 price,
-        uint256 timestamp,
-        uint128 startedAt,
-        uint128 gracePeriod
-    ) public {
+    function testSequencerUp(int256 price, uint256 timestamp, uint128 startedAt, uint128 gracePeriod) public {
         timestamp = bound(timestamp, uint256(startedAt) + uint256(gracePeriod) + 1, type(uint256).max);
         vm.warp(timestamp);
 
