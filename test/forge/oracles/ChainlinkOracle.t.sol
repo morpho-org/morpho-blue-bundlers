@@ -18,7 +18,7 @@ contract ChainlinkOracleTest is Test {
     ChainlinkAggregatorV3Mock collateralFeed;
 
     function setUp() public {
-        collateralFeed = new ChainlinkAggregatorV3Mock("price feed");
+        collateralFeed = new ChainlinkAggregatorV3Mock("collateral price");
     }
 
     function testZeroFeed(uint256 scaleFactor) public {
