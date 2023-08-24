@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {IChainlinkAggregatorV3} from "../adapters/interfaces/IChainlinkAggregatorV3.sol";
+import {IChainlinkAggregatorV3} from "../interfaces/IChainlinkAggregatorV3.sol";
 
 library ChainlinkAggregatorV3Lib {
     function price(IChainlinkAggregatorV3 priceFeed) internal view returns (uint256) {

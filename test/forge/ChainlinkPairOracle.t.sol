@@ -4,9 +4,8 @@ pragma solidity ^0.8.0;
 import "./mocks/ChainlinkAggregatorV3Mock.sol";
 import "./mocks/ERC20Mock.sol";
 
-import "contracts/oracles/ChainlinkPairOracle.sol";
+import "contracts/oracles/ChainlinkOracle.sol";
 
-import {OracleFeed} from "contracts/oracles/libraries/OracleFeed.sol";
 import {FullMath} from "@uniswap/v3-core/libraries/FullMath.sol";
 
 import "@forge-std/console2.sol";
@@ -17,7 +16,7 @@ contract ChainlinkOracleTest is Test {
 
     ChainlinkAggregatorV3Mock collateralFeed;
     ChainlinkAggregatorV3Mock borrowableFeed;
-    ChainlinkPairOracle chainlinkOracle;
+    ChainlinkOracle chainlinkOracle;
     ERC20Mock collateral;
     ERC20Mock borrowable;
     uint256 SCALE_FACTOR;
@@ -36,20 +35,12 @@ contract ChainlinkOracleTest is Test {
 
         SCALE_FACTOR = 10 ** (36 + COLLATERAL_DECIMALS - BORROWABLE_DECIMALS);
 
-        chainlinkOracle = new ChainlinkPairOracle(SCALE_FACTOR, address(collateralFeed), address(borrowableFeed));
+        chainlinkOracle = new ChainlinkOracle(collateralFeed, borrowableFeed);
     }
 
     function testConfig() public {
-        (string memory collateralOracleFeed, address collateralChainlinkFeed) = chainlinkOracle.COLLATERAL_FEED();
-        (string memory borrowableOracleFeed, address borrowableChainlinkFeed) = chainlinkOracle.BORROWABLE_FEED();
-
-        assertEq(collateralOracleFeed, OracleFeed.CHAINLINK_V3, "collateralOracleFeed");
-        assertEq(borrowableOracleFeed, OracleFeed.CHAINLINK_V3, "borrowableOracleFeed");
-        assertEq(collateralChainlinkFeed, address(collateralFeed), "collateralChainlinkFeed");
-        assertEq(borrowableChainlinkFeed, address(borrowableFeed), "borrowableChainlinkFeed");
-        assertEq(chainlinkOracle.COLLATERAL_SCALE(), 10 ** COLLATERAL_DECIMALS);
-        assertEq(chainlinkOracle.BORROWABLE_SCALE(), 10 ** BORROWABLE_DECIMALS);
-        assertEq(chainlinkOracle.SCALE_FACTOR(), SCALE_FACTOR);
+        assertEq(address(collateralFeed), chainlinkOracle.COLLATERAL_FEED(), "collateralOracleFeed");
+        assertEq(address(borrowableFeed), chainlinkOracle.BORROWABLE_FEED(), "borrowableOracleFeed");
     }
 
     function testNegativePrice(int256 price) public {
@@ -95,10 +86,10 @@ contract ChainlinkOracleTest is Test {
 
         uint256 scale = 10 ** (36 + borrowableDecimals - collateralDecimals);
 
-        chainlinkOracle = new ChainlinkPairOracle(scale, address(collateralFeed), address(borrowableFeed));
+        chainlinkOracle = new ChainlinkOracle(collateralFeed, borrowableFeed);
 
         uint256 collateralPriceInBorrowable = collateralPrice.mulDiv(10 ** borrowableFeedDecimals, borrowablePrice);
 
-        assertEq(chainlinkOracle.price(), scale.mulDiv(collateralPriceInBorrowable, 10 ** collateralFeedDecimals));
+        assertEq(chainlinkOracle.price(), scale.mulDiv(collateralPriceInBorrowable, 10 ** collateralFeedDecimals), "price");
     }
 }

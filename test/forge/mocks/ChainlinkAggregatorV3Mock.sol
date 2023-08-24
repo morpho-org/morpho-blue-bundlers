@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {IChainlinkAggregatorV3} from "contracts/oracles/adapters/interfaces/IChainlinkAggregatorV3.sol";
+import {IChainlinkAggregatorV3} from "contracts/oracles/interfaces/IChainlinkAggregatorV3.sol";
 
 contract ChainlinkAggregatorV3Mock is IChainlinkAggregatorV3 {
     string public description = "desciption";

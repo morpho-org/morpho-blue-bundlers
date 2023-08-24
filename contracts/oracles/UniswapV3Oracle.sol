@@ -2,12 +2,58 @@
 pragma solidity ^0.8.0;
 
 import {BaseOracle} from "./BaseOracle.sol";
-import {StaticBorrowableAdapter} from "./adapters/StaticBorrowableAdapter.sol";
-import {UniswapV3CollateralAdapter} from "./adapters/UniswapV3CollateralAdapter.sol";
+import {ErrorsLib} from "./libraries/ErrorsLib.sol";
+import {IUniswapV3Pool, UniswapV3PoolLib} from "./libraries/UniswapV3PoolLib.sol";
 
-contract UniswapV3Oracle is BaseOracle, UniswapV3CollateralAdapter, StaticBorrowableAdapter {
-    constructor(uint256 scaleFactor, address pool, uint32 window, address quoteToken)
-        BaseOracle(scaleFactor)
-        UniswapV3CollateralAdapter(pool, window, quoteToken)
-    {}
+contract UniswapV3Oracle is BaseOracle {
+    using UniswapV3PoolLib for IUniswapV3Pool;
+
+    // Constants.
+
+    uint32 private immutable _COLLATERAL_WINDOW;
+    bool private immutable _COLLATERAL_PRICE_INVERSED;
+    uint32 private immutable _BORROWABLE_WINDOW;
+    bool private immutable _BORROWABLE_PRICE_INVERSED;
+
+    // Constructor.
+
+    constructor(
+        IUniswapV3Pool collateralPool,
+        uint32 collateralWindow,
+        address collateralQuoteToken,
+        IUniswapV3Pool borrowablePool,
+        uint32 borrowableWindow,
+        address borrowableQuoteToken
+    ) {
+        require(address(collateralPool) != address(0), ErrorsLib.ZERO_ADDRESS);
+        require(collateralWindow > 0, ErrorsLib.ZERO_INPUT);
+        COLLATERAL_FEED = address(collateralPool);
+        _COLLATERAL_WINDOW = collateralWindow;
+        _COLLATERAL_PRICE_INVERSED = _inversedPrice(collateralPool, collateralQuoteToken);
+        _COLLATERAL_PRICE_SCALE = 1 << 128;
+
+        require(address(borrowablePool) != address(0), ErrorsLib.ZERO_ADDRESS);
+        require(borrowableWindow > 0, ErrorsLib.ZERO_INPUT);
+        BORROWABLE_FEED = address(borrowablePool);
+        _BORROWABLE_WINDOW = borrowableWindow;
+        _BORROWABLE_PRICE_INVERSED = _inversedPrice(borrowablePool, borrowableQuoteToken);
+        _BORROWABLE_PRICE_SCALE = 1 << 128;
+    }
+
+    function _inversedPrice(IUniswapV3Pool pool, address quoteToken) internal returns (bool) {
+        address token0 = pool.token0();
+        address token1 = pool.token1();
+        require(quoteToken == token0 || quoteToken == token1, ErrorsLib.INVALID_QUOTE_TOKEN);
+        return quoteToken == token0;
+    }
+
+    function _collateralPrice() internal view override returns (uint256) {
+        if (COLLATERAL_FEED == address(0)) return 1;
+        else return IUniswapV3Pool(COLLATERAL_FEED).priceX128(_COLLATERAL_WINDOW, _COLLATERAL_PRICE_INVERSED);
+    }
+
+    function _borrowablePrice() internal view override returns (uint256) {
+        if (BORROWABLE_FEED == address(0)) return 1;
+        else return IUniswapV3Pool(BORROWABLE_FEED).priceX128(_BORROWABLE_WINDOW, _BORROWABLE_PRICE_INVERSED);
+    }
 }
