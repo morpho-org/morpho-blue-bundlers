@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "./mocks/ChainlinkAggregatorV3Mock.sol";
-import "./mocks/ERC20Mock.sol";
+import {ERC20Mock} from "@morpho-blue/mocks/ERC20Mock.sol";
+import {ChainlinkAggregatorV3Mock} from "test/forge/mocks/ChainlinkAggregatorV3Mock.sol";
 
 import "contracts/oracles/ChainlinkOracle.sol";
 
@@ -24,9 +24,6 @@ contract ChainlinkOracleTest is Test {
     uint8 BORROWABLE_DECIMALS = 10;
 
     function setUp() public {
-        collateral = new ERC20Mock("Collateral", "COL", 18);
-        borrowable = new ERC20Mock("Borrowable", "BOR", 8);
-
         collateralFeed = new ChainlinkAggregatorV3Mock();
         borrowableFeed = new ChainlinkAggregatorV3Mock();
 
@@ -67,10 +64,6 @@ contract ChainlinkOracleTest is Test {
         // Cap prices at $10M.
         collateralPrice = bound(collateralPrice, 1, 10_000_000);
         borrowablePrice = bound(borrowablePrice, 1, 10_000_000);
-
-        // Create tokens.
-        collateral = new ERC20Mock("Collateral", "COL", uint8(collateralDecimals));
-        borrowable = new ERC20Mock("Borrowable", "BOR", uint8(borrowableDecimals));
 
         collateralPrice *= 10 ** collateralFeedDecimals;
         borrowablePrice *= 10 ** borrowableFeedDecimals;
