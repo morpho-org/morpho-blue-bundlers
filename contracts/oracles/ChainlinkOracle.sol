@@ -9,6 +9,12 @@ import {ChainlinkAggregatorV3Lib} from "./libraries/ChainlinkAggregatorV3Lib.sol
 contract ChainlinkOracle is BaseOracle {
     using ChainlinkAggregatorV3Lib for IChainlinkAggregatorV3;
 
+    /// @dev The collateral price's scale.
+    uint256 private immutable _COLLATERAL_PRICE_SCALE;
+    
+    /// @dev The borrowable price's scale.
+    uint256 private immutable _BORROWABLE_PRICE_SCALE;
+
     constructor(IChainlinkAggregatorV3 collateralFeed, IChainlinkAggregatorV3 borrowableFeed) {
         COLLATERAL_FEED = address(collateralFeed);
         BORROWABLE_FEED = address(borrowableFeed);

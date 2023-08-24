@@ -8,19 +8,8 @@ import {FullMath} from "@uniswap/v3-core/libraries/FullMath.sol";
 abstract contract BaseOracle is IOracle {
     using FullMath for uint256;
 
-    /// @notice The oracle price's scale.
-    /// @dev The oracle must return the price of 1 asset of collateral token quoted in 1 asset of borrowable token,
-    /// scaled by 1e36.
-    /// @dev It corresponds to the price of 10**(collateral decimals) assets of collateral token quoted in
-    /// 10**(borrowable decimals) assets of borrowable token with `36 + borrowable decimals - collateral decimals`
-    /// decimals of precision.
-    uint256 internal immutable _PRICE_SCALE = 36;
-
-    /// @notice The collateral price's scale.
-    uint256 internal immutable _COLLATERAL_PRICE_SCALE;
-
-    /// @notice The borrowable price's scale.
-    uint256 internal immutable _BORROWABLE_PRICE_SCALE;
+    /// @notice The oracle price's precision.
+    uint256 internal immutable _PRICE_PRECISION = 1e36;
 
     /// @notice Borrowable token feed.
     address public immutable COLLATERAL_FEED;
@@ -28,13 +17,15 @@ abstract contract BaseOracle is IOracle {
     /// @notice Collateral token feed.
     address public immutable BORROWABLE_FEED;
 
+    /// @notice Price.
     function price() external view returns (uint256) {
         // Using FullMath's 512 bit multiplication to avoid overflowing.
-        uint256 invBorrowablePrice = _PRICE_SCALE.mulDiv(_BORROWABLE_PRICE_SCALE, _borrowablePrice());
-
-        return _collateralPrice().mulDiv(invBorrowablePrice, _COLLATERAL_PRICE_SCALE);
+        return _PRICE_PRECISION.mulDiv(_collateralPrice(), _borrowablePrice());
     }
 
+    /// @dev Price of one asset of collateral asset with `_PRICE_SCALE` of precision.
     function _collateralPrice() internal view virtual returns (uint256);
+    
+    /// @dev Price of one asset of borrowable asset with `_PRICE_SCALE` of precision.
     function _borrowablePrice() internal view virtual returns (uint256);
 }

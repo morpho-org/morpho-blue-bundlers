@@ -28,12 +28,10 @@ contract UniswapV3Oracle is BaseOracle {
         COLLATERAL_FEED = address(collateralPool);
         _COLLATERAL_WINDOW = collateralWindow;
         _COLLATERAL_PRICE_INVERSED = _inversedPrice(collateralPool, collateralQuoteToken);
-        _COLLATERAL_PRICE_SCALE = address(collateralPool) != address(0) ? 1 << 128 : 1;
 
         BORROWABLE_FEED = address(borrowablePool);
         _BORROWABLE_WINDOW = borrowableWindow;
         _BORROWABLE_PRICE_INVERSED = _inversedPrice(borrowablePool, borrowableQuoteToken);
-        _BORROWABLE_PRICE_SCALE = address(borrowablePool) != address(0) ? 1 << 128 : 1;
     }
 
     function _inversedPrice(IUniswapV3Pool pool, address quoteToken) internal returns (bool) {
@@ -49,11 +47,11 @@ contract UniswapV3Oracle is BaseOracle {
 
     function _collateralPrice() internal view override returns (uint256) {
         if (COLLATERAL_FEED == address(0)) return 1;
-        else return IUniswapV3Pool(COLLATERAL_FEED).priceX128(_COLLATERAL_WINDOW, _COLLATERAL_PRICE_INVERSED);
+        else return IUniswapV3Pool(COLLATERAL_FEED).priceX128(_COLLATERAL_WINDOW, _COLLATERAL_PRICE_INVERSED) * 1e36 / 1 << 128;
     }
 
     function _borrowablePrice() internal view override returns (uint256) {
         if (BORROWABLE_FEED == address(0)) return 1;
-        else return IUniswapV3Pool(BORROWABLE_FEED).priceX128(_BORROWABLE_WINDOW, _BORROWABLE_PRICE_INVERSED);
+        else return IUniswapV3Pool(BORROWABLE_FEED).priceX128(_BORROWABLE_WINDOW, _BORROWABLE_PRICE_INVERSED) * 1e36 / 1 << 128;
     }
 }
