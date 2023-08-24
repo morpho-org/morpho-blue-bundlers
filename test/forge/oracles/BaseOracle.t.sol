@@ -3,8 +3,6 @@ pragma solidity ^0.8.0;
 
 import "@forge-std/Test.sol";
 
-import {IOracle} from "contracts/oracles/interfaces/IOracle.sol";
-
 import {ErrorsLib} from "contracts/oracles/libraries/ErrorsLib.sol";
 
 import {BaseOracle} from "contracts/oracles/BaseOracle.sol";
