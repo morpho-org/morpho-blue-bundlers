@@ -8,8 +8,16 @@ import "contracts/oracles/ChainlinkOracle.sol";
 
 import {FullMath} from "@uniswap/v3-core/libraries/FullMath.sol";
 
+import {IERC20Metadata as IERC20} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+
 import "@forge-std/console2.sol";
 import "@forge-std/Test.sol";
+
+contract ERC20 {
+    function decimals() external returns (uint256) {
+        return 18;
+    }
+}
 
 contract ChainlinkOracleTest is Test {
     using FullMath for uint256;
@@ -32,7 +40,7 @@ contract ChainlinkOracleTest is Test {
 
         SCALE_FACTOR = 10 ** (36 + COLLATERAL_DECIMALS - BORROWABLE_DECIMALS);
 
-        chainlinkOracle = new ChainlinkOracle(collateralFeed, borrowableFeed);
+        chainlinkOracle = new ChainlinkOracle(collateralFeed, IERC20(address(new ERC20())), borrowableFeed, IERC20(address(new ERC20())));
     }
 
     function testConfig() public {
@@ -79,7 +87,7 @@ contract ChainlinkOracleTest is Test {
 
         uint256 scale = 10 ** (36 + borrowableDecimals - collateralDecimals);
 
-        chainlinkOracle = new ChainlinkOracle(collateralFeed, borrowableFeed);
+        chainlinkOracle = new ChainlinkOracle(collateralFeed, IERC20(address(new ERC20())), borrowableFeed, IERC20(address(new ERC20())));
 
         uint256 collateralPriceInBorrowable = collateralPrice.mulDiv(10 ** borrowableFeedDecimals, borrowablePrice);
 

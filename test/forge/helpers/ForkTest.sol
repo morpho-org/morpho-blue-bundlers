@@ -4,7 +4,9 @@ pragma solidity ^0.8.0;
 import {Permit2Lib} from "@permit2/libraries/Permit2Lib.sol";
 import {PermitHash} from "@permit2/libraries/PermitHash.sol";
 
-import {ChainlinkOracle} from "contracts/oracles/ChainlinkOracle.sol";
+import {ChainlinkOracle, IChainlinkAggregatorV3} from "contracts/oracles/ChainlinkOracle.sol";
+
+import {IERC20Metadata as IERC20} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 import "config/Configured.sol";
 import "./BaseTest.sol";
@@ -36,7 +38,7 @@ abstract contract ForkTest is BaseTest, Configured {
             ConfigMarket memory configMarket = configMarkets[i];
 
             ChainlinkOracle oracle =
-            new ChainlinkOracle(10 ** (36 + ERC20(configMarket.collateralToken).decimals() - ERC20(configMarket.borrowableToken).decimals()), configMarket.chainlinkFeed);
+            new ChainlinkOracle(IChainlinkAggregatorV3(configMarket.chainlinkFeed), IERC20(configMarket.borrowableToken), IChainlinkAggregatorV3(address(0)), IERC20(configMarket.collateralToken));
 
             MarketParams memory marketParams = MarketParams({
                 collateralToken: configMarket.collateralToken,
