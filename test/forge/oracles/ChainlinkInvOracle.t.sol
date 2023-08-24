@@ -9,16 +9,16 @@ import {ErrorsLib} from "contracts/oracles/libraries/ErrorsLib.sol";
 import {OracleFeed} from "contracts/oracles/libraries/OracleFeed.sol";
 import {FullMath} from "@uniswap/v3-core/libraries/FullMath.sol";
 
-import {ChainlinkOracle} from "contracts/oracles/ChainlinkOracle.sol";
+import {ChainlinkOracle} from "contracts/oracles/ChainlinkInvOracle.sol";
 import {ChainlinkAggregatorV3Mock} from "../mocks/ChainlinkAggregatorV3Mock.sol";
 
-contract ChainlinkOracleTest is Test {
+contract ChainlinkInvOracleTest is Test {
     using FullMath for uint256;
 
-    ChainlinkAggregatorV3Mock collateralFeed;
+    ChainlinkAggregatorV3Mock borrowableFeed;
 
     function setUp() public {
-        collateralFeed = new ChainlinkAggregatorV3Mock("collateral price");
+        borrowableFeed = new ChainlinkAggregatorV3Mock("borrowable price");
     }
 
     function testZeroFeed(uint256 scaleFactor) public {
@@ -30,25 +30,25 @@ contract ChainlinkOracleTest is Test {
 
     function testZeroScaleFactor() public {
         vm.expectRevert(bytes(ErrorsLib.ZERO_INPUT));
-        new ChainlinkOracle(0, address(collateralFeed));
+        new ChainlinkOracle(0, address(borrowableFeed));
     }
 
     function testConfig(uint256 scaleFactor, uint8 decimals) public {
         scaleFactor = bound(scaleFactor, 1, type(uint256).max);
         decimals = uint8(bound(decimals, 0, 77));
-        collateralFeed.setDecimals(decimals);
+        borrowableFeed.setDecimals(decimals);
 
-        ChainlinkOracle oracle = new ChainlinkOracle(scaleFactor, address(collateralFeed));
+        ChainlinkOracle oracle = new ChainlinkOracle(scaleFactor, address(borrowableFeed));
 
         (string memory collateralFeedLabel, address collateralFeedAddress) = oracle.COLLATERAL_FEED();
-        assertEq(collateralFeedLabel, OracleFeed.CHAINLINK_V3);
-        assertEq(collateralFeedAddress, address(collateralFeed));
-        assertEq(oracle.COLLATERAL_SCALE(), 10 ** uint256(collateralFeed.decimals()));
+        assertEq(collateralFeedLabel, OracleFeed.STATIC);
+        assertEq(collateralFeedAddress, address(0));
+        assertEq(oracle.COLLATERAL_SCALE(), 1);
 
         (string memory borrowableFeedLabel, address borrowableFeedAddress) = oracle.BORROWABLE_FEED();
-        assertEq(borrowableFeedLabel, OracleFeed.STATIC);
-        assertEq(borrowableFeedAddress, address(0));
-        assertEq(oracle.BORROWABLE_SCALE(), 1);
+        assertEq(borrowableFeedLabel, OracleFeed.CHAINLINK_V3);
+        assertEq(borrowableFeedAddress, address(borrowableFeed));
+        assertEq(oracle.BORROWABLE_SCALE(), 10 ** uint256(borrowableFeed.decimals()));
 
         assertEq(oracle.SCALE_FACTOR(), scaleFactor);
     }
@@ -57,15 +57,15 @@ contract ChainlinkOracleTest is Test {
         scaleFactor = bound(scaleFactor, 1, type(uint256).max);
         decimals = uint8(bound(decimals, 0, 77));
         price = bound(price, type(int256).min, 0);
-        collateralFeed.setDecimals(decimals);
-        collateralFeed.setAnswer(price);
+        borrowableFeed.setDecimals(decimals);
+        borrowableFeed.setAnswer(price);
 
-        ChainlinkOracle oracle = new ChainlinkOracle(scaleFactor, address(collateralFeed));
+        ChainlinkOracle oracle = new ChainlinkOracle(scaleFactor, address(borrowableFeed));
 
-        assertEq(oracle.borrowablePrice(), 1, "borrowable price");
+        assertEq(oracle.collateralPrice(), 1, "collateral price");
 
         vm.expectRevert();
-        oracle.collateralPrice();
+        oracle.borrowablePrice();
 
         vm.expectRevert();
         oracle.price();
@@ -75,13 +75,13 @@ contract ChainlinkOracleTest is Test {
         scaleFactor = bound(scaleFactor, 1, type(uint128).max);
         decimals = uint8(bound(decimals, 0, 77));
         price = bound(price, 1, type(int128).max);
-        collateralFeed.setDecimals(decimals);
-        collateralFeed.setAnswer(price);
+        borrowableFeed.setDecimals(decimals);
+        borrowableFeed.setAnswer(price);
 
-        ChainlinkOracle oracle = new ChainlinkOracle(scaleFactor, address(collateralFeed));
+        ChainlinkOracle oracle = new ChainlinkOracle(scaleFactor, address(borrowableFeed));
 
-        assertEq(oracle.borrowablePrice(), 1, "borrowable price");
-        assertEq(oracle.collateralPrice(), uint256(price), "collateral price");
-        assertEq(oracle.price(), uint256(price).mulDiv(scaleFactor, 10 ** decimals), "price");
+        assertEq(oracle.collateralPrice(), 1, "collateral price");
+        assertEq(oracle.borrowablePrice(), uint256(price), "borrowable price");
+        assertEq(oracle.price(), scaleFactor.mulDiv(10 ** decimals, uint256(price)), "price");
     }
 }

@@ -137,11 +137,13 @@ contract ChainlinkPairOracleTest is Test {
         ChainlinkPairOracle oracle =
             new ChainlinkPairOracle(scaleFactor, address(collateralFeed), address(borrowableFeed));
 
-        assertEq(oracle.collateralPrice(), uint256(collateralPrice));
-        assertEq(oracle.borrowablePrice(), uint256(borrowablePrice));
+        assertEq(oracle.collateralPrice(), uint256(collateralPrice), "collateral price");
+        assertEq(oracle.borrowablePrice(), uint256(borrowablePrice), "borrowable price");
 
-        uint256 collateralPriceInBorrowable =
-            uint256(collateralPrice).mulDiv(10 ** borrowableFeedDecimals, uint256(borrowablePrice));
-        assertEq(oracle.price(), scaleFactor.mulDiv(collateralPriceInBorrowable, 10 ** collateralFeedDecimals));
+        uint256 invBorrowablePrice = scaleFactor.mulDiv(10 ** borrowableFeedDecimals, uint256(borrowablePrice));
+
+        assertEq(
+            oracle.price(), uint256(collateralPrice).mulDiv(invBorrowablePrice, 10 ** collateralFeedDecimals), "price"
+        );
     }
 }
