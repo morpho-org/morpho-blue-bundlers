@@ -83,6 +83,8 @@ contract ChainlinkOracleTest is Test {
 
         uint256 collateralPriceInBorrowable = collateralPrice.mulDiv(10 ** borrowableFeedDecimals, borrowablePrice);
 
-        assertEq(chainlinkOracle.price(), scale.mulDiv(collateralPriceInBorrowable, 10 ** collateralFeedDecimals), "price");
+        assertEq(
+            chainlinkOracle.price(), scale.mulDiv(collateralPriceInBorrowable, 10 ** collateralFeedDecimals), "price"
+        );
     }
 }

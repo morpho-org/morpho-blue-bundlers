@@ -42,7 +42,9 @@ contract UniswapV3Oracle is BaseOracle {
             address token1 = pool.token1();
             require(quoteToken == token0 || quoteToken == token1, ErrorsLib.INVALID_QUOTE_TOKEN);
             return quoteToken == token0;
-        } else return false;
+        } else {
+            return false;
+        }
     }
 
     function _collateralPrice() internal view override returns (uint256) {
