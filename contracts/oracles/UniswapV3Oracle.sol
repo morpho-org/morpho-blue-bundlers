@@ -25,26 +25,24 @@ contract UniswapV3Oracle is BaseOracle {
         uint32 borrowableWindow,
         address borrowableQuoteToken
     ) {
-        require(address(collateralPool) != address(0), ErrorsLib.ZERO_ADDRESS);
-        require(collateralWindow > 0, ErrorsLib.ZERO_INPUT);
         COLLATERAL_FEED = address(collateralPool);
         _COLLATERAL_WINDOW = collateralWindow;
         _COLLATERAL_PRICE_INVERSED = _inversedPrice(collateralPool, collateralQuoteToken);
-        _COLLATERAL_PRICE_SCALE = 1 << 128;
+        _COLLATERAL_PRICE_SCALE = address(collateralPool) != address(0) ? 1 << 128 : 1;
 
-        require(address(borrowablePool) != address(0), ErrorsLib.ZERO_ADDRESS);
-        require(borrowableWindow > 0, ErrorsLib.ZERO_INPUT);
         BORROWABLE_FEED = address(borrowablePool);
         _BORROWABLE_WINDOW = borrowableWindow;
         _BORROWABLE_PRICE_INVERSED = _inversedPrice(borrowablePool, borrowableQuoteToken);
-        _BORROWABLE_PRICE_SCALE = 1 << 128;
+        _BORROWABLE_PRICE_SCALE = address(borrowablePool) != address(0) ? 1 << 128 : 1;
     }
 
     function _inversedPrice(IUniswapV3Pool pool, address quoteToken) internal returns (bool) {
-        address token0 = pool.token0();
-        address token1 = pool.token1();
-        require(quoteToken == token0 || quoteToken == token1, ErrorsLib.INVALID_QUOTE_TOKEN);
-        return quoteToken == token0;
+        if (address(pool) != address(0)) {
+            address token0 = pool.token0();
+            address token1 = pool.token1();
+            require(quoteToken == token0 || quoteToken == token1, ErrorsLib.INVALID_QUOTE_TOKEN);
+            return quoteToken == token0;
+        } else return false;
     }
 
     function _collateralPrice() internal view override returns (uint256) {

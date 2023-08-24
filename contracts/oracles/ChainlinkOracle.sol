@@ -10,14 +10,11 @@ contract ChainlinkOracle is BaseOracle {
     using ChainlinkAggregatorV3Lib for IChainlinkAggregatorV3;
 
     constructor(IChainlinkAggregatorV3 collateralFeed, IChainlinkAggregatorV3 borrowableFeed) {
-        require(address(collateralFeed) != address(0), ErrorsLib.ZERO_ADDRESS);
-        require(address(borrowableFeed) != address(0), ErrorsLib.ZERO_ADDRESS);
-
         COLLATERAL_FEED = address(collateralFeed);
         BORROWABLE_FEED = address(borrowableFeed);
 
-        _COLLATERAL_PRICE_SCALE = 10 ** collateralFeed.decimals();
-        _BORROWABLE_PRICE_SCALE = 10 ** borrowableFeed.decimals();
+        _COLLATERAL_PRICE_SCALE = address(collateralFeed) != address(0) ? 10 ** collateralFeed.decimals() : 1;
+        _BORROWABLE_PRICE_SCALE = address(borrowableFeed) != address(0) ? 10 ** borrowableFeed.decimals() : 1;
     }
 
     function _collateralPrice() internal view override returns (uint256) {
