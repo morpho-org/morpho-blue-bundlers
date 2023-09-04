@@ -9,7 +9,7 @@ import {Types} from "@morpho-aave-v3/libraries/Types.sol";
 
 import {AaveV3OptimizerMigrationBundler} from "contracts/migration/AaveV3OptimizerMigrationBundler.sol";
 
-contract AaveV3MigrationBundlerTest is BaseMigrationTest {
+contract AaveV3MigrationBundlerEthereumTest is BaseMigrationTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;

@@ -6,7 +6,7 @@ import {ICompoundV3} from "contracts/migration/interfaces/ICompoundV3.sol";
 import "./BaseMigrationTest.sol";
 import {CompoundV3MigrationBundler} from "contracts/migration/CompoundV3MigrationBundler.sol";
 
-contract CompoundV3MigrationBundlerTest is BaseMigrationTest {
+contract CompoundV3MigrationBundlerEthereumTest is BaseMigrationTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;

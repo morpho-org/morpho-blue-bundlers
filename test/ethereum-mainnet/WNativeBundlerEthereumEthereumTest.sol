@@ -8,7 +8,7 @@ import "../helpers/ForkTest.sol";
 
 import "../mocks/WNativeBundlerMock.sol";
 
-contract WNativeBundlerForkTest is ForkTest {
+contract WNativeBundlerEthereumTest is ForkTest {
     WNativeBundlerMock private bundler;
 
     function _network() internal pure override returns (string memory) {
