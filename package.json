@@ -19,6 +19,7 @@
     "test:forge:local": "FOUNDRY_MATCH_CONTRACT=LocalTest yarn test:forge",
     "test:forge:mainnet": "FOUNDRY_MATCH_CONTRACT=EthereumTest yarn test:forge",
     "lint": "yarn lint:forge && yarn lint:ts",
+    "lint:ts": "prettier --check src",
     "lint:forge": "forge fmt --check",
     "lint:fix": "yarn lint:forge:fix && yarn lint:ts:fix",
     "lint:forge:fix": "forge fmt",
