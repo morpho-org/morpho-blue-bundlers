@@ -13,12 +13,10 @@ contract AaveV2MigrationBundler is MigrationBundler, ERC20Bundler {
         AAVE_V2_POOl = ILendingPool(aaveV2Pool);
     }
 
-    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function aaveV2Withdraw(address asset, uint256 amount, address to) external payable {
         AAVE_V2_POOl.withdraw(asset, amount, to);
     }
 
-    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function aaveV2Repay(address asset, uint256 amount, uint256 rateMode) external payable {
         _approveMaxTo(asset, address(AAVE_V2_POOl));
 

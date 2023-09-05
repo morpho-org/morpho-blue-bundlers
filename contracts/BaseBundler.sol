@@ -12,6 +12,8 @@ import {BaseCallbackReceiver} from "./BaseCallbackReceiver.sol";
 /// @notice Enables calling multiple functions in a single call to the same contract (self) as well as calling other
 /// Bundler contracts.
 /// @dev Every Bundler must inherit from this contract.
+/// @dev Every bundler that inherits from this contract must have his external functions payable because they will be
+/// delegate called by the multicall function (which is payable, so that might pas a non-null value).
 abstract contract BaseBundler is BaseSelfMulticall, BaseCallbackReceiver {
     /* EXTERNAL */
 

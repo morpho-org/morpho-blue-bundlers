@@ -52,7 +52,6 @@ abstract contract WNativeBundler is BaseBundler {
     }
 
     /// @dev Unwraps the given `amount` of wNative to the native token and transfers it to `receiver`.
-    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function unwrapNative(uint256 amount, address receiver) external payable {
         require(receiver != address(this), ErrorsLib.BUNDLER_ADDRESS);
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);

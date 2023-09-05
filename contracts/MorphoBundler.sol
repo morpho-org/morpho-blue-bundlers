@@ -56,7 +56,6 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /* ACTIONS */
 
     /// @dev Approves this contract to manage the `authorization.authorizer`'s position via EIP712 `signature`.
-    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function morphoSetAuthorizationWithSig(Authorization calldata authorization, Signature calldata signature)
         external
         payable
@@ -67,7 +66,6 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /// @dev Supplies `amount` of `asset` of `onBehalf` using permit2 in a single tx.
     ///      The supplied amount cannot be used as collateral but is eligible to earn interest.
     ///      Note: pass `amount = type(uint256).max` to supply the bundler's borrowable asset balance.
-    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function morphoSupply(
         MarketParams calldata marketparams,
         uint256 amount,
@@ -88,7 +86,6 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /// @dev Supplies `amount` of `asset` collateral to the pool on behalf of `onBehalf`.
     ///      Note: pass `amount = type(uint256).max` to supply the bundler's collateral asset balance.
-    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function morphoSupplyCollateral(
         MarketParams calldata marketparams,
         uint256 amount,
@@ -108,7 +105,6 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /// @dev Borrows `amount` of `asset` on behalf of the sender. Sender must have previously approved the bundler as
     /// their manager on Blue.
-    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function morphoBorrow(MarketParams calldata marketparams, uint256 amount, uint256 shares, address receiver)
         external
         payable
@@ -118,7 +114,6 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /// @dev Repays `amount` of `asset` on behalf of `onBehalf`.
     ///      Note: pass `amount = type(uint256).max` to repay the bundler's borrowable asset balance.
-    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function morphoRepay(
         MarketParams calldata marketparams,
         uint256 amount,
@@ -139,7 +134,6 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /// @dev Withdraws `amount` of the borrowable asset on behalf of `onBehalf`. Sender must have previously authorized
     /// the bundler to act on their behalf on Blue.
-    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function morphoWithdraw(MarketParams calldata marketparams, uint256 amount, uint256 shares, address receiver)
         external
         payable
@@ -149,7 +143,6 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /// @dev Withdraws `amount` of the collateral asset on behalf of sender. Sender must have previously authorized the
     /// bundler to act on their behalf on Blue.
-    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function morphoWithdrawCollateral(MarketParams calldata marketparams, uint256 amount, address receiver)
         external
         payable
@@ -158,7 +151,6 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     }
 
     /// @dev Triggers a liquidation on Blue.
-    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function morphoLiquidate(
         MarketParams calldata marketparams,
         address borrower,
@@ -172,7 +164,6 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     }
 
     /// @dev Triggers a flash loan on Blue.
-    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function morphoFlashLoan(address asset, uint256 amount, bytes calldata data) external payable {
         _approveMaxBlue(asset);
 

@@ -9,23 +9,19 @@ import {ERC20Bundler} from "../ERC20Bundler.sol";
 contract CompoundV3MigrationBundler is MigrationBundler, ERC20Bundler {
     constructor(address morpho) MigrationBundler(morpho) {}
 
-    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function compoundV3Supply(address instance, address asset, uint256 amount) external payable {
         _approveMaxTo(asset, instance);
         ICompoundV3(instance).supplyTo(_initiator, asset, amount);
     }
 
-    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function compoundV3Withdraw(address instance, address asset, uint256 amount) external payable {
         ICompoundV3(instance).withdraw(asset, amount);
     }
 
-    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function compoundV3WithdrawFrom(address instance, address to, address asset, uint256 amount) external payable {
         ICompoundV3(instance).withdrawFrom(_initiator, to, asset, amount);
     }
 
-    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function compoundV3AllowBySig(
         address instance,
         bool isAllowed,
