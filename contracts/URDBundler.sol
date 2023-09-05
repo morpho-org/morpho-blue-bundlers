@@ -8,10 +8,10 @@ import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
 
-/// @title EVMBundler
+/// @title URDBudnler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.xyz
-/// @notice Common bundler layer guaranteeing it can be deployed to the same address on all EVM-compatible chains.
+/// @notice Bundler that allows to claim token rewards on the Universal Reward Distributor.
 contract URDBundler is BaseBundler {
     IUniversalRewardsDistributor public immutable URD;
 
