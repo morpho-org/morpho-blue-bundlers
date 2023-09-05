@@ -11,7 +11,7 @@ import {BaseBundler} from "./BaseBundler.sol";
 /// @title URDBudnler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.xyz
-/// @notice Bundler that allows to claim token rewards on the Universal Reward Distributor.
+/// @notice Bundler that allows to claim token rewards on the Universal Rewards Distributor.
 contract URDBundler is BaseBundler {
     IUniversalRewardsDistributor public immutable URD;
 
