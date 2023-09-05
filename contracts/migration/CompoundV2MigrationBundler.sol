@@ -19,7 +19,7 @@ contract CompoundV2MigrationBundler is MigrationBundler, Permit2Bundler {
         C_NATIVE = ICEth(cNative);
     }
 
-    function compoundV2Repay(address cToken, uint256 repayAmount) external {
+    function compoundV2Repay(address cToken, uint256 repayAmount) external payable {
         if (cToken == address(C_NATIVE)) {
             WRAPPED_NATIVE.withdraw(repayAmount);
 
@@ -34,7 +34,7 @@ contract CompoundV2MigrationBundler is MigrationBundler, Permit2Bundler {
         }
     }
 
-    function compoundV2Redeem(address cToken, uint256 amount) external {
+    function compoundV2Redeem(address cToken, uint256 amount) external payable {
         uint256 err = ICToken(cToken).redeemUnderlying(amount);
         require(err == 0, ErrorsLib.REDEEM_ERROR);
 

@@ -13,11 +13,11 @@ contract AaveV2MigrationBundler is MigrationBundler, Permit2Bundler {
         AAVE_V2_POOl = ILendingPool(aaveV2Pool);
     }
 
-    function aaveV2Withdraw(address asset, uint256 amount, address to) external {
+    function aaveV2Withdraw(address asset, uint256 amount, address to) external payable {
         AAVE_V2_POOl.withdraw(asset, amount, to);
     }
 
-    function aaveV2Repay(address asset, uint256 amount, uint256 rateMode) external {
+    function aaveV2Repay(address asset, uint256 amount, uint256 rateMode) external payable {
         _approveMaxTo(asset, address(AAVE_V2_POOl));
 
         AAVE_V2_POOl.repay(asset, amount, rateMode, _initiator);
