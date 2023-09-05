@@ -14,7 +14,7 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
         AAVE_V3_OPTIMIZER = IAaveV3Optimizer(aaveV3Optimizer);
     }
 
-    function aaveV3OptimizerRepay(address underlying, uint256 amount) external {
+    function aaveV3OptimizerRepay(address underlying, uint256 amount) external payable {
         _approveMaxTo(underlying, address(AAVE_V3_OPTIMIZER));
 
         AAVE_V3_OPTIMIZER.repay(underlying, amount, _initiator);
@@ -22,11 +22,12 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
 
     function aaveV3OptimizerWithdraw(address underlying, uint256 amount, address receiver, uint256 maxIterations)
         external
+        payable
     {
         AAVE_V3_OPTIMIZER.withdraw(underlying, amount, _initiator, receiver, maxIterations);
     }
 
-    function aaveV3OptimizerWithdrawCollateral(address underlying, uint256 amount, address receiver) external {
+    function aaveV3OptimizerWithdrawCollateral(address underlying, uint256 amount, address receiver) external payable {
         AAVE_V3_OPTIMIZER.withdrawCollateral(underlying, amount, _initiator, receiver);
     }
 
@@ -35,7 +36,7 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
         uint256 nonce,
         uint256 deadline,
         Types.Signature calldata signature
-    ) external {
+    ) external payable {
         AAVE_V3_OPTIMIZER.approveManagerWithSig(_initiator, address(this), isAllowed, nonce, deadline, signature);
     }
 }
