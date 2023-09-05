@@ -4,9 +4,9 @@ pragma solidity 0.8.21;
 import {ICompoundV3} from "./interfaces/ICompoundV3.sol";
 
 import {MigrationBundler} from "./MigrationBundler.sol";
-import {ERC20Bundler} from "../ERC20Bundler.sol";
+import {Permit2Bundler} from "../Permit2Bundler.sol";
 
-contract CompoundV3MigrationBundler is MigrationBundler, ERC20Bundler {
+contract CompoundV3MigrationBundler is MigrationBundler, Permit2Bundler {
     constructor(address morpho) MigrationBundler(morpho) {}
 
     function compoundV3Supply(address instance, address asset, uint256 amount) external {

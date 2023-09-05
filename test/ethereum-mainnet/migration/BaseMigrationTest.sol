@@ -12,7 +12,7 @@ import {MorphoBalancesLib} from "@morpho-blue/libraries/periphery/MorphoBalances
 import "../../helpers/ForkTest.sol";
 import {MorphoBundler} from "contracts/MorphoBundler.sol";
 import {ERC4626Bundler} from "contracts/ERC4626Bundler.sol";
-import {ERC20Bundler} from "contracts/ERC20Bundler.sol";
+import {Permit2Bundler} from "contracts/Permit2Bundler.sol";
 import {ERC4626Mock} from "../../mocks/ERC4626Mock.sol";
 
 contract BaseMigrationTest is ForkTest {
@@ -100,7 +100,7 @@ contract BaseMigrationTest is ForkTest {
     }
 
     function _erc20TransferFrom2Call(address asset, uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(ERC20Bundler.transferFrom2, (asset, amount));
+        return abi.encodeCall(Permit2Bundler.transferFrom2, (asset, amount));
     }
 
     function _erc20Approve2Call(uint256 privateKey, address asset, uint160 amount, address spender, uint48 nonce)
@@ -127,7 +127,7 @@ contract BaseMigrationTest is ForkTest {
         Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(ERC20Bundler.approve2, (asset, amount, SIG_DEADLINE, sig));
+        return abi.encodeCall(Permit2Bundler.approve2, (asset, amount, SIG_DEADLINE, sig));
     }
 
     function _erc4626DepositCall(address vault, uint256 amount, address receiver)

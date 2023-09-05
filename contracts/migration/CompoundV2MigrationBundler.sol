@@ -8,9 +8,9 @@ import {ICEth} from "./interfaces/ICEth.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 
 import {MigrationBundler} from "./MigrationBundler.sol";
-import {ERC20Bundler} from "../ERC20Bundler.sol";
+import {Permit2Bundler} from "../Permit2Bundler.sol";
 
-contract CompoundV2MigrationBundler is MigrationBundler, ERC20Bundler {
+contract CompoundV2MigrationBundler is MigrationBundler, Permit2Bundler {
     ICEth public immutable C_NATIVE;
     IWNative public immutable WRAPPED_NATIVE;
 

@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
 
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import {ERC20Bundler} from "contracts/ERC20Bundler.sol";
+import {Permit2Bundler} from "contracts/Permit2Bundler.sol";
 
 import "contracts/ethereum-mainnet/EthereumBundler.sol";
 
@@ -67,8 +67,8 @@ contract EthereumBundlerEthereumTest is ForkTest {
         (signature.v, signature.r, signature.s) = vm.sign(privateKey, hashed);
 
         bytes[] memory data = new bytes[](3);
-        data[0] = abi.encodeCall(ERC20Bundler.approve2, (marketParams.borrowableToken, amount, deadline, signature));
-        data[1] = abi.encodeCall(ERC20Bundler.transferFrom2, (marketParams.borrowableToken, amount));
+        data[0] = abi.encodeCall(Permit2Bundler.approve2, (marketParams.borrowableToken, amount, deadline, signature));
+        data[1] = abi.encodeCall(Permit2Bundler.transferFrom2, (marketParams.borrowableToken, amount));
         data[2] = abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, amount, 0, onBehalf, hex""));
 
         uint256 collateralBalanceBefore = ERC20(marketParams.collateralToken).balanceOf(onBehalf);

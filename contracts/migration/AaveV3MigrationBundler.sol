@@ -5,9 +5,9 @@ import {IPool} from "@aave/v3-core/interfaces/IPool.sol";
 import {IAToken} from "@aave/v3-core/interfaces/IAToken.sol";
 
 import {MigrationBundler} from "./MigrationBundler.sol";
-import {ERC20Bundler} from "../ERC20Bundler.sol";
+import {Permit2Bundler} from "../Permit2Bundler.sol";
 
-contract AaveV3MigrationBundler is MigrationBundler, ERC20Bundler {
+contract AaveV3MigrationBundler is MigrationBundler, Permit2Bundler {
     IPool public immutable AAVE_V3_POOL;
 
     constructor(address morpho, address aaveV3Pool) MigrationBundler(morpho) {
