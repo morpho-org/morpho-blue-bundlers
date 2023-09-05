@@ -14,16 +14,19 @@ contract AaveV3MigrationBundler is MigrationBundler, ERC20Bundler {
         AAVE_V3_POOL = IPool(aaveV3Pool);
     }
 
+    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function aaveV3Withdraw(address asset, uint256 amount, address to) external payable {
         AAVE_V3_POOL.withdraw(asset, amount, to);
     }
 
+    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function aaveV3Repay(address asset, uint256 amount, uint256 interestRateMode) external payable {
         _approveMaxTo(asset, address(AAVE_V3_POOL));
 
         AAVE_V3_POOL.repay(asset, amount, interestRateMode, _initiator);
     }
 
+    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function aaveV3PermitAToken(address aToken, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
         external
         payable

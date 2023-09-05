@@ -14,12 +14,14 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
         AAVE_V3_OPTIMIZER = IAaveV3Optimizer(aaveV3Optimizer);
     }
 
+    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function aaveV3OptimizerRepay(address underlying, uint256 amount) external payable {
         _approveMaxTo(underlying, address(AAVE_V3_OPTIMIZER));
 
         AAVE_V3_OPTIMIZER.repay(underlying, amount, _initiator);
     }
 
+    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function aaveV3OptimizerWithdraw(address underlying, uint256 amount, address receiver, uint256 maxIterations)
         external
         payable
@@ -27,10 +29,12 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
         AAVE_V3_OPTIMIZER.withdraw(underlying, amount, _initiator, receiver, maxIterations);
     }
 
+    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function aaveV3OptimizerWithdrawCollateral(address underlying, uint256 amount, address receiver) external payable {
         AAVE_V3_OPTIMIZER.withdrawCollateral(underlying, amount, _initiator, receiver);
     }
 
+    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function aaveV3OptimizerApproveManagerWithSig(
         bool isAllowed,
         uint256 nonce,

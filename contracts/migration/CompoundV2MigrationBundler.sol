@@ -19,6 +19,7 @@ contract CompoundV2MigrationBundler is MigrationBundler, ERC20Bundler {
         C_NATIVE = ICEth(cNative);
     }
 
+    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function compoundV2Repay(address cToken, uint256 repayAmount) external payable {
         if (cToken == address(C_NATIVE)) {
             WRAPPED_NATIVE.withdraw(repayAmount);
@@ -34,6 +35,7 @@ contract CompoundV2MigrationBundler is MigrationBundler, ERC20Bundler {
         }
     }
 
+    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function compoundV2Redeem(address cToken, uint256 amount) external payable {
         uint256 err = ICToken(cToken).redeemUnderlying(amount);
         require(err == 0, ErrorsLib.REDEEM_ERROR);

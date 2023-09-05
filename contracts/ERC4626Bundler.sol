@@ -18,6 +18,7 @@ abstract contract ERC4626Bundler is BaseBundler {
 
     /* ACTIONS */
 
+    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function mint(address vault, uint256 shares, address receiver) external payable {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
 
@@ -33,6 +34,7 @@ abstract contract ERC4626Bundler is BaseBundler {
         IERC4626(vault).mint(shares, receiver);
     }
 
+    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function deposit(address vault, uint256 amount, address receiver) external payable {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
 
@@ -47,6 +49,7 @@ abstract contract ERC4626Bundler is BaseBundler {
         IERC4626(vault).deposit(amount, receiver);
     }
 
+    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function withdraw(address vault, uint256 amount, address receiver) external payable {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
 
@@ -58,6 +61,7 @@ abstract contract ERC4626Bundler is BaseBundler {
         IERC4626(vault).withdraw(amount, receiver, initiator);
     }
 
+    /// @dev This function is payable because it’s delegate called by the multicall function (which is payable).
     function redeem(address vault, uint256 shares, address receiver) external payable {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
 
