@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
+import {IERC4626} from "@openzeppelin/interfaces/IERC4626.sol";
 
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {Math} from "@morpho-utils/math/Math.sol";

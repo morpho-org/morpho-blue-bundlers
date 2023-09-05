@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
+import {UniversalRewardsDistributor} from "@universal-rewards-distributor/UniversalRewardsDistributor.sol";
 import {SigUtils} from "test/helpers/SigUtils.sol";
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
 import {ErrorsLib as BulkerErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 
 import "./helpers/LocalTest.sol";
@@ -18,6 +19,7 @@ contract EVMBundlerLocalTest is LocalTest {
 
     uint256 internal constant SIG_DEADLINE = type(uint32).max;
 
+    UniversalRewardsDistributor private urd;
     EVMBundler private bundler;
     ERC4626Mock private vault;
     bytes[] private bundleData;
@@ -25,8 +27,9 @@ contract EVMBundlerLocalTest is LocalTest {
     function setUp() public override {
         super.setUp();
 
+        urd = new UniversalRewardsDistributor();
         vault = new ERC4626Mock(address(borrowableToken), "borrowable Vault", "BV");
-        bundler = new EVMBundler(address(morpho));
+        bundler = new EVMBundler(address(urd), address(morpho));
 
         vm.startPrank(USER);
         borrowableToken.approve(address(morpho), type(uint256).max);

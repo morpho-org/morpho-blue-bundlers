@@ -17,5 +17,5 @@ contract EthereumBundler is EVMBundler, WNativeBundler, StEthBundler {
 
     /* CONSTRUCTOR */
 
-    constructor(address morpho) EVMBundler(morpho) WNativeBundler(WETH) {}
+    constructor(address urd, address morpho) EVMBundler(urd, morpho) WNativeBundler(WETH) {}
 }
