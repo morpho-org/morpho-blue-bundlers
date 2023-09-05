@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {ICompoundV3} from "contracts/bundlers/migration/interfaces/ICompoundV3.sol";
+import {ICompoundV3} from "contracts/migration/interfaces/ICompoundV3.sol";
 
 import "./BaseMigrationTest.sol";
-import {CompoundV3MigrationBundler} from "contracts/bundlers/migration/CompoundV3MigrationBundler.sol";
+import {CompoundV3MigrationBundler} from "contracts/migration/CompoundV3MigrationBundler.sol";
 
-contract CompoundV3MigrationBundlerTest is BaseMigrationTest {
+contract CompoundV3MigrationBundlerEthereumTest is BaseMigrationTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;

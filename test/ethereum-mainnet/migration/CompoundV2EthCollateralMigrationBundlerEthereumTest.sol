@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {ICEth} from "contracts/bundlers/migration/interfaces/ICEth.sol";
-import {ICToken} from "contracts/bundlers/migration/interfaces/ICToken.sol";
-import {IComptroller} from "contracts/bundlers/migration/interfaces/IComptroller.sol";
+import {ICEth} from "contracts/migration/interfaces/ICEth.sol";
+import {ICToken} from "contracts/migration/interfaces/ICToken.sol";
+import {IComptroller} from "contracts/migration/interfaces/IComptroller.sol";
 
 import "./BaseMigrationTest.sol";
-import {CompoundV2MigrationBundler} from "contracts/bundlers/migration/CompoundV2MigrationBundler.sol";
+import {CompoundV2MigrationBundler} from "contracts/migration/CompoundV2MigrationBundler.sol";
 
-contract CompoundV2EthCollateralMigrationBundler is BaseMigrationTest {
+contract CompoundV2EthCollateralMigrationBundlerEthereumTest is BaseMigrationTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;

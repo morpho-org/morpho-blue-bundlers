@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {SigUtils} from "test/forge/helpers/SigUtils.sol";
-import {ErrorsLib as BulkerErrorsLib} from "contracts/bundlers/libraries/ErrorsLib.sol";
+import {SigUtils} from "test/helpers/SigUtils.sol";
+import {ErrorsLib as BulkerErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 
 import "../helpers/ForkTest.sol";
 
 import "../mocks/WNativeBundlerMock.sol";
 
-contract WNativeBundlerForkTest is ForkTest {
+contract WNativeBundlerEthereumTest is ForkTest {
     WNativeBundlerMock private bundler;
 
     function _network() internal pure override returns (string memory) {
