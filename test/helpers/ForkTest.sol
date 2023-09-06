@@ -77,6 +77,7 @@ abstract contract ForkTest is BaseTest, Configured {
         for (uint256 i; i < allAssets.length; ++i) {
             address asset = allAssets[i];
 
+            if (asset == ST_ETH) return;
             deal(asset, user, balance / (10 ** (18 - ERC20(asset).decimals())));
         }
     }

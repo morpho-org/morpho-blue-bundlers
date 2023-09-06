@@ -16,6 +16,7 @@ abstract contract Configured is StdChains {
     address internal USDC;
     address internal USDT;
     address internal LINK;
+    address internal ST_ETH;
     address internal WBTC;
     address internal WETH;
     address internal CB_ETH;
@@ -56,13 +57,14 @@ abstract contract Configured is StdChains {
         USDC = CONFIG.getAddress("USDC");
         USDT = CONFIG.getAddress("USDT");
         LINK = CONFIG.getAddress("LINK");
+        ST_ETH = CONFIG.getAddress("stETH");
         WBTC = CONFIG.getAddress("WBTC");
         WETH = CONFIG.getAddress("WETH");
         CB_ETH = CONFIG.getAddress("cbETH");
         WNATIVE = CONFIG.getWrappedNative();
 
         lsdNatives = CONFIG.getLsdNatives();
-        allAssets = [DAI, USDC, USDT, LINK, WBTC, WETH];
+        allAssets = [DAI, USDC, USDT, LINK, ST_ETH, WBTC, WETH];
 
         ConfigMarket[] memory allConfigMarkets = CONFIG.getMarkets();
         for (uint256 i; i < allConfigMarkets.length; ++i) {
