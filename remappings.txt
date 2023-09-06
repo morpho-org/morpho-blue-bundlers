@@ -18,3 +18,5 @@ openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/
 @uniswap/v3-periphery=lib/v3-periphery/contracts/
 
 @aave/v3-core=lib/aave-v3-core/contracts/
+
+@murky/=lib/murky/
