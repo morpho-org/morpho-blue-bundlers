@@ -5,12 +5,14 @@ import {SigUtils} from "test/helpers/SigUtils.sol";
 import {ErrorsLib as BulkerErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 
 import {ILido} from "contracts/interfaces/ILido.sol";
+import {IWStEth} from "contracts/ethereum-mainnet/interfaces/IWStEth.sol";
 
 import "../helpers/ForkTest.sol";
 
 import "../mocks/StEthBundlerMock.sol";
 
 contract StEthBundlerEthereumTest is ForkTest {
+    address public constant WST_ETH = 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0;
     StEthBundlerMock private bundler;
 
     function _network() internal pure override returns (string memory) {
@@ -22,8 +24,39 @@ contract StEthBundlerEthereumTest is ForkTest {
 
         bundler = new StEthBundlerMock();
 
-        vm.prank(USER);
+        vm.startPrank(USER);
         ERC20(ST_ETH).approve(address(bundler), type(uint256).max);
+        ERC20(WST_ETH).approve(address(bundler), type(uint256).max);
+        vm.stopPrank();
+    }
+
+    function testTransferStEthSharesFromZeroAmount() public {
+        bytes[] memory data = new bytes[](1);
+        data[0] = abi.encodeCall(StEthBundler.transferSharesFrom, (0));
+
+        vm.prank(USER);
+        vm.expectRevert(bytes(BulkerErrorsLib.ZERO_AMOUNT));
+        bundler.multicall(block.timestamp, data);
+    }
+
+    function testTransferStEthSharesFrom(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        vm.deal(USER, amount);
+        vm.prank(USER);
+        uint256 stEthAmount = ILido(ST_ETH).submit{value: amount}(address(0));
+        vm.assume(stEthAmount != 0);
+
+        uint256 stEthUserBalanceBeforeTransfer = ERC20(ST_ETH).balanceOf(USER);
+
+        bytes[] memory data = new bytes[](1);
+        data[0] = abi.encodeCall(StEthBundler.transferSharesFrom, (stEthAmount));
+
+        vm.prank(USER);
+        bundler.multicall(block.timestamp, data);
+
+        assertEq(ERC20(ST_ETH).balanceOf(USER), 0, "User's StEth Balance");
+        assertEq(ERC20(ST_ETH).balanceOf(address(bundler)), stEthUserBalanceBeforeTransfer, "Receiver's StEth Balance");
     }
 
     function testWrapZeroAddress(uint256 amount) public {
@@ -48,26 +81,30 @@ contract StEthBundlerEthereumTest is ForkTest {
         bundler.multicall(block.timestamp, data);
     }
 
-    function testwrapStEth(uint256 amount) public {
+    function testWrapStEth(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
+        vm.deal(USER, amount);
+        vm.prank(USER);
+        uint256 stEthAmount = ILido(ST_ETH).submit{value: amount}(address(0));
+        vm.assume(stEthAmount != 0);
+
         bytes[] memory data = new bytes[](2);
-        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (ST_ETH, amount));
+        data[0] = abi.encodeCall(StEthBundler.transferSharesFrom, (stEthAmount));
         data[1] = abi.encodeCall(StEthBundler.wrapStEth, (amount, RECEIVER));
 
-        vm.deal(USER, amount);
-        vm.startPrank(USER);
-        ILido(ST_ETH).submit{value: amount}(address(0));
+        uint256 wstEthExpectedAmount = ILido(ST_ETH).getSharesByPooledEth(amount);
+
+        vm.prank(USER);
         bundler.multicall(block.timestamp, data);
-        vm.stopPrank();
 
-        // assertEq(ERC20(WETH).balanceOf(address(bundler)), 0, "Bundler's wrapped token balance");
-        // assertEq(ERC20(WETH).balanceOf(USER), 0, "User's wrapped token balance");
-        // assertEq(ERC20(WETH).balanceOf(RECEIVER), amount, "Receiver's wrapped token balance");
+        assertEq(ERC20(WST_ETH).balanceOf(address(bundler)), 0, "Bundler's wrapped stEth balance");
+        assertEq(ERC20(WST_ETH).balanceOf(USER), 0, "User's wrapped stEth balance");
+        assertEq(ERC20(WST_ETH).balanceOf(RECEIVER), wstEthExpectedAmount, "Receiver's wrapped stEth balance");
 
-        // assertEq(address(bundler).balance, 0, "Bundler's native token balance");
-        // assertEq(USER.balance, 0, "User's native token balance");
-        // assertEq(RECEIVER.balance, 0, "Receiver's native token balance");
+        assertEq(ERC20(ST_ETH).balanceOf(address(bundler)), 0, "Bundler's stEth balance");
+        assertEq(ERC20(ST_ETH).balanceOf(USER), 0, "User's stEth balance");
+        assertEq(ERC20(ST_ETH).balanceOf(RECEIVER), 0, "Receiver's stEth balance");
     }
 
     function testUnwrapZeroAddress(uint256 amount) public {
@@ -103,23 +140,26 @@ contract StEthBundlerEthereumTest is ForkTest {
         bundler.multicall(block.timestamp, data);
     }
 
-    // function testUnwrapStEth(uint256 amount) public {
-    //     amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+    function testUnwrapWstEth(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-    //     bytes[] memory data = new bytes[](2);
-    //     data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(WETH), amount));
-    //     data[1] = abi.encodeCall(StEthBundler.unwrapStEth, (amount, RECEIVER));
+        bytes[] memory data = new bytes[](2);
+        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (WST_ETH, amount));
+        data[1] = abi.encodeCall(StEthBundler.unwrapStEth, (amount, RECEIVER));
 
-    //     deal(WETH, USER, amount);
-    //     vm.prank(USER);
-    //     bundler.multicall(block.timestamp, data);
+        deal(WST_ETH, USER, amount);
+        console2.log(amount, "amount", ERC20(WST_ETH).balanceOf(USER), "User's WST_ETH balance");
+        vm.prank(USER);
+        bundler.multicall(block.timestamp, data);
 
-    //     assertEq(ERC20(WETH).balanceOf(address(bundler)), 0, "Bundler's wrapped token balance");
-    //     assertEq(ERC20(WETH).balanceOf(USER), 0, "User's wrapped token balance");
-    //     assertEq(ERC20(WETH).balanceOf(RECEIVER), 0, "Receiver's wrapped token balance");
+        uint256 expectedUnwrappedAmount = IWStEth(WST_ETH).getStETHByWstETH(amount);
 
-    //     assertEq(address(bundler).balance, 0, "Bundler's native token balance");
-    //     assertEq(USER.balance, 0, "User's native token balance");
-    //     assertEq(RECEIVER.balance, amount, "Receiver's native token balance");
-    // }
+        assertEq(ERC20(WST_ETH).balanceOf(address(bundler)), 0, "Bundler's wrapped stEth balance");
+        assertEq(ERC20(WST_ETH).balanceOf(USER), 0, "User's wrapped stEth balance");
+        assertEq(ERC20(WST_ETH).balanceOf(RECEIVER), 0, "Receiver's wrapped stEth balance");
+
+        assertEq(ERC20(ST_ETH).balanceOf(address(bundler)), 0, "Bundler's stEth balance");
+        assertEq(ERC20(ST_ETH).balanceOf(USER), 0, "User's stEth balance");
+        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), expectedUnwrappedAmount, 2, "Receiver's stEth balance");
+    }
 }
