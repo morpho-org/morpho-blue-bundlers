@@ -44,6 +44,7 @@ abstract contract StEthBundler is BaseBundler {
     function wrapStEth(uint256 amount, address receiver) external payable {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
 
+        // Add 1 to ERC20(ST_ETH).balanceOf(address(this)) to fix roundings.
         amount = Math.min(amount, ERC20(ST_ETH).balanceOf(address(this)) + 1);
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
