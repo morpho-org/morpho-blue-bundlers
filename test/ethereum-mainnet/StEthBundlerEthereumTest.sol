@@ -42,11 +42,7 @@ contract StEthBundlerEthereumTest is ForkTest {
     function testTransferStEthSharesFrom(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        vm.deal(USER, amount);
-        vm.prank(USER);
-        uint256 stEthAmount = ILido(ST_ETH).submit{value: amount}(address(0));
-        vm.assume(stEthAmount != 0);
-
+        uint256 stEthAmount = _mintStEth(amount);
         uint256 stEthUserBalanceBeforeTransfer = ERC20(ST_ETH).balanceOf(USER);
 
         bytes[] memory data = new bytes[](1);
@@ -84,10 +80,7 @@ contract StEthBundlerEthereumTest is ForkTest {
     function testWrapStEth(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        vm.deal(USER, amount);
-        vm.prank(USER);
-        uint256 stEthAmount = ILido(ST_ETH).submit{value: amount}(address(0));
-        vm.assume(stEthAmount != 0);
+        uint256 stEthAmount = _mintStEth(amount);
 
         bytes[] memory data = new bytes[](2);
         data[0] = abi.encodeCall(StEthBundler.transferSharesFrom, (stEthAmount));
@@ -161,5 +154,12 @@ contract StEthBundlerEthereumTest is ForkTest {
         assertEq(ERC20(ST_ETH).balanceOf(address(bundler)), 0, "Bundler's stEth balance");
         assertEq(ERC20(ST_ETH).balanceOf(USER), 0, "User's stEth balance");
         assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), expectedUnwrappedAmount, 2, "Receiver's stEth balance");
+    }
+
+    function _mintStEth(uint256 amount) internal returns (uint256 stEthAmount) {
+        vm.deal(USER, amount);
+        vm.prank(USER);
+        stEthAmount = ILido(ST_ETH).submit{value: amount}(address(0));
+        vm.assume(stEthAmount != 0);
     }
 }
