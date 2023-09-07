@@ -2,7 +2,7 @@
 pragma solidity 0.8.21;
 
 import {IWStEth} from "./interfaces/IWStEth.sol";
-import {ILido} from "../interfaces/ILido.sol";
+import {ILido} from "./interfaces/ILido.sol";
 
 import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 import {Math} from "@morpho-utils/math/Math.sol";

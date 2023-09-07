@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {SigUtils} from "test/helpers/SigUtils.sol";
 import {ErrorsLib as BulkerErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 
-import {ILido} from "contracts/interfaces/ILido.sol";
+import {ILido} from "contracts/ethereum-mainnet/interfaces/ILido.sol";
 import {IWStEth} from "contracts/ethereum-mainnet/interfaces/IWStEth.sol";
 
 import "../helpers/ForkTest.sol";
