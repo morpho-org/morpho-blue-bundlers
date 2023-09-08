@@ -633,7 +633,7 @@ contract EVMBundlerLocalTest is LocalTest {
         _testRepayWithdrawCollateral(user, collateralAmount, receiver);
     }
 
-    function testRepayWithdrawCollateralMax(uint256 privateKey, uint256 amount, address receiver) public {
+    function testRepayMaxAndWithdrawCollateral(uint256 privateKey, uint256 amount, address receiver) public {
         vm.assume(receiver != address(0));
         vm.assume(receiver != address(morpho));
 
