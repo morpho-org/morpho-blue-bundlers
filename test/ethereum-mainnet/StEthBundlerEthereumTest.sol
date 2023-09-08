@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {SigUtils} from "test/helpers/SigUtils.sol";
 import {ErrorsLib as BulkerErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 
-import {ILido} from "contracts/ethereum-mainnet/interfaces/ILido.sol";
+import {IStEth} from "contracts/ethereum-mainnet/interfaces/IStEth.sol";
 import {IWStEth} from "contracts/ethereum-mainnet/interfaces/IWStEth.sol";
 
 import "../helpers/ForkTest.sol";
@@ -86,7 +86,7 @@ contract StEthBundlerEthereumTest is ForkTest {
         data[0] = abi.encodeCall(StEthBundler.transferSharesFrom, (stEthAmount));
         data[1] = abi.encodeCall(StEthBundler.wrapStEth, (amount, RECEIVER));
 
-        uint256 wstEthExpectedAmount = ILido(ST_ETH).getSharesByPooledEth(amount);
+        uint256 wstEthExpectedAmount = IStEth(ST_ETH).getSharesByPooledEth(amount);
 
         vm.prank(USER);
         bundler.multicall(block.timestamp, data);
@@ -159,7 +159,7 @@ contract StEthBundlerEthereumTest is ForkTest {
     function _mintStEth(uint256 amount) internal returns (uint256 stEthAmount) {
         vm.deal(USER, amount);
         vm.prank(USER);
-        stEthAmount = ILido(ST_ETH).submit{value: amount}(address(0));
+        stEthAmount = IStEth(ST_ETH).submit{value: amount}(address(0));
         vm.assume(stEthAmount != 0);
     }
 }
