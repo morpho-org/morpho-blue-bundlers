@@ -17,6 +17,7 @@ abstract contract BaseCallbackReceiver {
 
     /* MODIFIERS */
 
+    /// @dev Sets the contract's `_initiator` to the caller of the function, and deletes it after the function returns.
     modifier lockInitiator() {
         _initiator = msg.sender;
 

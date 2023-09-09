@@ -64,8 +64,8 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     }
 
     /// @dev Supplies `amount` of `asset` of `onBehalf` using permit2 in a single tx.
-    ///      The supplied amount cannot be used as collateral but is eligible to earn interest.
-    ///      Note: pass `amount = type(uint256).max` to supply the bundler's borrowable asset balance.
+    /// The supplied amount cannot be used as collateral but is eligible to earn interest.
+    /// Note: pass `amount = type(uint256).max` to supply the bundler's borrowable asset balance.
     function morphoSupply(
         MarketParams calldata marketparams,
         uint256 amount,
@@ -73,6 +73,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         address onBehalf,
         bytes calldata data
     ) external payable {
+        // Do not check `onBehalf` against the zero address as it's done at Morpho's level.
         require(onBehalf != address(this), ErrorsLib.BUNDLER_ADDRESS);
 
         // Don't always cap the amount to the bundler's balance because the liquidity can be transferred later
@@ -85,13 +86,14 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     }
 
     /// @dev Supplies `amount` of `asset` collateral to the pool on behalf of `onBehalf`.
-    ///      Note: pass `amount = type(uint256).max` to supply the bundler's collateral asset balance.
+    /// Note: pass `amount = type(uint256).max` to supply the bundler's collateral asset balance.
     function morphoSupplyCollateral(
         MarketParams calldata marketparams,
         uint256 amount,
         address onBehalf,
         bytes calldata data
     ) external payable {
+        // Do not check `onBehalf` against the zero address as it's done at Morpho's level.
         require(onBehalf != address(this), ErrorsLib.BUNDLER_ADDRESS);
 
         // Don't always cap the amount to the bundler's balance because the liquidity can be transferred later
@@ -121,6 +123,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         address onBehalf,
         bytes calldata data
     ) external payable {
+        // Do not check `onBehalf` against the zero address as it's done at Morpho's level.
         require(onBehalf != address(this), ErrorsLib.BUNDLER_ADDRESS);
 
         // Don't always cap the amount to the bundler's balance because the liquidity can be transferred later

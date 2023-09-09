@@ -12,11 +12,17 @@ import {MigrationBundler} from "./MigrationBundler.sol";
 /// @custom:contact security@morpho.xyz
 /// @notice Contract allowing to migrate a position from Aave V3 to Morpho Blue easily.
 contract AaveV3MigrationBundler is MigrationBundler, ERC20Bundler {
+    /* IMMUTABLES */
+
     IPool public immutable AAVE_V3_POOL;
+
+    /* CONSTRUCTOR */
 
     constructor(address morpho, address aaveV3Pool) MigrationBundler(morpho) {
         AAVE_V3_POOL = IPool(aaveV3Pool);
     }
+
+    /* ACTIONS */
 
     function aaveV3Withdraw(address asset, uint256 amount, address to) external payable {
         AAVE_V3_POOL.withdraw(asset, amount, to);

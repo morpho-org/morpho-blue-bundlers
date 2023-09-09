@@ -15,13 +15,19 @@ import {MigrationBundler} from "./MigrationBundler.sol";
 /// @custom:contact security@morpho.xyz
 /// @notice Contract allowing to migrate a position from Compound V2 to Morpho Blue easily.
 contract CompoundV2MigrationBundler is MigrationBundler, ERC20Bundler {
+    /* IMMUTABLES */
+
     ICEth public immutable C_NATIVE;
     IWNative public immutable WRAPPED_NATIVE;
+
+    /* CONSTRUCTOR */
 
     constructor(address morpho, address wNative, address cNative) MigrationBundler(morpho) {
         WRAPPED_NATIVE = IWNative(wNative);
         C_NATIVE = ICEth(cNative);
     }
+
+    /* ACTIONS */
 
     function compoundV2Repay(address cToken, uint256 repayAmount) external payable {
         if (cToken == address(C_NATIVE)) {

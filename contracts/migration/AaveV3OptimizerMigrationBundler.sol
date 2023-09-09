@@ -12,11 +12,17 @@ import {MigrationBundler} from "./MigrationBundler.sol";
 /// @custom:contact security@morpho.xyz
 /// @notice Contract allowing to migrate a position from AaveV3 Optimizer to Morpho Blue easily.
 contract AaveV3OptimizerMigrationBundler is MigrationBundler {
+    /* IMMUTABLES */
+
     IAaveV3Optimizer public immutable AAVE_V3_OPTIMIZER;
+
+    /* CONSTRUCTOR */
 
     constructor(address morpho, address aaveV3Optimizer) MigrationBundler(morpho) {
         AAVE_V3_OPTIMIZER = IAaveV3Optimizer(aaveV3Optimizer);
     }
+
+    /* ACTIONS */
 
     function aaveV3OptimizerRepay(address underlying, uint256 amount) external payable {
         _approveMaxTo(underlying, address(AAVE_V3_OPTIMIZER));

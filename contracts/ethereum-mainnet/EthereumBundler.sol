@@ -8,6 +8,7 @@ import {WNativeBundler} from "../WNativeBundler.sol";
 /// @title EthereumBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.xyz
+/// @notice Bundler contract specific to the Ethereum mainnet.
 contract EthereumBundler is EVMBundler, WNativeBundler, StEthBundler {
     /* CONSTANTS */
 
