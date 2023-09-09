@@ -11,7 +11,7 @@ import {BaseBundler} from "./BaseBundler.sol";
 
 /// @title ERC4626Bundler
 /// @author Morpho Labs
-/// @custom:contact security@morpho.xyz
+/// @custom:contact security@morpho.org
 /// @notice Bundler contract managing interactions with ERC4626 compliant tokens.
 abstract contract ERC4626Bundler is BaseBundler {
     using SafeTransferLib for ERC20;

@@ -11,7 +11,7 @@ import {BaseBundler} from "./BaseBundler.sol";
 
 /// @title WNativeBundler
 /// @author Morpho Labs
-/// @custom:contact security@morpho.xyz
+/// @custom:contact security@morpho.org
 /// @notice Bundler contract managing interactions with network's wrapped native token.
 abstract contract WNativeBundler is BaseBundler {
     using SafeTransferLib for ERC20;

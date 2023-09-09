@@ -5,7 +5,7 @@ import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 
 /// @title BaseCallbackReceiver
 /// @author Morpho Labs
-/// @custom:contact security@morpho.xyz
+/// @custom:contact security@morpho.org
 /// @notice Provides utility functions to identify the initiator of callbacks (which cannot be identified using
 /// `msg.sender` or `tx.origin`).
 abstract contract BaseCallbackReceiver {

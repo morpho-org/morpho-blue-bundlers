@@ -8,7 +8,7 @@ import {MigrationBundler} from "./MigrationBundler.sol";
 
 /// @title AaveV2MigrationBundler
 /// @author Morpho Labs
-/// @custom:contact security@morpho.xyz
+/// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from Aave V2 to Morpho Blue easily.
 contract AaveV2MigrationBundler is MigrationBundler, ERC20Bundler {
     /* IMMUTABLES */

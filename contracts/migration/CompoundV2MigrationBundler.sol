@@ -12,7 +12,7 @@ import {MigrationBundler} from "./MigrationBundler.sol";
 
 /// @title CompoundV2MigrationBundler
 /// @author Morpho Labs
-/// @custom:contact security@morpho.xyz
+/// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from Compound V2 to Morpho Blue easily.
 contract CompoundV2MigrationBundler is MigrationBundler, ERC20Bundler {
     /* IMMUTABLES */
