@@ -2,8 +2,8 @@
 pragma solidity 0.8.21;
 
 import {ERC20Bundler} from "./ERC20Bundler.sol";
-import {ERC4626Bundler} from "./ERC4626Bundler.sol";
 import {MorphoBundler} from "./MorphoBundler.sol";
+import {ERC4626Bundler} from "./ERC4626Bundler.sol";
 
 /// @title EVMBundler
 /// @author Morpho Labs

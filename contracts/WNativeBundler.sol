@@ -3,13 +3,13 @@ pragma solidity 0.8.21;
 
 import {IWNative} from "./interfaces/IWNative.sol";
 
-import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {Math} from "@morpho-utils/math/Math.sol";
+import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
 
-/// @title WNativeBundler.
+/// @title WNativeBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.xyz
 /// @notice Bundler contract managing interactions with network's wrapped native token.

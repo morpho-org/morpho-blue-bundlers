@@ -4,8 +4,8 @@ pragma solidity 0.8.21;
 import {IPool} from "@aave/v3-core/interfaces/IPool.sol";
 import {IAToken} from "@aave/v3-core/interfaces/IAToken.sol";
 
-import {MigrationBundler} from "./MigrationBundler.sol";
 import {ERC20Bundler} from "../ERC20Bundler.sol";
+import {MigrationBundler} from "./MigrationBundler.sol";
 
 contract AaveV3MigrationBundler is MigrationBundler, ERC20Bundler {
     IPool public immutable AAVE_V3_POOL;
