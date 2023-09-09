@@ -32,7 +32,7 @@ contract EthereumBundlerEthereumTest is ForkTest {
         morpho.setAuthorization(address(bundler), true);
     }
 
-    function testSupplyWithPermit2(uint256 seed, uint256 amount, address onBehalf, uint256 privateKey, uint256 deadline)
+    function supplyWithPermit2(uint256 seed, uint256 amount, address onBehalf, uint256 privateKey, uint256 deadline)
         public
     {
         vm.assume(onBehalf != address(0));
