@@ -29,6 +29,8 @@ abstract contract ERC4626Bundler is BaseBundler {
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
+        // Approve 0 first to comply with tokens that implement the anti frontrunning approval fix.
+        ERC20(asset).safeApprove(vault, 0);
         ERC20(asset).safeApprove(vault, amount);
         IERC4626(vault).mint(shares, receiver);
     }
@@ -43,6 +45,8 @@ abstract contract ERC4626Bundler is BaseBundler {
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
+        // Approve 0 first to comply with tokens that implement the anti frontrunning approval fix.
+        ERC20(asset).safeApprove(vault, 0);
         ERC20(asset).safeApprove(vault, amount);
         IERC4626(vault).deposit(amount, receiver);
     }
