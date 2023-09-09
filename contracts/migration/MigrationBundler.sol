@@ -6,6 +6,10 @@ import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
 import {MorphoBundler} from "../MorphoBundler.sol";
 import {ERC4626Bundler} from "../ERC4626Bundler.sol";
 
+/// @title MigrationBundler
+/// @author Morpho Labs
+/// @custom:contact security@morpho.xyz
+/// @notice Abstract contract allowing to migrate a position from one lending protocol to Morpho Blue easily.
 abstract contract MigrationBundler is MorphoBundler, ERC4626Bundler {
     using SafeTransferLib for ERC20;
 

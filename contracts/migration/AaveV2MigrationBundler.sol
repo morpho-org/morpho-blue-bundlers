@@ -6,6 +6,10 @@ import {ILendingPool} from "@morpho-v1/aave-v2/interfaces/aave/ILendingPool.sol"
 import {ERC20Bundler} from "../ERC20Bundler.sol";
 import {MigrationBundler} from "./MigrationBundler.sol";
 
+/// @title AaveV2MigrationBundler
+/// @author Morpho Labs
+/// @custom:contact security@morpho.xyz
+/// @notice Contract allowing to migrate a position from Aave V2 to Morpho Blue easily.
 contract AaveV2MigrationBundler is MigrationBundler, ERC20Bundler {
     ILendingPool public immutable AAVE_V2_POOl;
 

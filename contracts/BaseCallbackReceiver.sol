@@ -4,6 +4,8 @@ pragma solidity 0.8.21;
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 
 /// @title BaseCallbackReceiver
+/// @author Morpho Labs
+/// @custom:contact security@morpho.xyz
 /// @notice Provides utility functions to identify the initiator of callbacks (which cannot be identified using
 /// `msg.sender` or `tx.origin`).
 abstract contract BaseCallbackReceiver {
@@ -25,6 +27,7 @@ abstract contract BaseCallbackReceiver {
 
     /* INTERNAL */
 
+    /// @dev Checks that the contract is in an initiated execution context.
     function _checkInitiated() internal view {
         require(_initiator != address(0), ErrorsLib.UNINITIATED);
     }

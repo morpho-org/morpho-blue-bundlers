@@ -10,6 +10,10 @@ import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {ERC20Bundler} from "../ERC20Bundler.sol";
 import {MigrationBundler} from "./MigrationBundler.sol";
 
+/// @title CompoundV2MigrationBundler
+/// @author Morpho Labs
+/// @custom:contact security@morpho.xyz
+/// @notice Contract allowing to migrate a position from Compound V2 to Morpho Blue easily.
 contract CompoundV2MigrationBundler is MigrationBundler, ERC20Bundler {
     ICEth public immutable C_NATIVE;
     IWNative public immutable WRAPPED_NATIVE;
