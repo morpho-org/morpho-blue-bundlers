@@ -81,7 +81,7 @@ contract EVMBundlerLocalTest is LocalTest {
         return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (auth, sig));
     }
 
-    function _onBehalfRequirements(address onBehalf) internal view {
+    function assumeOnBehalf(address onBehalf) internal view {
         vm.assume(onBehalf != address(0));
         vm.assume(onBehalf != address(morpho));
         vm.assume(onBehalf != address(bundler));
