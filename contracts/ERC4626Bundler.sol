@@ -3,15 +3,15 @@ pragma solidity 0.8.21;
 
 import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 
-import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {Math} from "@morpho-utils/math/Math.sol";
+import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
 
-/// @title ERC4626Bundler.
+/// @title ERC4626Bundler
 /// @author Morpho Labs
-/// @custom:contact security@morpho.xyz
+/// @custom:contact security@morpho.org
 /// @notice Bundler contract managing interactions with ERC4626 compliant tokens.
 abstract contract ERC4626Bundler is BaseBundler {
     using SafeTransferLib for ERC20;

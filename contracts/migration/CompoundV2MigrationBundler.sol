@@ -1,23 +1,33 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import {IWNative} from "../interfaces/IWNative.sol";
-import {ICToken} from "./interfaces/ICToken.sol";
 import {ICEth} from "./interfaces/ICEth.sol";
+import {ICToken} from "./interfaces/ICToken.sol";
+import {IWNative} from "../interfaces/IWNative.sol";
 
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 
-import {MigrationBundler} from "./MigrationBundler.sol";
 import {ERC20Bundler} from "../ERC20Bundler.sol";
+import {MigrationBundler} from "./MigrationBundler.sol";
 
+/// @title CompoundV2MigrationBundler
+/// @author Morpho Labs
+/// @custom:contact security@morpho.org
+/// @notice Contract allowing to migrate a position from Compound V2 to Morpho Blue easily.
 contract CompoundV2MigrationBundler is MigrationBundler, ERC20Bundler {
+    /* IMMUTABLES */
+
     ICEth public immutable C_NATIVE;
     IWNative public immutable WRAPPED_NATIVE;
+
+    /* CONSTRUCTOR */
 
     constructor(address morpho, address wNative, address cNative) MigrationBundler(morpho) {
         WRAPPED_NATIVE = IWNative(wNative);
         C_NATIVE = ICEth(cNative);
     }
+
+    /* ACTIONS */
 
     function compoundV2Repay(address cToken, uint256 repayAmount) external payable {
         if (cToken == address(C_NATIVE)) {
