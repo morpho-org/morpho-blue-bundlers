@@ -256,9 +256,12 @@ contract EVMBundlerLocalTest is LocalTest {
         bundler.multicall(block.timestamp, data);
 
         assertEq(borrowableToken.balanceOf(address(vault)), depositedAmount - withdrawnAmount, "vault's balance");
-        assertEq(borrowableToken.balanceOf(address(bundler)), 0, "bundler's balance");
         assertEq(borrowableToken.balanceOf(receiver), withdrawnAmount, "bundler's balance");
         assertEq(vault.balanceOf(USER), suppliedShares - withdrawnShares, "receiver's shares");
+
+        if (receiver != address(bundler)) {
+            assertEq(borrowableToken.balanceOf(address(bundler)), 0, "bundler's balance");
+        }
     }
 
     function testRedeemVault(uint256 depositedAmount, uint256 redeemedShares, address receiver) public {
@@ -277,9 +280,12 @@ contract EVMBundlerLocalTest is LocalTest {
         bundler.multicall(block.timestamp, data);
 
         assertEq(borrowableToken.balanceOf(address(vault)), depositedAmount - withdrawnAmount, "vault's balance");
-        assertEq(borrowableToken.balanceOf(address(bundler)), 0, "bundler's balance");
         assertEq(borrowableToken.balanceOf(receiver), withdrawnAmount, "bundler's balance");
         assertEq(vault.balanceOf(USER), suppliedShares - redeemedShares, "receiver's shares");
+
+        if (receiver != address(bundler)) {
+            assertEq(borrowableToken.balanceOf(address(bundler)), 0, "bundler's balance");
+        }
     }
 
     function depositOnVault(uint256 amount) internal returns (uint256 shares) {
