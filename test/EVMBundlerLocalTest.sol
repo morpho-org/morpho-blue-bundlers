@@ -829,12 +829,11 @@ contract EVMBundlerLocalTest is LocalTest {
         uint256 distribution = urd.createDistribution(0, root);
 
         bytes32[] memory proof = merkle.getProof(proofs, 0);
-        
+
         bytes[] memory zeroAddressdata = new bytes[](1);
         bytes[] memory bundlerAddressdata = new bytes[](1);
-        zeroAddressdata[0] = abi.encodeCall(
-            URDBundler.claim, (distribution, address(0), address(borrowableToken), claimable, proof)
-        );
+        zeroAddressdata[0] =
+            abi.encodeCall(URDBundler.claim, (distribution, address(0), address(borrowableToken), claimable, proof));
         bundlerAddressdata[0] = abi.encodeCall(
             URDBundler.claim, (distribution, address(bundler), address(borrowableToken), claimable, proof)
         );
