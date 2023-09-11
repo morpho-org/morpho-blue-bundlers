@@ -24,7 +24,9 @@ contract URDBundler is BaseBundler {
         external
         payable
     {
+        require(account != address(this), ErrorsLib.BUNDLER_ADDRESS);
         require(account != address(0), ErrorsLib.ZERO_ADDRESS);
+
         URD.claim(distributionId, account, reward, claimable, proof);
     }
 }

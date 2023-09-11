@@ -820,6 +820,33 @@ contract EVMBundlerLocalTest is LocalTest {
 
     /* TESTS URDBUNDLER */
 
+    function testClaimRewardsIncorrectAddresses(uint256 claimable, uint8 size) public {
+        claimable = bound(claimable, 1 ether, 1000 ether);
+        uint256 boundedSize = bound(size, 2, 20);
+
+        (bytes32[] memory proofs, bytes32 root) = _setupRewards(claimable, boundedSize);
+
+        uint256 distribution = urd.createDistribution(0, root);
+
+        bytes32[] memory proof = merkle.getProof(proofs, 0);
+        
+        bytes[] memory zeroAddressdata = new bytes[](1);
+        bytes[] memory bundlerAddressdata = new bytes[](1);
+        zeroAddressdata[0] = abi.encodeCall(
+            URDBundler.claim, (distribution, address(0), address(borrowableToken), claimable, proof)
+        );
+        bundlerAddressdata[0] = abi.encodeCall(
+            URDBundler.claim, (distribution, address(bundler), address(borrowableToken), claimable, proof)
+        );
+
+        vm.startPrank(USER);
+        vm.expectRevert(bytes(BulkerErrorsLib.ZERO_ADDRESS));
+        bundler.multicall(block.timestamp, zeroAddressdata);
+        vm.expectRevert(bytes(BulkerErrorsLib.BUNDLER_ADDRESS));
+        bundler.multicall(block.timestamp, bundlerAddressdata);
+        vm.stopPrank();
+    }
+
     function testClaimRewards(uint256 claimable, uint8 size) public {
         claimable = bound(claimable, 1 ether, 1000 ether);
         uint256 boundedSize = bound(size, 2, 20);
