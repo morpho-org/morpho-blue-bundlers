@@ -13,7 +13,7 @@ import MorphoArtifact from "../../../lib/morpho-blue/out/Morpho.sol/Morpho.json"
 // Without the division it overflows.
 const initBalance = MaxUint256 / 10000000000000000n;
 const oraclePriceScale = 1000000000000000000000000000000000000n;
-const nbMarkets = 5;
+const nbMarkets = 10;
 
 let seed = 42;
 const random = () => {
@@ -31,9 +31,13 @@ const identifier = (marketParams: MarketParamsStruct) => {
   return Buffer.from(keccak256(encodedMarket).slice(2), "hex");
 };
 
-const forwardTimestamp = async () => {
+const logProgress = (name: string, i: number, max: number) => {
+  if (i % 10 == 0) console.log("[" + name + "]", Math.floor((100 * i) / max), "%");
+};
+
+const randomForwardTimestamp = async () => {
   const block = await hre.ethers.provider.getBlock("latest");
-  const elapsed = (1 + Math.floor(random() * 100)) * 12;
+  const elapsed = random() < 1 / 2 ? 0 : (1 + Math.floor(random() * 100)) * 12; // 50% of the time, don't go forward in time.
 
   await setNextBlockTimestamp(block!.timestamp + elapsed);
 };
@@ -141,16 +145,21 @@ describe("SupplyVault", () => {
 
   it("should simulate gas cost [main]", async () => {
     for (let i = 0; i < suppliers.length; ++i) {
-      if (i % 20 == 0) console.log("[main]", Math.floor((100 * i) / suppliers.length), "%");
-
-      if (random() < 1 / 2) await forwardTimestamp();
+      logProgress("main", i, suppliers.length);
 
       const supplier = suppliers[i];
 
       let assets = BigInt.WAD * toBigInt(1 + Math.floor(random() * 100));
 
+      await randomForwardTimestamp();
+
       await supplyVault.connect(supplier).deposit(assets, supplier.address);
+
+      await randomForwardTimestamp();
+
       await supplyVault.connect(supplier).withdraw(assets / 2n, supplier.address, supplier.address);
+
+      await randomForwardTimestamp();
 
       await supplyVault.connect(allocator).reallocate(
         [],
