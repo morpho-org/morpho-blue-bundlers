@@ -31,7 +31,7 @@ abstract contract BaseBundler is BaseSelfMulticall, BaseCallbackReceiver {
         return _multicall(data);
     }
 
-    /// @dev Transfers the minimum between the given `amount` and the bundler balance of `asset` from this contract to
+    /// @dev Transfers the minimum between the given `amount` and the bundler's balance of `asset` from the bundler to
     /// `recipient`.
     function transfer(address asset, address recipient, uint256 amount) external payable {
         require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
@@ -44,7 +44,9 @@ abstract contract BaseBundler is BaseSelfMulticall, BaseCallbackReceiver {
         ERC20(asset).safeTransfer(recipient, amount);
     }
 
-    function transferNativeToken(address recipient, uint256 amount) external payable {
+    /// @dev Transfers the minimum between the given `amount` and the bundler's balance of native asset from the bundler
+    /// to `recipient`.
+    function transferNative(address recipient, uint256 amount) external payable {
         require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
         require(recipient != address(this), ErrorsLib.BUNDLER_ADDRESS);
 
