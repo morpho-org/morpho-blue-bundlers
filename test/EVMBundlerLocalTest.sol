@@ -81,6 +81,12 @@ contract EVMBundlerLocalTest is LocalTest {
         return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (auth, sig));
     }
 
+    function assumeOnBehalf(address onBehalf) internal view {
+        vm.assume(onBehalf != address(0));
+        vm.assume(onBehalf != address(morpho));
+        vm.assume(onBehalf != address(bundler));
+    }
+
     /* TESTS ERC20 BUNDLER */
 
     function testTranferInvalidAddresses(uint256 amount) public {
@@ -342,22 +348,7 @@ contract EVMBundlerLocalTest is LocalTest {
         bundler.multicall(block.timestamp, repayData);
     }
 
-    function testSupply(uint256 amount, address onBehalf) public {
-        vm.assume(onBehalf != address(0));
-        vm.assume(onBehalf != address(morpho));
-        vm.assume(onBehalf != address(bundler));
-
-        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
-
-        bytes[] memory data = new bytes[](2);
-        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), amount));
-        data[1] = abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, amount, 0, onBehalf, hex""));
-
-        borrowableToken.setBalance(USER, amount);
-
-        vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
-
+    function _testSupply(uint256 amount, address onBehalf) internal {
         assertEq(collateralToken.balanceOf(USER), 0, "collateral.balanceOf(USER)");
         assertEq(borrowableToken.balanceOf(USER), 0, "borrowable.balanceOf(USER)");
 
@@ -375,25 +366,111 @@ contract EVMBundlerLocalTest is LocalTest {
         }
     }
 
-    function testSupplyCollateral(uint256 amount) public {
+    function testSupply(uint256 amount, address onBehalf) public {
+        assumeOnBehalf(onBehalf);
+
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        bytes[] memory data = new bytes[](2);
+        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), amount));
+        data[1] = abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, amount, 0, onBehalf, hex""));
+
+        borrowableToken.setBalance(USER, amount);
+
+        vm.prank(USER);
+        bundler.multicall(block.timestamp, data);
+
+        _testSupply(amount, onBehalf);
+    }
+
+    function testSupplyMax(uint256 amount, address onBehalf) public {
+        assumeOnBehalf(onBehalf);
+
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        bytes[] memory data = new bytes[](2);
+        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), amount));
+        data[1] = abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, type(uint256).max, 0, onBehalf, hex""));
+
+        borrowableToken.setBalance(USER, amount);
+
+        vm.prank(USER);
+        bundler.multicall(block.timestamp, data);
+
+        _testSupply(amount, onBehalf);
+    }
+
+    function testSupplyCallback(uint256 amount, address onBehalf) public {
+        assumeOnBehalf(onBehalf);
+
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        bytes[] memory callbackData = new bytes[](1);
+        callbackData[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), amount));
+
+        bytes[] memory data = new bytes[](1);
+        data[0] =
+            abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, amount, 0, onBehalf, abi.encode(callbackData)));
+
+        borrowableToken.setBalance(USER, amount);
+
+        vm.prank(USER);
+        bundler.multicall(block.timestamp, data);
+
+        _testSupply(amount, onBehalf);
+    }
+
+    function _testSupplyCollateral(uint256 amount, address onBehalf) internal {
+        assertEq(collateralToken.balanceOf(USER), 0, "collateral.balanceOf(USER)");
+        assertEq(borrowableToken.balanceOf(USER), 0, "borrowable.balanceOf(USER)");
+
+        assertEq(collateralToken.balanceOf(onBehalf), 0, "collateral.balanceOf(onBehalf)");
+        assertEq(borrowableToken.balanceOf(onBehalf), 0, "borrowable.balanceOf(onBehalf)");
+
+        assertEq(morpho.collateral(id, onBehalf), amount, "collateral(onBehalf)");
+        assertEq(morpho.supplyShares(id, onBehalf), 0, "supplyShares(onBehalf)");
+        assertEq(morpho.borrowShares(id, onBehalf), 0, "borrowShares(onBehalf)");
+
+        if (onBehalf != USER) {
+            assertEq(morpho.collateral(id, USER), 0, "collateral(USER)");
+            assertEq(morpho.supplyShares(id, USER), 0, "supplyShares(USER)");
+            assertEq(morpho.borrowShares(id, USER), 0, "borrowShares(USER)");
+        }
+    }
+
+    function testSupplyCollateral(uint256 amount, address onBehalf) public {
+        assumeOnBehalf(onBehalf);
+
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         bytes[] memory data = new bytes[](2);
 
         data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(collateralToken), amount));
-        data[1] = abi.encodeCall(MorphoBundler.morphoSupplyCollateral, (marketParams, amount, USER, hex""));
+        data[1] = abi.encodeCall(MorphoBundler.morphoSupplyCollateral, (marketParams, amount, onBehalf, hex""));
 
         collateralToken.setBalance(USER, amount);
         vm.prank(USER);
         bundler.multicall(block.timestamp, data);
 
-        assertEq(collateralToken.balanceOf(USER), 0, "borrowable.balanceOf(USER)");
-        assertEq(collateralToken.balanceOf(address(bundler)), 0, "borrowable.balanceOf(address(bundler))");
-        assertEq(collateralToken.balanceOf(address(morpho)), amount, "borrowable.balanceOf(address(morpho))");
+        _testSupplyCollateral(amount, onBehalf);
+    }
 
-        assertEq(morpho.collateral(id, USER), amount, "collateral(USER)");
-        assertEq(morpho.supplyShares(id, USER), 0, "supplyShares(USER)");
-        assertEq(morpho.borrowShares(id, USER), 0, "borrowShares(USER)");
+    function testSupplyCollateralMax(uint256 amount, address onBehalf) public {
+        assumeOnBehalf(onBehalf);
+
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        bytes[] memory data = new bytes[](2);
+
+        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(collateralToken), amount));
+        data[1] =
+            abi.encodeCall(MorphoBundler.morphoSupplyCollateral, (marketParams, type(uint256).max, onBehalf, hex""));
+
+        collateralToken.setBalance(USER, amount);
+        vm.prank(USER);
+        bundler.multicall(block.timestamp, data);
+
+        _testSupplyCollateral(amount, onBehalf);
     }
 
     function testWithdraw(uint256 privateKey, uint256 amount, uint256 withdrawnShares) public {
@@ -554,6 +631,39 @@ contract EVMBundlerLocalTest is LocalTest {
         data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), amount));
         data[1] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
         data[2] = abi.encodeCall(MorphoBundler.morphoRepay, (marketParams, amount, 0, user, hex""));
+        data[3] = abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, receiver));
+
+        vm.prank(user);
+        bundler.multicall(block.timestamp, data);
+
+        _testRepayWithdrawCollateral(user, collateralAmount, receiver);
+    }
+
+    function testRepayMaxAndWithdrawCollateral(uint256 privateKey, uint256 amount, address receiver) public {
+        vm.assume(receiver != address(0));
+        vm.assume(receiver != address(morpho));
+
+        address user;
+        (privateKey, user) = _getUserAndKey(privateKey);
+        approveERC20ToMorphoAndBundler(user);
+
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        borrowableToken.setBalance(address(this), amount);
+        morpho.supply(marketParams, amount, 0, SUPPLIER, hex"");
+
+        uint256 collateralAmount = amount.wDivUp(LLTV);
+
+        collateralToken.setBalance(user, collateralAmount);
+        vm.startPrank(user);
+        morpho.supplyCollateral(marketParams, collateralAmount, user, hex"");
+        morpho.borrow(marketParams, amount, 0, user, user);
+        vm.stopPrank();
+
+        bytes[] memory data = new bytes[](4);
+        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), amount));
+        data[1] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
+        data[2] = abi.encodeCall(MorphoBundler.morphoRepay, (marketParams, type(uint256).max, 0, user, hex""));
         data[3] = abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, receiver));
 
         vm.prank(user);
@@ -869,5 +979,24 @@ contract EVMBundlerLocalTest is LocalTest {
             vars.initialUserCollateralBalance += missingAmount;
             vars.expectedBundlerCollateralBalance += missingAmount;
         }
+    }
+
+    function testFlashLoan(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        borrowableToken.setBalance(address(this), amount);
+        morpho.supply(marketParams, amount, 0, SUPPLIER, hex"");
+
+        bytes[] memory callbackData = new bytes[](2);
+        callbackData[0] = abi.encodeCall(ERC20Bundler.transfer, (address(borrowableToken), USER, amount));
+        callbackData[1] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), amount));
+
+        bytes[] memory data = new bytes[](1);
+        data[0] =
+            abi.encodeCall(MorphoBundler.morphoFlashLoan, (address(borrowableToken), amount, abi.encode(callbackData)));
+
+        assertEq(borrowableToken.balanceOf(USER), 0, "User's borrowable token balance");
+        assertEq(borrowableToken.balanceOf(address(bundler)), 0, "Bundler's borrowable token balance");
+        assertEq(borrowableToken.balanceOf(address(morpho)), amount, "Morpho's borrowable token balance");
     }
 }
