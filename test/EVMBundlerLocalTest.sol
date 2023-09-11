@@ -443,39 +443,6 @@ contract EVMBundlerLocalTest is LocalTest {
         }
     }
 
-    function testSupplyCollateralBorrowIdentifyBug() public {
-        uint256 privateKey = 3902314836448576224;
-        uint256 amount = 2352;
-        address receiver = 0x30a61aC42C4eBAc502990f590513AB83CE97b41a;
-
-        vm.assume(receiver != address(0));
-        vm.assume(receiver != address(morpho));
-
-        address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
-        approveERC20ToMorphoAndBundler(user);
-
-        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
-
-        borrowableToken.setBalance(address(this), amount);
-        morpho.supply(marketParams, amount, 0, SUPPLIER, hex"");
-
-        uint256 collateralAmount = amount.wDivUp(LLTV);
-
-        bytes[] memory data = new bytes[](4);
-        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(collateralToken), collateralAmount));
-        data[1] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
-        data[2] = abi.encodeCall(MorphoBundler.morphoSupplyCollateral, (marketParams, collateralAmount, user, hex""));
-        data[3] = abi.encodeCall(MorphoBundler.morphoBorrow, (marketParams, amount, 0, receiver));
-
-        collateralToken.setBalance(user, collateralAmount);
-
-        vm.prank(user);
-        bundler.multicall(block.timestamp, data);
-
-        _testSupplyCollateralBorrow(user, amount, collateralAmount, receiver);
-    }
-
     function testSupplyCollateralBorrow(uint256 privateKey, uint256 amount, address receiver) public {
         vm.assume(receiver != address(0));
         vm.assume(receiver != address(morpho));
