@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import {MerkleProof} from "@openzeppelin/utils/cryptography/MerkleProof.sol";
 import {IUniversalRewardsDistributor} from "@universal-rewards-distributor/interfaces/IUniversalRewardsDistributor.sol";
 
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
@@ -25,6 +24,7 @@ contract URDBundler is BaseBundler {
         external
         payable
     {
+        require(account != address(0), ErrorsLib.ZERO_ADDRESS);
         URD.claim(distributionId, account, reward, claimable, proof);
     }
 }
