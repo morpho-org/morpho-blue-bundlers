@@ -23,9 +23,7 @@ abstract contract Permit2Bundler is BaseBundler {
     function approve2(address asset, uint256 amount, uint256 deadline, Signature calldata signature) external payable {
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        ERC20(asset).simplePermit2(
-            _initiator, address(this), amount, deadline, signature.v, signature.r, signature.s
-        );
+        ERC20(asset).simplePermit2(_initiator, address(this), amount, deadline, signature.v, signature.r, signature.s);
     }
 
     /// @dev Transfers the given `amount` of `asset` from sender to this contract via ERC20 transfer with Permit2
