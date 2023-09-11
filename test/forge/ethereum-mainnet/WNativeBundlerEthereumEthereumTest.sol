@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {SigUtils} from "test/helpers/SigUtils.sol";
 import {ErrorsLib as BulkerErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 
 import "../helpers/ForkTest.sol";

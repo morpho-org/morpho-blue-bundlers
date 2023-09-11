@@ -11,7 +11,7 @@ import {BaseBundler} from "../BaseBundler.sol";
 
 /// @title StEthBundler
 /// @author Morpho Labs
-/// @custom:contact security@morpho.xyz
+/// @custom:contact security@morpho.org
 /// @notice Contract allowing to bundle multiple interactions with stETH together.
 abstract contract StEthBundler is BaseBundler {
     using SafeTransferLib for ERC20;
