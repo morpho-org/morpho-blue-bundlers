@@ -10,7 +10,7 @@ import { AuthorizationStruct, MarketParamsStruct, SignatureStruct } from "types/
 
 export type BundlerCall = string;
 
-class BundlerAction {
+export class BundlerAction {
   private static ERC20_BUNDLER_IFC = ERC20Bundler__factory.createInterface();
   private static ERC4626_BUNDLER_IFC = ERC4626Bundler__factory.createInterface();
   private static MORPHO_BUNDLER_IFC = MorphoBundler__factory.createInterface();
