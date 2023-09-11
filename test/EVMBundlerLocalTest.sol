@@ -34,6 +34,9 @@ contract EVMBundlerLocalTest is LocalTest {
         borrowableToken.approve(address(bundler), type(uint256).max);
         collateralToken.approve(address(bundler), type(uint256).max);
         vm.stopPrank();
+
+        vm.prank(LIQUIDATOR);
+        borrowableToken.approve(address(bundler), type(uint256).max);
     }
 
     function approveERC20ToMorphoAndBundler(address user) internal {
@@ -423,9 +426,6 @@ contract EVMBundlerLocalTest is LocalTest {
     function _testSupplyCollateralBorrow(address user, uint256 amount, uint256 collateralAmount, address receiver)
         internal
     {
-        assertEq(collateralToken.balanceOf(user), 0, "collateral.balanceOf(user)");
-        assertEq(borrowableToken.balanceOf(user), 0, "borrowable.balanceOf(user)");
-
         assertEq(collateralToken.balanceOf(receiver), 0, "collateral.balanceOf(receiver)");
         assertEq(borrowableToken.balanceOf(receiver), amount, "borrowable.balanceOf(receiver)");
 
@@ -437,6 +437,9 @@ contract EVMBundlerLocalTest is LocalTest {
             assertEq(morpho.collateral(id, receiver), 0, "collateral(receiver)");
             assertEq(morpho.supplyShares(id, receiver), 0, "supplyShares(receiver)");
             assertEq(morpho.borrowShares(id, receiver), 0, "borrowShares(receiver)");
+
+            assertEq(collateralToken.balanceOf(user), 0, "collateral.balanceOf(user)");
+            assertEq(borrowableToken.balanceOf(user), 0, "borrowable.balanceOf(user)");
         }
     }
 
@@ -503,9 +506,6 @@ contract EVMBundlerLocalTest is LocalTest {
     }
 
     function _testRepayWithdrawCollateral(address user, uint256 collateralAmount, address receiver) internal {
-        assertEq(collateralToken.balanceOf(user), 0, "collateral.balanceOf(user)");
-        assertEq(borrowableToken.balanceOf(user), 0, "borrowable.balanceOf(user)");
-
         assertEq(collateralToken.balanceOf(receiver), collateralAmount, "collateral.balanceOf(receiver)");
         assertEq(borrowableToken.balanceOf(receiver), 0, "borrowable.balanceOf(receiver)");
 
@@ -517,6 +517,9 @@ contract EVMBundlerLocalTest is LocalTest {
             assertEq(morpho.collateral(id, receiver), 0, "collateral(receiver)");
             assertEq(morpho.supplyShares(id, receiver), 0, "supplyShares(receiver)");
             assertEq(morpho.borrowShares(id, receiver), 0, "borrowShares(receiver)");
+
+            assertEq(collateralToken.balanceOf(user), 0, "collateral.balanceOf(user)");
+            assertEq(borrowableToken.balanceOf(user), 0, "borrowable.balanceOf(user)");
         }
     }
 
@@ -587,6 +590,59 @@ contract EVMBundlerLocalTest is LocalTest {
         bundler.multicall(block.timestamp, data);
 
         _testRepayWithdrawCollateral(user, collateralAmount, receiver);
+    }
+
+    function testLiquidate(uint256 amountCollateral, uint256 seizedCollateral) public {
+        amountCollateral = bound(amountCollateral, MIN_AMOUNT, MAX_AMOUNT);
+        uint256 amountBorrowed = amountCollateral.wMulDown(LLTV);
+
+        borrowableToken.setBalance(USER, amountBorrowed);
+        collateralToken.setBalance(USER, amountCollateral);
+
+        vm.startPrank(USER);
+        morpho.supply(marketParams, amountBorrowed, 0, USER, hex"");
+        morpho.supplyCollateral(marketParams, amountCollateral, USER, hex"");
+        morpho.borrow(marketParams, amountBorrowed, 0, USER, USER);
+        vm.stopPrank();
+
+        uint256 borrowShares = morpho.borrowShares(id, USER);
+
+        oracle.setPrice(ORACLE_PRICE_SCALE / 2);
+        seizedCollateral = bound(seizedCollateral, 1, amountCollateral);
+        uint256 incentiveFactor = UtilsLib.min(
+            MAX_LIQUIDATION_INCENTIVE_FACTOR, WAD.wDivDown(WAD - LIQUIDATION_CURSOR.wMulDown(WAD - marketParams.lltv))
+        );
+        uint256 repaidAssets =
+            seizedCollateral.mulDivUp(ORACLE_PRICE_SCALE / 2, ORACLE_PRICE_SCALE).wDivUp(incentiveFactor);
+        uint256 expectedRepaidShares = repaidAssets.toSharesDown(amountBorrowed, borrowShares);
+
+        bytes[] memory data = new bytes[](3);
+        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), repaidAssets));
+        data[1] = abi.encodeCall(MorphoBundler.morphoLiquidate, (marketParams, USER, seizedCollateral, 0, hex""));
+        data[2] = abi.encodeCall(ERC20Bundler.transfer, (address(collateralToken), LIQUIDATOR, seizedCollateral));
+
+        borrowableToken.setBalance(LIQUIDATOR, repaidAssets);
+        vm.prank(LIQUIDATOR);
+        bundler.multicall(block.timestamp, data);
+
+        assertEq(borrowableToken.balanceOf(USER), amountBorrowed, "User's borrowable token balance");
+        assertEq(borrowableToken.balanceOf(LIQUIDATOR), 0, "Liquidator's borrowable token balance");
+        assertEq(borrowableToken.balanceOf(address(morpho)), repaidAssets, "User's borrowable token balance");
+
+        assertEq(collateralToken.balanceOf(USER), 0, "User's collateral token balance");
+        assertEq(collateralToken.balanceOf(LIQUIDATOR), seizedCollateral, "Liquidator's collateral token balance");
+        assertEq(
+            collateralToken.balanceOf(address(morpho)),
+            amountCollateral - seizedCollateral,
+            "User's collateral token balance"
+        );
+
+        assertEq(morpho.collateral(id, USER), amountCollateral - seizedCollateral, "User's collateral on morpho");
+        if (morpho.collateral(id, USER) == 0) {
+            assertEq(morpho.borrowShares(id, USER), 0, "No borrow shares because of bad debt");
+        } else {
+            assertEq(morpho.borrowShares(id, USER), borrowShares - expectedRepaidShares, "User's borrow shares");
+        }
     }
 
     struct BundleTransactionsVars {
