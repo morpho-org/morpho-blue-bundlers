@@ -423,9 +423,6 @@ contract EVMBundlerLocalTest is LocalTest {
     function _testSupplyCollateralBorrow(address user, uint256 amount, uint256 collateralAmount, address receiver)
         internal
     {
-        assertEq(collateralToken.balanceOf(user), 0, "collateral.balanceOf(user)");
-        assertEq(borrowableToken.balanceOf(user), 0, "borrowable.balanceOf(user)");
-
         assertEq(collateralToken.balanceOf(receiver), 0, "collateral.balanceOf(receiver)");
         assertEq(borrowableToken.balanceOf(receiver), amount, "borrowable.balanceOf(receiver)");
 
@@ -437,6 +434,9 @@ contract EVMBundlerLocalTest is LocalTest {
             assertEq(morpho.collateral(id, receiver), 0, "collateral(receiver)");
             assertEq(morpho.supplyShares(id, receiver), 0, "supplyShares(receiver)");
             assertEq(morpho.borrowShares(id, receiver), 0, "borrowShares(receiver)");
+
+            assertEq(collateralToken.balanceOf(user), 0, "collateral.balanceOf(user)");
+            assertEq(borrowableToken.balanceOf(user), 0, "borrowable.balanceOf(user)");
         }
     }
 
@@ -503,9 +503,6 @@ contract EVMBundlerLocalTest is LocalTest {
     }
 
     function _testRepayWithdrawCollateral(address user, uint256 collateralAmount, address receiver) internal {
-        assertEq(collateralToken.balanceOf(user), 0, "collateral.balanceOf(user)");
-        assertEq(borrowableToken.balanceOf(user), 0, "borrowable.balanceOf(user)");
-
         assertEq(collateralToken.balanceOf(receiver), collateralAmount, "collateral.balanceOf(receiver)");
         assertEq(borrowableToken.balanceOf(receiver), 0, "borrowable.balanceOf(receiver)");
 
@@ -517,6 +514,9 @@ contract EVMBundlerLocalTest is LocalTest {
             assertEq(morpho.collateral(id, receiver), 0, "collateral(receiver)");
             assertEq(morpho.supplyShares(id, receiver), 0, "supplyShares(receiver)");
             assertEq(morpho.borrowShares(id, receiver), 0, "borrowShares(receiver)");
+
+            assertEq(collateralToken.balanceOf(user), 0, "collateral.balanceOf(user)");
+            assertEq(borrowableToken.balanceOf(user), 0, "borrowable.balanceOf(user)");
         }
     }
 
