@@ -361,7 +361,7 @@ contract EVMBundlerLocalTest is LocalTest {
     }
 
     function testSupply(uint256 amount, address onBehalf) public {
-        _onBehalfRequirements(onBehalf);
+        assumeOnBehalf(onBehalf);
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
@@ -378,7 +378,7 @@ contract EVMBundlerLocalTest is LocalTest {
     }
 
     function testSupplyMax(uint256 amount, address onBehalf) public {
-        _onBehalfRequirements(onBehalf);
+        assumeOnBehalf(onBehalf);
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
@@ -395,7 +395,7 @@ contract EVMBundlerLocalTest is LocalTest {
     }
 
     function testSupplyCallback(uint256 amount, address onBehalf) public {
-        _onBehalfRequirements(onBehalf);
+        assumeOnBehalf(onBehalf);
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
@@ -433,7 +433,7 @@ contract EVMBundlerLocalTest is LocalTest {
     }
 
     function testSupplyCollateral(uint256 amount, address onBehalf) public {
-        _onBehalfRequirements(onBehalf);
+        assumeOnBehalf(onBehalf);
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
@@ -450,7 +450,7 @@ contract EVMBundlerLocalTest is LocalTest {
     }
 
     function testSupplyCollateralMax(uint256 amount, address onBehalf) public {
-        _onBehalfRequirements(onBehalf);
+        assumeOnBehalf(onBehalf);
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
