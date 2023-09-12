@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {UniversalRewardsDistributor} from "@universal-rewards-distributor/UniversalRewardsDistributor.sol";
 
-import {SigUtils} from "test/helpers/SigUtils.sol";
+import {SigUtils} from "./helpers/SigUtils.sol";
 import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
 import {ErrorsLib as BulkerErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 
