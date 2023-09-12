@@ -3,14 +3,14 @@ pragma solidity 0.8.21;
 
 import {ICompoundV3} from "./interfaces/ICompoundV3.sol";
 
-import {ERC20Bundler} from "../ERC20Bundler.sol";
+import {Permit2Bundler} from "../Permit2Bundler.sol";
 import {MigrationBundler} from "./MigrationBundler.sol";
 
 /// @title CompoundV3MigrationBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from Compound V3 to Morpho Blue easily.
-contract CompoundV3MigrationBundler is MigrationBundler, ERC20Bundler {
+contract CompoundV3MigrationBundler is MigrationBundler, Permit2Bundler {
     /* CONSTRUCTOR */
 
     constructor(address morpho) MigrationBundler(morpho) {}
