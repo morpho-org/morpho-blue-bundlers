@@ -1011,7 +1011,7 @@ contract EVMBundlerLocalTest is LocalTest {
 
     /* TESTS URDBUNDLER */
 
-    function testClaimRewardsZeroAddresses(uint256 claimable) public {
+    function testClaimRewardsZeroAddress(uint256 claimable) public {
         claimable = bound(claimable, MIN_AMOUNT, MAX_AMOUNT);
 
         bytes32 root;
@@ -1028,7 +1028,7 @@ contract EVMBundlerLocalTest is LocalTest {
         bundler.multicall(block.timestamp, zeroAddressdata);
     }
 
-    function testClaimRewardsBundlerAddresses(uint256 claimable) public {
+    function testClaimRewardsBundlerAddress(uint256 claimable) public {
         claimable = bound(claimable, MIN_AMOUNT, MAX_AMOUNT);
 
         bytes32 root;
