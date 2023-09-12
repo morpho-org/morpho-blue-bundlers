@@ -3,6 +3,7 @@ names = true
 sizes = true
 via-ir = true
 src = "contracts"
+test = "test/forge"
 evm_version = "paris"
 fs_permissions = [
     { access = "read", path = "./config/"},
