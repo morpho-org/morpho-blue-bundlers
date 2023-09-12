@@ -3,8 +3,8 @@ pragma solidity 0.8.21;
 
 import {Signature} from "@morpho-blue/interfaces/IMorpho.sol";
 
-import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {Math} from "@morpho-utils/math/Math.sol";
+import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
 import {ERC20 as ERC20Permit2, Permit2Lib} from "@permit2/libraries/Permit2Lib.sol";
 
@@ -12,7 +12,7 @@ import {BaseBundler} from "./BaseBundler.sol";
 
 /// @title ERC20Bundler
 /// @author Morpho Labs
-/// @custom:contact security@morpho.xyz
+/// @custom:contact security@morpho.org
 /// @notice Bundler contract managing interactions with ERC20 compliant tokens.
 /// @dev It leverages Uniswap's Permit2 contract.
 abstract contract ERC20Bundler is BaseBundler {
