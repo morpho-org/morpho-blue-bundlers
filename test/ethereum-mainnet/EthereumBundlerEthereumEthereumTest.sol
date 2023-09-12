@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
 
 import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
+import {MorphoBundler} from "contracts/MorphoBundler.sol";
 import {ERC20Bundler} from "contracts/ERC20Bundler.sol";
 import {UniversalRewardsDistributor} from "@universal-rewards-distributor/UniversalRewardsDistributor.sol";
 

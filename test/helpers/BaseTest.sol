@@ -10,6 +10,7 @@ import {UtilsLib} from "@morpho-blue/libraries/UtilsLib.sol";
 import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
 import {MorphoLib} from "@morpho-blue/libraries/periphery/MorphoLib.sol";
 import {MorphoBalancesLib} from "@morpho-blue/libraries/periphery/MorphoBalancesLib.sol";
+import {LIQUIDATION_CURSOR, MAX_LIQUIDATION_INCENTIVE_FACTOR} from "@morpho-blue/libraries/ConstantsLib.sol";
 
 import {IrmMock} from "@morpho-blue/mocks/IrmMock.sol";
 import {OracleMock} from "@morpho-blue/mocks/OracleMock.sol";
@@ -32,6 +33,7 @@ abstract contract BaseTest is Test {
     address internal constant SUPPLIER = address(0x5678);
     address internal constant OWNER = address(0xdead);
     address internal constant RECEIVER = address(uint160(uint256(keccak256(bytes("morpho receiver")))));
+    address internal constant LIQUIDATOR = address(uint160(uint256(keccak256(bytes("morpho liquidator")))));
 
     IMorpho internal morpho;
     IrmMock internal irm;
