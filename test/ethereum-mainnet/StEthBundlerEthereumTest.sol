@@ -27,36 +27,6 @@ contract StEthBundlerEthereumTest is ForkTest {
         bundler = new StEthBundlerMock();
     }
 
-    function testTransferStEthSharesFromZeroAmount() public {
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(StEthBundler.transferSharesFrom, (0));
-
-        vm.prank(USER);
-        vm.expectRevert(bytes(BulkerErrorsLib.ZERO_AMOUNT));
-        bundler.multicall(block.timestamp, data);
-    }
-
-    function testTransferStEthSharesFrom(uint256 amount, uint256 privateKey) public {
-        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
-        privateKey = bound(privateKey, 1, type(uint160).max);
-
-        address user = _getAddressFromPrivateKey(privateKey);
-        _approvePermit2(user);
-
-        uint256 stEthAmount = _mintStEth(amount, user);
-        uint256 stEthUserBalanceBeforeTransfer = ERC20(ST_ETH).balanceOf(user);
-
-        bytes[] memory data = new bytes[](2);
-        data[0] = _getPermit2Data(ST_ETH, privateKey, user);
-        data[1] = abi.encodeCall(StEthBundler.transferSharesFrom, (stEthAmount));
-
-        vm.prank(user);
-        bundler.multicall(block.timestamp, data);
-
-        assertEq(ERC20(ST_ETH).balanceOf(user), 0, "User's StEth Balance");
-        assertEq(ERC20(ST_ETH).balanceOf(address(bundler)), stEthUserBalanceBeforeTransfer, "Receiver's StEth Balance");
-    }
-
     function testWrapZeroAddress(uint256 amount) public {
         vm.assume(amount != 0);
 
@@ -86,24 +56,27 @@ contract StEthBundlerEthereumTest is ForkTest {
         address user = _getAddressFromPrivateKey(privateKey);
         _approvePermit2(user);
 
-        uint256 stEthAmount = _mintStEth(amount, user);
+        _mintStEth(amount, user);
+        amount = ERC20(ST_ETH).balanceOf(user);
 
         bytes[] memory data = new bytes[](3);
         data[0] = _getPermit2Data(ST_ETH, privateKey, user);
-        data[1] = abi.encodeCall(StEthBundler.transferSharesFrom, (stEthAmount));
+        data[1] = abi.encodeCall(ERC20Bundler.transferFrom2, (ST_ETH, amount));
         data[2] = abi.encodeCall(StEthBundler.wrapStEth, (amount, RECEIVER));
 
-        uint256 wstEthExpectedAmount = IStEth(ST_ETH).getSharesByPooledEth(amount);
+        uint256 wstEthExpectedAmount = IStEth(ST_ETH).getSharesByPooledEth(ERC20(ST_ETH).balanceOf(user));
 
         vm.prank(user);
         bundler.multicall(block.timestamp, data);
 
         assertEq(ERC20(WST_ETH).balanceOf(address(bundler)), 0, "Bundler's wrapped stEth balance");
         assertEq(ERC20(WST_ETH).balanceOf(user), 0, "User's wrapped stEth balance");
-        assertEq(ERC20(WST_ETH).balanceOf(RECEIVER), wstEthExpectedAmount, "Receiver's wrapped stEth balance");
+        assertApproxEqAbs(
+            ERC20(WST_ETH).balanceOf(RECEIVER), wstEthExpectedAmount, 1, "Receiver's wrapped stEth balance"
+        );
 
-        assertEq(ERC20(ST_ETH).balanceOf(address(bundler)), 0, "Bundler's stEth balance");
-        assertEq(ERC20(ST_ETH).balanceOf(user), 0, "User's stEth balance");
+        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(address(bundler)), 0, 1, "Bundler's stEth balance");
+        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(user), 0, 1, "User's stEth balance");
         assertEq(ERC20(ST_ETH).balanceOf(RECEIVER), 0, "Receiver's stEth balance");
     }
 
@@ -211,32 +184,5 @@ contract StEthBundlerEthereumTest is ForkTest {
         ERC20(ST_ETH).approve(address(Permit2Lib.PERMIT2), type(uint256).max);
         ERC20(WST_ETH).approve(address(Permit2Lib.PERMIT2), type(uint256).max);
         vm.stopPrank();
-    }
-
-    function testTransferStEthAmount(uint256 amount) public {
-        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
-
-        uint256 stEthAmount = _mintStEth(amount, USER);
-        console2.log(stEthAmount, "stEthAmount");
-
-        uint256 balance = ERC20(ST_ETH).balanceOf(USER);
-        console2.log(balance, "balance");
-
-        bytes[] memory data = new bytes[](3);
-        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (ST_ETH, amount));
-
-        vm.startPrank(USER);
-        ERC20(ST_ETH).approve(address(bundler), type(uint256).max);
-        bundler.multicall(block.timestamp, data);
-        vm.stopPrank();
-
-        uint256 bundlerBalance  = ERC20(ST_ETH).balanceOf(address(bundler));
-        uint256 userBalance = ERC20(ST_ETH).balanceOf(USER);
-
-        console2.log(bundlerBalance, "bundlerBalance");
-        console2.log(userBalance, "userBalance");
-
-        assertEq(bundlerBalance, balance, "bundler's balance");
-        assertEq(userBalance, 0, "user's balance");
     }
 }

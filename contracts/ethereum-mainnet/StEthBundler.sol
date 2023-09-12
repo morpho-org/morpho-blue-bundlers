@@ -33,19 +33,11 @@ abstract contract StEthBundler is BaseBundler {
 
     /* ACTIONS */
 
-    /// @dev Transfers the given `amount` of shares from the sender to the vault.
-    function transferSharesFrom(uint256 amount) external payable {
-        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
-
-        IStEth(ST_ETH).transferSharesFrom(msg.sender, address(this), amount);
-    }
-
     /// @dev Wraps the given `amount` of stETH to wstETH and transfers it to `receiver`.
     function wrapStEth(uint256 amount, address receiver) external payable {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
 
-        // Add 1 to ERC20(ST_ETH).balanceOf(address(this)) to fix roundings.
-        amount = Math.min(amount, ERC20(ST_ETH).balanceOf(address(this)) + 1);
+        amount = Math.min(amount, ERC20(ST_ETH).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
