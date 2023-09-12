@@ -2,6 +2,7 @@
 pragma solidity 0.8.21;
 
 import {IWStEth} from "./interfaces/IWStEth.sol";
+import {IStEth} from "./interfaces/IStEth.sol";
 
 import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 import {Math} from "@morpho-utils/math/Math.sol";
@@ -34,13 +35,15 @@ abstract contract StEthBundler is BaseBundler {
 
     /// @dev Wraps the given `amount` of stETH to wstETH and transfers it to `receiver`.
     function wrapStEth(uint256 amount, address receiver) external payable {
+        require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
+
         amount = Math.min(amount, ERC20(ST_ETH).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
         amount = IWStEth(WST_ETH).wrap(amount);
 
-        if (receiver != address(this)) ERC20(ST_ETH).safeTransfer(receiver, amount);
+        if (receiver != address(this)) ERC20(WST_ETH).safeTransfer(receiver, amount);
     }
 
     /// @dev Unwraps the given `amount` of wstETH to stETH and transfers it to `receiver`.
