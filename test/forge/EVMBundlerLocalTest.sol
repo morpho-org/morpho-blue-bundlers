@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {SigUtils} from "test/helpers/SigUtils.sol";
+import {SigUtils} from "./helpers/SigUtils.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {ErrorsLib as BulkerErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 
@@ -9,6 +9,7 @@ import "./helpers/LocalTest.sol";
 
 import "contracts/EVMBundler.sol";
 import {ERC4626Mock} from "./mocks/ERC4626Mock.sol";
+import {BaseBundler} from "contracts/BaseBundler.sol";
 
 contract EVMBundlerLocalTest is LocalTest {
     using MathLib for uint256;
@@ -95,8 +96,8 @@ contract EVMBundlerLocalTest is LocalTest {
         bytes[] memory zeroAddressData = new bytes[](1);
         bytes[] memory bundlerAddressData = new bytes[](1);
 
-        zeroAddressData[0] = abi.encodeCall(ERC20Bundler.transfer, (address(borrowableToken), address(0), amount));
-        bundlerAddressData[0] = abi.encodeCall(ERC20Bundler.transfer, (address(bundler), address(0), amount));
+        zeroAddressData[0] = abi.encodeCall(BaseBundler.transfer, (address(borrowableToken), address(0), amount));
+        bundlerAddressData[0] = abi.encodeCall(BaseBundler.transfer, (address(bundler), address(0), amount));
 
         vm.expectRevert(bytes(BulkerErrorsLib.ZERO_ADDRESS));
         bundler.multicall(block.timestamp, zeroAddressData);
@@ -111,9 +112,9 @@ contract EVMBundlerLocalTest is LocalTest {
         bytes[] memory transferFromData = new bytes[](1);
         bytes[] memory approve2Data = new bytes[](1);
 
-        transferData[0] = abi.encodeCall(ERC20Bundler.transfer, (address(borrowableToken), receiver, 0));
-        transferFromData[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), 0));
-        approve2Data[0] = abi.encodeCall(ERC20Bundler.approve2, (receiver, 0, block.timestamp, signature));
+        transferData[0] = abi.encodeCall(BaseBundler.transfer, (address(borrowableToken), receiver, 0));
+        transferFromData[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), 0));
+        approve2Data[0] = abi.encodeCall(Permit2Bundler.approve2, (receiver, 0, block.timestamp, signature));
 
         vm.expectRevert(bytes(BulkerErrorsLib.ZERO_AMOUNT));
         bundler.multicall(block.timestamp, transferData);
@@ -128,7 +129,7 @@ contract EVMBundlerLocalTest is LocalTest {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(ERC20Bundler.transfer, (address(borrowableToken), receiver, amount));
+        data[0] = abi.encodeCall(BaseBundler.transfer, (address(borrowableToken), receiver, amount));
 
         borrowableToken.setBalance(address(bundler), amount);
         bundler.multicall(block.timestamp, data);
@@ -141,7 +142,7 @@ contract EVMBundlerLocalTest is LocalTest {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), amount));
+        data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount));
 
         borrowableToken.setBalance(USER, amount);
         vm.prank(USER);
@@ -208,7 +209,7 @@ contract EVMBundlerLocalTest is LocalTest {
         vm.assume(expectedAmount != 0);
 
         bytes[] memory data = new bytes[](2);
-        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), expectedAmount));
+        data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), expectedAmount));
         data[1] = abi.encodeCall(ERC4626Bundler.mint, (address(vault), shares, receiver));
 
         borrowableToken.setBalance(USER, expectedAmount);
@@ -228,7 +229,7 @@ contract EVMBundlerLocalTest is LocalTest {
         vm.assume(expectedShares != 0);
 
         bytes[] memory data = new bytes[](2);
-        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), amount));
+        data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount));
         data[1] = abi.encodeCall(ERC4626Bundler.deposit, (address(vault), amount, receiver));
 
         borrowableToken.setBalance(USER, amount);
@@ -372,7 +373,7 @@ contract EVMBundlerLocalTest is LocalTest {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         bytes[] memory data = new bytes[](2);
-        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), amount));
+        data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount));
         data[1] = abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, amount, 0, onBehalf, hex""));
 
         borrowableToken.setBalance(USER, amount);
@@ -389,7 +390,7 @@ contract EVMBundlerLocalTest is LocalTest {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         bytes[] memory data = new bytes[](2);
-        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), amount));
+        data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount));
         data[1] = abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, type(uint256).max, 0, onBehalf, hex""));
 
         borrowableToken.setBalance(USER, amount);
@@ -406,7 +407,7 @@ contract EVMBundlerLocalTest is LocalTest {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         bytes[] memory callbackData = new bytes[](1);
-        callbackData[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), amount));
+        callbackData[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount));
 
         bytes[] memory data = new bytes[](1);
         data[0] =
@@ -445,7 +446,7 @@ contract EVMBundlerLocalTest is LocalTest {
 
         bytes[] memory data = new bytes[](2);
 
-        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(collateralToken), amount));
+        data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(collateralToken), amount));
         data[1] = abi.encodeCall(MorphoBundler.morphoSupplyCollateral, (marketParams, amount, onBehalf, hex""));
 
         collateralToken.setBalance(USER, amount);
@@ -462,7 +463,7 @@ contract EVMBundlerLocalTest is LocalTest {
 
         bytes[] memory data = new bytes[](2);
 
-        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(collateralToken), amount));
+        data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(collateralToken), amount));
         data[1] =
             abi.encodeCall(MorphoBundler.morphoSupplyCollateral, (marketParams, type(uint256).max, onBehalf, hex""));
 
@@ -542,7 +543,7 @@ contract EVMBundlerLocalTest is LocalTest {
         uint256 collateralAmount = amount.wDivUp(LLTV);
 
         bytes[] memory data = new bytes[](4);
-        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(collateralToken), collateralAmount));
+        data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(collateralToken), collateralAmount));
         data[1] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
         data[2] = abi.encodeCall(MorphoBundler.morphoSupplyCollateral, (marketParams, collateralAmount, user, hex""));
         data[3] = abi.encodeCall(MorphoBundler.morphoBorrow, (marketParams, amount, 0, receiver));
@@ -573,7 +574,7 @@ contract EVMBundlerLocalTest is LocalTest {
         bytes[] memory callbackData = new bytes[](3);
         callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
         callbackData[1] = abi.encodeCall(MorphoBundler.morphoBorrow, (marketParams, amount, 0, receiver));
-        callbackData[2] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(collateralToken), collateralAmount));
+        callbackData[2] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(collateralToken), collateralAmount));
 
         bytes[] memory data = new bytes[](1);
         data[0] = abi.encodeCall(
@@ -628,7 +629,7 @@ contract EVMBundlerLocalTest is LocalTest {
         vm.stopPrank();
 
         bytes[] memory data = new bytes[](4);
-        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), amount));
+        data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount));
         data[1] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
         data[2] = abi.encodeCall(MorphoBundler.morphoRepay, (marketParams, amount, 0, user, hex""));
         data[3] = abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, receiver));
@@ -661,7 +662,7 @@ contract EVMBundlerLocalTest is LocalTest {
         vm.stopPrank();
 
         bytes[] memory data = new bytes[](4);
-        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), amount));
+        data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount));
         data[1] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
         data[2] = abi.encodeCall(MorphoBundler.morphoRepay, (marketParams, type(uint256).max, 0, user, hex""));
         data[3] = abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, receiver));
@@ -697,7 +698,7 @@ contract EVMBundlerLocalTest is LocalTest {
         callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
         callbackData[1] =
             abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, receiver));
-        callbackData[2] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), amount));
+        callbackData[2] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount));
 
         bytes[] memory data = new bytes[](1);
         data[0] = abi.encodeCall(MorphoBundler.morphoRepay, (marketParams, amount, 0, user, abi.encode(callbackData)));
@@ -733,9 +734,9 @@ contract EVMBundlerLocalTest is LocalTest {
         uint256 expectedRepaidShares = repaidAssets.toSharesDown(amountBorrowed, borrowShares);
 
         bytes[] memory data = new bytes[](3);
-        data[0] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), repaidAssets));
+        data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), repaidAssets));
         data[1] = abi.encodeCall(MorphoBundler.morphoLiquidate, (marketParams, USER, seizedCollateral, 0, hex""));
-        data[2] = abi.encodeCall(ERC20Bundler.transfer, (address(collateralToken), LIQUIDATOR, seizedCollateral));
+        data[2] = abi.encodeCall(BaseBundler.transfer, (address(collateralToken), LIQUIDATOR, seizedCollateral));
 
         borrowableToken.setBalance(LIQUIDATOR, repaidAssets);
         vm.prank(LIQUIDATOR);
@@ -830,11 +831,11 @@ contract EVMBundlerLocalTest is LocalTest {
     }
 
     function _getTransferData(address token, uint256 amount) internal pure returns (bytes memory data, address user) {
-        data = abi.encodeCall(ERC20Bundler.transfer, (token, user, amount));
+        data = abi.encodeCall(BaseBundler.transfer, (token, user, amount));
     }
 
     function _getTransferFrom2Data(address token, uint256 amount) internal pure returns (bytes memory data) {
-        data = abi.encodeCall(ERC20Bundler.transferFrom2, (token, amount));
+        data = abi.encodeCall(Permit2Bundler.transferFrom2, (token, amount));
     }
 
     function _getSupplyData(uint256 amount, address user) internal view returns (bytes memory data) {
@@ -988,8 +989,8 @@ contract EVMBundlerLocalTest is LocalTest {
         morpho.supply(marketParams, amount, 0, SUPPLIER, hex"");
 
         bytes[] memory callbackData = new bytes[](2);
-        callbackData[0] = abi.encodeCall(ERC20Bundler.transfer, (address(borrowableToken), USER, amount));
-        callbackData[1] = abi.encodeCall(ERC20Bundler.transferFrom2, (address(borrowableToken), amount));
+        callbackData[0] = abi.encodeCall(BaseBundler.transfer, (address(borrowableToken), USER, amount));
+        callbackData[1] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount));
 
         bytes[] memory data = new bytes[](1);
         data[0] =

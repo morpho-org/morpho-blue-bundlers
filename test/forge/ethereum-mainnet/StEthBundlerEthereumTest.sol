@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import {SigUtils} from "test/helpers/SigUtils.sol";
+import {SigUtils} from "test/forge/helpers/SigUtils.sol";
 import {ErrorsLib as BulkerErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 
 import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
@@ -61,7 +61,7 @@ contract StEthBundlerEthereumTest is ForkTest {
 
         bytes[] memory data = new bytes[](3);
         data[0] = _getPermit2Data(ST_ETH, privateKey, user);
-        data[1] = abi.encodeCall(ERC20Bundler.transferFrom2, (ST_ETH, amount));
+        data[1] = abi.encodeCall(Permit2Bundler.transferFrom2, (ST_ETH, amount));
         data[2] = abi.encodeCall(StEthBundler.wrapStEth, (amount, RECEIVER));
 
         uint256 wstEthExpectedAmount = IStEth(ST_ETH).getSharesByPooledEth(ERC20(ST_ETH).balanceOf(user));
@@ -122,7 +122,7 @@ contract StEthBundlerEthereumTest is ForkTest {
 
         bytes[] memory data = new bytes[](3);
         data[0] = _getPermit2Data(WST_ETH, privateKey, user);
-        data[1] = abi.encodeCall(ERC20Bundler.transferFrom2, (WST_ETH, amount));
+        data[1] = abi.encodeCall(Permit2Bundler.transferFrom2, (WST_ETH, amount));
         data[2] = abi.encodeCall(StEthBundler.unwrapStEth, (amount, RECEIVER));
 
         deal(WST_ETH, user, amount);
@@ -170,7 +170,7 @@ contract StEthBundlerEthereumTest is ForkTest {
         Signature memory signature;
         (signature.v, signature.r, signature.s) = vm.sign(privateKey, hashed);
 
-        return abi.encodeCall(ERC20Bundler.approve2, (token, type(uint160).max, type(uint48).max, signature));
+        return abi.encodeCall(Permit2Bundler.approve2, (token, type(uint160).max, type(uint48).max, signature));
     }
 
     function _getAddressFromPrivateKey(uint256 privateKey) internal view returns (address user) {
