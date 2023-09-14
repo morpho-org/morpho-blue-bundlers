@@ -196,8 +196,8 @@ contract EVMBundlerLocalTest is LocalTest {
         bundler.multicall(block.timestamp, redeemData);
     }
 
-    function testMintVault(uint256 shares, address onBehalf) public {
-        vm.assume(onBehalf != address(0));
+    function testMintVault(uint256 shares, address owner) public {
+        vm.assume(owner != address(0));
         shares = bound(shares, MIN_AMOUNT, MAX_AMOUNT);
 
         uint256 expectedAmount = vault.previewMint(shares);
@@ -205,7 +205,7 @@ contract EVMBundlerLocalTest is LocalTest {
 
         bytes[] memory data = new bytes[](2);
         data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), expectedAmount));
-        data[1] = abi.encodeCall(ERC4626Bundler.mint, (address(vault), shares, onBehalf));
+        data[1] = abi.encodeCall(ERC4626Bundler.mint, (address(vault), shares, owner));
 
         borrowableToken.setBalance(USER, expectedAmount);
         vm.prank(USER);
@@ -213,11 +213,11 @@ contract EVMBundlerLocalTest is LocalTest {
 
         assertEq(borrowableToken.balanceOf(address(vault)), expectedAmount, "vault's balance");
         assertEq(borrowableToken.balanceOf(address(bundler)), 0, "bundler's balance");
-        assertEq(vault.balanceOf(onBehalf), shares, "onBehalf's shares");
+        assertEq(vault.balanceOf(owner), shares, "owner's shares");
     }
 
-    function testDepositVault(uint256 amount, address onBehalf) public {
-        vm.assume(onBehalf != address(0));
+    function testDepositVault(uint256 amount, address owner) public {
+        vm.assume(owner != address(0));
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         uint256 expectedShares = vault.previewDeposit(amount);
@@ -225,7 +225,7 @@ contract EVMBundlerLocalTest is LocalTest {
 
         bytes[] memory data = new bytes[](2);
         data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount));
-        data[1] = abi.encodeCall(ERC4626Bundler.deposit, (address(vault), amount, onBehalf));
+        data[1] = abi.encodeCall(ERC4626Bundler.deposit, (address(vault), amount, owner));
 
         borrowableToken.setBalance(USER, amount);
         vm.prank(USER);
@@ -233,7 +233,7 @@ contract EVMBundlerLocalTest is LocalTest {
 
         assertEq(borrowableToken.balanceOf(address(vault)), amount, "vault's balance");
         assertEq(borrowableToken.balanceOf(address(bundler)), 0, "bundler's balance");
-        assertEq(vault.balanceOf(onBehalf), expectedShares, "onBehalf's shares");
+        assertEq(vault.balanceOf(owner), expectedShares, "owner's shares");
     }
 
     function testWithdrawVault(uint256 depositedAmount, uint256 withdrawnAmount) public {
