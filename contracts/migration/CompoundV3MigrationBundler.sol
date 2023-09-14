@@ -35,8 +35,8 @@ contract CompoundV3MigrationBundler is MigrationBundler, Permit2Bundler {
     /// @notice Withdraws `amount` of `asset` from the CompoundV3 `instance`, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously approved the bundler to manage their CompoundV3 position.
-    function compoundV3WithdrawFrom(address instance, address to, address asset, uint256 amount) external payable {
-        ICompoundV3(instance).withdrawFrom(_initiator, to, asset, amount);
+    function compoundV3WithdrawFrom(ICompoundV3 instance, address asset, uint256 amount) external payable {
+        ICompoundV3(instance).withdrawFrom(_initiator, address(this), asset, amount);
     }
 
     /// @notice Approves the bundler to act on behalf of the initiator on the CompoundV3 `instance`, given a signed
