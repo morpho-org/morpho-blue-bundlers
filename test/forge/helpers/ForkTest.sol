@@ -22,7 +22,7 @@ abstract contract ForkTest is BaseTest, Configured {
         _initConfig();
         _loadConfig();
 
-        _setBalances(address(this), type(uint96).max);
+        _fork();
     }
 
     function setUp() public virtual override {
@@ -58,27 +58,12 @@ abstract contract ForkTest is BaseTest, Configured {
         vm.chainId(CONFIG.getChainId());
     }
 
-    function _loadConfig() internal virtual override {
-        super._loadConfig();
-
-        _fork();
-    }
-
     function _label() internal virtual {
         for (uint256 i; i < allAssets.length; ++i) {
             address asset = allAssets[i];
             string memory symbol = ERC20(asset).symbol();
 
             vm.label(asset, symbol);
-        }
-    }
-
-    function _setBalances(address user, uint256 balance) internal {
-        for (uint256 i; i < allAssets.length; ++i) {
-            address asset = allAssets[i];
-
-            if (asset == ST_ETH) return;
-            deal(asset, user, balance / (10 ** (18 - ERC20(asset).decimals())));
         }
     }
 
@@ -104,18 +89,8 @@ abstract contract ForkTest is BaseTest, Configured {
         }
     }
 
-    function _assumeNotLsdNative(address input) internal view {
-        for (uint256 i; i < lsdNatives.length; ++i) {
-            vm.assume(input != lsdNatives[i]);
-        }
-    }
-
     function _randomAsset(uint256 seed) internal view returns (address) {
         return allAssets[seed % allAssets.length];
-    }
-
-    function _randomLsdNative(uint256 seed) internal view returns (address) {
-        return lsdNatives[seed % lsdNatives.length];
     }
 
     function _randomMarketParams(uint256 seed) internal view returns (MarketParams memory) {

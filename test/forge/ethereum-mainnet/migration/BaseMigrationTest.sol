@@ -9,13 +9,13 @@ import {MarketParamsLib} from "@morpho-blue/libraries/MarketParamsLib.sol";
 import {MorphoLib} from "@morpho-blue/libraries/periphery/MorphoLib.sol";
 import {MorphoBalancesLib} from "@morpho-blue/libraries/periphery/MorphoBalancesLib.sol";
 
-import "../../helpers/ForkTest.sol";
+import "../EthereumTest.sol";
 import {MorphoBundler} from "contracts/MorphoBundler.sol";
 import {ERC4626Bundler} from "contracts/ERC4626Bundler.sol";
 import {Permit2Bundler} from "contracts/Permit2Bundler.sol";
 import {ERC4626Mock} from "../../mocks/ERC4626Mock.sol";
 
-contract BaseMigrationTest is ForkTest {
+contract BaseMigrationTest is EthereumTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;
@@ -47,10 +47,6 @@ contract BaseMigrationTest is ForkTest {
         address user = vm.addr(privateKey);
         vm.label(user, "user");
         return (privateKey, user);
-    }
-
-    function _network() internal pure override returns (string memory) {
-        return "ethereum-mainnet";
     }
 
     function _morphoSetAuthorizationWithSigCall(

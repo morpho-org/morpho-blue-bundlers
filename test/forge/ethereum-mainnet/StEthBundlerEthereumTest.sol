@@ -9,17 +9,12 @@ import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
 import {IStEth} from "contracts/ethereum-mainnet/interfaces/IStEth.sol";
 import {IWStEth} from "contracts/ethereum-mainnet/interfaces/IWStEth.sol";
 
-import "../helpers/ForkTest.sol";
+import "./EthereumTest.sol";
 
 import "../mocks/StEthBundlerMock.sol";
 
-contract StEthBundlerEthereumTest is ForkTest {
-    address public constant WST_ETH = 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0;
+contract StEthBundlerEthereumTest is EthereumTest {
     StEthBundlerMock private bundler;
-
-    function _network() internal pure override returns (string memory) {
-        return "ethereum-mainnet";
-    }
 
     function setUp() public override {
         super.setUp();
