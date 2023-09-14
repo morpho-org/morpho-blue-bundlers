@@ -5,8 +5,7 @@ import "../helpers/ForkTest.sol";
 import "config/ConfiguredEthereumMainnet.sol";
 
 contract EthereumTest is ConfiguredEthereumMainnet, ForkTest {
-
-    function _network() internal view virtual override(Configured, ConfiguredEthereumMainnet) returns (string memory){
+    function _network() internal view virtual override(Configured, ConfiguredEthereumMainnet) returns (string memory) {
         return ConfiguredEthereumMainnet._network();
     }
 
