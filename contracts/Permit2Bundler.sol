@@ -18,16 +18,19 @@ abstract contract Permit2Bundler is BaseBundler {
 
     /* ACTIONS */
 
-    /// @dev Approves the given `amount` of `asset` from sender to be spent by this contract via Permit2 with the given
+    /// @notice Approves the given `amount` of `asset` from sender to be spent by this contract via Permit2 with the
+    /// given
     /// `deadline` & EIP712 `signature`.
+    /// Should only be called via the bundler's `multicall` function.
     function approve2(address asset, uint256 amount, uint256 deadline, Signature calldata signature) external payable {
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
         ERC20(asset).simplePermit2(_initiator, address(this), amount, deadline, signature.v, signature.r, signature.s);
     }
 
-    /// @dev Transfers the given `amount` of `asset` from sender to this contract via ERC20 transfer with Permit2
+    /// @notice Transfers the given `amount` of `asset` from sender to this contract via ERC20 transfer with Permit2
     /// fallback.
+    /// Should only be called via the bundler's `multicall` function.
     function transferFrom2(address asset, uint256 amount) external payable {
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
