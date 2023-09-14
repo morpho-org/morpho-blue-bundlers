@@ -33,11 +33,9 @@ contract StEthBundlerEthereumTest is EthereumTest {
         bundler.multicall(block.timestamp, data);
     }
 
-    function testWrapZeroAmount(address receiver) public {
-        vm.assume(receiver != address(bundler) && receiver != address(0));
-
+    function testWrapZeroAmount() public {
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(StEthBundler.wrapStEth, (0, receiver));
+        data[0] = abi.encodeCall(StEthBundler.wrapStEth, (0, RECEIVER));
 
         vm.expectRevert(bytes(BulkerErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
@@ -97,11 +95,9 @@ contract StEthBundlerEthereumTest is EthereumTest {
         bundler.multicall(block.timestamp, data);
     }
 
-    function testUnwrapZeroAmount(address receiver) public {
-        vm.assume(receiver != address(bundler) && receiver != address(0));
-
+    function testUnwrapZeroAmount() public {
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(StEthBundler.unwrapStEth, (0, receiver));
+        data[0] = abi.encodeCall(StEthBundler.unwrapStEth, (0, RECEIVER));
 
         vm.expectRevert(bytes(BulkerErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
