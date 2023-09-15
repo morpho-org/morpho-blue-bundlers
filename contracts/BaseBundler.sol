@@ -47,8 +47,7 @@ abstract contract BaseBundler is BaseSelfMulticall, BaseCallbackReceiver {
     }
 
     /// @notice Transfers the minimum between the given `amount` and the bundler's balance of native asset from the
-    /// bundler
-    /// to `recipient`.
+    /// bundler to `recipient`.
     function transferNative(address recipient, uint256 amount) external payable {
         require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
         require(recipient != address(this), ErrorsLib.BUNDLER_ADDRESS);

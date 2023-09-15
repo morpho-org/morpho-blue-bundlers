@@ -19,9 +19,8 @@ abstract contract Permit2Bundler is BaseBundler {
     /* ACTIONS */
 
     /// @notice Approves the given `amount` of `asset` from sender to be spent by this contract via Permit2 with the
-    /// given
-    /// `deadline` & EIP712 `signature`.
-    /// Should only be called via the bundler's `multicall` function.
+    /// given `deadline` & EIP-712 `signature`.
+    /// @notice Warning: should only be called via the bundler's `multicall` function.
     function approve2(address asset, uint256 amount, uint256 deadline, Signature calldata signature) external payable {
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
@@ -30,7 +29,7 @@ abstract contract Permit2Bundler is BaseBundler {
 
     /// @notice Transfers the given `amount` of `asset` from sender to this contract via ERC20 transfer with Permit2
     /// fallback.
-    /// Should only be called via the bundler's `multicall` function.
+    /// @notice Warning: should only be called via the bundler's `multicall` function.
     function transferFrom2(address asset, uint256 amount) external payable {
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
