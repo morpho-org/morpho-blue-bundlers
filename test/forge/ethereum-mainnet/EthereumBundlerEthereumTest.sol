@@ -9,7 +9,7 @@ import "contracts/ethereum-mainnet/EthereumBundler.sol";
 import {MorphoBundler} from "contracts/MorphoBundler.sol";
 import {Permit2Bundler} from "contracts/Permit2Bundler.sol";
 
-import "./EthereumTest.sol";
+import "./helpers/EthereumTest.sol";
 
 contract EthereumBundlerEthereumTest is EthereumTest {
     using MathLib for uint256;

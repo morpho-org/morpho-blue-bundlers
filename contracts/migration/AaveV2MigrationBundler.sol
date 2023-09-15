@@ -10,7 +10,7 @@ import {MigrationBundler} from "./MigrationBundler.sol";
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from Aave V2 to Morpho Blue easily.
-contract AaveV2MigrationBundler is MigrationBundler, Permit2Bundler {
+contract AaveV2MigrationBundler is Permit2Bundler, MigrationBundler {
     /* IMMUTABLES */
 
     ILendingPool public immutable AAVE_V2_POOl;
