@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
 import {SigUtils} from "test/forge/helpers/SigUtils.sol";
 import {ErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 

@@ -3,7 +3,8 @@ pragma solidity ^0.8.0;
 
 import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
 
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
+import {UniversalRewardsDistributor} from "@universal-rewards-distributor/UniversalRewardsDistributor.sol";
 
 import "contracts/ethereum-mainnet/EthereumBundler.sol";
 import {MorphoBundler} from "contracts/MorphoBundler.sol";
@@ -18,12 +19,14 @@ contract EthereumBundlerEthereumTest is EthereumTest {
     using MarketParamsLib for MarketParams;
     using SafeTransferLib for ERC20;
 
+    UniversalRewardsDistributor private urd;
     EthereumBundler private bundler;
 
     function setUp() public override {
         super.setUp();
 
-        bundler = new EthereumBundler(address(morpho));
+        urd = new UniversalRewardsDistributor();
+        bundler = new EthereumBundler(address(urd), address(morpho));
 
         vm.prank(USER);
         morpho.setAuthorization(address(bundler), true);
