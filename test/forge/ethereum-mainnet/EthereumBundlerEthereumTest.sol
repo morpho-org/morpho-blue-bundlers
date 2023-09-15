@@ -10,9 +10,9 @@ import "contracts/ethereum-mainnet/EthereumBundler.sol";
 import {MorphoBundler} from "contracts/MorphoBundler.sol";
 import {Permit2Bundler} from "contracts/Permit2Bundler.sol";
 
-import "../helpers/ForkTest.sol";
+import "./EthereumTest.sol";
 
-contract EthereumBundlerEthereumTest is ForkTest {
+contract EthereumBundlerEthereumTest is EthereumTest {
     using MathLib for uint256;
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
@@ -21,10 +21,6 @@ contract EthereumBundlerEthereumTest is ForkTest {
 
     UniversalRewardsDistributor private urd;
     EthereumBundler private bundler;
-
-    function _network() internal pure override returns (string memory) {
-        return "ethereum-mainnet";
-    }
 
     function setUp() public override {
         super.setUp();

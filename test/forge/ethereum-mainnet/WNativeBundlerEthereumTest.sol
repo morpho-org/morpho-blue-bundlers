@@ -3,16 +3,12 @@ pragma solidity ^0.8.0;
 
 import {ErrorsLib as BulkerErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 
-import "../helpers/ForkTest.sol";
+import "./EthereumTest.sol";
 
 import "../mocks/WNativeBundlerMock.sol";
 
-contract WNativeBundlerEthereumTest is ForkTest {
+contract WNativeBundlerEthereumTest is EthereumTest {
     WNativeBundlerMock private bundler;
-
-    function _network() internal pure override returns (string memory) {
-        return "ethereum-mainnet";
-    }
 
     function setUp() public override {
         super.setUp();
@@ -34,11 +30,9 @@ contract WNativeBundlerEthereumTest is ForkTest {
         bundler.multicall(block.timestamp, data);
     }
 
-    function testWrapZeroAmount(address receiver) public {
-        vm.assume(receiver != address(bundler) && receiver != address(0));
-
+    function testWrapZeroAmount() public {
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(WNativeBundler.wrapNative, (0, receiver));
+        data[0] = abi.encodeCall(WNativeBundler.wrapNative, (0, RECEIVER));
 
         vm.expectRevert(bytes(BulkerErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
@@ -86,11 +80,9 @@ contract WNativeBundlerEthereumTest is ForkTest {
         bundler.multicall(block.timestamp, data);
     }
 
-    function testUnwrapZeroAmount(address receiver) public {
-        vm.assume(receiver != address(bundler) && receiver != address(0));
-
+    function testUnwrapZeroAmount() public {
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(WNativeBundler.unwrapNative, (0, receiver));
+        data[0] = abi.encodeCall(WNativeBundler.unwrapNative, (0, RECEIVER));
 
         vm.expectRevert(bytes(BulkerErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
