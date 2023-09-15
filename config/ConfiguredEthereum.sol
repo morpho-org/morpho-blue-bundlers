@@ -3,13 +3,12 @@ pragma solidity ^0.8.0;
 
 import "./Configured.sol";
 
-abstract contract ConfiguredEthereumMainnet is Configured {
+abstract contract ConfiguredEthereum is Configured {
     using ConfigLib for Config;
 
     address internal ST_ETH;
     address internal WST_ETH;
     address internal CB_ETH;
-    address internal R_ETH;
     address[] internal allEthereumMainnetAssets;
 
     function _network() internal view virtual override returns (string memory){
@@ -22,9 +21,8 @@ abstract contract ConfiguredEthereumMainnet is Configured {
         ST_ETH = CONFIG.getAddress("stETH");
         WST_ETH = CONFIG.getAddress("wstETH");
         CB_ETH = CONFIG.getAddress("cbETH");
-        R_ETH = CONFIG.getAddress("rETH");
 
-        allEthereumMainnetAssets = [ST_ETH, WST_ETH, CB_ETH, R_ETH];
+        allEthereumMainnetAssets = [ST_ETH, WST_ETH, CB_ETH];
 
         for (uint256 i; i < allEthereumMainnetAssets.length; ++i) {
             allAssets.push(allEthereumMainnetAssets[i]);
