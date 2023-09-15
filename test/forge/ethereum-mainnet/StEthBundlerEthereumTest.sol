@@ -62,15 +62,15 @@ contract StEthBundlerEthereumTest is EthereumTest {
         vm.prank(user);
         bundler.multicall(block.timestamp, data);
 
-        assertEq(ERC20(WST_ETH).balanceOf(address(bundler)), 0, "Bundler's wrapped stEth balance");
-        assertEq(ERC20(WST_ETH).balanceOf(user), 0, "User's wrapped stEth balance");
+        assertEq(ERC20(WST_ETH).balanceOf(address(bundler)), 0, "wstEth.balanceOf(bundler)");
+        assertEq(ERC20(WST_ETH).balanceOf(user), 0, "wstEth.balanceOf(user)");
         assertApproxEqAbs(
-            ERC20(WST_ETH).balanceOf(RECEIVER), wstEthExpectedAmount, 1, "Receiver's wrapped stEth balance"
+            ERC20(WST_ETH).balanceOf(RECEIVER), wstEthExpectedAmount, 1, "wstEth.balanceOf(RECEIVER)"
         );
 
-        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(address(bundler)), 0, 1, "Bundler's stEth balance");
-        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(user), 0, 1, "User's stEth balance");
-        assertEq(ERC20(ST_ETH).balanceOf(RECEIVER), 0, "Receiver's stEth balance");
+        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(address(bundler)), 0, 1, "wstEth.balanceOf(bundler)");
+        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(user), 0, 1, "wstEth.balanceOf(user)");
+        assertEq(ERC20(ST_ETH).balanceOf(RECEIVER), 0, "wstEth.balanceOf(RECEIVER)");
     }
 
     function testUnwrapZeroAddress(uint256 amount) public {
@@ -122,13 +122,13 @@ contract StEthBundlerEthereumTest is EthereumTest {
 
         uint256 expectedUnwrappedAmount = IWStEth(WST_ETH).getStETHByWstETH(amount);
 
-        assertEq(ERC20(WST_ETH).balanceOf(address(bundler)), 0, "Bundler's wrapped stEth balance");
-        assertEq(ERC20(WST_ETH).balanceOf(user), 0, "User's wrapped stEth balance");
-        assertEq(ERC20(WST_ETH).balanceOf(RECEIVER), 0, "Receiver's wrapped stEth balance");
+        assertEq(ERC20(WST_ETH).balanceOf(address(bundler)), 0, "wstEth.balanceOf(bundler)");
+        assertEq(ERC20(WST_ETH).balanceOf(user), 0, "wstEth.balanceOf(user)");
+        assertEq(ERC20(WST_ETH).balanceOf(RECEIVER), 0, "wstEth.balanceOf(RECEIVER)");
 
-        assertEq(ERC20(ST_ETH).balanceOf(address(bundler)), 0, "Bundler's stEth balance");
-        assertEq(ERC20(ST_ETH).balanceOf(user), 0, "User's stEth balance");
-        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), expectedUnwrappedAmount, 2, "Receiver's stEth balance");
+        assertEq(ERC20(ST_ETH).balanceOf(address(bundler)), 0, "stEth.balanceOf(bundler)");
+        assertEq(ERC20(ST_ETH).balanceOf(user), 0, "stEth.balanceOf(user)");
+        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), expectedUnwrappedAmount, 2, "stEth.balanceOf(RECEIVER)");
     }
 
     function _mintStEth(uint256 amount, address user) internal returns (uint256 stEthAmount) {
