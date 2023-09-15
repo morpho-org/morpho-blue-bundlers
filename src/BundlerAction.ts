@@ -1,13 +1,18 @@
 import { BigNumberish, Signature } from "ethers";
 import {
+  AaveV2MigrationBundler__factory,
+  AaveV3MigrationBundler__factory,
+  AaveV3OptimizerMigrationBundler__factory,
   BaseBundler__factory,
+  CompoundV2MigrationBundler__factory,
+  CompoundV3MigrationBundler__factory,
   ERC4626Bundler__factory,
   MorphoBundler__factory,
   Permit2Bundler__factory,
   StEthBundler__factory,
   WNativeBundler__factory,
 } from "types";
-import { AuthorizationStruct, MarketParamsStruct, SignatureStruct } from "types/contracts/MorphoBundler";
+import { AuthorizationStruct, MarketParamsStruct } from "types/contracts/MorphoBundler";
 
 export type BundlerCall = string;
 
@@ -18,12 +23,19 @@ export class BundlerAction {
   private static MORPHO_BUNDLER_IFC = MorphoBundler__factory.createInterface();
   private static WNATIVE_BUNDLER_IFC = WNativeBundler__factory.createInterface();
   private static ST_ETH_BUNDLER_IFC = StEthBundler__factory.createInterface();
+  private static AAVE_V2_BUNDLER_IFC = AaveV2MigrationBundler__factory.createInterface();
+  private static AAVE_V3_BUNDLER_IFC = AaveV3MigrationBundler__factory.createInterface();
+  private static AAVE_V3_OPTIMIZER_BUNDLER_IFC = AaveV3OptimizerMigrationBundler__factory.createInterface();
+  private static COMPOUND_V2_BUNDLER_IFC = CompoundV2MigrationBundler__factory.createInterface();
+  private static COMPOUND_V3_BUNDLER_IFC = CompoundV3MigrationBundler__factory.createInterface();
 
   /* ERC20 */
 
   static transfer(asset: string, recipient: string, amount: BigNumberish): BundlerCall {
     return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transfer", [asset, recipient, amount]);
   }
+
+  /* Permit2 */
 
   static transferNative(recipient: string, amount: BigNumberish): BundlerCall {
     return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transferNative", [recipient, amount]);
@@ -44,28 +56,28 @@ export class BundlerAction {
 
   /* ERC4626 */
 
-  static mint(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("mint", [erc4626, amount, receiver]);
+  static erc4626Mint(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
+    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Mint", [erc4626, amount, receiver]);
   }
 
-  static deposit(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("deposit", [erc4626, amount, receiver]);
+  static erc4626Deposit(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
+    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Deposit", [erc4626, amount, receiver]);
   }
 
-  static withdraw(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("withdraw", [erc4626, amount, receiver]);
+  static erc4626Withdraw(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
+    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Withdraw", [erc4626, amount, receiver]);
   }
 
-  static redeem(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("redeem", [erc4626, amount, receiver]);
+  static erc4626Redeem(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
+    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Redeem", [erc4626, amount, receiver]);
   }
 
   /* Morpho */
 
-  static morphoSetAuthorizationWithSig(authorization: AuthorizationStruct, signature: SignatureStruct): BundlerCall {
+  static morphoSetAuthorizationWithSig(authorization: AuthorizationStruct, signature: Signature): BundlerCall {
     return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoSetAuthorizationWithSig", [
       authorization,
-      signature,
+      { v: signature.v, r: signature.r, s: signature.s },
     ]);
   }
 
@@ -179,6 +191,130 @@ export class BundlerAction {
 
   static unwrapStEth(amount: BigNumberish, receiver: string): BundlerCall {
     return BundlerAction.ST_ETH_BUNDLER_IFC.encodeFunctionData("unwrapStEth", [amount, receiver]);
+  }
+
+  /* AaveV2 */
+
+  static aaveV2Repay(asset: string, amount: BigNumberish, rateMode: BigNumberish): BundlerCall {
+    return BundlerAction.AAVE_V2_BUNDLER_IFC.encodeFunctionData("aaveV2Repay", [asset, amount, rateMode]);
+  }
+
+  static aaveV2Withdraw(asset: string, amount: BigNumberish, receiver: string): BundlerCall {
+    return BundlerAction.AAVE_V2_BUNDLER_IFC.encodeFunctionData("aaveV2Withdraw", [asset, amount, receiver]);
+  }
+
+  /* AaveV3 */
+
+  static aaveV3Repay(asset: string, amount: BigNumberish, rateMode: BigNumberish): BundlerCall {
+    return BundlerAction.AAVE_V3_BUNDLER_IFC.encodeFunctionData("aaveV3Repay", [asset, amount, rateMode]);
+  }
+
+  static aaveV3Withdraw(asset: string, amount: BigNumberish, receiver: string): BundlerCall {
+    return BundlerAction.AAVE_V3_BUNDLER_IFC.encodeFunctionData("aaveV3Withdraw", [asset, amount, receiver]);
+  }
+
+  static aaveV3PermitAToken(
+    aToken: string,
+    value: BigNumberish,
+    deadline: BigNumberish,
+    signature: Signature,
+  ): BundlerCall {
+    return BundlerAction.AAVE_V3_BUNDLER_IFC.encodeFunctionData("aaveV3PermitAToken", [
+      aToken,
+      value,
+      deadline,
+      signature.v,
+      signature.r,
+      signature.s,
+    ]);
+  }
+
+  /* AaveV3 Optimizer */
+
+  static aaveV3OptimizerRepay(underlying: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.AAVE_V3_OPTIMIZER_BUNDLER_IFC.encodeFunctionData("aaveV3OptimizerRepay", [underlying, amount]);
+  }
+
+  static aaveV3OptimizerWithdraw(
+    underlying: string,
+    amount: BigNumberish,
+    receiver: string,
+    maxIterations: BigNumberish,
+  ): BundlerCall {
+    return BundlerAction.AAVE_V3_OPTIMIZER_BUNDLER_IFC.encodeFunctionData("aaveV3OptimizerWithdraw", [
+      underlying,
+      amount,
+      receiver,
+      maxIterations,
+    ]);
+  }
+
+  static aaveV3OptimizerWithdrawCollateral(underlying: string, amount: BigNumberish, receiver: string): BundlerCall {
+    return BundlerAction.AAVE_V3_OPTIMIZER_BUNDLER_IFC.encodeFunctionData("aaveV3OptimizerWithdrawCollateral", [
+      underlying,
+      amount,
+      receiver,
+    ]);
+  }
+
+  static aaveV3OptimizerApproveManagerWithSig(
+    isApproved: boolean,
+    nonce: BigNumberish,
+    deadline: BigNumberish,
+    signature: Signature,
+  ): BundlerCall {
+    return BundlerAction.AAVE_V3_OPTIMIZER_BUNDLER_IFC.encodeFunctionData("aaveV3OptimizerApproveManagerWithSig", [
+      isApproved,
+      nonce,
+      deadline,
+      { v: signature.v, r: signature.r, s: signature.s },
+    ]);
+  }
+
+  /* CompoundV2 */
+
+  static compoundV2Repay(cToken: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.COMPOUND_V2_BUNDLER_IFC.encodeFunctionData("compoundV2Repay", [cToken, amount]);
+  }
+
+  static compoundV2Redeem(cToken: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.COMPOUND_V2_BUNDLER_IFC.encodeFunctionData("compoundV2Redeem", [cToken, amount]);
+  }
+
+  /* CompoundV3 */
+
+  static compoundV3Repay(instance: string, asset: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.COMPOUND_V3_BUNDLER_IFC.encodeFunctionData("compoundV3Repay", [instance, asset, amount]);
+  }
+
+  static compoundV3Withdraw(instance: string, asset: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.COMPOUND_V3_BUNDLER_IFC.encodeFunctionData("compoundV3Withdraw", [instance, asset, amount]);
+  }
+
+  static compoundV3WithdrawFrom(instance: string, asset: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.COMPOUND_V3_BUNDLER_IFC.encodeFunctionData("compoundV3WithdrawFrom", [
+      instance,
+      asset,
+      amount,
+    ]);
+  }
+
+  static compoundV3AllowBySig(
+    instance: string,
+    isAllowed: boolean,
+    nonce: BigNumberish,
+    expiry: BigNumberish,
+    signature: Signature,
+  ): BundlerCall {
+    return BundlerAction.COMPOUND_V3_BUNDLER_IFC.encodeFunctionData("compoundV3AllowBySig", [
+      instance,
+      isAllowed,
+      nonce,
+      expiry,
+      signature.v,
+      signature.r,
+      signature.s,
+    ]);
   }
 }
 

@@ -58,8 +58,7 @@ contract CompoundV3MigrationBundlerEthereumTest is BaseMigrationTest {
         callbackData[2] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1);
         callbackData[3] = _compoundV3RepayCall(cToken, marketParams.borrowableToken, borrowed);
         callbackData[4] = _compoundV3AllowCall(privateKey, cToken, address(bundler), true, 0);
-        callbackData[5] =
-            _compoundV3WithdrawFromCall(cToken, address(bundler), marketParams.collateralToken, collateralSupplied);
+        callbackData[5] = _compoundV3WithdrawFromCall(cToken, marketParams.collateralToken, collateralSupplied);
         callbackData[6] = _compoundV3AllowCall(privateKey, cToken, address(bundler), false, 1);
         data[0] = _morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackData));
 
@@ -85,7 +84,7 @@ contract CompoundV3MigrationBundlerEthereumTest is BaseMigrationTest {
         bytes[] memory data = new bytes[](4);
 
         data[0] = _compoundV3AllowCall(privateKey, cToken, address(bundler), true, 0);
-        data[1] = _compoundV3WithdrawFromCall(cToken, address(bundler), marketParams.borrowableToken, supplied);
+        data[1] = _compoundV3WithdrawFromCall(cToken, marketParams.borrowableToken, supplied);
         data[2] = _compoundV3AllowCall(privateKey, cToken, address(bundler), false, 1);
         data[3] = _morphoSupplyCall(supplied, user, hex"");
 
@@ -142,7 +141,7 @@ contract CompoundV3MigrationBundlerEthereumTest is BaseMigrationTest {
         bytes[] memory data = new bytes[](4);
 
         data[0] = _compoundV3AllowCall(privateKey, cToken, address(bundler), true, 0);
-        data[1] = _compoundV3WithdrawFromCall(cToken, address(bundler), marketParams.borrowableToken, supplied);
+        data[1] = _compoundV3WithdrawFromCall(cToken, marketParams.borrowableToken, supplied);
         data[2] = _compoundV3AllowCall(privateKey, cToken, address(bundler), false, 1);
         data[3] = _erc4626DepositCall(address(suppliersVault), supplied, user);
 
@@ -226,7 +225,7 @@ contract CompoundV3MigrationBundlerEthereumTest is BaseMigrationTest {
         pure
         returns (bytes memory)
     {
-        return abi.encodeCall(CompoundV3MigrationBundler.compoundV3Supply, (instance, asset, amount));
+        return abi.encodeCall(CompoundV3MigrationBundler.compoundV3Repay, (instance, asset, amount));
     }
 
     function _compoundV3WithdrawCall(address instance, address asset, uint256 amount)
@@ -237,11 +236,11 @@ contract CompoundV3MigrationBundlerEthereumTest is BaseMigrationTest {
         return abi.encodeCall(CompoundV3MigrationBundler.compoundV3Withdraw, (instance, asset, amount));
     }
 
-    function _compoundV3WithdrawFromCall(address instance, address to, address asset, uint256 amount)
+    function _compoundV3WithdrawFromCall(address instance, address asset, uint256 amount)
         internal
         pure
         returns (bytes memory)
     {
-        return abi.encodeCall(CompoundV3MigrationBundler.compoundV3WithdrawFrom, (instance, to, asset, amount));
+        return abi.encodeCall(CompoundV3MigrationBundler.compoundV3WithdrawFrom, (instance, asset, amount));
     }
 }

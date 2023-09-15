@@ -17,20 +17,31 @@ contract CompoundV3MigrationBundler is MigrationBundler, Permit2Bundler {
 
     /* ACTIONS */
 
-    function compoundV3Supply(address instance, address asset, uint256 amount) external payable {
+    /// @notice Repays `amount` of `asset` on the CompoundV3 `instance`, on behalf of the initiator.
+    /// @notice Warning: should only be called via the bundler's `multicall` function.
+    function compoundV3Repay(address instance, address asset, uint256 amount) external payable {
         _approveMaxTo(asset, instance);
 
+        // Compound V3 uses signed accounting: supplying to a negative balance actually repays the borrow position.
         ICompoundV3(instance).supplyTo(_initiator, asset, amount);
     }
 
+    /// @notice Withdraws `amount` of `asset` on the CompoundV3 `instance`.
+    /// @dev Initiator must have previously transferred their CompoundV3 position to the bundler.
     function compoundV3Withdraw(address instance, address asset, uint256 amount) external payable {
         ICompoundV3(instance).withdraw(asset, amount);
     }
 
-    function compoundV3WithdrawFrom(address instance, address to, address asset, uint256 amount) external payable {
-        ICompoundV3(instance).withdrawFrom(_initiator, to, asset, amount);
+    /// @notice Withdraws `amount` of `asset` from the CompoundV3 `instance`, on behalf of the initiator.
+    /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @dev Initiator must have previously approved the bundler to manage their CompoundV3 position.
+    function compoundV3WithdrawFrom(address instance, address asset, uint256 amount) external payable {
+        ICompoundV3(instance).withdrawFrom(_initiator, address(this), asset, amount);
     }
 
+    /// @notice Approves the bundler to act on behalf of the initiator on the CompoundV3 `instance`, given a signed
+    /// EIP-712 approval message.
+    /// @notice Warning: should only be called via the bundler's `multicall` function.
     function compoundV3AllowBySig(
         address instance,
         bool isAllowed,
