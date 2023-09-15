@@ -105,16 +105,14 @@ contract EVMBundlerLocalTest is LocalTest {
         bundler.multicall(block.timestamp, bundlerAddressData);
     }
 
-    function testERC20ZeroAmount(address receiver, Signature calldata signature) public {
-        vm.assume(receiver != address(0) && receiver != address(bundler));
-
+    function testERC20ZeroAmount(Signature calldata signature) public {
         bytes[] memory transferData = new bytes[](1);
         bytes[] memory transferFromData = new bytes[](1);
         bytes[] memory approve2Data = new bytes[](1);
 
-        transferData[0] = abi.encodeCall(BaseBundler.transfer, (address(borrowableToken), receiver, 0));
+        transferData[0] = abi.encodeCall(BaseBundler.transfer, (address(borrowableToken), RECEIVER, 0));
         transferFromData[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), 0));
-        approve2Data[0] = abi.encodeCall(Permit2Bundler.approve2, (receiver, 0, block.timestamp, signature));
+        approve2Data[0] = abi.encodeCall(Permit2Bundler.approve2, (RECEIVER, 0, block.timestamp, signature));
 
         vm.expectRevert(bytes(BulkerErrorsLib.ZERO_AMOUNT));
         bundler.multicall(block.timestamp, transferData);
@@ -124,18 +122,17 @@ contract EVMBundlerLocalTest is LocalTest {
         bundler.multicall(block.timestamp, approve2Data);
     }
 
-    function testTransfer(uint256 amount, address receiver) public {
-        vm.assume(receiver != address(0) && receiver != address(bundler));
+    function testTransfer(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(BaseBundler.transfer, (address(borrowableToken), receiver, amount));
+        data[0] = abi.encodeCall(BaseBundler.transfer, (address(borrowableToken), RECEIVER, amount));
 
         borrowableToken.setBalance(address(bundler), amount);
         bundler.multicall(block.timestamp, data);
 
         assertEq(borrowableToken.balanceOf(address(bundler)), 0, "borrowable.balanceOf(address(bundler))");
-        assertEq(borrowableToken.balanceOf(receiver), amount, "borrowable.balanceOf(receiver)");
+        assertEq(borrowableToken.balanceOf(RECEIVER), amount, "borrowable.balanceOf(RECEIVER)");
     }
 
     function testTransferFrom2(uint256 amount) public {
@@ -178,18 +175,16 @@ contract EVMBundlerLocalTest is LocalTest {
         bundler.multicall(block.timestamp, redeemData);
     }
 
-    function testERC4626BundlerZeroAmount(address receiver) public {
-        vm.assume(receiver != address(0));
-
+    function testERC4626BundlerZeroAmount() public {
         bytes[] memory mintData = new bytes[](1);
         bytes[] memory depositData = new bytes[](1);
         bytes[] memory withdrawData = new bytes[](1);
         bytes[] memory redeemData = new bytes[](1);
 
-        mintData[0] = abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(vault), 0, receiver));
-        depositData[0] = abi.encodeCall(ERC4626Bundler.erc4626Deposit, (address(vault), 0, receiver));
-        withdrawData[0] = abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (address(vault), 0, receiver));
-        redeemData[0] = abi.encodeCall(ERC4626Bundler.erc4626Redeem, (address(vault), 0, receiver));
+        mintData[0] = abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(vault), 0, RECEIVER));
+        depositData[0] = abi.encodeCall(ERC4626Bundler.erc4626Deposit, (address(vault), 0, RECEIVER));
+        withdrawData[0] = abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (address(vault), 0, RECEIVER));
+        redeemData[0] = abi.encodeCall(ERC4626Bundler.erc4626Redeem, (address(vault), 0, RECEIVER));
 
         vm.expectRevert(bytes(BulkerErrorsLib.ZERO_AMOUNT));
         bundler.multicall(block.timestamp, mintData);
@@ -201,8 +196,8 @@ contract EVMBundlerLocalTest is LocalTest {
         bundler.multicall(block.timestamp, redeemData);
     }
 
-    function testMintVault(uint256 shares, address receiver) public {
-        vm.assume(receiver != address(0));
+    function testMintVault(uint256 shares, address owner) public {
+        vm.assume(owner != address(0));
         shares = bound(shares, MIN_AMOUNT, MAX_AMOUNT);
 
         uint256 expectedAmount = vault.previewMint(shares);
@@ -210,7 +205,7 @@ contract EVMBundlerLocalTest is LocalTest {
 
         bytes[] memory data = new bytes[](2);
         data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), expectedAmount));
-        data[1] = abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(vault), shares, receiver));
+        data[1] = abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(vault), shares, owner));
 
         borrowableToken.setBalance(USER, expectedAmount);
         vm.prank(USER);
@@ -218,11 +213,11 @@ contract EVMBundlerLocalTest is LocalTest {
 
         assertEq(borrowableToken.balanceOf(address(vault)), expectedAmount, "vault's balance");
         assertEq(borrowableToken.balanceOf(address(bundler)), 0, "bundler's balance");
-        assertEq(vault.balanceOf(receiver), shares, "receiver's shares");
+        assertEq(vault.balanceOf(owner), shares, "owner's shares");
     }
 
-    function testDepositVault(uint256 amount, address receiver) public {
-        vm.assume(receiver != address(0));
+    function testDepositVault(uint256 amount, address owner) public {
+        vm.assume(owner != address(0));
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         uint256 expectedShares = vault.previewDeposit(amount);
@@ -230,7 +225,7 @@ contract EVMBundlerLocalTest is LocalTest {
 
         bytes[] memory data = new bytes[](2);
         data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount));
-        data[1] = abi.encodeCall(ERC4626Bundler.erc4626Deposit, (address(vault), amount, receiver));
+        data[1] = abi.encodeCall(ERC4626Bundler.erc4626Deposit, (address(vault), amount, owner));
 
         borrowableToken.setBalance(USER, amount);
         vm.prank(USER);
@@ -238,11 +233,10 @@ contract EVMBundlerLocalTest is LocalTest {
 
         assertEq(borrowableToken.balanceOf(address(vault)), amount, "vault's balance");
         assertEq(borrowableToken.balanceOf(address(bundler)), 0, "bundler's balance");
-        assertEq(vault.balanceOf(receiver), expectedShares, "receiver's shares");
+        assertEq(vault.balanceOf(owner), expectedShares, "owner's shares");
     }
 
-    function testWithdrawVault(uint256 depositedAmount, uint256 withdrawnAmount, address receiver) public {
-        vm.assume(receiver != address(0));
+    function testWithdrawVault(uint256 depositedAmount, uint256 withdrawnAmount) public {
         depositedAmount = bound(depositedAmount, MIN_AMOUNT, MAX_AMOUNT);
 
         uint256 suppliedShares = depositOnVault(depositedAmount);
@@ -251,22 +245,18 @@ contract EVMBundlerLocalTest is LocalTest {
         uint256 withdrawnShares = vault.previewWithdraw(withdrawnAmount);
 
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (address(vault), withdrawnAmount, receiver));
+        data[0] = abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (address(vault), withdrawnAmount, RECEIVER));
 
         vm.prank(USER);
         bundler.multicall(block.timestamp, data);
 
         assertEq(borrowableToken.balanceOf(address(vault)), depositedAmount - withdrawnAmount, "vault's balance");
-        assertEq(borrowableToken.balanceOf(receiver), withdrawnAmount, "bundler's balance");
-        assertEq(vault.balanceOf(USER), suppliedShares - withdrawnShares, "receiver's shares");
-
-        if (receiver != address(bundler)) {
-            assertEq(borrowableToken.balanceOf(address(bundler)), 0, "bundler's balance");
-        }
+        assertEq(borrowableToken.balanceOf(RECEIVER), withdrawnAmount, "RECEIVER's balance");
+        assertEq(vault.balanceOf(USER), suppliedShares - withdrawnShares, "RECEIVER's shares");
+        assertEq(borrowableToken.balanceOf(address(bundler)), 0, "bundler's balance");
     }
 
-    function testRedeemVault(uint256 depositedAmount, uint256 redeemedShares, address receiver) public {
-        vm.assume(receiver != address(0));
+    function testRedeemVault(uint256 depositedAmount, uint256 redeemedShares) public {
         depositedAmount = bound(depositedAmount, MIN_AMOUNT, MAX_AMOUNT);
 
         uint256 suppliedShares = depositOnVault(depositedAmount);
@@ -275,18 +265,15 @@ contract EVMBundlerLocalTest is LocalTest {
         uint256 withdrawnAmount = vault.previewRedeem(redeemedShares);
 
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(ERC4626Bundler.erc4626Redeem, (address(vault), redeemedShares, receiver));
+        data[0] = abi.encodeCall(ERC4626Bundler.erc4626Redeem, (address(vault), redeemedShares, RECEIVER));
 
         vm.prank(USER);
         bundler.multicall(block.timestamp, data);
 
         assertEq(borrowableToken.balanceOf(address(vault)), depositedAmount - withdrawnAmount, "vault's balance");
-        assertEq(borrowableToken.balanceOf(receiver), withdrawnAmount, "bundler's balance");
-        assertEq(vault.balanceOf(USER), suppliedShares - redeemedShares, "receiver's shares");
-
-        if (receiver != address(bundler)) {
-            assertEq(borrowableToken.balanceOf(address(bundler)), 0, "bundler's balance");
-        }
+        assertEq(borrowableToken.balanceOf(RECEIVER), withdrawnAmount, "bundler's balance");
+        assertEq(vault.balanceOf(USER), suppliedShares - redeemedShares, "RECEIVER's shares");
+        assertEq(borrowableToken.balanceOf(address(bundler)), 0, "bundler's balance");
     }
 
     function depositOnVault(uint256 amount) internal returns (uint256 shares) {
@@ -507,30 +494,25 @@ contract EVMBundlerLocalTest is LocalTest {
         assertEq(morpho.borrowShares(id, user), 0, "borrowShares(user)");
     }
 
-    function _testSupplyCollateralBorrow(address user, uint256 amount, uint256 collateralAmount, address receiver)
-        internal
-    {
-        assertEq(collateralToken.balanceOf(receiver), 0, "collateral.balanceOf(receiver)");
-        assertEq(borrowableToken.balanceOf(receiver), amount, "borrowable.balanceOf(receiver)");
+    function _testSupplyCollateralBorrow(address user, uint256 amount, uint256 collateralAmount) internal {
+        assertEq(collateralToken.balanceOf(RECEIVER), 0, "collateral.balanceOf(RECEIVER)");
+        assertEq(borrowableToken.balanceOf(RECEIVER), amount, "borrowable.balanceOf(RECEIVER)");
 
         assertEq(morpho.collateral(id, user), collateralAmount, "collateral(user)");
         assertEq(morpho.supplyShares(id, user), 0, "supplyShares(user)");
         assertEq(morpho.borrowShares(id, user), amount * SharesMathLib.VIRTUAL_SHARES, "borrowShares(user)");
 
-        if (receiver != user) {
-            assertEq(morpho.collateral(id, receiver), 0, "collateral(receiver)");
-            assertEq(morpho.supplyShares(id, receiver), 0, "supplyShares(receiver)");
-            assertEq(morpho.borrowShares(id, receiver), 0, "borrowShares(receiver)");
+        if (RECEIVER != user) {
+            assertEq(morpho.collateral(id, RECEIVER), 0, "collateral(RECEIVER)");
+            assertEq(morpho.supplyShares(id, RECEIVER), 0, "supplyShares(RECEIVER)");
+            assertEq(morpho.borrowShares(id, RECEIVER), 0, "borrowShares(RECEIVER)");
 
             assertEq(collateralToken.balanceOf(user), 0, "collateral.balanceOf(user)");
             assertEq(borrowableToken.balanceOf(user), 0, "borrowable.balanceOf(user)");
         }
     }
 
-    function testSupplyCollateralBorrow(uint256 privateKey, uint256 amount, address receiver) public {
-        vm.assume(receiver != address(0));
-        vm.assume(receiver != address(morpho));
-
+    function testSupplyCollateralBorrow(uint256 privateKey, uint256 amount) public {
         address user;
         (privateKey, user) = _getUserAndKey(privateKey);
         approveERC20ToMorphoAndBundler(user);
@@ -546,20 +528,17 @@ contract EVMBundlerLocalTest is LocalTest {
         data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(collateralToken), collateralAmount));
         data[1] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
         data[2] = abi.encodeCall(MorphoBundler.morphoSupplyCollateral, (marketParams, collateralAmount, user, hex""));
-        data[3] = abi.encodeCall(MorphoBundler.morphoBorrow, (marketParams, amount, 0, receiver));
+        data[3] = abi.encodeCall(MorphoBundler.morphoBorrow, (marketParams, amount, 0, RECEIVER));
 
         collateralToken.setBalance(user, collateralAmount);
 
         vm.prank(user);
         bundler.multicall(block.timestamp, data);
 
-        _testSupplyCollateralBorrow(user, amount, collateralAmount, receiver);
+        _testSupplyCollateralBorrow(user, amount, collateralAmount);
     }
 
-    function testSupplyCollateralBorrowViaCallback(uint256 privateKey, uint256 amount, address receiver) public {
-        vm.assume(receiver != address(0));
-        vm.assume(receiver != address(morpho));
-
+    function testSupplyCollateralBorrowViaCallback(uint256 privateKey, uint256 amount) public {
         address user;
         (privateKey, user) = _getUserAndKey(privateKey);
         approveERC20ToMorphoAndBundler(user);
@@ -573,7 +552,7 @@ contract EVMBundlerLocalTest is LocalTest {
 
         bytes[] memory callbackData = new bytes[](3);
         callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
-        callbackData[1] = abi.encodeCall(MorphoBundler.morphoBorrow, (marketParams, amount, 0, receiver));
+        callbackData[1] = abi.encodeCall(MorphoBundler.morphoBorrow, (marketParams, amount, 0, RECEIVER));
         callbackData[2] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(collateralToken), collateralAmount));
 
         bytes[] memory data = new bytes[](1);
@@ -586,31 +565,28 @@ contract EVMBundlerLocalTest is LocalTest {
         vm.prank(user);
         bundler.multicall(block.timestamp, data);
 
-        _testSupplyCollateralBorrow(user, amount, collateralAmount, receiver);
+        _testSupplyCollateralBorrow(user, amount, collateralAmount);
     }
 
-    function _testRepayWithdrawCollateral(address user, uint256 collateralAmount, address receiver) internal {
-        assertEq(collateralToken.balanceOf(receiver), collateralAmount, "collateral.balanceOf(receiver)");
-        assertEq(borrowableToken.balanceOf(receiver), 0, "borrowable.balanceOf(receiver)");
+    function _testRepayWithdrawCollateral(address user, uint256 collateralAmount) internal {
+        assertEq(collateralToken.balanceOf(RECEIVER), collateralAmount, "collateral.balanceOf(RECEIVER)");
+        assertEq(borrowableToken.balanceOf(RECEIVER), 0, "borrowable.balanceOf(RECEIVER)");
 
         assertEq(morpho.collateral(id, user), 0, "collateral(user)");
         assertEq(morpho.supplyShares(id, user), 0, "supplyShares(user)");
         assertEq(morpho.borrowShares(id, user), 0, "borrowShares(user)");
 
-        if (receiver != user) {
-            assertEq(morpho.collateral(id, receiver), 0, "collateral(receiver)");
-            assertEq(morpho.supplyShares(id, receiver), 0, "supplyShares(receiver)");
-            assertEq(morpho.borrowShares(id, receiver), 0, "borrowShares(receiver)");
+        if (RECEIVER != user) {
+            assertEq(morpho.collateral(id, RECEIVER), 0, "collateral(RECEIVER)");
+            assertEq(morpho.supplyShares(id, RECEIVER), 0, "supplyShares(RECEIVER)");
+            assertEq(morpho.borrowShares(id, RECEIVER), 0, "borrowShares(RECEIVER)");
 
             assertEq(collateralToken.balanceOf(user), 0, "collateral.balanceOf(user)");
             assertEq(borrowableToken.balanceOf(user), 0, "borrowable.balanceOf(user)");
         }
     }
 
-    function testRepayWithdrawCollateral(uint256 privateKey, uint256 amount, address receiver) public {
-        vm.assume(receiver != address(0));
-        vm.assume(receiver != address(morpho));
-
+    function testRepayWithdrawCollateral(uint256 privateKey, uint256 amount) public {
         address user;
         (privateKey, user) = _getUserAndKey(privateKey);
         approveERC20ToMorphoAndBundler(user);
@@ -632,18 +608,15 @@ contract EVMBundlerLocalTest is LocalTest {
         data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount));
         data[1] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
         data[2] = abi.encodeCall(MorphoBundler.morphoRepay, (marketParams, amount, 0, user, hex""));
-        data[3] = abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, receiver));
+        data[3] = abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, RECEIVER));
 
         vm.prank(user);
         bundler.multicall(block.timestamp, data);
 
-        _testRepayWithdrawCollateral(user, collateralAmount, receiver);
+        _testRepayWithdrawCollateral(user, collateralAmount);
     }
 
-    function testRepayMaxAndWithdrawCollateral(uint256 privateKey, uint256 amount, address receiver) public {
-        vm.assume(receiver != address(0));
-        vm.assume(receiver != address(morpho));
-
+    function testRepayMaxAndWithdrawCollateral(uint256 privateKey, uint256 amount) public {
         address user;
         (privateKey, user) = _getUserAndKey(privateKey);
         approveERC20ToMorphoAndBundler(user);
@@ -665,18 +638,15 @@ contract EVMBundlerLocalTest is LocalTest {
         data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount));
         data[1] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
         data[2] = abi.encodeCall(MorphoBundler.morphoRepay, (marketParams, type(uint256).max, 0, user, hex""));
-        data[3] = abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, receiver));
+        data[3] = abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, RECEIVER));
 
         vm.prank(user);
         bundler.multicall(block.timestamp, data);
 
-        _testRepayWithdrawCollateral(user, collateralAmount, receiver);
+        _testRepayWithdrawCollateral(user, collateralAmount);
     }
 
-    function testRepayWithdrawCollateralViaCallback(uint256 privateKey, uint256 amount, address receiver) public {
-        vm.assume(receiver != address(0));
-        vm.assume(receiver != address(morpho));
-
+    function testRepayWithdrawCollateralViaCallback(uint256 privateKey, uint256 amount) public {
         address user;
         (privateKey, user) = _getUserAndKey(privateKey);
         approveERC20ToMorphoAndBundler(user);
@@ -697,7 +667,7 @@ contract EVMBundlerLocalTest is LocalTest {
         bytes[] memory callbackData = new bytes[](3);
         callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
         callbackData[1] =
-            abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, receiver));
+            abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, RECEIVER));
         callbackData[2] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount));
 
         bytes[] memory data = new bytes[](1);
@@ -706,7 +676,7 @@ contract EVMBundlerLocalTest is LocalTest {
         vm.prank(user);
         bundler.multicall(block.timestamp, data);
 
-        _testRepayWithdrawCollateral(user, collateralAmount, receiver);
+        _testRepayWithdrawCollateral(user, collateralAmount);
     }
 
     function testLiquidate(uint256 amountCollateral, uint256 seizedCollateral) public {
