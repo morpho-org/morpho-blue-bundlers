@@ -3,16 +3,12 @@ pragma solidity ^0.8.0;
 
 import {ErrorsLib as BulkerErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 
-import "../helpers/ForkTest.sol";
+import "./EthereumTest.sol";
 
 import "../mocks/WNativeBundlerMock.sol";
 
-contract WNativeBundlerEthereumTest is ForkTest {
+contract WNativeBundlerEthereumTest is EthereumTest {
     WNativeBundlerMock private bundler;
-
-    function _network() internal pure override returns (string memory) {
-        return "ethereum-mainnet";
-    }
 
     function setUp() public override {
         super.setUp();

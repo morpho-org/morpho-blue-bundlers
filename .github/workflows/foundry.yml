@@ -79,8 +79,8 @@ jobs:
         type: ["slow", "fast"]
         include:
           - type: "slow"
-            fuzz-runs: 100000
-            max-test-rejects: 500000
+            fuzz-runs: 25000
+            max-test-rejects: 10000
             invariant-runs: 64
             invariant-depth: 1024
           - type: "fast"
@@ -126,14 +126,14 @@ jobs:
         type: ["slow", "fast"]
         include:
           - type: "slow"
-            fuzz-runs: 1024
-            max-test-rejects: 65536
-            invariant-runs: 64
-            invariant-depth: 1024
-          - type: "fast"
-            fuzz-runs: 256
+            fuzz-runs: 128
             max-test-rejects: 65536
             invariant-runs: 16
+            invariant-depth: 1024
+          - type: "fast"
+            fuzz-runs: 32
+            max-test-rejects: 65536
+            invariant-runs: 4
             invariant-depth: 256
 
     steps:

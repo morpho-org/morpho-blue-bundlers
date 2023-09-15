@@ -18,9 +18,7 @@ abstract contract Configured is StdChains {
     address internal LINK;
     address internal WBTC;
     address internal WETH;
-    address internal CB_ETH;
     address internal WNATIVE;
-    address[] internal lsdNatives;
     address[] internal allAssets;
 
     address internal AAVE_V2_POOL;
@@ -58,10 +56,8 @@ abstract contract Configured is StdChains {
         LINK = CONFIG.getAddress("LINK");
         WBTC = CONFIG.getAddress("WBTC");
         WETH = CONFIG.getAddress("WETH");
-        CB_ETH = CONFIG.getAddress("cbETH");
         WNATIVE = CONFIG.getWrappedNative();
 
-        lsdNatives = CONFIG.getLsdNatives();
         allAssets = [DAI, USDC, USDT, LINK, WBTC, WETH];
 
         ConfigMarket[] memory allConfigMarkets = CONFIG.getMarkets();
@@ -69,9 +65,6 @@ abstract contract Configured is StdChains {
             configMarkets.push(allConfigMarkets[i]);
         }
 
-        for (uint256 i; i < lsdNatives.length; ++i) {
-            allAssets.push(lsdNatives[i]);
-        }
         AAVE_V3_POOL = CONFIG.getAddress("aaveV3Pool");
         AAVE_V2_POOL = CONFIG.getAddress("aaveV2Pool");
         AAVE_V3_OPTIMIZER = CONFIG.getAddress("aaveV3Optimizer");
