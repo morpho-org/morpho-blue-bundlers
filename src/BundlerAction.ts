@@ -1,8 +1,9 @@
 import { BigNumberish, Signature } from "ethers";
 import {
-  ERC20Bundler__factory,
+  BaseBundler__factory,
   ERC4626Bundler__factory,
   MorphoBundler__factory,
+  Permit2Bundler__factory,
   StEthBundler__factory,
   WNativeBundler__factory,
 } from "types";
@@ -11,7 +12,8 @@ import { AuthorizationStruct, MarketParamsStruct, SignatureStruct } from "types/
 export type BundlerCall = string;
 
 export class BundlerAction {
-  private static ERC20_BUNDLER_IFC = ERC20Bundler__factory.createInterface();
+  private static BASE_BUNDLER_IFC = BaseBundler__factory.createInterface();
+  private static PERMIT2_BUNDLER_IFC = Permit2Bundler__factory.createInterface();
   private static ERC4626_BUNDLER_IFC = ERC4626Bundler__factory.createInterface();
   private static MORPHO_BUNDLER_IFC = MorphoBundler__factory.createInterface();
   private static WNATIVE_BUNDLER_IFC = WNativeBundler__factory.createInterface();
@@ -20,11 +22,15 @@ export class BundlerAction {
   /* ERC20 */
 
   static transfer(asset: string, recipient: string, amount: BigNumberish): BundlerCall {
-    return BundlerAction.ERC20_BUNDLER_IFC.encodeFunctionData("transfer", [asset, recipient, amount]);
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transfer", [asset, recipient, amount]);
+  }
+
+  static transferNative(recipient: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transferNative", [recipient, amount]);
   }
 
   static approve2(asset: string, amount: BigNumberish, deadline: BigNumberish, signature: Signature): BundlerCall {
-    return BundlerAction.ERC20_BUNDLER_IFC.encodeFunctionData("approve2", [
+    return BundlerAction.PERMIT2_BUNDLER_IFC.encodeFunctionData("approve2", [
       asset,
       amount,
       deadline,
@@ -33,7 +39,7 @@ export class BundlerAction {
   }
 
   static transferFrom2(asset: string, amount: BigNumberish): BundlerCall {
-    return BundlerAction.ERC20_BUNDLER_IFC.encodeFunctionData("transferFrom2", [asset, amount]);
+    return BundlerAction.PERMIT2_BUNDLER_IFC.encodeFunctionData("transferFrom2", [asset, amount]);
   }
 
   /* ERC4626 */
