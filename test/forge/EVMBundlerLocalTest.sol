@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
+import {UniversalRewardsDistributor} from "@universal-rewards-distributor/UniversalRewardsDistributor.sol";
+
 import {SigUtils} from "./helpers/SigUtils.sol";
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
 import {ErrorsLib as BulkerErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 
 import "./helpers/LocalTest.sol";
@@ -10,6 +12,8 @@ import "./helpers/LocalTest.sol";
 import "contracts/EVMBundler.sol";
 import {ERC4626Mock} from "./mocks/ERC4626Mock.sol";
 import {BaseBundler} from "contracts/BaseBundler.sol";
+
+import {Merkle} from "@murky/src/Merkle.sol";
 
 contract EVMBundlerLocalTest is LocalTest {
     using MathLib for uint256;
@@ -19,15 +23,20 @@ contract EVMBundlerLocalTest is LocalTest {
 
     uint256 internal constant SIG_DEADLINE = type(uint32).max;
 
+    UniversalRewardsDistributor private urd;
     EVMBundler private bundler;
     ERC4626Mock private vault;
     bytes[] private bundleData;
 
+    Merkle merkle;
+
     function setUp() public override {
         super.setUp();
 
+        urd = new UniversalRewardsDistributor();
         vault = new ERC4626Mock(address(borrowableToken), "borrowable Vault", "BV");
-        bundler = new EVMBundler(address(morpho));
+        bundler = new EVMBundler(address(urd), address(morpho));
+        merkle = new Merkle();
 
         vm.startPrank(USER);
         borrowableToken.approve(address(morpho), type(uint256).max);
@@ -969,5 +978,103 @@ contract EVMBundlerLocalTest is LocalTest {
         assertEq(borrowableToken.balanceOf(USER), 0, "User's borrowable token balance");
         assertEq(borrowableToken.balanceOf(address(bundler)), 0, "Bundler's borrowable token balance");
         assertEq(borrowableToken.balanceOf(address(morpho)), amount, "Morpho's borrowable token balance");
+    }
+
+    /* TESTS URDBUNDLER */
+
+    function testClaimRewardsZeroAddress(uint256 claimable) public {
+        claimable = bound(claimable, MIN_AMOUNT, MAX_AMOUNT);
+
+        bytes32 root;
+        bytes32[] memory proof;
+
+        uint256 distribution = urd.createDistribution(0, root);
+
+        bytes[] memory zeroAddressdata = new bytes[](1);
+        zeroAddressdata[0] =
+            abi.encodeCall(URDBundler.claim, (distribution, address(0), address(borrowableToken), claimable, proof));
+
+        vm.prank(USER);
+        vm.expectRevert(bytes(BulkerErrorsLib.ZERO_ADDRESS));
+        bundler.multicall(block.timestamp, zeroAddressdata);
+    }
+
+    function testClaimRewardsBundlerAddress(uint256 claimable) public {
+        claimable = bound(claimable, MIN_AMOUNT, MAX_AMOUNT);
+
+        bytes32 root;
+        bytes32[] memory proof;
+
+        uint256 distribution = urd.createDistribution(0, root);
+
+        bytes[] memory bundlerAddressdata = new bytes[](1);
+        bundlerAddressdata[0] = abi.encodeCall(
+            URDBundler.claim, (distribution, address(bundler), address(borrowableToken), claimable, proof)
+        );
+
+        vm.prank(USER);
+        vm.expectRevert(bytes(BulkerErrorsLib.BUNDLER_ADDRESS));
+        bundler.multicall(block.timestamp, bundlerAddressdata);
+    }
+
+    function testClaimRewards(uint256 claimable, uint8 size) public {
+        claimable = bound(claimable, 1 ether, 1000 ether);
+        uint256 boundedSize = bound(size, 2, 20);
+
+        (bytes32[] memory proofs, bytes32 root) = _setupRewards(claimable, boundedSize);
+
+        borrowableToken.setBalance(address(this), claimable);
+        borrowableToken.approve(address(urd), type(uint256).max);
+        collateralToken.setBalance(address(this), claimable);
+        collateralToken.approve(address(urd), type(uint256).max);
+
+        uint256 distribution = urd.createDistribution(0, root);
+
+        bytes32[] memory borrowableTokenProof = merkle.getProof(proofs, 0);
+        bytes32[] memory collateralTokenProof = merkle.getProof(proofs, 1);
+
+        bytes[] memory data = new bytes[](2);
+        data[0] = abi.encodeCall(
+            URDBundler.claim, (distribution, USER, address(borrowableToken), claimable, borrowableTokenProof)
+        );
+        data[1] = abi.encodeCall(
+            URDBundler.claim, (distribution, USER, address(collateralToken), claimable, collateralTokenProof)
+        );
+
+        vm.prank(USER);
+        bundler.multicall(block.timestamp, data);
+
+        assertEq(borrowableToken.balanceOf(USER), claimable, "User's borrowable balance");
+        assertEq(collateralToken.balanceOf(USER), claimable, "User's collateral balance");
+    }
+
+    function _setupRewards(uint256 claimable, uint256 size)
+        internal
+        view
+        returns (bytes32[] memory data, bytes32 root)
+    {
+        data = new bytes32[](size);
+
+        data[0] = keccak256(bytes.concat(keccak256(abi.encode(USER, address(borrowableToken), claimable))));
+        data[1] = keccak256(bytes.concat(keccak256(abi.encode(USER, address(collateralToken), claimable))));
+
+        uint256 i = 2;
+        while (i < size / 2) {
+            uint256 index = i + 1;
+            data[i] = keccak256(
+                bytes.concat(
+                    keccak256(abi.encode(vm.addr(index), address(borrowableToken), uint256(claimable / index)))
+                )
+            );
+            data[i + 1] = keccak256(
+                bytes.concat(
+                    keccak256(abi.encode(vm.addr(index), address(collateralToken), uint256(claimable / index)))
+                )
+            );
+
+            i += 2;
+        }
+
+        root = merkle.getRoot(data);
     }
 }

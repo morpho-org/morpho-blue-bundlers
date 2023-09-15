@@ -20,6 +20,9 @@
 	path = lib/morpho-blue
 	url = https://github.com/morpho-labs/morpho-blue
 	branch = 0.8.21
+[submodule "lib/universal-rewards-distributor"]
+	path = lib/universal-rewards-distributor
+	url = https://github.com/morpho-org/universal-rewards-distributor
 [submodule "lib/solmate"]
 	path = lib/solmate
 	url = https://github.com/transmissions11/solmate
@@ -32,3 +35,6 @@
 [submodule "lib/morpho-v1"]
 	path = lib/morpho-v1
 	url = https://github.com/morpho-org/morpho-v1
+[submodule "lib/murky"]
+	path = lib/murky
+	url = https://github.com/dmfxyz/murky
