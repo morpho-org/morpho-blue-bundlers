@@ -2,14 +2,14 @@
 pragma solidity ^0.8.0;
 
 import "../helpers/ForkTest.sol";
-import "config/ConfiguredEthereumMainnet.sol";
+import "config/ConfiguredEthereum.sol";
 
-contract EthereumTest is ConfiguredEthereumMainnet, ForkTest {
-    function _network() internal view virtual override(Configured, ConfiguredEthereumMainnet) returns (string memory) {
-        return ConfiguredEthereumMainnet._network();
+contract EthereumTest is ConfiguredEthereum, ForkTest {
+    function _network() internal view virtual override(Configured, ConfiguredEthereum) returns (string memory) {
+        return ConfiguredEthereum._network();
     }
 
-    function _loadConfig() internal virtual override(Configured, ConfiguredEthereumMainnet) {
-        ConfiguredEthereumMainnet._loadConfig();
+    function _loadConfig() internal virtual override(Configured, ConfiguredEthereum) {
+        ConfiguredEthereum._loadConfig();
     }
 }

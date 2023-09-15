@@ -131,7 +131,7 @@ contract BaseMigrationTest is EthereumTest {
         pure
         returns (bytes memory)
     {
-        return abi.encodeCall(ERC4626Bundler.deposit, (vault, amount, receiver));
+        return abi.encodeCall(ERC4626Bundler.erc4626Deposit, (vault, amount, receiver));
     }
 
     function _provideLiquidity(uint256 liquidity) internal {
