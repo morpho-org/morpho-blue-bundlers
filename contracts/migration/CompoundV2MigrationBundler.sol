@@ -27,31 +27,39 @@ contract CompoundV2MigrationBundler is MigrationBundler, Permit2Bundler {
         C_NATIVE = ICEth(cNative);
     }
 
+    /* CALLBACKS */
+
+    /// @dev Only the wNative contract or CompoundV2 is allowed to transfer the native token to this contract, without
+    /// any calldata.
+    receive() external payable {
+        require(msg.sender == address(WRAPPED_NATIVE) || msg.sender == address(C_NATIVE), ErrorsLib.UNAUTHORIZED_SENDER);
+    }
+
     /* ACTIONS */
 
-    function compoundV2Repay(address cToken, uint256 repayAmount) external payable {
+    /// @notice Repays `amount` of `cToken`'s underlying asset, on behalf of the initiator.
+    /// @notice Warning: should only be called via the bundler's `multicall` function.
+    function compoundV2Repay(address cToken, uint256 amount) external payable {
         if (cToken == address(C_NATIVE)) {
-            WRAPPED_NATIVE.withdraw(repayAmount);
+            WRAPPED_NATIVE.withdraw(amount);
 
             // Reverts in case of error.
-            C_NATIVE.repayBorrowBehalf{value: repayAmount}(_initiator);
+            C_NATIVE.repayBorrowBehalf{value: amount}(_initiator);
         } else {
             _approveMaxTo(ICToken(cToken).underlying(), cToken);
 
             // Doesn't revert in case of error.
-            uint256 err = ICToken(cToken).repayBorrowBehalf(_initiator, repayAmount);
+            uint256 err = ICToken(cToken).repayBorrowBehalf(_initiator, amount);
             require(err == 0, ErrorsLib.REPAY_ERROR);
         }
     }
 
+    /// @notice Redeems `amount` of `cToken`'s underlying asset from CompoundV2.
+    /// @dev Initiator must have previously transferred their cTokens to the bundler.
     function compoundV2Redeem(address cToken, uint256 amount) external payable {
         uint256 err = ICToken(cToken).redeemUnderlying(amount);
         require(err == 0, ErrorsLib.REDEEM_ERROR);
 
         if (cToken == address(C_NATIVE)) WRAPPED_NATIVE.deposit{value: amount}();
-    }
-
-    receive() external payable {
-        require(msg.sender == address(WRAPPED_NATIVE) || msg.sender == address(C_NATIVE), ErrorsLib.UNAUTHORIZED_SENDER);
     }
 }

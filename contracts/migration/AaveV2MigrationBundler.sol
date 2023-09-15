@@ -23,13 +23,17 @@ contract AaveV2MigrationBundler is MigrationBundler, Permit2Bundler {
 
     /* ACTIONS */
 
-    function aaveV2Withdraw(address asset, uint256 amount, address to) external payable {
-        AAVE_V2_POOl.withdraw(asset, amount, to);
-    }
-
-    function aaveV2Repay(address asset, uint256 amount, uint256 rateMode) external payable {
+    /// @notice Repays `amount` of `asset` on AaveV2, on behalf of the initiator.
+    /// @notice Warning: should only be called via the bundler's `multicall` function.
+    function aaveV2Repay(address asset, uint256 amount, uint256 interestRateMode) external payable {
         _approveMaxTo(asset, address(AAVE_V2_POOl));
 
-        AAVE_V2_POOl.repay(asset, amount, rateMode, _initiator);
+        AAVE_V2_POOl.repay(asset, amount, interestRateMode, _initiator);
+    }
+
+    /// @notice Withdraws `amount` of `asset` on AaveV3, on behalf of the initiator, transferring funds to `receiver`.
+    /// @dev Initiator must have previously transferred their aTokens to the bundler.
+    function aaveV2Withdraw(address asset, uint256 amount, address receiver) external payable {
+        AAVE_V2_POOl.withdraw(asset, amount, receiver);
     }
 }

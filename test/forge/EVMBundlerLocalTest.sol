@@ -160,10 +160,10 @@ contract EVMBundlerLocalTest is LocalTest {
         bytes[] memory withdrawData = new bytes[](1);
         bytes[] memory redeemData = new bytes[](1);
 
-        mintData[0] = abi.encodeCall(ERC4626Bundler.mint, (address(vault), shares, address(0)));
-        depositData[0] = abi.encodeCall(ERC4626Bundler.deposit, (address(vault), amount, address(0)));
-        withdrawData[0] = abi.encodeCall(ERC4626Bundler.withdraw, (address(vault), amount, address(0)));
-        redeemData[0] = abi.encodeCall(ERC4626Bundler.redeem, (address(vault), shares, address(0)));
+        mintData[0] = abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(vault), shares, address(0)));
+        depositData[0] = abi.encodeCall(ERC4626Bundler.erc4626Deposit, (address(vault), amount, address(0)));
+        withdrawData[0] = abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (address(vault), amount, address(0)));
+        redeemData[0] = abi.encodeCall(ERC4626Bundler.erc4626Redeem, (address(vault), shares, address(0)));
 
         vm.expectRevert(bytes(BulkerErrorsLib.ZERO_ADDRESS));
         bundler.multicall(block.timestamp, mintData);
@@ -181,10 +181,10 @@ contract EVMBundlerLocalTest is LocalTest {
         bytes[] memory withdrawData = new bytes[](1);
         bytes[] memory redeemData = new bytes[](1);
 
-        mintData[0] = abi.encodeCall(ERC4626Bundler.mint, (address(vault), 0, RECEIVER));
-        depositData[0] = abi.encodeCall(ERC4626Bundler.deposit, (address(vault), 0, RECEIVER));
-        withdrawData[0] = abi.encodeCall(ERC4626Bundler.withdraw, (address(vault), 0, RECEIVER));
-        redeemData[0] = abi.encodeCall(ERC4626Bundler.redeem, (address(vault), 0, RECEIVER));
+        mintData[0] = abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(vault), 0, RECEIVER));
+        depositData[0] = abi.encodeCall(ERC4626Bundler.erc4626Deposit, (address(vault), 0, RECEIVER));
+        withdrawData[0] = abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (address(vault), 0, RECEIVER));
+        redeemData[0] = abi.encodeCall(ERC4626Bundler.erc4626Redeem, (address(vault), 0, RECEIVER));
 
         vm.expectRevert(bytes(BulkerErrorsLib.ZERO_AMOUNT));
         bundler.multicall(block.timestamp, mintData);
@@ -205,7 +205,7 @@ contract EVMBundlerLocalTest is LocalTest {
 
         bytes[] memory data = new bytes[](2);
         data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), expectedAmount));
-        data[1] = abi.encodeCall(ERC4626Bundler.mint, (address(vault), shares, owner));
+        data[1] = abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(vault), shares, owner));
 
         borrowableToken.setBalance(USER, expectedAmount);
         vm.prank(USER);
@@ -225,7 +225,7 @@ contract EVMBundlerLocalTest is LocalTest {
 
         bytes[] memory data = new bytes[](2);
         data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount));
-        data[1] = abi.encodeCall(ERC4626Bundler.deposit, (address(vault), amount, owner));
+        data[1] = abi.encodeCall(ERC4626Bundler.erc4626Deposit, (address(vault), amount, owner));
 
         borrowableToken.setBalance(USER, amount);
         vm.prank(USER);
@@ -245,7 +245,7 @@ contract EVMBundlerLocalTest is LocalTest {
         uint256 withdrawnShares = vault.previewWithdraw(withdrawnAmount);
 
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(ERC4626Bundler.withdraw, (address(vault), withdrawnAmount, RECEIVER));
+        data[0] = abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (address(vault), withdrawnAmount, RECEIVER));
 
         vm.prank(USER);
         bundler.multicall(block.timestamp, data);
@@ -265,7 +265,7 @@ contract EVMBundlerLocalTest is LocalTest {
         uint256 withdrawnAmount = vault.previewRedeem(redeemedShares);
 
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(ERC4626Bundler.redeem, (address(vault), redeemedShares, RECEIVER));
+        data[0] = abi.encodeCall(ERC4626Bundler.erc4626Redeem, (address(vault), redeemedShares, RECEIVER));
 
         vm.prank(USER);
         bundler.multicall(block.timestamp, data);

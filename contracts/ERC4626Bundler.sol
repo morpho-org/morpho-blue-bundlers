@@ -18,51 +18,58 @@ abstract contract ERC4626Bundler is BaseBundler {
 
     /* ACTIONS */
 
-    function mint(address vault, uint256 shares, address receiver) external payable {
-        require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
+    /// @notice Mints the given amount of `shares` on the given ERC4626 `vault`, on behalf of `owner`.
+    function erc4626Mint(address vault, uint256 shares, address owner) external payable {
+        require(owner != address(0), ErrorsLib.ZERO_ADDRESS);
 
         address asset = IERC4626(vault).asset();
-        uint256 amount = Math.min(IERC4626(vault).maxDeposit(receiver), ERC20(asset).balanceOf(address(this)));
+        uint256 assets = Math.min(IERC4626(vault).maxDeposit(owner), ERC20(asset).balanceOf(address(this)));
 
-        shares = Math.min(shares, IERC4626(vault).previewDeposit(amount));
-        amount = IERC4626(vault).previewMint(shares);
+        shares = Math.min(shares, IERC4626(vault).previewDeposit(assets));
+        assets = IERC4626(vault).previewMint(shares);
 
-        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
+        require(assets != 0, ErrorsLib.ZERO_AMOUNT);
 
         // Approve 0 first to comply with tokens that implement the anti frontrunning approval fix.
         ERC20(asset).safeApprove(vault, 0);
-        ERC20(asset).safeApprove(vault, amount);
-        IERC4626(vault).mint(shares, receiver);
+        ERC20(asset).safeApprove(vault, assets);
+        IERC4626(vault).mint(shares, owner);
     }
 
-    function deposit(address vault, uint256 amount, address receiver) external payable {
-        require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
+    /// @notice Deposits the given amount of `assets` on the given ERC4626 `vault`, on behalf of `owner`.
+    function erc4626Deposit(address vault, uint256 assets, address owner) external payable {
+        require(owner != address(0), ErrorsLib.ZERO_ADDRESS);
 
         address asset = IERC4626(vault).asset();
 
-        amount = Math.min(amount, IERC4626(vault).maxDeposit(receiver));
-        amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
+        assets = Math.min(assets, IERC4626(vault).maxDeposit(owner));
+        assets = Math.min(assets, ERC20(asset).balanceOf(address(this)));
 
-        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
+        require(assets != 0, ErrorsLib.ZERO_AMOUNT);
 
         // Approve 0 first to comply with tokens that implement the anti frontrunning approval fix.
         ERC20(asset).safeApprove(vault, 0);
-        ERC20(asset).safeApprove(vault, amount);
-        IERC4626(vault).deposit(amount, receiver);
+        ERC20(asset).safeApprove(vault, assets);
+        IERC4626(vault).deposit(assets, owner);
     }
 
-    function withdraw(address vault, uint256 amount, address receiver) external payable {
+    /// @notice Withdraws the given amount of `assets` from the given ERC4626 `vault`, transferring assets to
+    /// `receiver`.
+    /// @notice Warning: should only be called via the bundler's `multicall` function.
+    function erc4626Withdraw(address vault, uint256 assets, address receiver) external payable {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
 
         address initiator = _initiator;
-        amount = Math.min(amount, IERC4626(vault).maxWithdraw(initiator));
+        assets = Math.min(assets, IERC4626(vault).maxWithdraw(initiator));
 
-        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
+        require(assets != 0, ErrorsLib.ZERO_AMOUNT);
 
-        IERC4626(vault).withdraw(amount, receiver, initiator);
+        IERC4626(vault).withdraw(assets, receiver, initiator);
     }
 
-    function redeem(address vault, uint256 shares, address receiver) external payable {
+    /// @notice Redeems the given amount of `shares` from the given ERC4626 `vault`, transferring assets to `receiver`.
+    /// @notice Warning: should only be called via the bundler's `multicall` function.
+    function erc4626Redeem(address vault, uint256 shares, address receiver) external payable {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
 
         address initiator = _initiator;
