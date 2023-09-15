@@ -3,7 +3,6 @@ contracts/=contracts/
 test/=test/
 
 solmate/=lib/solmate/
-openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/
 
 @forge-std/=lib/morpho-blue/lib/forge-std/src/
 @morpho-v1/=lib/morpho-v1/src/
