@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import "./BaseMigrationTest.sol";
-
 import {IMorpho as IAaveV3Optimizer} from "@morpho-aave-v3/interfaces/IMorpho.sol";
 
 import {Types} from "@morpho-aave-v3/libraries/Types.sol";
 
 import {AaveV3OptimizerMigrationBundler} from "contracts/migration/AaveV3OptimizerMigrationBundler.sol";
 
-contract AaveV3MigrationBundlerEthereumTest is BaseMigrationTest {
+import "./helpers/EthereumMigrationTest.sol";
+
+contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;

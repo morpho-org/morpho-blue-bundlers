@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {ErrorsLib as BulkerErrorsLib} from "contracts/libraries/ErrorsLib.sol";
+import {ErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 
-import "./EthereumTest.sol";
+import "contracts/mocks/bundlers/WNativeBundlerMock.sol";
 
-import "../mocks/WNativeBundlerMock.sol";
+import "./helpers/EthereumTest.sol";
 
 contract WNativeBundlerEthereumTest is EthereumTest {
     WNativeBundlerMock private bundler;
@@ -25,7 +25,7 @@ contract WNativeBundlerEthereumTest is EthereumTest {
         bytes[] memory data = new bytes[](1);
         data[0] = abi.encodeCall(WNativeBundler.wrapNative, (amount, address(0)));
 
-        vm.expectRevert(bytes(BulkerErrorsLib.ZERO_ADDRESS));
+        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         vm.prank(USER);
         bundler.multicall(block.timestamp, data);
     }
@@ -34,7 +34,7 @@ contract WNativeBundlerEthereumTest is EthereumTest {
         bytes[] memory data = new bytes[](1);
         data[0] = abi.encodeCall(WNativeBundler.wrapNative, (0, RECEIVER));
 
-        vm.expectRevert(bytes(BulkerErrorsLib.ZERO_AMOUNT));
+        vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
         bundler.multicall(block.timestamp, data);
     }
@@ -64,7 +64,7 @@ contract WNativeBundlerEthereumTest is EthereumTest {
         bytes[] memory data = new bytes[](1);
         data[0] = abi.encodeCall(WNativeBundler.unwrapNative, (amount, address(0)));
 
-        vm.expectRevert(bytes(BulkerErrorsLib.ZERO_ADDRESS));
+        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         vm.prank(USER);
         bundler.multicall(block.timestamp, data);
     }
@@ -75,7 +75,7 @@ contract WNativeBundlerEthereumTest is EthereumTest {
         bytes[] memory data = new bytes[](1);
         data[0] = abi.encodeCall(WNativeBundler.unwrapNative, (amount, address(bundler)));
 
-        vm.expectRevert(bytes(BulkerErrorsLib.BUNDLER_ADDRESS));
+        vm.expectRevert(bytes(ErrorsLib.BUNDLER_ADDRESS));
         vm.prank(USER);
         bundler.multicall(block.timestamp, data);
     }
@@ -84,7 +84,7 @@ contract WNativeBundlerEthereumTest is EthereumTest {
         bytes[] memory data = new bytes[](1);
         data[0] = abi.encodeCall(WNativeBundler.unwrapNative, (0, RECEIVER));
 
-        vm.expectRevert(bytes(BulkerErrorsLib.ZERO_AMOUNT));
+        vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
         bundler.multicall(block.timestamp, data);
     }
