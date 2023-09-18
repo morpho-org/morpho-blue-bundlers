@@ -14,7 +14,7 @@ import {MigrationBundler} from "./MigrationBundler.sol";
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from Compound V2 to Morpho Blue easily.
-contract CompoundV2MigrationBundler is MigrationBundler, Permit2Bundler {
+contract CompoundV2MigrationBundler is Permit2Bundler, MigrationBundler {
     /* IMMUTABLES */
 
     ICEth public immutable C_NATIVE;

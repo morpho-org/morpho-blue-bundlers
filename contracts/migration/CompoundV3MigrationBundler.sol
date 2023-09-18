@@ -12,7 +12,7 @@ import {MigrationBundler} from "./MigrationBundler.sol";
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from Compound V3 to Morpho Blue easily.
-contract CompoundV3MigrationBundler is MigrationBundler, Permit2Bundler {
+contract CompoundV3MigrationBundler is Permit2Bundler, MigrationBundler {
     /* CONSTRUCTOR */
 
     constructor(address morpho) MigrationBundler(morpho) {}

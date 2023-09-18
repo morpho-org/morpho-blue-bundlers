@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
 import {SigUtils} from "test/forge/helpers/SigUtils.sol";
-import {ErrorsLib as BulkerErrorsLib} from "contracts/libraries/ErrorsLib.sol";
+import {ErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 
 import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
 import {IStEth} from "contracts/ethereum-mainnet/interfaces/IStEth.sol";
 import {IWStEth} from "contracts/ethereum-mainnet/interfaces/IWStEth.sol";
 
-import "./EthereumTest.sol";
+import "contracts/mocks/bundlers/ethereum-mainnet/StEthBundlerMock.sol";
 
-import "../mocks/StEthBundlerMock.sol";
+import "./helpers/EthereumTest.sol";
 
 contract StEthBundlerEthereumTest is EthereumTest {
     StEthBundlerMock private bundler;
@@ -28,7 +28,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
         bytes[] memory data = new bytes[](1);
         data[0] = abi.encodeCall(StEthBundler.wrapStEth, (amount, address(0)));
 
-        vm.expectRevert(bytes(BulkerErrorsLib.ZERO_ADDRESS));
+        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         vm.prank(USER);
         bundler.multicall(block.timestamp, data);
     }
@@ -37,7 +37,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
         bytes[] memory data = new bytes[](1);
         data[0] = abi.encodeCall(StEthBundler.wrapStEth, (0, RECEIVER));
 
-        vm.expectRevert(bytes(BulkerErrorsLib.ZERO_AMOUNT));
+        vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
         bundler.multicall(block.timestamp, data);
     }
@@ -77,7 +77,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
         bytes[] memory data = new bytes[](1);
         data[0] = abi.encodeCall(StEthBundler.unwrapStEth, (amount, address(0)));
 
-        vm.expectRevert(bytes(BulkerErrorsLib.ZERO_ADDRESS));
+        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         vm.prank(USER);
         bundler.multicall(block.timestamp, data);
     }
@@ -88,7 +88,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
         bytes[] memory data = new bytes[](1);
         data[0] = abi.encodeCall(StEthBundler.unwrapStEth, (amount, address(bundler)));
 
-        vm.expectRevert(bytes(BulkerErrorsLib.BUNDLER_ADDRESS));
+        vm.expectRevert(bytes(ErrorsLib.BUNDLER_ADDRESS));
         vm.prank(USER);
         bundler.multicall(block.timestamp, data);
     }
@@ -97,7 +97,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
         bytes[] memory data = new bytes[](1);
         data[0] = abi.encodeCall(StEthBundler.unwrapStEth, (0, RECEIVER));
 
-        vm.expectRevert(bytes(BulkerErrorsLib.ZERO_AMOUNT));
+        vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
         bundler.multicall(block.timestamp, data);
     }

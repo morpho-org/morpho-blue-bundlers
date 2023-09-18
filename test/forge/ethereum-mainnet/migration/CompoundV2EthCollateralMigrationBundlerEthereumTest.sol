@@ -5,10 +5,11 @@ import {ICEth} from "contracts/migration/interfaces/ICEth.sol";
 import {ICToken} from "contracts/migration/interfaces/ICToken.sol";
 import {IComptroller} from "contracts/migration/interfaces/IComptroller.sol";
 
-import "./BaseMigrationTest.sol";
 import {CompoundV2MigrationBundler} from "contracts/migration/CompoundV2MigrationBundler.sol";
 
-contract CompoundV2EthCollateralMigrationBundlerEthereumTest is BaseMigrationTest {
+import "./helpers/EthereumMigrationTest.sol";
+
+contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigrationTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;

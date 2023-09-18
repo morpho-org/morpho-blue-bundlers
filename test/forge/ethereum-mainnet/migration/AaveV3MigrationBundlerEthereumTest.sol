@@ -4,10 +4,11 @@ pragma solidity ^0.8.0;
 import {IPool} from "@aave/v3-core/interfaces/IPool.sol";
 import {IAToken} from "@aave/v3-core/interfaces/IAToken.sol";
 
-import "./BaseMigrationTest.sol";
 import {AaveV3MigrationBundler} from "contracts/migration/AaveV3MigrationBundler.sol";
 
-contract AaveV3MigrationBundlerEthereumTest is BaseMigrationTest {
+import "./helpers/EthereumMigrationTest.sol";
+
+contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;

@@ -3,10 +3,11 @@ pragma solidity ^0.8.0;
 
 import {ICompoundV3} from "contracts/migration/interfaces/ICompoundV3.sol";
 
-import "./BaseMigrationTest.sol";
 import {CompoundV3MigrationBundler} from "contracts/migration/CompoundV3MigrationBundler.sol";
 
-contract CompoundV3MigrationBundlerEthereumTest is BaseMigrationTest {
+import "./helpers/EthereumMigrationTest.sol";
+
+contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;

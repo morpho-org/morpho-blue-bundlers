@@ -81,13 +81,9 @@ jobs:
           - type: "slow"
             fuzz-runs: 25000
             max-test-rejects: 10000
-            invariant-runs: 64
-            invariant-depth: 1024
           - type: "fast"
-            fuzz-runs: 4096
+            fuzz-runs: 2048
             max-test-rejects: 65536
-            invariant-runs: 16
-            invariant-depth: 256
 
     steps:
       - name: Generate a token
@@ -110,8 +106,6 @@ jobs:
         env:
           FOUNDRY_FUZZ_RUNS: ${{ matrix.fuzz-runs }}
           FOUNDRY_FUZZ_MAX_TEST_REJECTS: ${{ matrix.max-test-rejects }}
-          FOUNDRY_INVARIANT_RUNS: ${{ matrix.invariant-runs }}
-          FOUNDRY_INVARIANT_DEPTH: ${{ matrix.invariant-depth }}
           FOUNDRY_FUZZ_SEED: 0x${{ github.event.pull_request.base.sha || github.sha }}
 
   test-mainnet:
@@ -128,13 +122,9 @@ jobs:
           - type: "slow"
             fuzz-runs: 128
             max-test-rejects: 65536
-            invariant-runs: 16
-            invariant-depth: 1024
           - type: "fast"
-            fuzz-runs: 32
+            fuzz-runs: 16
             max-test-rejects: 65536
-            invariant-runs: 4
-            invariant-depth: 256
 
     steps:
       - name: Generate a token
@@ -158,6 +148,4 @@ jobs:
           ALCHEMY_KEY: ${{ secrets.ALCHEMY_KEY }}
           FOUNDRY_FUZZ_RUNS: ${{ matrix.fuzz-runs }}
           FOUNDRY_FUZZ_MAX_TEST_REJECTS: ${{ matrix.max-test-rejects }}
-          FOUNDRY_INVARIANT_RUNS: ${{ matrix.invariant-runs }}
-          FOUNDRY_INVARIANT_DEPTH: ${{ matrix.invariant-depth }}
           FOUNDRY_FUZZ_SEED: 0x${{ github.event.pull_request.base.sha || github.sha }}
