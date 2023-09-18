@@ -14,5 +14,5 @@ import {WNativeBundler} from "../WNativeBundler.sol";
 contract EthereumBundler is EVMBundler, WNativeBundler, StEthBundler {
     /* CONSTRUCTOR */
 
-    constructor(address urd, address morpho) EVMBundler(urd, morpho) WNativeBundler(WETH) {}
+    constructor(address morpho) EVMBundler(morpho) WNativeBundler(WETH) {}
 }
