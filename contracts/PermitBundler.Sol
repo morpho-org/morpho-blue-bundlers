@@ -6,13 +6,13 @@ import {Signature} from "@morpho-blue/interfaces/IMorpho.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {IERC20Permit} from "@openzeppelin/token/ERC20/extensions/IERC20Permit.sol";
 
-import {Permit2Bundler} from "./Permit2Bundler.sol";
+import {BaseBundler} from "./BaseBundler.sol";
 
 /// @title PermitBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.xyz
 /// @notice Bundler contract managing interactions with ERC20Permit compliant tokens.
-abstract contract PermitBundler is Permit2Bundler {
+abstract contract PermitBundler is BaseBundler {
     /// @notice Approves the given `amount` of `asset` from sender to be spent by this contract via Permit2 with the
     /// given `deadline` & EIP-712 `signature`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
