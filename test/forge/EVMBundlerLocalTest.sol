@@ -791,12 +791,11 @@ contract EVMBundlerLocalTest is LocalTest {
         bytes32[] memory proof;
 
         bytes[] memory zeroAddressdata = new bytes[](1);
-        zeroAddressdata[0] =
-            abi.encodeCall(URDBundler.claim, (address(0), account, address(borrowableToken), claimable, proof));
+        bundle.push(abi.encodeCall(URDBundler.claim, (address(0), account, address(borrowableToken), claimable, proof)));
 
         vm.prank(USER);
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
-        bundler.multicall(block.timestamp, zeroAddressdata);
+        bundler.multicall(block.timestamp, bundle);
     }
 
     function testClaimRewardsZeroAddressAccount(uint256 claimable) public {
@@ -805,15 +804,15 @@ contract EVMBundlerLocalTest is LocalTest {
         bytes32 root;
         bytes32[] memory proof;
 
-        address distribution = factory.createUrd(OWNER, 0, root, hex"", hex"");
+        address distributor = factory.createUrd(OWNER, 0, root, hex"", hex"");
 
-        bytes[] memory zeroAddressdata = new bytes[](1);
-        zeroAddressdata[0] =
-            abi.encodeCall(URDBundler.claim, (distribution, address(0), address(borrowableToken), claimable, proof));
+        bundle.push(
+            abi.encodeCall(URDBundler.claim, (distributor, address(0), address(borrowableToken), claimable, proof))
+        );
 
         vm.prank(USER);
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
-        bundler.multicall(block.timestamp, zeroAddressdata);
+        bundler.multicall(block.timestamp, bundle);
     }
 
     function testClaimRewardsBundlerAddress(uint256 claimable) public {
@@ -822,16 +821,17 @@ contract EVMBundlerLocalTest is LocalTest {
         bytes32 root;
         bytes32[] memory proof;
 
-        address distribution = factory.createUrd(OWNER, 0, root, hex"", hex"");
+        address distributor = factory.createUrd(OWNER, 0, root, hex"", hex"");
 
-        bytes[] memory bundlerAddressdata = new bytes[](1);
-        bundlerAddressdata[0] = abi.encodeCall(
-            URDBundler.claim, (distribution, address(bundler), address(borrowableToken), claimable, proof)
+        bundle.push(
+            abi.encodeCall(
+                URDBundler.claim, (distributor, address(bundler), address(borrowableToken), claimable, proof)
+            )
         );
 
         vm.prank(USER);
         vm.expectRevert(bytes(ErrorsLib.BUNDLER_ADDRESS));
-        bundler.multicall(block.timestamp, bundlerAddressdata);
+        bundler.multicall(block.timestamp, bundle);
     }
 
     function testClaimRewards(uint256 claimable, uint8 size) public {
@@ -840,24 +840,27 @@ contract EVMBundlerLocalTest is LocalTest {
 
         (bytes32[] memory proofs, bytes32 root) = _setupRewards(claimable, boundedSize);
 
-        address distribution = factory.createUrd(OWNER, 0, root, hex"", hex"");
+        address distributor = factory.createUrd(OWNER, 0, root, hex"", hex"");
 
-        borrowableToken.setBalance(distribution, claimable);
-        collateralToken.setBalance(distribution, claimable);
+        borrowableToken.setBalance(distributor, claimable);
+        collateralToken.setBalance(distributor, claimable);
 
         bytes32[] memory borrowableTokenProof = merkle.getProof(proofs, 0);
         bytes32[] memory collateralTokenProof = merkle.getProof(proofs, 1);
 
-        bytes[] memory data = new bytes[](2);
-        data[0] = abi.encodeCall(
-            URDBundler.claim, (distribution, USER, address(borrowableToken), claimable, borrowableTokenProof)
+        bundle.push(
+            abi.encodeCall(
+                URDBundler.claim, (distributor, USER, address(borrowableToken), claimable, borrowableTokenProof)
+            )
         );
-        data[1] = abi.encodeCall(
-            URDBundler.claim, (distribution, USER, address(collateralToken), claimable, collateralTokenProof)
+        bundle.push(
+            abi.encodeCall(
+                URDBundler.claim, (distributor, USER, address(collateralToken), claimable, collateralTokenProof)
+            )
         );
 
         vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
+        bundler.multicall(block.timestamp, bundle);
 
         assertEq(borrowableToken.balanceOf(USER), claimable, "User's borrowable balance");
         assertEq(collateralToken.balanceOf(USER), claimable, "User's collateral balance");
