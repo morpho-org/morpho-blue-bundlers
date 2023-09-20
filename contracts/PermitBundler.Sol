@@ -15,9 +15,7 @@ import {BaseBundler} from "./BaseBundler.sol";
 abstract contract PermitBundler is BaseBundler {
     /// @notice Approves the given `amount` of `asset` from sender to be spent by this contract via Permit with the given `deadline` & EIP-712 `signature`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
-    function permit(address asset, uint256 amount, uint256 deadline, Signature calldata signature) external payable {
-        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
-
-        IERC20Permit(asset).permit(_initiator, address(this), amount, deadline, signature.v, signature.r, signature.s);
+    function permit(address asset, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) external payable {
+        IERC20Permit(asset).permit(_initiator, address(this), amount, deadline, v, r, s);
     }
 }

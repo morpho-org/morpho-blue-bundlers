@@ -26,17 +26,6 @@ contract PermitBundlerLocalTest is LocalTest {
         bundler = new PermitBundlerMock();
     }
 
-    function testPermitZeroAmount(uint256 deadline) public {
-        deadline = bound(deadline, block.timestamp, type(uint48).max);
-
-        bundle.push(
-            abi.encodeCall(PermitBundler.permit, (address(permitToken), 0, deadline, Signature({v: 0, r: 0, s: 0})))
-        );
-
-        vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
-        bundler.multicall(block.timestamp, bundle);
-    }
-
     function testPermitTransfer(uint256 amount, uint256 privateKey, uint256 deadline) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
         deadline = bound(deadline, block.timestamp, type(uint48).max);
@@ -67,9 +56,8 @@ contract PermitBundlerLocalTest is LocalTest {
         Permit memory permit = Permit(user, address(bundler), amount, nonce, deadline);
         bytes32 hashed = permit.getPermitTypedDataHash(domainSeparator);
 
-        Signature memory signature;
-        (signature.v, signature.r, signature.s) = vm.sign(privateKey, hashed);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, hashed);
 
-        return abi.encodeCall(PermitBundler.permit, (address(permitToken), amount, deadline, signature));
+        return abi.encodeCall(PermitBundler.permit, (address(permitToken), v, r, s));
     }
 }
