@@ -782,7 +782,7 @@ contract EVMBundlerLocalTest is LocalTest {
         assertEq(borrowableToken.balanceOf(address(morpho)), amount, "Morpho's borrowable token balance");
     }
 
-    /* TESTS URDBUNDLER */
+    /* TESTS UrdBUNDLER */
 
     function testClaimRewardsZeroAddressDistribution(uint256 claimable, address account) public {
         vm.assume(account != address(0));
@@ -790,7 +790,7 @@ contract EVMBundlerLocalTest is LocalTest {
 
         bytes32[] memory proof;
 
-        bundle.push(abi.encodeCall(URDBundler.claim, (address(0), account, address(borrowableToken), claimable, proof)));
+        bundle.push(abi.encodeCall(UrdBundler.claim, (address(0), account, address(borrowableToken), claimable, proof)));
 
         vm.prank(USER);
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
@@ -806,7 +806,7 @@ contract EVMBundlerLocalTest is LocalTest {
         address distributor = factory.createUrd(OWNER, 0, root, hex"", hex"");
 
         bundle.push(
-            abi.encodeCall(URDBundler.claim, (distributor, address(0), address(borrowableToken), claimable, proof))
+            abi.encodeCall(UrdBundler.claim, (distributor, address(0), address(borrowableToken), claimable, proof))
         );
 
         vm.prank(USER);
@@ -824,7 +824,7 @@ contract EVMBundlerLocalTest is LocalTest {
 
         bundle.push(
             abi.encodeCall(
-                URDBundler.claim, (distributor, address(bundler), address(borrowableToken), claimable, proof)
+                UrdBundler.claim, (distributor, address(bundler), address(borrowableToken), claimable, proof)
             )
         );
 
@@ -849,12 +849,12 @@ contract EVMBundlerLocalTest is LocalTest {
 
         bundle.push(
             abi.encodeCall(
-                URDBundler.claim, (distributor, USER, address(borrowableToken), claimable, borrowableTokenProof)
+                UrdBundler.claim, (distributor, USER, address(borrowableToken), claimable, borrowableTokenProof)
             )
         );
         bundle.push(
             abi.encodeCall(
-                URDBundler.claim, (distributor, USER, address(collateralToken), claimable, collateralTokenProof)
+                UrdBundler.claim, (distributor, USER, address(collateralToken), claimable, collateralTokenProof)
             )
         );
 

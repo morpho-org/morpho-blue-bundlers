@@ -7,11 +7,11 @@ import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
 
-/// @title URDBudnler
+/// @title UrdBudnler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.xyz
 /// @notice Bundler that allows to claim token rewards on the Universal Rewards Distributor.
-contract URDBundler is BaseBundler {
+contract UrdBundler is BaseBundler {
     function claim(address distributor, address account, address reward, uint256 claimable, bytes32[] calldata proof)
         external
         payable
