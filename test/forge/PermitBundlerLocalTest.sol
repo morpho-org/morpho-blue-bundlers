@@ -26,6 +26,21 @@ contract PermitBundlerLocalTest is LocalTest {
         bundler = new PermitBundlerMock();
     }
 
+    function testPermitAllowance(uint256 amount, uint256 privateKey, uint256 deadline) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+        deadline = bound(deadline, block.timestamp, type(uint48).max);
+        privateKey = bound(privateKey, 1, type(uint160).max);
+
+        address user = vm.addr(privateKey);
+
+        bundle.push(_getPermitData(address(permitToken), privateKey, user, amount, deadline));
+
+        vm.prank(user);
+        bundler.multicall(block.timestamp, bundle);
+
+        assertEq(permitToken.allowance(user, address(bundler)), amount, "permitToken.allowance(user, address(bundler))");
+    }
+
     function testPermitTransfer(uint256 amount, uint256 privateKey, uint256 deadline) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
         deadline = bound(deadline, block.timestamp, type(uint48).max);
@@ -58,6 +73,6 @@ contract PermitBundlerLocalTest is LocalTest {
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, hashed);
 
-        return abi.encodeCall(PermitBundler.permit, (address(permitToken), v, r, s));
+        return abi.encodeCall(PermitBundler.permit, (token, amount, deadline, v, r, s));
     }
 }
