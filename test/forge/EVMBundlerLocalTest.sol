@@ -790,7 +790,6 @@ contract EVMBundlerLocalTest is LocalTest {
 
         bytes32[] memory proof;
 
-        bytes[] memory zeroAddressdata = new bytes[](1);
         bundle.push(abi.encodeCall(URDBundler.claim, (address(0), account, address(borrowableToken), claimable, proof)));
 
         vm.prank(USER);
