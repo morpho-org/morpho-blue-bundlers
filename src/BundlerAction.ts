@@ -8,6 +8,7 @@ import {
   CompoundV3MigrationBundler__factory,
   ERC4626Bundler__factory,
   MorphoBundler__factory,
+  PermitBundler__factory,
   Permit2Bundler__factory,
   StEthBundler__factory,
   WNativeBundler__factory,
@@ -18,6 +19,7 @@ export type BundlerCall = string;
 
 export class BundlerAction {
   private static BASE_BUNDLER_IFC = BaseBundler__factory.createInterface();
+  private static PERMIT_BUNDLER_IFC = PermitBundler__factory.createInterface();
   private static PERMIT2_BUNDLER_IFC = Permit2Bundler__factory.createInterface();
   private static ERC4626_BUNDLER_IFC = ERC4626Bundler__factory.createInterface();
   private static MORPHO_BUNDLER_IFC = MorphoBundler__factory.createInterface();
@@ -33,6 +35,19 @@ export class BundlerAction {
 
   static transfer(asset: string, recipient: string, amount: BigNumberish): BundlerCall {
     return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transfer", [asset, recipient, amount]);
+  }
+
+  /* Permit */
+
+  static permit(asset: string, amount: BigNumberish, deadline: BigNumberish, signature: Signature): BundlerCall {
+    return BundlerAction.PERMIT_BUNDLER_IFC.encodeFunctionData("permit", [
+      asset,
+      amount,
+      deadline,
+      signature.v,
+      signature.r,
+      signature.s,
+    ]);
   }
 
   /* Permit2 */
