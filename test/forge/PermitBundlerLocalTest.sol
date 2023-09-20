@@ -37,7 +37,7 @@ contract PermitBundlerLocalTest is LocalTest {
         bundler.multicall(block.timestamp, bundle);
     }
 
-    function testPermitTransfer(uint256 amount, uint256 privateKey, uint256 deadline) public {
+    function testPermitTransferFrom(uint256 amount, uint256 privateKey, uint256 deadline) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
         deadline = bound(deadline, block.timestamp, type(uint48).max);
         privateKey = bound(privateKey, 1, type(uint160).max);
