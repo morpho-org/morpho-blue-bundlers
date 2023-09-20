@@ -70,6 +70,6 @@ contract PermitBundlerLocalTest is LocalTest {
         Signature memory signature;
         (signature.v, signature.r, signature.s) = vm.sign(privateKey, hashed);
 
-        return abi.encodeCall(PermitBundler.permit, (address(permitToken), amount, deadline, signature));
+        return abi.encodeCall(PermitBundler.permit, (token, amount, deadline, signature));
     }
 }
