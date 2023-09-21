@@ -1,14 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {UniversalRewardsDistributor} from "@universal-rewards-distributor/UniversalRewardsDistributor.sol";
-import {UrdFactory} from "@universal-rewards-distributor/UrdFactory.sol";
-
 import {SigUtils} from "./helpers/SigUtils.sol";
 import {ErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
-
-import {Merkle} from "@murky/src/Merkle.sol";
 
 import {BaseBundler} from "contracts/BaseBundler.sol";
 import "contracts/EVMBundler.sol";
@@ -23,19 +18,14 @@ contract EVMBundlerLocalTest is LocalTest {
 
     uint256 internal constant SIG_DEADLINE = type(uint32).max;
 
-    UrdFactory private factory;
     EVMBundler private bundler;
 
     bytes[] private bundle;
 
-    Merkle merkle;
-
     function setUp() public override {
         super.setUp();
 
-        factory = new UrdFactory();
         bundler = new EVMBundler(address(morpho));
-        merkle = new Merkle();
 
         vm.startPrank(USER);
         borrowableToken.approve(address(morpho), type(uint256).max);
@@ -780,118 +770,5 @@ contract EVMBundlerLocalTest is LocalTest {
         assertEq(borrowableToken.balanceOf(USER), 0, "User's borrowable token balance");
         assertEq(borrowableToken.balanceOf(address(bundler)), 0, "Bundler's borrowable token balance");
         assertEq(borrowableToken.balanceOf(address(morpho)), amount, "Morpho's borrowable token balance");
-    }
-
-    /* TESTS URDBUNDLER */
-
-    function testClaimRewardsZeroAddressDistribution(uint256 claimable, address account) public {
-        vm.assume(account != address(0));
-        claimable = bound(claimable, MIN_AMOUNT, MAX_AMOUNT);
-
-        bytes32[] memory proof;
-
-        bundle.push(abi.encodeCall(URDBundler.claim, (address(0), account, address(borrowableToken), claimable, proof)));
-
-        vm.prank(USER);
-        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
-        bundler.multicall(block.timestamp, bundle);
-    }
-
-    function testClaimRewardsZeroAddressAccount(uint256 claimable) public {
-        claimable = bound(claimable, MIN_AMOUNT, MAX_AMOUNT);
-
-        bytes32 root;
-        bytes32[] memory proof;
-
-        address distributor = factory.createUrd(OWNER, 0, root, hex"", hex"");
-
-        bundle.push(
-            abi.encodeCall(URDBundler.claim, (distributor, address(0), address(borrowableToken), claimable, proof))
-        );
-
-        vm.prank(USER);
-        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
-        bundler.multicall(block.timestamp, bundle);
-    }
-
-    function testClaimRewardsBundlerAddress(uint256 claimable) public {
-        claimable = bound(claimable, MIN_AMOUNT, MAX_AMOUNT);
-
-        bytes32 root;
-        bytes32[] memory proof;
-
-        address distributor = factory.createUrd(OWNER, 0, root, hex"", hex"");
-
-        bundle.push(
-            abi.encodeCall(
-                URDBundler.claim, (distributor, address(bundler), address(borrowableToken), claimable, proof)
-            )
-        );
-
-        vm.prank(USER);
-        vm.expectRevert(bytes(ErrorsLib.BUNDLER_ADDRESS));
-        bundler.multicall(block.timestamp, bundle);
-    }
-
-    function testClaimRewards(uint256 claimable, uint8 size) public {
-        claimable = bound(claimable, 1 ether, 1000 ether);
-        uint256 boundedSize = bound(size, 2, 20);
-
-        (bytes32[] memory proofs, bytes32 root) = _setupRewards(claimable, boundedSize);
-
-        address distributor = factory.createUrd(OWNER, 0, root, hex"", hex"");
-
-        borrowableToken.setBalance(distributor, claimable);
-        collateralToken.setBalance(distributor, claimable);
-
-        bytes32[] memory borrowableTokenProof = merkle.getProof(proofs, 0);
-        bytes32[] memory collateralTokenProof = merkle.getProof(proofs, 1);
-
-        bundle.push(
-            abi.encodeCall(
-                URDBundler.claim, (distributor, USER, address(borrowableToken), claimable, borrowableTokenProof)
-            )
-        );
-        bundle.push(
-            abi.encodeCall(
-                URDBundler.claim, (distributor, USER, address(collateralToken), claimable, collateralTokenProof)
-            )
-        );
-
-        vm.prank(USER);
-        bundler.multicall(block.timestamp, bundle);
-
-        assertEq(borrowableToken.balanceOf(USER), claimable, "User's borrowable balance");
-        assertEq(collateralToken.balanceOf(USER), claimable, "User's collateral balance");
-    }
-
-    function _setupRewards(uint256 claimable, uint256 size)
-        internal
-        view
-        returns (bytes32[] memory data, bytes32 root)
-    {
-        data = new bytes32[](size);
-
-        data[0] = keccak256(bytes.concat(keccak256(abi.encode(USER, address(borrowableToken), claimable))));
-        data[1] = keccak256(bytes.concat(keccak256(abi.encode(USER, address(collateralToken), claimable))));
-
-        uint256 i = 2;
-        while (i < size / 2) {
-            uint256 index = i + 1;
-            data[i] = keccak256(
-                bytes.concat(
-                    keccak256(abi.encode(vm.addr(index), address(borrowableToken), uint256(claimable / index)))
-                )
-            );
-            data[i + 1] = keccak256(
-                bytes.concat(
-                    keccak256(abi.encode(vm.addr(index), address(collateralToken), uint256(claimable / index)))
-                )
-            );
-
-            i += 2;
-        }
-
-        root = merkle.getRoot(data);
     }
 }

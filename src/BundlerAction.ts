@@ -1,17 +1,18 @@
 import { BigNumberish, Signature } from "ethers";
 import {
+  BaseBundler__factory,
+  PermitBundler__factory,
+  Permit2Bundler__factory,
+  ERC4626Bundler__factory,
+  MorphoBundler__factory,
+  UrdBundler__factory,
+  WNativeBundler__factory,
+  StEthBundler__factory,
   AaveV2MigrationBundler__factory,
   AaveV3MigrationBundler__factory,
   AaveV3OptimizerMigrationBundler__factory,
-  BaseBundler__factory,
   CompoundV2MigrationBundler__factory,
   CompoundV3MigrationBundler__factory,
-  ERC4626Bundler__factory,
-  MorphoBundler__factory,
-  PermitBundler__factory,
-  Permit2Bundler__factory,
-  StEthBundler__factory,
-  WNativeBundler__factory,
 } from "types";
 import { AuthorizationStruct, MarketParamsStruct } from "types/contracts/MorphoBundler";
 
@@ -23,6 +24,7 @@ export class BundlerAction {
   private static PERMIT2_BUNDLER_IFC = Permit2Bundler__factory.createInterface();
   private static ERC4626_BUNDLER_IFC = ERC4626Bundler__factory.createInterface();
   private static MORPHO_BUNDLER_IFC = MorphoBundler__factory.createInterface();
+  private static URD_BUNDLER_IFC = UrdBundler__factory.createInterface();
   private static WNATIVE_BUNDLER_IFC = WNativeBundler__factory.createInterface();
   private static ST_ETH_BUNDLER_IFC = StEthBundler__factory.createInterface();
   private static AAVE_V2_BUNDLER_IFC = AaveV2MigrationBundler__factory.createInterface();
@@ -35,6 +37,10 @@ export class BundlerAction {
 
   static transfer(asset: string, recipient: string, amount: BigNumberish): BundlerCall {
     return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transfer", [asset, recipient, amount]);
+  }
+
+  static transferNative(recipient: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transferNative", [recipient, amount]);
   }
 
   static transferFrom(asset: string, amount: BigNumberish): BundlerCall {
@@ -55,10 +61,6 @@ export class BundlerAction {
   }
 
   /* Permit2 */
-
-  static transferNative(recipient: string, amount: BigNumberish): BundlerCall {
-    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transferNative", [recipient, amount]);
-  }
 
   static approve2(asset: string, amount: BigNumberish, deadline: BigNumberish, signature: Signature): BundlerCall {
     return BundlerAction.PERMIT2_BUNDLER_IFC.encodeFunctionData("approve2", [
@@ -190,6 +192,18 @@ export class BundlerAction {
       amount,
       BundlerAction.MORPHO_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
     ]);
+  }
+
+  /* Universal Rewards Distributor */
+
+  static urdClaim(
+    distributor: string,
+    account: string,
+    reward: string,
+    amount: BigNumberish,
+    proof: string[],
+  ): BundlerCall {
+    return BundlerAction.URD_BUNDLER_IFC.encodeFunctionData("urdClaim", [distributor, account, reward, amount, proof]);
   }
 
   /* Wrapped Native */

@@ -6,7 +6,6 @@ import {Signature} from "@morpho-blue/interfaces/IMorpho.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {ERC20, Permit2Lib} from "@permit2/libraries/Permit2Lib.sol";
 import {SafeCast160} from "@permit2/libraries/SafeCast160.sol";
-import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
 
@@ -30,7 +29,7 @@ abstract contract Permit2Bundler is BaseBundler {
         ERC20(asset).simplePermit2(_initiator, address(this), amount, deadline, signature.v, signature.r, signature.s);
     }
 
-    /// @notice Transfers the given `amount` of `asset` from sender to this contract via Permit2 transferFrom.
+    /// @notice Transfers the given `amount` of `asset` from sender to this contract via ERC20 transfer with Permit2.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     function transferFrom2(address asset, uint256 amount) external payable {
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
