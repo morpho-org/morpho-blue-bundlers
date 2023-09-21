@@ -10,6 +10,7 @@ import {MorphoLib} from "@morpho-blue/libraries/periphery/MorphoLib.sol";
 import {MorphoBalancesLib} from "@morpho-blue/libraries/periphery/MorphoBalancesLib.sol";
 
 import "../../helpers/EthereumTest.sol";
+import {BaseBundler} from "contracts/BaseBundler.sol";
 import {MorphoBundler} from "contracts/MorphoBundler.sol";
 import {ERC4626Bundler} from "contracts/ERC4626Bundler.sol";
 import {Permit2Bundler} from "contracts/Permit2Bundler.sol";
@@ -93,6 +94,10 @@ contract EthereumMigrationTest is EthereumTest {
         returns (bytes memory)
     {
         return abi.encodeCall(MorphoBundler.morphoSupplyCollateral, (marketParams, amount, onBehalf, callbackData));
+    }
+
+    function _erc20TransferFromCall(address asset, uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(BaseBundler.transferFrom, (asset, amount));
     }
 
     function _erc20TransferFrom2Call(address asset, uint256 amount) internal pure returns (bytes memory) {

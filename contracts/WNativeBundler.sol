@@ -64,6 +64,6 @@ abstract contract WNativeBundler is BaseBundler, Permit2Bundler {
 
         IWNative(WRAPPED_NATIVE).withdraw(amount);
 
-        SafeTransferLib.safeTransferETH(receiver, amount);
+        if (receiver != address(this)) SafeTransferLib.safeTransferETH(receiver, amount);
     }
 }
