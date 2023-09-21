@@ -9,10 +9,8 @@ import "contracts/mocks/bundlers/ERC4626BundlerMock.sol";
 import "./helpers/LocalTest.sol";
 
 contract ERC4626BundlerLocalTest is LocalTest {
-    ERC4626Mock private vault;
+    ERC4626Mock internal vault;
     ERC4626BundlerMock internal bundler;
-
-    bytes[] internal bundle;
 
     function setUp() public override {
         super.setUp();

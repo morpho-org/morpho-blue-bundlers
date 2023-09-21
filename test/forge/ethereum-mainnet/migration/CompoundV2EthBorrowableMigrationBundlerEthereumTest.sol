@@ -15,12 +15,9 @@ contract CompoundV2EthBorrowableMigrationBundlerEthereumTest is EthereumMigratio
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
 
-    CompoundV2MigrationBundler bundler;
+    CompoundV2MigrationBundler internal bundler;
 
-    bytes[] bundle;
-    bytes[] callbackBundle;
-
-    address[] enteredMarkets;
+    address[] internal enteredMarkets;
 
     function setUp() public override {
         super.setUp();

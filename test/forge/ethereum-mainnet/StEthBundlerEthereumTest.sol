@@ -22,6 +22,36 @@ contract StEthBundlerEthereumTest is EthereumTest {
         bundler = new StEthBundlerMock();
     }
 
+    function testStakeEth(uint256 amount) public {
+        amount = bound(amount, 1, 10_000 ether);
+
+        deal(USER, amount);
+
+        bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, address(0), RECEIVER)));
+
+        vm.prank(USER);
+        bundler.multicall{value: amount}(block.timestamp, bundle);
+
+        assertEq(USER.balance, 0, "USER.balance");
+        assertEq(RECEIVER.balance, 0, "RECEIVER.balance");
+        assertEq(address(bundler).balance, 0, "bundler.balance");
+        assertEq(ERC20(ST_ETH).balanceOf(USER), 0, "balanceOf(USER)");
+        assertEq(ERC20(ST_ETH).balanceOf(address(bundler)), 0, "balanceOf(bundler)");
+        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), amount, 2, "balanceOf(RECEIVER)");
+    }
+
+    function testStakeEthZeroAddress(uint256 amount) public {
+        amount = bound(amount, 1, 10_000 ether);
+
+        deal(USER, amount);
+
+        bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, address(0), address(0))));
+
+        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
+        vm.prank(USER);
+        bundler.multicall{value: amount}(block.timestamp, bundle);
+    }
+
     function testWrapZeroAddress(uint256 amount) public {
         vm.assume(amount != 0);
 

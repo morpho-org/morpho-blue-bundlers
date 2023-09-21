@@ -216,6 +216,12 @@ export class BundlerAction {
     return BundlerAction.WNATIVE_BUNDLER_IFC.encodeFunctionData("unwrapNative", [amount, receiver]);
   }
 
+  /* stETH */
+
+  static stakeEth(amount: BigNumberish, referral: string, receiver: string): BundlerCall {
+    return BundlerAction.ST_ETH_BUNDLER_IFC.encodeFunctionData("stakeEth", [amount, referral, receiver]);
+  }
+
   /* Wrapped stETH */
 
   static wrapStEth(amount: BigNumberish, receiver: string): BundlerCall {

@@ -15,12 +15,10 @@ import "./helpers/LocalTest.sol";
 contract UrdBundlerLocalTest is LocalTest {
     UrdBundlerMock internal bundler;
 
-    bytes[] internal bundle;
-
     UrdFactory internal urdFactory;
     Merkle internal merkle;
 
-    address distributor;
+    address internal distributor;
 
     function setUp() public override {
         super.setUp();
