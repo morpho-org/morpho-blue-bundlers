@@ -100,7 +100,8 @@ contract EVMBundlerLocalTest is LocalTest {
         authorization.nonce = morpho.nonce(user);
         authorization.isAuthorized = true;
 
-        bytes32 digest = SigUtils.getTypedDataHash(morpho.DOMAIN_SEPARATOR(), authorization);
+        bytes32 digest =
+            SigUtils.getTypedDataHash(morpho.DOMAIN_SEPARATOR(), SigUtils.getAuthorizationStructHash(authorization));
 
         Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
