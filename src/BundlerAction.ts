@@ -37,6 +37,10 @@ export class BundlerAction {
     return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transfer", [asset, recipient, amount]);
   }
 
+  static transferFrom(asset: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transferFrom", [asset, amount]);
+  }
+
   /* Permit */
 
   static permit(asset: string, amount: BigNumberish, deadline: BigNumberish, signature: Signature): BundlerCall {
