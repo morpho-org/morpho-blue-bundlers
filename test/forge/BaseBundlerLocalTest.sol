@@ -72,6 +72,16 @@ contract BaseBundlerLocalTest is LocalTest {
         assertEq(borrowableToken.balanceOf(USER), 0, "borrowable.balanceOf(USER)");
     }
 
+    function testTranferFromZeroAddress(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(0), amount)));
+
+        vm.prank(USER);
+        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
+        bundler.multicall(block.timestamp, bundle);
+    }
+
     function testTranferFromZeroAmount() public {
         bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(borrowableToken), 0)));
 
