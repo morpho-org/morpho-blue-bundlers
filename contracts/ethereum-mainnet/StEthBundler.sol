@@ -33,6 +33,18 @@ abstract contract StEthBundler is BaseBundler {
 
     /* ACTIONS */
 
+    function stakeEth(uint256 amount, address referral, address receiver) external payable {
+        require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
+
+        amount = Math.min(amount, ERC20(ST_ETH).balanceOf(address(this)));
+
+        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
+
+        uint256 staked = IStEth(ST_ETH).submit{value: amount}(referral);
+
+        if (receiver != address(this)) ERC20(ST_ETH).safeTransfer(receiver, staked);
+    }
+
     /// @notice Wraps the given `amount` of stETH to wstETH and transfers it to `receiver`.
     function wrapStEth(uint256 amount, address receiver) external payable {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
@@ -41,14 +53,13 @@ abstract contract StEthBundler is BaseBundler {
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        amount = IWStEth(WST_ETH).wrap(amount);
+        uint256 wrapped = IWStEth(WST_ETH).wrap(amount);
 
-        if (receiver != address(this)) ERC20(WST_ETH).safeTransfer(receiver, amount);
+        if (receiver != address(this)) ERC20(WST_ETH).safeTransfer(receiver, wrapped);
     }
 
     /// @notice Unwraps the given `amount` of wstETH to stETH and transfers it to `receiver`.
     function unwrapStEth(uint256 amount, address receiver) external payable {
-        require(receiver != address(this), ErrorsLib.BUNDLER_ADDRESS);
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
 
         amount = Math.min(amount, ERC20(WST_ETH).balanceOf(address(this)));
@@ -57,6 +68,6 @@ abstract contract StEthBundler is BaseBundler {
 
         uint256 unwrapped = IWStEth(WST_ETH).unwrap(amount);
 
-        ERC20(ST_ETH).safeTransfer(receiver, unwrapped);
+        if (receiver != address(this)) ERC20(ST_ETH).safeTransfer(receiver, unwrapped);
     }
 }
