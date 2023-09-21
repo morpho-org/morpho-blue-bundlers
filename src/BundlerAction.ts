@@ -1,6 +1,7 @@
 import { BigNumberish, Signature } from "ethers";
 import {
   BaseBundler__factory,
+  PermitBundler__factory,
   Permit2Bundler__factory,
   ERC4626Bundler__factory,
   MorphoBundler__factory,
@@ -19,6 +20,7 @@ export type BundlerCall = string;
 
 export class BundlerAction {
   private static BASE_BUNDLER_IFC = BaseBundler__factory.createInterface();
+  private static PERMIT_BUNDLER_IFC = PermitBundler__factory.createInterface();
   private static PERMIT2_BUNDLER_IFC = Permit2Bundler__factory.createInterface();
   private static ERC4626_BUNDLER_IFC = ERC4626Bundler__factory.createInterface();
   private static MORPHO_BUNDLER_IFC = MorphoBundler__factory.createInterface();
@@ -39,6 +41,23 @@ export class BundlerAction {
 
   static transferNative(recipient: string, amount: BigNumberish): BundlerCall {
     return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transferNative", [recipient, amount]);
+  }
+
+  static transferFrom(asset: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transferFrom", [asset, amount]);
+  }
+
+  /* Permit */
+
+  static permit(asset: string, amount: BigNumberish, deadline: BigNumberish, signature: Signature): BundlerCall {
+    return BundlerAction.PERMIT_BUNDLER_IFC.encodeFunctionData("permit", [
+      asset,
+      amount,
+      deadline,
+      signature.v,
+      signature.r,
+      signature.s,
+    ]);
   }
 
   /* Permit2 */

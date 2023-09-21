@@ -58,4 +58,13 @@ abstract contract BaseBundler is BaseSelfMulticall, BaseCallbackReceiver {
 
         SafeTransferLib.safeTransferETH(recipient, amount);
     }
+
+    /// @notice Transfers the given `amount` of `asset` from sender to this contract via ERC20 transferFrom.
+    /// @notice Warning: should only be called via the bundler's `multicall` function.
+    function transferFrom(address asset, uint256 amount) external payable {
+        require(asset != address(0), ErrorsLib.ZERO_ADDRESS);
+        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
+
+        ERC20(asset).safeTransferFrom(_initiator, address(this), amount);
+    }
 }
