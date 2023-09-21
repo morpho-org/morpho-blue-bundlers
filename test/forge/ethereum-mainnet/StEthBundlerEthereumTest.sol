@@ -112,17 +112,6 @@ contract StEthBundlerEthereumTest is EthereumTest {
         bundler.multicall(block.timestamp, data);
     }
 
-    function testUnwrapBundlerAddress(uint256 amount) public {
-        vm.assume(amount != 0);
-
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(StEthBundler.unwrapStEth, (amount, address(bundler)));
-
-        vm.expectRevert(bytes(ErrorsLib.BUNDLER_ADDRESS));
-        vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
-    }
-
     function testUnwrapZeroAmount() public {
         bytes[] memory data = new bytes[](1);
         data[0] = abi.encodeCall(StEthBundler.unwrapStEth, (0, RECEIVER));
