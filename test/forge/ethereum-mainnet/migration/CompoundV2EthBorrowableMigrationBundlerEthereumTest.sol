@@ -60,7 +60,6 @@ contract CompoundV2EthBorrowableMigrationBundlerEthereumTest is EthereumMigratio
         callbackBundle.push(_erc20Approve2Call(privateKey, C_DAI_V2, uint160(cTokenBalance), address(bundler), 0));
         callbackBundle.push(_erc20TransferFrom2Call(C_DAI_V2, cTokenBalance));
         callbackBundle.push(_compoundV2WithdrawCall(C_DAI_V2, collateral));
-        callbackBundle.push(abi.encodeCall(WNativeBundler.wrapNative, (collateral, address(bundler))));
 
         bundle.push(_morphoSupplyCollateralCall(collateral, user, abi.encode(callbackBundle)));
 
