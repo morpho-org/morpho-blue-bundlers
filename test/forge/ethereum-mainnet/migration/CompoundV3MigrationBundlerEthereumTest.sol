@@ -36,7 +36,6 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         bundler = new CompoundV3MigrationBundler(address(morpho));
     }
 
-    /// forge-config: default.fuzz.runs = 3
     function testMigrateBorrowerWithCompoundAllowance(uint256 privateKey) public {
         address user;
         (privateKey, user) = _getUserAndKey(privateKey);

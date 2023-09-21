@@ -33,6 +33,8 @@ abstract contract BaseBundler is BaseSelfMulticall, BaseCallbackReceiver {
         return _multicall(data);
     }
 
+    /* ACTIONS */
+
     /// @notice Transfers the minimum between the given `amount` and the bundler's balance of `asset` from the bundler
     /// to `recipient`.
     function transfer(address asset, address recipient, uint256 amount) external payable {

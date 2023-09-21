@@ -24,8 +24,8 @@ contract EthereumMigrationTest is EthereumTest {
 
     uint256 internal constant SIG_DEADLINE = type(uint32).max;
 
-    MarketParams marketParams;
-    ERC4626Mock suppliersVault;
+    MarketParams internal marketParams;
+    ERC4626Mock internal suppliersVault;
 
     function _initMarket(address collateral, address borrowable) internal {
         marketParams.collateralToken = collateral;

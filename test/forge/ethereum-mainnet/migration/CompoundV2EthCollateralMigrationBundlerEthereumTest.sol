@@ -5,7 +5,7 @@ import {ICEth} from "contracts/migration/interfaces/ICEth.sol";
 import {ICToken} from "contracts/migration/interfaces/ICToken.sol";
 import {IComptroller} from "contracts/migration/interfaces/IComptroller.sol";
 
-import {CompoundV2MigrationBundler} from "contracts/migration/CompoundV2MigrationBundler.sol";
+import "contracts/migration/CompoundV2MigrationBundler.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
 
@@ -17,46 +17,36 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
 
     CompoundV2MigrationBundler bundler;
 
-    mapping(address => address) _cTokens;
+    bytes[] bundle;
+    bytes[] callbackBundle;
 
-    address borrowableCToken;
-
-    uint256 collateralSupplied = 10 ether;
-    uint256 borrowed = 1 ether;
+    address[] enteredMarkets;
 
     function setUp() public override {
         super.setUp();
 
         _initMarket(WETH, DAI);
 
-        vm.label(C_ETH_V2, "cETHv2");
-        _cTokens[WETH] = C_ETH_V2;
-        vm.label(C_DAI_V2, "cDAIv2");
-        _cTokens[DAI] = C_DAI_V2;
-        vm.label(C_USDC_V2, "cUSDCv2");
-        _cTokens[USDC] = C_USDC_V2;
-
         bundler = new CompoundV2MigrationBundler(address(morpho), WETH, C_ETH_V2);
-        vm.label(address(bundler), "Compound V2 Migration Bundler");
 
-        borrowableCToken = _getCToken(DAI);
+        enteredMarkets.push(C_ETH_V2);
     }
 
-    /// forge-config: default.fuzz.runs = 3
     function testMigrateBorrowerWithPermit2(uint256 privateKey) public {
+        uint256 collateral = 10 ether;
+        uint256 borrowed = 1 ether;
+
         address user;
         (privateKey, user) = _getUserAndKey(privateKey);
 
         _provideLiquidity(borrowed);
 
-        deal(user, collateralSupplied);
+        deal(user, collateral);
 
         vm.startPrank(user);
-        ICEth(C_ETH_V2).mint{value: collateralSupplied}();
-        address[] memory enteredMarkets = new address[](1);
-        enteredMarkets[0] = C_ETH_V2;
+        ICEth(C_ETH_V2).mint{value: collateral}();
         require(IComptroller(COMPTROLLER).enterMarkets(enteredMarkets)[0] == 0, "enter market error");
-        require(ICToken(borrowableCToken).borrow(borrowed) == 0, "borrow error");
+        require(ICToken(C_DAI_V2).borrow(borrowed) == 0, "borrow error");
         vm.stopPrank();
 
         uint256 cTokenBalance = ICEth(C_ETH_V2).balanceOf(user);
@@ -64,28 +54,21 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         vm.prank(user);
         ERC20(C_ETH_V2).safeApprove(address(Permit2Lib.PERMIT2), cTokenBalance);
 
-        bytes[] memory data = new bytes[](1);
-        bytes[] memory callbackData = new bytes[](7);
+        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
+        callbackBundle.push(_morphoBorrowCall(borrowed, address(bundler)));
+        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1));
+        callbackBundle.push(_compoundV2RepayCall(C_DAI_V2, borrowed));
+        callbackBundle.push(_erc20Approve2Call(privateKey, C_ETH_V2, uint160(cTokenBalance), address(bundler), 0));
+        callbackBundle.push(_erc20TransferFrom2Call(C_ETH_V2, cTokenBalance));
+        callbackBundle.push(_compoundV2WithdrawCall(C_ETH_V2, collateral));
+        callbackBundle.push(abi.encodeCall(WNativeBundler.wrapNative, (collateral, address(bundler))));
 
-        callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
-        callbackData[1] = _morphoBorrowCall(borrowed, address(bundler));
-        callbackData[2] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1);
-        callbackData[3] = _compoundV2RepayCall(borrowableCToken, borrowed);
-        callbackData[4] = _erc20Approve2Call(privateKey, C_ETH_V2, uint160(cTokenBalance), address(bundler), 0);
-        callbackData[5] = _erc20TransferFrom2Call(C_ETH_V2, cTokenBalance);
-        callbackData[6] = _compoundV2WithdrawCall(C_ETH_V2, collateralSupplied);
-        data[0] = _morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackData));
+        bundle.push(_morphoSupplyCollateralCall(collateral, user, abi.encode(callbackBundle)));
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, data);
+        bundler.multicall(SIG_DEADLINE, bundle);
 
-        _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
-    }
-
-    function _getCToken(address asset) internal view returns (address) {
-        address res = _cTokens[asset];
-        require(res != address(0), "unknown compound v2 asset");
-        return res;
+        _assertBorrowerPosition(collateral, borrowed, user, address(bundler));
     }
 
     function _compoundV2RepayCall(address cToken, uint256 repayAmount) internal pure returns (bytes memory) {
