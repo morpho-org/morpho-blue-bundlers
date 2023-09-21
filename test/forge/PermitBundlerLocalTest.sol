@@ -15,8 +15,6 @@ contract PermitBundlerLocalTest is LocalTest {
     PermitBundlerMock internal bundler;
     ERC20PermitMock internal permitToken;
 
-    bytes[] internal bundle;
-
     function setUp() public override {
         super.setUp();
 

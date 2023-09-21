@@ -17,9 +17,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
     uint256 internal constant SIG_DEADLINE = type(uint32).max;
 
-    MorphoBundlerMock private bundler;
-
-    bytes[] private bundle;
+    MorphoBundlerMock internal bundler;
 
     function setUp() public override {
         super.setUp();
