@@ -31,7 +31,6 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.label(address(bundler), "Aave V3 Optimizer Migration Bundler");
     }
 
-    /// forge-config: default.fuzz.runs = 3
     function testMigrateBorrowerWithOptimizerPermit(uint256 privateKey) public {
         address user;
         (privateKey, user) = _getUserAndKey(privateKey);

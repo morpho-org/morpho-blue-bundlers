@@ -5,12 +5,11 @@ import {SigUtils} from "./helpers/SigUtils.sol";
 import {ErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
 
-import {BaseBundler} from "contracts/BaseBundler.sol";
-import "contracts/EVMBundler.sol";
+import "contracts/mocks/bundlers/MorphoBundlerMock.sol";
 
 import "./helpers/LocalTest.sol";
 
-contract EVMBundlerLocalTest is LocalTest {
+contract MorphoBundlerLocalTest is LocalTest {
     using MathLib for uint256;
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
@@ -18,14 +17,14 @@ contract EVMBundlerLocalTest is LocalTest {
 
     uint256 internal constant SIG_DEADLINE = type(uint32).max;
 
-    EVMBundler private bundler;
+    MorphoBundlerMock private bundler;
 
     bytes[] private bundle;
 
     function setUp() public override {
         super.setUp();
 
-        bundler = new EVMBundler(address(morpho));
+        bundler = new MorphoBundlerMock(address(morpho));
 
         vm.startPrank(USER);
         borrowableToken.approve(address(morpho), type(uint256).max);
