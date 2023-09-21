@@ -4,9 +4,10 @@ pragma solidity 0.8.21;
 import {ICompoundV3} from "./interfaces/ICompoundV3.sol";
 
 import {ErrorsLib} from "../libraries/ErrorsLib.sol";
+import {Math} from "@morpho-utils/math/Math.sol";
 
 import {Permit2Bundler} from "../Permit2Bundler.sol";
-import {MigrationBundler} from "./MigrationBundler.sol";
+import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 
 /// @title CompoundV3MigrationBundler
 /// @author Morpho Labs
@@ -23,6 +24,10 @@ contract CompoundV3MigrationBundler is Permit2Bundler, MigrationBundler {
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     function compoundV3Repay(address instance, address asset, uint256 amount) external payable {
         require(instance != address(0), ErrorsLib.ZERO_ADDRESS);
+
+        amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
+
+        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
         _approveMaxTo(asset, instance);
 
