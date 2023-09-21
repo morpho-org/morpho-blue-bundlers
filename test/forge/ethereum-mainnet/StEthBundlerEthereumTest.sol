@@ -25,21 +25,19 @@ contract StEthBundlerEthereumTest is EthereumTest {
     function testWrapZeroAddress(uint256 amount) public {
         vm.assume(amount != 0);
 
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(StEthBundler.wrapStEth, (amount, address(0)));
+        bundle.push(Call(abi.encodeCall(StEthBundler.wrapStEth, (amount, address(0))), false));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
+        bundler.multicall(block.timestamp, bundle);
     }
 
     function testWrapZeroAmount() public {
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(StEthBundler.wrapStEth, (0, RECEIVER));
+        bundle.push(Call(abi.encodeCall(StEthBundler.wrapStEth, (0, RECEIVER)), false));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
+        bundler.multicall(block.timestamp, bundle);
     }
 
     function testWrapStEth(uint256 amount, uint256 privateKey) public {
@@ -52,15 +50,14 @@ contract StEthBundlerEthereumTest is EthereumTest {
         _mintStEth(amount, user);
         amount = ERC20(ST_ETH).balanceOf(user);
 
-        bytes[] memory data = new bytes[](3);
-        data[0] = _getPermit2Data(ST_ETH, privateKey, user);
-        data[1] = abi.encodeCall(Permit2Bundler.transferFrom2, (ST_ETH, amount));
-        data[2] = abi.encodeCall(StEthBundler.wrapStEth, (amount, RECEIVER));
+        bundle.push(Call(_getPermit2Data(ST_ETH, privateKey, user), false));
+        bundle.push(Call(abi.encodeCall(Permit2Bundler.transferFrom2, (ST_ETH, amount)), false));
+        bundle.push(Call(abi.encodeCall(StEthBundler.wrapStEth, (amount, RECEIVER)), false));
 
         uint256 wstEthExpectedAmount = IStEth(ST_ETH).getSharesByPooledEth(ERC20(ST_ETH).balanceOf(user));
 
         vm.prank(user);
-        bundler.multicall(block.timestamp, data);
+        bundler.multicall(block.timestamp, bundle);
 
         assertEq(ERC20(WST_ETH).balanceOf(address(bundler)), 0, "wstEth.balanceOf(bundler)");
         assertEq(ERC20(WST_ETH).balanceOf(user), 0, "wstEth.balanceOf(user)");
@@ -74,32 +71,29 @@ contract StEthBundlerEthereumTest is EthereumTest {
     function testUnwrapZeroAddress(uint256 amount) public {
         vm.assume(amount != 0);
 
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(StEthBundler.unwrapStEth, (amount, address(0)));
+        bundle.push(Call(abi.encodeCall(StEthBundler.unwrapStEth, (amount, address(0))), false));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
+        bundler.multicall(block.timestamp, bundle);
     }
 
     function testUnwrapBundlerAddress(uint256 amount) public {
         vm.assume(amount != 0);
 
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(StEthBundler.unwrapStEth, (amount, address(bundler)));
+        bundle.push(Call(abi.encodeCall(StEthBundler.unwrapStEth, (amount, address(bundler))), false));
 
         vm.expectRevert(bytes(ErrorsLib.BUNDLER_ADDRESS));
         vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
+        bundler.multicall(block.timestamp, bundle);
     }
 
     function testUnwrapZeroAmount() public {
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(StEthBundler.unwrapStEth, (0, RECEIVER));
+        bundle.push(Call(abi.encodeCall(StEthBundler.unwrapStEth, (0, RECEIVER)), false));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
+        bundler.multicall(block.timestamp, bundle);
     }
 
     function testUnwrapWstEth(uint256 amount, uint256 privateKey) public {
@@ -109,14 +103,13 @@ contract StEthBundlerEthereumTest is EthereumTest {
         address user = _getAddressFromPrivateKey(privateKey);
         _approvePermit2(user);
 
-        bytes[] memory data = new bytes[](3);
-        data[0] = _getPermit2Data(WST_ETH, privateKey, user);
-        data[1] = abi.encodeCall(Permit2Bundler.transferFrom2, (WST_ETH, amount));
-        data[2] = abi.encodeCall(StEthBundler.unwrapStEth, (amount, RECEIVER));
+        bundle.push(Call(_getPermit2Data(WST_ETH, privateKey, user), false));
+        bundle.push(Call(abi.encodeCall(Permit2Bundler.transferFrom2, (WST_ETH, amount)), false));
+        bundle.push(Call(abi.encodeCall(StEthBundler.unwrapStEth, (amount, RECEIVER)), false));
 
         deal(WST_ETH, user, amount);
         vm.prank(user);
-        bundler.multicall(block.timestamp, data);
+        bundler.multicall(block.timestamp, bundle);
 
         uint256 expectedUnwrappedAmount = IWStEth(WST_ETH).getStETHByWstETH(amount);
 

@@ -10,8 +10,6 @@ import "./helpers/LocalTest.sol";
 contract BaseBundlerLocalTest is LocalTest {
     BaseBundlerMock internal bundler;
 
-    bytes[] internal bundle;
-
     function setUp() public override {
         super.setUp();
 
@@ -21,7 +19,7 @@ contract BaseBundlerLocalTest is LocalTest {
     function testTransfer(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(abi.encodeCall(BaseBundler.transfer, (address(borrowableToken), RECEIVER, amount)));
+        bundle.push(Call(abi.encodeCall(BaseBundler.transfer, (address(borrowableToken), RECEIVER, amount)), false));
 
         borrowableToken.setBalance(address(bundler), amount);
 
@@ -34,7 +32,7 @@ contract BaseBundlerLocalTest is LocalTest {
     function testTranferZeroAddress(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(abi.encodeCall(BaseBundler.transfer, (address(borrowableToken), address(0), amount)));
+        bundle.push(Call(abi.encodeCall(BaseBundler.transfer, (address(borrowableToken), address(0), amount)), false));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         bundler.multicall(block.timestamp, bundle);
@@ -43,14 +41,16 @@ contract BaseBundlerLocalTest is LocalTest {
     function testTranferBundlerAddress(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(abi.encodeCall(BaseBundler.transfer, (address(borrowableToken), address(bundler), amount)));
+        bundle.push(
+            Call(abi.encodeCall(BaseBundler.transfer, (address(borrowableToken), address(bundler), amount)), false)
+        );
 
         vm.expectRevert(bytes(ErrorsLib.BUNDLER_ADDRESS));
         bundler.multicall(block.timestamp, bundle);
     }
 
     function testTranferZero() public {
-        bundle.push(abi.encodeCall(BaseBundler.transfer, (address(borrowableToken), RECEIVER, 0)));
+        bundle.push(Call(abi.encodeCall(BaseBundler.transfer, (address(borrowableToken), RECEIVER, 0)), false));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(block.timestamp, bundle);

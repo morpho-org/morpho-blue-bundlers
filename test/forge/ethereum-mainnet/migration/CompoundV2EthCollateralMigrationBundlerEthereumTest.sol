@@ -64,20 +64,20 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         vm.prank(user);
         ERC20(C_ETH_V2).safeApprove(address(Permit2Lib.PERMIT2), cTokenBalance);
 
-        bytes[] memory data = new bytes[](1);
-        bytes[] memory callbackData = new bytes[](7);
+        callbackBundle.push(Call(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0), false));
+        callbackBundle.push(Call(_morphoBorrowCall(borrowed, address(bundler)), false));
+        callbackBundle.push(Call(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1), false));
+        callbackBundle.push(Call(_compoundV2RepayCall(borrowableCToken, borrowed), false));
+        callbackBundle.push(
+            Call(_erc20Approve2Call(privateKey, C_ETH_V2, uint160(cTokenBalance), address(bundler), 0), false)
+        );
+        callbackBundle.push(Call(_erc20TransferFrom2Call(C_ETH_V2, cTokenBalance), false));
+        callbackBundle.push(Call(_compoundV2WithdrawCall(C_ETH_V2, collateralSupplied), false));
 
-        callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
-        callbackData[1] = _morphoBorrowCall(borrowed, address(bundler));
-        callbackData[2] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1);
-        callbackData[3] = _compoundV2RepayCall(borrowableCToken, borrowed);
-        callbackData[4] = _erc20Approve2Call(privateKey, C_ETH_V2, uint160(cTokenBalance), address(bundler), 0);
-        callbackData[5] = _erc20TransferFrom2Call(C_ETH_V2, cTokenBalance);
-        callbackData[6] = _compoundV2WithdrawCall(C_ETH_V2, collateralSupplied);
-        data[0] = _morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackData));
+        bundle.push(Call(_morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackBundle)), false));
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, data);
+        bundler.multicall(SIG_DEADLINE, bundle);
 
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
     }

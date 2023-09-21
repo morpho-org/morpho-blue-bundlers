@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@morpho-blue/interfaces/IMorpho.sol";
+import {Call} from "contracts/interfaces/IMultidelegatecall.sol";
 
 import {MarketParamsLib} from "@morpho-blue/libraries/MarketParamsLib.sol";
 import {SharesMathLib} from "@morpho-blue/libraries/SharesMathLib.sol";
@@ -38,6 +39,9 @@ abstract contract BaseTest is Test {
     IMorpho internal morpho;
     IrmMock internal irm;
     OracleMock internal oracle;
+
+    Call[] internal bundle;
+    Call[] internal callbackBundle;
 
     function setUp() public virtual {
         morpho = IMorpho(_deploy("lib/morpho-blue/out/Morpho.sol/Morpho.json", abi.encode(OWNER)));

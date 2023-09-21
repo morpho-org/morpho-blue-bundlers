@@ -12,8 +12,6 @@ contract ERC4626BundlerLocalTest is LocalTest {
     ERC4626Mock private vault;
     ERC4626BundlerMock internal bundler;
 
-    bytes[] internal bundle;
-
     function setUp() public override {
         super.setUp();
 
@@ -22,84 +20,84 @@ contract ERC4626BundlerLocalTest is LocalTest {
     }
 
     function testErc4626MintZeroAdressTarget(uint256 shares) public {
-        bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(0), shares, RECEIVER)));
+        bundle.push(Call(abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(0), shares, RECEIVER)), false));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         bundler.multicall(block.timestamp, bundle);
     }
 
     function testErc4626MintZeroAdress(uint256 shares) public {
-        bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(vault), shares, address(0))));
+        bundle.push(Call(abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(vault), shares, address(0))), false));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         bundler.multicall(block.timestamp, bundle);
     }
 
     function testErc4626DepositZeroAdressTarget(uint256 assets) public {
-        bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Deposit, (address(0), assets, RECEIVER)));
+        bundle.push(Call(abi.encodeCall(ERC4626Bundler.erc4626Deposit, (address(0), assets, RECEIVER)), false));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         bundler.multicall(block.timestamp, bundle);
     }
 
     function testErc4626DepositZeroAdress(uint256 assets) public {
-        bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Deposit, (address(vault), assets, address(0))));
+        bundle.push(Call(abi.encodeCall(ERC4626Bundler.erc4626Deposit, (address(vault), assets, address(0))), false));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         bundler.multicall(block.timestamp, bundle);
     }
 
     function testErc4626WithdrawZeroAdressTarget(uint256 assets) public {
-        bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (address(0), assets, RECEIVER)));
+        bundle.push(Call(abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (address(0), assets, RECEIVER)), false));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         bundler.multicall(block.timestamp, bundle);
     }
 
     function testErc4626WithdrawZeroAdress(uint256 assets) public {
-        bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (address(vault), assets, address(0))));
+        bundle.push(Call(abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (address(vault), assets, address(0))), false));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         bundler.multicall(block.timestamp, bundle);
     }
 
     function testErc4626RedeemZeroAdressTarget(uint256 assets) public {
-        bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Redeem, (address(0), assets, RECEIVER)));
+        bundle.push(Call(abi.encodeCall(ERC4626Bundler.erc4626Redeem, (address(0), assets, RECEIVER)), false));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         bundler.multicall(block.timestamp, bundle);
     }
 
     function testErc4626RedeemZeroAdress(uint256 shares) public {
-        bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Redeem, (address(vault), shares, address(0))));
+        bundle.push(Call(abi.encodeCall(ERC4626Bundler.erc4626Redeem, (address(vault), shares, address(0))), false));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         bundler.multicall(block.timestamp, bundle);
     }
 
     function testErc4626MintZero() public {
-        bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(vault), 0, RECEIVER)));
+        bundle.push(Call(abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(vault), 0, RECEIVER)), false));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(block.timestamp, bundle);
     }
 
     function testErc4626DepositZero() public {
-        bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Deposit, (address(vault), 0, RECEIVER)));
+        bundle.push(Call(abi.encodeCall(ERC4626Bundler.erc4626Deposit, (address(vault), 0, RECEIVER)), false));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(block.timestamp, bundle);
     }
 
     function testErc4626WithdrawZero() public {
-        bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (address(vault), 0, RECEIVER)));
+        bundle.push(Call(abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (address(vault), 0, RECEIVER)), false));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(block.timestamp, bundle);
     }
 
     function testErc4626RedeemZero() public {
-        bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Redeem, (address(vault), 0, RECEIVER)));
+        bundle.push(Call(abi.encodeCall(ERC4626Bundler.erc4626Redeem, (address(vault), 0, RECEIVER)), false));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_SHARES));
         bundler.multicall(block.timestamp, bundle);
@@ -110,8 +108,8 @@ contract ERC4626BundlerLocalTest is LocalTest {
 
         uint256 assets = vault.previewMint(shares);
 
-        bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), assets)));
-        bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(vault), shares, USER)));
+        bundle.push(Call(abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), assets)), false));
+        bundle.push(Call(abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(vault), shares, USER)), false));
 
         borrowableToken.setBalance(USER, assets);
 
@@ -131,8 +129,8 @@ contract ERC4626BundlerLocalTest is LocalTest {
 
         uint256 shares = vault.previewDeposit(assets);
 
-        bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), assets)));
-        bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(vault), assets, USER)));
+        bundle.push(Call(abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), assets)), false));
+        bundle.push(Call(abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(vault), assets, USER)), false));
 
         borrowableToken.setBalance(USER, assets);
 
@@ -156,7 +154,7 @@ contract ERC4626BundlerLocalTest is LocalTest {
 
         uint256 redeemed = vault.previewWithdraw(assets);
 
-        bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (address(vault), assets, RECEIVER)));
+        bundle.push(Call(abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (address(vault), assets, RECEIVER)), false));
 
         vm.startPrank(USER);
         vault.approve(address(bundler), redeemed);
@@ -179,7 +177,7 @@ contract ERC4626BundlerLocalTest is LocalTest {
 
         uint256 withdrawn = vault.previewRedeem(shares);
 
-        bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Redeem, (address(vault), shares, RECEIVER)));
+        bundle.push(Call(abi.encodeCall(ERC4626Bundler.erc4626Redeem, (address(vault), shares, RECEIVER)), false));
 
         vm.startPrank(USER);
         vault.approve(address(bundler), shares);

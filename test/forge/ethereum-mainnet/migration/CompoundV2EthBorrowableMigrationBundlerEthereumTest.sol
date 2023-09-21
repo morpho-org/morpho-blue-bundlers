@@ -66,20 +66,20 @@ contract CompoundV2EthBorrowableMigrationBundlerEthereumTest is EthereumMigratio
         vm.prank(user);
         ERC20(collateralCToken).safeApprove(address(Permit2Lib.PERMIT2), cTokenBalance);
 
-        bytes[] memory data = new bytes[](1);
-        bytes[] memory callbackData = new bytes[](7);
+        callbackBundle.push(Call(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0), false));
+        callbackBundle.push(Call(_morphoBorrowCall(borrowed, address(bundler)), false));
+        callbackBundle.push(Call(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1), false));
+        callbackBundle.push(Call(_compoundV2RepayCall(C_ETH_V2, borrowed), false));
+        callbackBundle.push(
+            Call(_erc20Approve2Call(privateKey, collateralCToken, uint160(cTokenBalance), address(bundler), 0), false)
+        );
+        callbackBundle.push(Call(_erc20TransferFrom2Call(collateralCToken, cTokenBalance), false));
+        callbackBundle.push(Call(_compoundV2WithdrawCall(collateralCToken, collateralSupplied), false));
 
-        callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
-        callbackData[1] = _morphoBorrowCall(borrowed, address(bundler));
-        callbackData[2] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1);
-        callbackData[3] = _compoundV2RepayCall(C_ETH_V2, borrowed);
-        callbackData[4] = _erc20Approve2Call(privateKey, collateralCToken, uint160(cTokenBalance), address(bundler), 0);
-        callbackData[5] = _erc20TransferFrom2Call(collateralCToken, cTokenBalance);
-        callbackData[6] = _compoundV2WithdrawCall(collateralCToken, collateralSupplied);
-        data[0] = _morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackData));
+        bundle.push(Call(_morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackBundle)), false));
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, data);
+        bundler.multicall(SIG_DEADLINE, bundle);
 
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
     }
@@ -99,15 +99,13 @@ contract CompoundV2EthBorrowableMigrationBundlerEthereumTest is EthereumMigratio
         vm.prank(user);
         ERC20(C_ETH_V2).safeApprove(address(Permit2Lib.PERMIT2), cTokenBalance);
 
-        bytes[] memory data = new bytes[](4);
-
-        data[0] = _erc20Approve2Call(privateKey, C_ETH_V2, uint160(cTokenBalance), address(bundler), 0);
-        data[1] = _erc20TransferFrom2Call(C_ETH_V2, cTokenBalance);
-        data[2] = _compoundV2WithdrawCall(C_ETH_V2, supplied);
-        data[3] = _morphoSupplyCall(supplied, user, hex"");
+        bundle.push(Call(_erc20Approve2Call(privateKey, C_ETH_V2, uint160(cTokenBalance), address(bundler), 0), false));
+        bundle.push(Call(_erc20TransferFrom2Call(C_ETH_V2, cTokenBalance), false));
+        bundle.push(Call(_compoundV2WithdrawCall(C_ETH_V2, supplied), false));
+        bundle.push(Call(_morphoSupplyCall(supplied, user, hex""), false));
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, data);
+        bundler.multicall(SIG_DEADLINE, bundle);
 
         _assertSupplierPosition(supplied, user, address(bundler));
     }
@@ -127,15 +125,13 @@ contract CompoundV2EthBorrowableMigrationBundlerEthereumTest is EthereumMigratio
         vm.prank(user);
         ERC20(C_ETH_V2).safeApprove(address(Permit2Lib.PERMIT2), cTokenBalance);
 
-        bytes[] memory data = new bytes[](4);
-
-        data[0] = _erc20Approve2Call(privateKey, C_ETH_V2, uint160(cTokenBalance), address(bundler), 0);
-        data[1] = _erc20TransferFrom2Call(C_ETH_V2, cTokenBalance);
-        data[2] = _compoundV2WithdrawCall(C_ETH_V2, supplied);
-        data[3] = _erc4626DepositCall(address(suppliersVault), supplied, user);
+        bundle.push(Call(_erc20Approve2Call(privateKey, C_ETH_V2, uint160(cTokenBalance), address(bundler), 0), false));
+        bundle.push(Call(_erc20TransferFrom2Call(C_ETH_V2, cTokenBalance), false));
+        bundle.push(Call(_compoundV2WithdrawCall(C_ETH_V2, supplied), false));
+        bundle.push(Call(_erc4626DepositCall(address(suppliersVault), supplied, user), false));
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, data);
+        bundler.multicall(SIG_DEADLINE, bundle);
 
         _assertVaultSupplierPosition(supplied, user, address(bundler));
     }

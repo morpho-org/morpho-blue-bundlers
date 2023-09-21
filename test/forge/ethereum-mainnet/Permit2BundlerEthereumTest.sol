@@ -13,8 +13,6 @@ import "./helpers/EthereumTest.sol";
 contract Permit2BundlerEthereumTest is EthereumTest {
     Permit2BundlerMock internal bundler;
 
-    bytes[] internal bundle;
-
     function setUp() public override {
         super.setUp();
 
@@ -50,7 +48,10 @@ contract Permit2BundlerEthereumTest is EthereumTest {
         (signature.v, signature.r, signature.s) = vm.sign(privateKey, hashed);
 
         bundle.push(
-            abi.encodeCall(Permit2Bundler.approve2, (marketParams.borrowableToken, amount, deadline, signature))
+            Call(
+                abi.encodeCall(Permit2Bundler.approve2, (marketParams.borrowableToken, amount, deadline, signature)),
+                false
+            )
         );
 
         vm.prank(user);
@@ -73,8 +74,11 @@ contract Permit2BundlerEthereumTest is EthereumTest {
         MarketParams memory marketParams = _randomMarketParams(seed);
 
         bundle.push(
-            abi.encodeCall(
-                Permit2Bundler.approve2, (marketParams.borrowableToken, 0, deadline, Signature({v: 0, r: 0, s: 0}))
+            Call(
+                abi.encodeCall(
+                    Permit2Bundler.approve2, (marketParams.borrowableToken, 0, deadline, Signature({v: 0, r: 0, s: 0}))
+                ),
+                false
             )
         );
 

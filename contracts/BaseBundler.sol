@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import {Math} from "@morpho-utils/math/Math.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
+import {Math} from "@morpho-utils/math/Math.sol";
 import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
 
-import {BaseSelfMulticall} from "./BaseSelfMulticall.sol";
+import {Multidelegatecall, Call} from "./Multidelegatecall.sol";
 import {BaseCallbackReceiver} from "./BaseCallbackReceiver.sol";
 
 /// @title BaseBundler
@@ -16,22 +16,23 @@ import {BaseCallbackReceiver} from "./BaseCallbackReceiver.sol";
 /// @dev Every Bundler must inherit from this contract.
 /// @dev Every bundler inheriting from this contract must have their external functions payable as they will be
 /// delegate called by the `multicall` function (which is payable, and thus might pass a non-null ETH value).
-abstract contract BaseBundler is BaseSelfMulticall, BaseCallbackReceiver {
+abstract contract BaseBundler is Multidelegatecall, BaseCallbackReceiver {
     using SafeTransferLib for ERC20;
 
-    /* EXTERNAL */
+    /* PUBLIC */
 
     /// @notice Executes a series of calls in a single transaction to self.
-    function multicall(uint256 deadline, bytes[] calldata data)
-        external
+    function multicall(uint256 deadline, Call[] calldata data)
+        public
         payable
+        override
         lockInitiator
         returns (bytes[] memory)
     {
-        require(block.timestamp <= deadline, ErrorsLib.DEADLINE_EXPIRED);
-
-        return _multicall(data);
+        return super.multicall(deadline, data);
     }
+
+    /* EXTERNAL */
 
     /// @notice Transfers the minimum between the given `amount` and the bundler's balance of `asset` from the bundler
     /// to `recipient`.

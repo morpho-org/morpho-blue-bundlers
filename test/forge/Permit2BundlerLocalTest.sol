@@ -10,8 +10,6 @@ import "./helpers/LocalTest.sol";
 contract Permit2BundlerLocalTest is LocalTest {
     Permit2BundlerMock internal bundler;
 
-    bytes[] internal bundle;
-
     function setUp() public override {
         super.setUp();
 
@@ -21,7 +19,7 @@ contract Permit2BundlerLocalTest is LocalTest {
     function testTransferFrom2(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount)));
+        bundle.push(Call(abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount)), false));
 
         borrowableToken.setBalance(USER, amount);
 
@@ -35,7 +33,7 @@ contract Permit2BundlerLocalTest is LocalTest {
     }
 
     function testTransferFrom2Zero() public {
-        bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), 0)));
+        bundle.push(Call(abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), 0)), false));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(block.timestamp, bundle);

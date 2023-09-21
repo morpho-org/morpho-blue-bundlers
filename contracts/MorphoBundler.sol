@@ -2,6 +2,7 @@
 pragma solidity 0.8.21;
 
 import {IMorphoBundler} from "./interfaces/IMorphoBundler.sol";
+import {Call} from "./interfaces/IMultidelegatecall.sol";
 import {MarketParams, Signature, Authorization, IMorpho} from "@morpho-blue/interfaces/IMorpho.sol";
 
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
@@ -181,7 +182,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /// @dev Triggers `_multicall` logic during a callback.
     function _callback(bytes calldata data) internal {
         _checkInitiated();
-        _multicall(abi.decode(data, (bytes[])));
+        _multicall(abi.decode(data, (Call[])));
     }
 
     /// @dev Gives the max approval to the Blue contract to spend the given `asset` if not already approved.

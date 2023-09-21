@@ -15,8 +15,6 @@ import "./helpers/LocalTest.sol";
 contract UrdBundlerLocalTest is LocalTest {
     UrdBundlerMock internal bundler;
 
-    bytes[] internal bundle;
-
     UrdFactory internal urdFactory;
     Merkle internal merkle;
 
@@ -40,7 +38,10 @@ contract UrdBundlerLocalTest is LocalTest {
         bytes32[] memory proof;
 
         bundle.push(
-            abi.encodeCall(UrdBundler.urdClaim, (address(0), account, address(borrowableToken), claimable, proof))
+            Call(
+                abi.encodeCall(UrdBundler.urdClaim, (address(0), account, address(borrowableToken), claimable, proof)),
+                false
+            )
         );
 
         vm.prank(USER);
@@ -54,7 +55,12 @@ contract UrdBundlerLocalTest is LocalTest {
         bytes32[] memory proof;
 
         bundle.push(
-            abi.encodeCall(UrdBundler.urdClaim, (distributor, address(0), address(borrowableToken), claimable, proof))
+            Call(
+                abi.encodeCall(
+                    UrdBundler.urdClaim, (distributor, address(0), address(borrowableToken), claimable, proof)
+                ),
+                false
+            )
         );
 
         vm.prank(USER);
@@ -68,8 +74,11 @@ contract UrdBundlerLocalTest is LocalTest {
         bytes32[] memory proof;
 
         bundle.push(
-            abi.encodeCall(
-                UrdBundler.urdClaim, (distributor, address(bundler), address(borrowableToken), claimable, proof)
+            Call(
+                abi.encodeCall(
+                    UrdBundler.urdClaim, (distributor, address(bundler), address(borrowableToken), claimable, proof)
+                ),
+                false
             )
         );
 
@@ -91,13 +100,19 @@ contract UrdBundlerLocalTest is LocalTest {
         bytes32[] memory collateralTokenProof = merkle.getProof(tree, 1);
 
         bundle.push(
-            abi.encodeCall(
-                UrdBundler.urdClaim, (distributor, USER, address(borrowableToken), claimable, borrowableTokenProof)
+            Call(
+                abi.encodeCall(
+                    UrdBundler.urdClaim, (distributor, USER, address(borrowableToken), claimable, borrowableTokenProof)
+                ),
+                false
             )
         );
         bundle.push(
-            abi.encodeCall(
-                UrdBundler.urdClaim, (distributor, USER, address(collateralToken), claimable, collateralTokenProof)
+            Call(
+                abi.encodeCall(
+                    UrdBundler.urdClaim, (distributor, USER, address(collateralToken), claimable, collateralTokenProof)
+                ),
+                false
             )
         );
 
