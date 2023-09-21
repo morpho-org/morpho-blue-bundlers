@@ -12,11 +12,12 @@ import {BaseBundler} from "./BaseBundler.sol";
 /// @custom:contact security@morpho.xyz
 /// @notice Bundler that allows to claim token rewards on the Universal Rewards Distributor.
 contract UrdBundler is BaseBundler {
+    /// @notice Claims `amount` of `reward` on behalf of `account` on the given rewards distributor, using `proof`.
+    /// @dev Assumes the given distributor implements IUniversalRewardsDistributor.
     function urdClaim(address distributor, address account, address reward, uint256 amount, bytes32[] calldata proof)
         external
         payable
     {
-        require(distributor != address(0), ErrorsLib.ZERO_ADDRESS);
         require(account != address(0), ErrorsLib.ZERO_ADDRESS);
         require(account != address(this), ErrorsLib.BUNDLER_ADDRESS);
 
