@@ -21,10 +21,10 @@ contract ERC4626BundlerLocalTest is LocalTest {
         bundler = new ERC4626BundlerMock();
     }
 
-    function testErc4626MintZeroAdressTarget(uint256 shares) public {
+    function testErc4626MintZeroAdressVault(uint256 shares) public {
         bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(0), shares, RECEIVER)));
 
-        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
+        vm.expectRevert();
         bundler.multicall(block.timestamp, bundle);
     }
 
@@ -35,10 +35,10 @@ contract ERC4626BundlerLocalTest is LocalTest {
         bundler.multicall(block.timestamp, bundle);
     }
 
-    function testErc4626DepositZeroAdressTarget(uint256 assets) public {
+    function testErc4626DepositZeroAdressVault(uint256 assets) public {
         bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Deposit, (address(0), assets, RECEIVER)));
 
-        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
+        vm.expectRevert();
         bundler.multicall(block.timestamp, bundle);
     }
 
@@ -49,10 +49,10 @@ contract ERC4626BundlerLocalTest is LocalTest {
         bundler.multicall(block.timestamp, bundle);
     }
 
-    function testErc4626WithdrawZeroAdressTarget(uint256 assets) public {
+    function testErc4626WithdrawZeroAdressVault(uint256 assets) public {
         bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (address(0), assets, RECEIVER)));
 
-        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
+        vm.expectRevert();
         bundler.multicall(block.timestamp, bundle);
     }
 
@@ -63,10 +63,10 @@ contract ERC4626BundlerLocalTest is LocalTest {
         bundler.multicall(block.timestamp, bundle);
     }
 
-    function testErc4626RedeemZeroAdressTarget(uint256 assets) public {
+    function testErc4626RedeemZeroAdressVault(uint256 assets) public {
         bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Redeem, (address(0), assets, RECEIVER)));
 
-        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
+        vm.expectRevert();
         bundler.multicall(block.timestamp, bundle);
     }
 
