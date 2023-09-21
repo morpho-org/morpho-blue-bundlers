@@ -5,6 +5,9 @@ import {Authorization} from "@morpho-blue/interfaces/IMorpho.sol";
 
 import {AUTHORIZATION_TYPEHASH} from "@morpho-blue/libraries/ConstantsLib.sol";
 
+// keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
+bytes32 constant PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
+
 struct Permit {
     address owner;
     address spender;
@@ -14,12 +17,9 @@ struct Permit {
 }
 
 library SigUtils {
-    // keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
-    bytes32 public constant PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
-
     /// @dev Computes the hash of the EIP-712 encoded data.
     function getTypedDataHash(bytes32 domainSeparator, Authorization memory authorization)
-        public
+        internal
         pure
         returns (bytes32)
     {
@@ -48,7 +48,7 @@ library SigUtils {
 
     /// @dev computes the hash of the fully encoded EIP-712 message for the domain, which can be used to recover the
     /// signer
-    function getPermitTypedDataHash(Permit memory _permit, bytes32 domainSeparator) public pure returns (bytes32) {
+    function getPermitTypedDataHash(Permit memory _permit, bytes32 domainSeparator) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked("\x19\x01", domainSeparator, getStructHash(_permit)));
     }
 }
