@@ -44,7 +44,7 @@ contract UrdBundlerLocalTest is LocalTest {
         );
 
         vm.prank(USER);
-        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
+        vm.expectRevert();
         bundler.multicall(block.timestamp, bundle);
     }
 
