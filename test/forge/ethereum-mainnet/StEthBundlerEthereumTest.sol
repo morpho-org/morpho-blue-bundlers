@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
-import {SigUtils} from "test/forge/helpers/SigUtils.sol";
 import {ErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 
 import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
@@ -53,7 +52,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
         amount = ERC20(ST_ETH).balanceOf(user);
 
         bytes[] memory data = new bytes[](3);
-        data[0] = _getPermit2Data(ST_ETH, privateKey, user);
+        data[0] = _getPermit2Data(ST_ETH, privateKey, user, address(bundler));
         data[1] = abi.encodeCall(Permit2Bundler.transferFrom2, (ST_ETH, amount));
         data[2] = abi.encodeCall(StEthBundler.wrapStEth, (amount, RECEIVER));
 
@@ -110,7 +109,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
         _approvePermit2(user);
 
         bytes[] memory data = new bytes[](3);
-        data[0] = _getPermit2Data(WST_ETH, privateKey, user);
+        data[0] = _getPermit2Data(WST_ETH, privateKey, user, address(bundler));
         data[1] = abi.encodeCall(Permit2Bundler.transferFrom2, (WST_ETH, amount));
         data[2] = abi.encodeCall(StEthBundler.unwrapStEth, (amount, RECEIVER));
 
@@ -136,10 +135,12 @@ contract StEthBundlerEthereumTest is EthereumTest {
         vm.assume(stEthAmount != 0);
     }
 
-    function _getPermit2Data(address token, uint256 privateKey, address user) internal view returns (bytes memory) {
-        privateKey = bound(privateKey, 1, type(uint160).max);
-
-        (,, uint48 nonce) = Permit2Lib.PERMIT2.allowance(user, token, address(bundler));
+    function _getPermit2Data(address token, uint256 privateKey, address user, address spender)
+        internal
+        view
+        returns (bytes memory)
+    {
+        (,, uint48 nonce) = Permit2Lib.PERMIT2.allowance(user, token, spender);
         bytes32 hashed = ECDSA.toTypedDataHash(
             Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(),
             PermitHash.hash(
@@ -150,7 +151,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
                         expiration: type(uint48).max,
                         nonce: nonce
                     }),
-                    spender: address(bundler),
+                    spender: spender,
                     sigDeadline: type(uint48).max
                 })
             )
