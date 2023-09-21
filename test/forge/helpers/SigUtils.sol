@@ -18,15 +18,11 @@ struct Permit {
 
 library SigUtils {
     /// @dev Computes the hash of the EIP-712 encoded data.
-    function getTypedDataHash(bytes32 domainSeparator, Authorization memory authorization)
-        internal
-        pure
-        returns (bytes32)
-    {
-        return keccak256(abi.encodePacked("\x19\x01", domainSeparator, hashStruct(authorization)));
+    function getTypedDataHash(bytes32 domainSeparator, bytes32 structHash) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
     }
 
-    function hashStruct(Authorization memory authorization) internal pure returns (bytes32) {
+    function getAuthorizationStructHash(Authorization memory authorization) internal pure returns (bytes32) {
         return keccak256(
             abi.encode(
                 AUTHORIZATION_TYPEHASH,
@@ -40,15 +36,9 @@ library SigUtils {
     }
 
     /// @dev Computes the hash of a permit
-    function getStructHash(Permit memory _permit) internal pure returns (bytes32) {
+    function getPermitStructHash(Permit memory permit) internal pure returns (bytes32) {
         return keccak256(
-            abi.encode(PERMIT_TYPEHASH, _permit.owner, _permit.spender, _permit.value, _permit.nonce, _permit.deadline)
+            abi.encode(PERMIT_TYPEHASH, permit.owner, permit.spender, permit.value, permit.nonce, permit.deadline)
         );
-    }
-
-    /// @dev computes the hash of the fully encoded EIP-712 message for the domain, which can be used to recover the
-    /// signer
-    function getPermitTypedDataHash(Permit memory _permit, bytes32 domainSeparator) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked("\x19\x01", domainSeparator, getStructHash(_permit)));
     }
 }
