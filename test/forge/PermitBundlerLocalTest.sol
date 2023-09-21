@@ -12,8 +12,6 @@ import {ERC20PermitMock} from "contracts/mocks/ERC20PermitMock.sol";
 import "./helpers/LocalTest.sol";
 
 contract PermitBundlerLocalTest is LocalTest {
-    using SigUtils for Permit;
-
     PermitBundlerMock internal bundler;
     ERC20PermitMock internal permitToken;
 
@@ -69,7 +67,7 @@ contract PermitBundlerLocalTest is LocalTest {
         bytes32 domainSeparator = IERC20Permit(token).DOMAIN_SEPARATOR();
 
         Permit memory permit = Permit(user, address(bundler), amount, nonce, deadline);
-        bytes32 hashed = permit.getPermitTypedDataHash(domainSeparator);
+        bytes32 hashed = SigUtils.getTypedDataHash(domainSeparator, SigUtils.getPermitStructHash(permit));
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, hashed);
 

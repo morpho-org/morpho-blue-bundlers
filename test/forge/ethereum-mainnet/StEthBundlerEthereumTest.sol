@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
-import {SigUtils} from "test/forge/helpers/SigUtils.sol";
 import {ErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 
 import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
@@ -137,8 +136,6 @@ contract StEthBundlerEthereumTest is EthereumTest {
     }
 
     function _getPermit2Data(address token, uint256 privateKey, address user) internal view returns (bytes memory) {
-        privateKey = bound(privateKey, 1, type(uint160).max);
-
         (,, uint48 nonce) = Permit2Lib.PERMIT2.allowance(user, token, address(bundler));
         bytes32 hashed = ECDSA.toTypedDataHash(
             Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(),

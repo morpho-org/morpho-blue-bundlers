@@ -246,22 +246,6 @@ export class BundlerAction {
     return BundlerAction.AAVE_V3_BUNDLER_IFC.encodeFunctionData("aaveV3Withdraw", [asset, amount, receiver]);
   }
 
-  static aaveV3PermitAToken(
-    aToken: string,
-    value: BigNumberish,
-    deadline: BigNumberish,
-    signature: Signature,
-  ): BundlerCall {
-    return BundlerAction.AAVE_V3_BUNDLER_IFC.encodeFunctionData("aaveV3PermitAToken", [
-      aToken,
-      value,
-      deadline,
-      signature.v,
-      signature.r,
-      signature.s,
-    ]);
-  }
-
   /* AaveV3 Optimizer */
 
   static aaveV3OptimizerRepay(underlying: string, amount: BigNumberish): BundlerCall {

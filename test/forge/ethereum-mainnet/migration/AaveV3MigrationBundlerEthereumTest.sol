@@ -4,6 +4,8 @@ pragma solidity ^0.8.0;
 import {IPool} from "@aave/v3-core/interfaces/IPool.sol";
 import {IAToken} from "@aave/v3-core/interfaces/IAToken.sol";
 
+import {SigUtils, Permit} from "test/forge/helpers/SigUtils.sol";
+import {PermitBundler} from "contracts/PermitBundler.sol";
 import {AaveV3MigrationBundler} from "contracts/migration/AaveV3MigrationBundler.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
@@ -54,7 +56,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackData[1] = _morphoBorrowCall(borrowed, address(bundler));
         callbackData[2] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1);
         callbackData[3] = _aaveV3RepayCall(marketParams.borrowableToken, borrowed, 2);
-        callbackData[4] = _aaveV3PermitATokenCall(privateKey, aToken, address(bundler), aTokenBalance, 0);
+        callbackData[4] = _aaveV3PermitATokenCall(aToken, privateKey, aTokenBalance);
         callbackData[5] = _erc20TransferFromCall(aToken, aTokenBalance);
         callbackData[6] = _aaveV3WithdrawCall(marketParams.collateralToken, collateralSupplied, address(bundler));
         data[0] = _morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackData));
@@ -120,7 +122,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         bytes[] memory data = new bytes[](4);
 
-        data[0] = _aaveV3PermitATokenCall(privateKey, aToken, address(bundler), aTokenBalance, 0);
+        data[0] = _aaveV3PermitATokenCall(aToken, privateKey, aTokenBalance);
         data[1] = _erc20TransferFromCall(aToken, aTokenBalance);
         data[2] = _aaveV3WithdrawCall(marketParams.borrowableToken, supplied, address(bundler));
         data[3] = _morphoSupplyCall(supplied, user, hex"");
@@ -179,7 +181,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         bytes[] memory data = new bytes[](4);
 
-        data[0] = _aaveV3PermitATokenCall(privateKey, aToken, address(bundler), aTokenBalance, 0);
+        data[0] = _aaveV3PermitATokenCall(aToken, privateKey, aTokenBalance);
         data[1] = _erc20TransferFromCall(aToken, aTokenBalance);
         data[2] = _aaveV3WithdrawCall(marketParams.borrowableToken, supplied, address(bundler));
         data[3] = _erc4626DepositCall(address(suppliersVault), supplied, user);
@@ -225,24 +227,21 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         return IPool(AAVE_V3_POOL).getReserveData(asset).aTokenAddress;
     }
 
-    function _aaveV3PermitATokenCall(uint256 privateKey, address aToken, address spender, uint256 value, uint256 nonce)
+    function _aaveV3PermitATokenCall(address aToken, uint256 privateKey, uint256 amount)
         internal
         view
         returns (bytes memory)
     {
-        bytes32 permitTypehash =
-            keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
-        bytes32 digest = ECDSA.toTypedDataHash(
-            IAToken(aToken).DOMAIN_SEPARATOR(),
-            keccak256(abi.encode(permitTypehash, vm.addr(privateKey), spender, value, nonce, SIG_DEADLINE))
-        );
+        address user = vm.addr(privateKey);
+        uint256 nonce = IAToken(aToken).nonces(user);
+        bytes32 domainSeparator = IAToken(aToken).DOMAIN_SEPARATOR();
 
-        Signature memory sig;
-        (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
+        Permit memory permit = Permit(user, address(bundler), amount, nonce, SIG_DEADLINE);
+        bytes32 hashed = SigUtils.getTypedDataHash(domainSeparator, SigUtils.getPermitStructHash(permit));
 
-        return abi.encodeCall(
-            AaveV3MigrationBundler.aaveV3PermitAToken, (aToken, value, SIG_DEADLINE, sig.v, sig.r, sig.s)
-        );
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, hashed);
+
+        return abi.encodeCall(PermitBundler.permit, (aToken, amount, SIG_DEADLINE, v, r, s));
     }
 
     function _aaveV3RepayCall(address asset, uint256 amount, uint256 interestRateMode)
