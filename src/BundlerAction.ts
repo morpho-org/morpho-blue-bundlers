@@ -216,6 +216,12 @@ export class BundlerAction {
     return BundlerAction.WNATIVE_BUNDLER_IFC.encodeFunctionData("unwrapNative", [amount, receiver]);
   }
 
+  /* stETH */
+
+  static stakeEth(amount: BigNumberish, referral: string, receiver: string): BundlerCall {
+    return BundlerAction.ST_ETH_BUNDLER_IFC.encodeFunctionData("stakeEth", [amount, referral, receiver]);
+  }
+
   /* Wrapped stETH */
 
   static wrapStEth(amount: BigNumberish, receiver: string): BundlerCall {
@@ -244,22 +250,6 @@ export class BundlerAction {
 
   static aaveV3Withdraw(asset: string, amount: BigNumberish, receiver: string): BundlerCall {
     return BundlerAction.AAVE_V3_BUNDLER_IFC.encodeFunctionData("aaveV3Withdraw", [asset, amount, receiver]);
-  }
-
-  static aaveV3PermitAToken(
-    aToken: string,
-    value: BigNumberish,
-    deadline: BigNumberish,
-    signature: Signature,
-  ): BundlerCall {
-    return BundlerAction.AAVE_V3_BUNDLER_IFC.encodeFunctionData("aaveV3PermitAToken", [
-      aToken,
-      value,
-      deadline,
-      signature.v,
-      signature.r,
-      signature.s,
-    ]);
   }
 
   /* AaveV3 Optimizer */

@@ -3,16 +3,28 @@ pragma solidity 0.8.21;
 
 import "./libraries/ConstantsLib.sol";
 
-import {EVMBundler} from "../EVMBundler.sol";
-import {StEthBundler} from "./StEthBundler.sol";
+import {PermitBundler} from "../PermitBundler.sol";
+import {Permit2Bundler} from "../Permit2Bundler.sol";
+import {ERC4626Bundler} from "../ERC4626Bundler.sol";
+import {UrdBundler} from "../UrdBundler.sol";
+import {MorphoBundler} from "../MorphoBundler.sol";
 import {WNativeBundler} from "../WNativeBundler.sol";
+import {StEthBundler} from "./StEthBundler.sol";
 
 /// @title EthereumBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Bundler contract specific to the Ethereum mainnet.
-contract EthereumBundler is EVMBundler, WNativeBundler, StEthBundler {
+contract EthereumBundler is
+    PermitBundler,
+    Permit2Bundler,
+    ERC4626Bundler,
+    WNativeBundler,
+    UrdBundler,
+    MorphoBundler,
+    StEthBundler
+{
     /* CONSTRUCTOR */
 
-    constructor(address morpho) EVMBundler(morpho) WNativeBundler(WETH) {}
+    constructor(address morpho) WNativeBundler(WETH) MorphoBundler(morpho) {}
 }

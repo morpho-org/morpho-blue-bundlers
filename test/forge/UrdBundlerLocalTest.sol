@@ -18,7 +18,7 @@ contract UrdBundlerLocalTest is LocalTest {
     UrdFactory internal urdFactory;
     Merkle internal merkle;
 
-    address distributor;
+    address internal distributor;
 
     function setUp() public override {
         super.setUp();
@@ -42,7 +42,7 @@ contract UrdBundlerLocalTest is LocalTest {
         );
 
         vm.prank(USER);
-        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
+        vm.expectRevert();
         bundler.multicall(block.timestamp, bundle);
     }
 

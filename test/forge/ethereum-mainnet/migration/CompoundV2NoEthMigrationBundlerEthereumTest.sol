@@ -44,7 +44,6 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
         borrowableCToken = _getCToken(USDC);
     }
 
-    /// forge-config: default.fuzz.runs = 3
     function testMigrateBorrowerWithPermit2(uint256 privateKey) public {
         address user;
         (privateKey, user) = _getUserAndKey(privateKey);
