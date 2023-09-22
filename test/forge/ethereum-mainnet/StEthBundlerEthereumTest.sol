@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
-import {SigUtils} from "test/forge/helpers/SigUtils.sol";
 import {ErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 
 import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
@@ -20,6 +19,36 @@ contract StEthBundlerEthereumTest is EthereumTest {
         super.setUp();
 
         bundler = new StEthBundlerMock();
+    }
+
+    function testStakeEth(uint256 amount) public {
+        amount = bound(amount, 1, 10_000 ether);
+
+        deal(USER, amount);
+
+        bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, address(0), RECEIVER)));
+
+        vm.prank(USER);
+        bundler.multicall{value: amount}(block.timestamp, bundle);
+
+        assertEq(USER.balance, 0, "USER.balance");
+        assertEq(RECEIVER.balance, 0, "RECEIVER.balance");
+        assertEq(address(bundler).balance, 0, "bundler.balance");
+        assertEq(ERC20(ST_ETH).balanceOf(USER), 0, "balanceOf(USER)");
+        assertEq(ERC20(ST_ETH).balanceOf(address(bundler)), 0, "balanceOf(bundler)");
+        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), amount, 2, "balanceOf(RECEIVER)");
+    }
+
+    function testStakeEthZeroAddress(uint256 amount) public {
+        amount = bound(amount, 1, 10_000 ether);
+
+        deal(USER, amount);
+
+        bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, address(0), address(0))));
+
+        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
+        vm.prank(USER);
+        bundler.multicall{value: amount}(block.timestamp, bundle);
     }
 
     function testWrapZeroAddress(uint256 amount) public {
@@ -82,17 +111,6 @@ contract StEthBundlerEthereumTest is EthereumTest {
         bundler.multicall(block.timestamp, data);
     }
 
-    function testUnwrapBundlerAddress(uint256 amount) public {
-        vm.assume(amount != 0);
-
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(StEthBundler.unwrapStEth, (amount, address(bundler)));
-
-        vm.expectRevert(bytes(ErrorsLib.BUNDLER_ADDRESS));
-        vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
-    }
-
     function testUnwrapZeroAmount() public {
         bytes[] memory data = new bytes[](1);
         data[0] = abi.encodeCall(StEthBundler.unwrapStEth, (0, RECEIVER));
@@ -137,8 +155,6 @@ contract StEthBundlerEthereumTest is EthereumTest {
     }
 
     function _getPermit2Data(address token, uint256 privateKey, address user) internal view returns (bytes memory) {
-        privateKey = bound(privateKey, 1, type(uint160).max);
-
         (,, uint48 nonce) = Permit2Lib.PERMIT2.allowance(user, token, address(bundler));
         bytes32 hashed = ECDSA.toTypedDataHash(
             Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(),

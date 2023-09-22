@@ -22,8 +22,8 @@ contract CompoundV2MigrationBundler is Permit2Bundler, WNativeBundler, Migration
 
     /* CONSTRUCTOR */
 
-    constructor(address morpho, address wNative, address cNative) WNativeBundler(wNative) MigrationBundler(morpho) {
-        C_ETH = cNative;
+    constructor(address morpho, address wNative, address cEth) WNativeBundler(wNative) MigrationBundler(morpho) {
+        C_ETH = cEth;
     }
 
     /* CALLBACKS */

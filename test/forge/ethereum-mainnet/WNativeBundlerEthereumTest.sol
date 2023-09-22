@@ -69,17 +69,6 @@ contract WNativeBundlerEthereumTest is EthereumTest {
         bundler.multicall(block.timestamp, data);
     }
 
-    function testUnwrapBundlerAddress(uint256 amount) public {
-        vm.assume(amount != 0);
-
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(WNativeBundler.unwrapNative, (amount, address(bundler)));
-
-        vm.expectRevert(bytes(ErrorsLib.BUNDLER_ADDRESS));
-        vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
-    }
-
     function testUnwrapZeroAmount() public {
         bytes[] memory data = new bytes[](1);
         data[0] = abi.encodeCall(WNativeBundler.unwrapNative, (0, RECEIVER));
@@ -93,7 +82,7 @@ contract WNativeBundlerEthereumTest is EthereumTest {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         bytes[] memory data = new bytes[](2);
-        data[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(WETH), amount));
+        data[0] = abi.encodeCall(BaseBundler.transferFrom, (WETH, amount));
         data[1] = abi.encodeCall(WNativeBundler.unwrapNative, (amount, RECEIVER));
 
         deal(WETH, USER, amount);

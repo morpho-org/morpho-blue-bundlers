@@ -17,9 +17,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
     uint256 internal constant SIG_DEADLINE = type(uint32).max;
 
-    MorphoBundlerMock private bundler;
-
-    bytes[] private bundle;
+    MorphoBundlerMock internal bundler;
 
     function setUp() public override {
         super.setUp();
@@ -99,7 +97,8 @@ contract MorphoBundlerLocalTest is LocalTest {
         authorization.nonce = morpho.nonce(user);
         authorization.isAuthorized = true;
 
-        bytes32 digest = SigUtils.getTypedDataHash(morpho.DOMAIN_SEPARATOR(), authorization);
+        bytes32 digest =
+            SigUtils.getTypedDataHash(morpho.DOMAIN_SEPARATOR(), SigUtils.getAuthorizationStructHash(authorization));
 
         Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
@@ -163,7 +162,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount)));
+        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(borrowableToken), amount)));
         bundle.push(abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, amount, 0, onBehalf, hex"")));
 
         borrowableToken.setBalance(USER, amount);
@@ -179,7 +178,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount)));
+        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(borrowableToken), amount)));
         bundle.push(abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, type(uint256).max, 0, onBehalf, hex"")));
 
         borrowableToken.setBalance(USER, amount);
@@ -196,7 +195,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         bytes[] memory callbackData = new bytes[](1);
-        callbackData[0] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount));
+        callbackData[0] = abi.encodeCall(BaseBundler.transferFrom, (address(borrowableToken), amount));
 
         bundle.push(
             abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, amount, 0, onBehalf, abi.encode(callbackData)))
@@ -233,7 +232,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (address(collateralToken), amount)));
+        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(collateralToken), amount)));
         bundle.push(abi.encodeCall(MorphoBundler.morphoSupplyCollateral, (marketParams, amount, onBehalf, hex"")));
 
         collateralToken.setBalance(USER, amount);
@@ -249,7 +248,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (address(collateralToken), amount)));
+        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(collateralToken), amount)));
         bundle.push(
             abi.encodeCall(MorphoBundler.morphoSupplyCollateral, (marketParams, type(uint256).max, onBehalf, hex""))
         );
@@ -325,7 +324,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
         uint256 collateralAmount = amount.wDivUp(LLTV);
 
-        bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (address(collateralToken), collateralAmount)));
+        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(collateralToken), collateralAmount)));
         bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
         bundle.push(abi.encodeCall(MorphoBundler.morphoSupplyCollateral, (marketParams, collateralAmount, user, hex"")));
         bundle.push(abi.encodeCall(MorphoBundler.morphoBorrow, (marketParams, amount, 0, RECEIVER)));
@@ -353,7 +352,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         bytes[] memory callbackData = new bytes[](3);
         callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
         callbackData[1] = abi.encodeCall(MorphoBundler.morphoBorrow, (marketParams, amount, 0, RECEIVER));
-        callbackData[2] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(collateralToken), collateralAmount));
+        callbackData[2] = abi.encodeCall(BaseBundler.transferFrom, (address(collateralToken), collateralAmount));
 
         bundle.push(
             abi.encodeCall(
@@ -405,7 +404,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         morpho.borrow(marketParams, amount, 0, user, user);
         vm.stopPrank();
 
-        bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount)));
+        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(borrowableToken), amount)));
         bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
         bundle.push(abi.encodeCall(MorphoBundler.morphoRepay, (marketParams, amount, 0, user, hex"")));
         bundle.push(abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, RECEIVER)));
@@ -434,7 +433,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         morpho.borrow(marketParams, amount, 0, user, user);
         vm.stopPrank();
 
-        bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount)));
+        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(borrowableToken), amount)));
         bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
         bundle.push(abi.encodeCall(MorphoBundler.morphoRepay, (marketParams, type(uint256).max, 0, user, hex"")));
         bundle.push(abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, RECEIVER)));
@@ -467,7 +466,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
         callbackData[1] =
             abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, RECEIVER));
-        callbackData[2] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount));
+        callbackData[2] = abi.encodeCall(BaseBundler.transferFrom, (address(borrowableToken), amount));
 
         bundle.push(
             abi.encodeCall(MorphoBundler.morphoRepay, (marketParams, amount, 0, user, abi.encode(callbackData)))
@@ -503,7 +502,7 @@ contract MorphoBundlerLocalTest is LocalTest {
             seizedCollateral.mulDivUp(ORACLE_PRICE_SCALE / 2, ORACLE_PRICE_SCALE).wDivUp(incentiveFactor);
         uint256 expectedRepaidShares = repaidAssets.toSharesDown(amountBorrowed, borrowShares);
 
-        bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), repaidAssets)));
+        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(borrowableToken), repaidAssets)));
         bundle.push(abi.encodeCall(MorphoBundler.morphoLiquidate, (marketParams, USER, seizedCollateral, 0, hex"")));
         bundle.push(abi.encodeCall(BaseBundler.transfer, (address(collateralToken), LIQUIDATOR, seizedCollateral)));
 
@@ -605,7 +604,7 @@ contract MorphoBundlerLocalTest is LocalTest {
     }
 
     function _getTransferFrom2Data(address token, uint256 amount) internal pure returns (bytes memory data) {
-        data = abi.encodeCall(Permit2Bundler.transferFrom2, (token, amount));
+        data = abi.encodeCall(BaseBundler.transferFrom, (token, amount));
     }
 
     function _getSupplyData(uint256 amount, address user) internal view returns (bytes memory data) {
@@ -760,7 +759,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
         bytes[] memory callbackData = new bytes[](2);
         callbackData[0] = abi.encodeCall(BaseBundler.transfer, (address(borrowableToken), USER, amount));
-        callbackData[1] = abi.encodeCall(Permit2Bundler.transferFrom2, (address(borrowableToken), amount));
+        callbackData[1] = abi.encodeCall(BaseBundler.transferFrom, (address(borrowableToken), amount));
 
         bytes[] memory data = new bytes[](1);
         data[0] =

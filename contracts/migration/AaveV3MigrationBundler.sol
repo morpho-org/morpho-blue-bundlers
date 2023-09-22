@@ -7,6 +7,7 @@ import {IAToken} from "@aave/v3-core/interfaces/IAToken.sol";
 import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 import {Math} from "@morpho-utils/math/Math.sol";
 
+import {PermitBundler} from "../PermitBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
 import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 
@@ -14,7 +15,7 @@ import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from Aave V3 to Morpho Blue easily.
-contract AaveV3MigrationBundler is Permit2Bundler, MigrationBundler {
+contract AaveV3MigrationBundler is PermitBundler, Permit2Bundler, MigrationBundler {
     /* IMMUTABLES */
 
     IPool public immutable AAVE_V3_POOL;
@@ -43,15 +44,5 @@ contract AaveV3MigrationBundler is Permit2Bundler, MigrationBundler {
     /// @dev Initiator must have previously transferred their aTokens to the bundler.
     function aaveV3Withdraw(address asset, uint256 amount, address receiver) external payable {
         AAVE_V3_POOL.withdraw(asset, amount, receiver);
-    }
-
-    /// @notice Approves the bundler to manage the initiator's `aToken` balance, given a signed EIP-2612 approval
-    /// message.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
-    function aaveV3PermitAToken(address aToken, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
-        external
-        payable
-    {
-        IAToken(aToken).permit(_initiator, address(this), value, deadline, v, r, s);
     }
 }
