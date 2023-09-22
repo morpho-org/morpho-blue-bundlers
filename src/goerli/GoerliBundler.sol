@@ -11,11 +11,11 @@ import {StEthBundler} from "../StEthBundler.sol";
 import {UrdBundler} from "../UrdBundler.sol";
 import {MorphoBundler} from "../MorphoBundler.sol";
 
-/// @title EthereumBundler
+/// @title GoerliBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
-/// @notice Bundler contract specific to the Ethereum mainnet.
-contract EthereumBundler is
+/// @notice Bundler contract specific to the Goerli testnet.
+contract GoerliBundler is
     PermitBundler,
     Permit2Bundler,
     ERC4626Bundler,
@@ -27,8 +27,8 @@ contract EthereumBundler is
     /* CONSTRUCTOR */
 
     constructor(address morpho)
-        WNativeBundler(WETH_MAINNET)
-        StEthBundler(ST_ETH_MAINNET, WST_ETH_MAINNET)
+        WNativeBundler(WETH_GOERLI)
+        StEthBundler(ST_ETH_GOERLI, WST_ETH_GOERLI)
         MorphoBundler(morpho)
     {}
 }

@@ -2,10 +2,10 @@
 pragma solidity ^0.8.0;
 
 /// @dev The address of the WETH contract on Ethereum mainnet.
-address constant WETH_MAINNET = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+address constant WETH_GOERLI = 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6;
 
 /// @dev The address of the stETH contract on Ethereum mainnet.
-address constant ST_ETH_MAINNET = 0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84;
+address constant ST_ETH_GOERLI = 0x1643E812aE58766192Cf7D2Cf9567dF2C37e9B7F;
 
 /// @dev The address of the wstETH contract on Ethereum mainnet.
-address constant WST_ETH_MAINNET = 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0;
+address constant WST_ETH_GOERLI = 0x6320cD32aA674d2898A68ec82e869385Fc5f7E2f;
