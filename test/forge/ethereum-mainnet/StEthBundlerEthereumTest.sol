@@ -22,11 +22,12 @@ contract StEthBundlerEthereumTest is EthereumTest {
     }
 
     function testStakeEth(uint256 amount) public {
-        amount = bound(amount, 1, 10_000 ether);
+        amount = bound(amount, MIN_AMOUNT, 10_000 ether);
 
         deal(USER, amount);
 
-        bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, address(0), RECEIVER)));
+        bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, address(0))));
+        bundle.push(abi.encodeCall(BaseBundler.transfer, (ST_ETH, RECEIVER, type(uint256).max)));
 
         vm.prank(USER);
         bundler.multicall{value: amount}(block.timestamp, bundle);
@@ -37,18 +38,6 @@ contract StEthBundlerEthereumTest is EthereumTest {
         assertEq(ERC20(ST_ETH).balanceOf(USER), 0, "balanceOf(USER)");
         assertEq(ERC20(ST_ETH).balanceOf(address(bundler)), 0, "balanceOf(bundler)");
         assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), amount, 2, "balanceOf(RECEIVER)");
-    }
-
-    function testStakeEthZeroAddress(uint256 amount) public {
-        amount = bound(amount, 1, 10_000 ether);
-
-        deal(USER, amount);
-
-        bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, address(0), address(0))));
-
-        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
-        vm.prank(USER);
-        bundler.multicall{value: amount}(block.timestamp, bundle);
     }
 
     function testWrapZeroAmount() public {
@@ -122,7 +111,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
 
         assertApproxEqAbs(ERC20(ST_ETH).balanceOf(address(bundler)), 0, 1, "stEth.balanceOf(bundler)");
         assertEq(ERC20(ST_ETH).balanceOf(user), 0, "stEth.balanceOf(user)");
-        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), expectedUnwrappedAmount, 2, "stEth.balanceOf(RECEIVER)");
+        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), expectedUnwrappedAmount, 3, "stEth.balanceOf(RECEIVER)");
     }
 
     function _mintStEth(uint256 amount, address user) internal returns (uint256 stEthAmount) {

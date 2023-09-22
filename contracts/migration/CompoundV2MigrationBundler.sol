@@ -38,6 +38,7 @@ contract CompoundV2MigrationBundler is Permit2Bundler, WNativeBundler, Migration
 
     /// @notice Repays `amount` of `cToken`'s underlying asset, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @dev Pass in `type(uint256).max` to repay all.
     function compoundV2Repay(address cToken, uint256 amount) external payable {
         if (cToken == C_ETH) {
             amount = Math.min(amount, address(this).balance);
@@ -62,6 +63,7 @@ contract CompoundV2MigrationBundler is Permit2Bundler, WNativeBundler, Migration
 
     /// @notice Redeems `amount` of `cToken` from CompoundV2.
     /// @dev Initiator must have previously transferred their cTokens to the bundler.
+    /// @dev Pass in `type(uint256).max` to redeem all.
     function compoundV2Redeem(address cToken, uint256 amount) external payable {
         amount = Math.min(amount, ERC20(cToken).balanceOf(address(this)));
 
