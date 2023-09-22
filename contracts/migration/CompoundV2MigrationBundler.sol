@@ -28,7 +28,7 @@ contract CompoundV2MigrationBundler is Permit2Bundler, WNativeBundler, Migration
 
     /* CALLBACKS */
 
-    /// @dev Only the wNative contract or CompoundV2 is allowed to transfer the native token to this contract, without
+    /// @dev Only the wNative contract or CompoundV2 is allowed to transfer the native tokens to this contract, without
     /// any calldata.
     receive() external payable override {
         require(msg.sender == WRAPPED_NATIVE || msg.sender == C_ETH, ErrorsLib.UNAUTHORIZED_SENDER);
