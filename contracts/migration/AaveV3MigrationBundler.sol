@@ -4,9 +4,12 @@ pragma solidity 0.8.21;
 import {IPool} from "@aave/v3-core/interfaces/IPool.sol";
 import {IAToken} from "@aave/v3-core/interfaces/IAToken.sol";
 
-import {Permit2Bundler} from "../Permit2Bundler.sol";
+import {ErrorsLib} from "../libraries/ErrorsLib.sol";
+import {Math} from "@morpho-utils/math/Math.sol";
+
 import {PermitBundler} from "../PermitBundler.sol";
-import {MigrationBundler} from "./MigrationBundler.sol";
+import {Permit2Bundler} from "../Permit2Bundler.sol";
+import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 
 /// @title AaveV3MigrationBundler
 /// @author Morpho Labs
@@ -28,6 +31,10 @@ contract AaveV3MigrationBundler is PermitBundler, Permit2Bundler, MigrationBundl
     /// @notice Repays `amount` of `asset` on AaveV3, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     function aaveV3Repay(address asset, uint256 amount, uint256 interestRateMode) external payable {
+        amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
+
+        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
+
         _approveMaxTo(asset, address(AAVE_V3_POOL));
 
         AAVE_V3_POOL.repay(asset, amount, interestRateMode, _initiator);
@@ -35,6 +42,7 @@ contract AaveV3MigrationBundler is PermitBundler, Permit2Bundler, MigrationBundl
 
     /// @notice Withdraws `amount` of `asset` on AaveV3, on behalf of the initiator, transferring funds to `receiver`.
     /// @dev Initiator must have previously transferred their aTokens to the bundler.
+    /// @dev Pass in `type(uint256).max` to withdraw all.
     function aaveV3Withdraw(address asset, uint256 amount, address receiver) external payable {
         AAVE_V3_POOL.withdraw(asset, amount, receiver);
     }

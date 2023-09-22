@@ -10,6 +10,7 @@ import "contracts/migration/CompoundV2MigrationBundler.sol";
 import "./helpers/EthereumMigrationTest.sol";
 
 contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigrationTest {
+    using MathLib for uint256;
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;
@@ -47,6 +48,7 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         vm.stopPrank();
 
         uint256 cTokenBalance = ICEth(C_ETH_V2).balanceOf(user);
+        collateral = cTokenBalance.wMulDown(ICToken(C_ETH_V2).exchangeRateStored());
 
         vm.prank(user);
         ERC20(C_ETH_V2).safeApprove(address(Permit2Lib.PERMIT2), cTokenBalance);
@@ -57,7 +59,7 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         callbackBundle.push(_compoundV2RepayCall(C_DAI_V2, borrowed));
         callbackBundle.push(_erc20Approve2Call(privateKey, C_ETH_V2, uint160(cTokenBalance), address(bundler), 0));
         callbackBundle.push(_erc20TransferFrom2Call(C_ETH_V2, cTokenBalance));
-        callbackBundle.push(_compoundV2WithdrawCall(C_ETH_V2, collateral));
+        callbackBundle.push(_compoundV2RedeemCall(C_ETH_V2, cTokenBalance));
         callbackBundle.push(abi.encodeCall(WNativeBundler.wrapNative, (collateral, address(bundler))));
 
         bundle.push(_morphoSupplyCollateralCall(collateral, user, abi.encode(callbackBundle)));
@@ -72,7 +74,7 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         return abi.encodeCall(CompoundV2MigrationBundler.compoundV2Repay, (cToken, repayAmount));
     }
 
-    function _compoundV2WithdrawCall(address cToken, uint256 amount) internal pure returns (bytes memory) {
+    function _compoundV2RedeemCall(address cToken, uint256 amount) internal pure returns (bytes memory) {
         return abi.encodeCall(CompoundV2MigrationBundler.compoundV2Redeem, (cToken, amount));
     }
 }
