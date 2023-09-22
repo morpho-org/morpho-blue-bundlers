@@ -33,40 +33,35 @@ abstract contract StEthBundler is BaseBundler {
 
     /* ACTIONS */
 
-    function stakeEth(uint256 amount, address referral, address receiver) external payable {
-        require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
-
+    /// @notice Stakes the given `amount` of ETH via Lido, using the `referral` id.
+    /// @dev Use `BaseBundler.transfer` to transfer the stEth to some `receiver`.
+    /// @dev Pass in `type(uint256).max` to stake all.
+    function stakeEth(uint256 amount, address referral) external payable {
         amount = Math.min(amount, address(this).balance);
 
         // Lido will revert with ZERO_DEPOSIT in case amount == 0.
-        uint256 stakedShares = IStEth(ST_ETH).submit{value: amount}(referral);
-
-        if (receiver != address(this)) IStEth(ST_ETH).transferShares(receiver, stakedShares);
+        IStEth(ST_ETH).submit{value: amount}(referral);
     }
 
-    /// @notice Wraps the given `amount` of stETH to wstETH and transfers it to `receiver`.
-    function wrapStEth(uint256 amount, address receiver) external payable {
-        require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
-
+    /// @notice Wraps the given `amount` of stETH to wstETH.
+    /// @dev Use `BaseBundler.transfer` to transfer the wrapped stEth to some `receiver`.
+    /// @dev Pass in `type(uint256).max` to wrap all.
+    function wrapStEth(uint256 amount) external payable {
         amount = Math.min(amount, ERC20(ST_ETH).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        uint256 wrapped = IWStEth(WST_ETH).wrap(amount);
-
-        if (receiver != address(this)) ERC20(WST_ETH).safeTransfer(receiver, wrapped);
+        IWStEth(WST_ETH).wrap(amount);
     }
 
-    /// @notice Unwraps the given `amount` of wstETH to stETH and transfers it to `receiver`.
-    function unwrapStEth(uint256 amount, address receiver) external payable {
-        require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
-
+    /// @notice Unwraps the given `amount` of wstETH to stETH.
+    /// @dev Use `BaseBundler.transfer` to transfer the unwrapped stEth to some `receiver`.
+    /// @dev Pass in `type(uint256).max` to unwrap all.
+    function unwrapStEth(uint256 amount) external payable {
         amount = Math.min(amount, ERC20(WST_ETH).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        uint256 unwrapped = IWStEth(WST_ETH).unwrap(amount);
-
-        if (receiver != address(this)) ERC20(ST_ETH).safeTransfer(receiver, unwrapped);
+        IWStEth(WST_ETH).unwrap(amount);
     }
 }

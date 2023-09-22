@@ -208,28 +208,28 @@ export class BundlerAction {
 
   /* Wrapped Native */
 
-  static wrapNative(amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.WNATIVE_BUNDLER_IFC.encodeFunctionData("wrapNative", [amount, receiver]);
+  static wrapNative(amount: BigNumberish): BundlerCall {
+    return BundlerAction.WNATIVE_BUNDLER_IFC.encodeFunctionData("wrapNative", [amount]);
   }
 
-  static unwrapNative(amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.WNATIVE_BUNDLER_IFC.encodeFunctionData("unwrapNative", [amount, receiver]);
+  static unwrapNative(amount: BigNumberish): BundlerCall {
+    return BundlerAction.WNATIVE_BUNDLER_IFC.encodeFunctionData("unwrapNative", [amount]);
   }
 
   /* stETH */
 
-  static stakeEth(amount: BigNumberish, referral: string, receiver: string): BundlerCall {
-    return BundlerAction.ST_ETH_BUNDLER_IFC.encodeFunctionData("stakeEth", [amount, referral, receiver]);
+  static stakeEth(amount: BigNumberish, referral: string): BundlerCall {
+    return BundlerAction.ST_ETH_BUNDLER_IFC.encodeFunctionData("stakeEth", [amount, referral]);
   }
 
   /* Wrapped stETH */
 
-  static wrapStEth(amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.ST_ETH_BUNDLER_IFC.encodeFunctionData("wrapStEth", [amount, receiver]);
+  static wrapStEth(amount: BigNumberish): BundlerCall {
+    return BundlerAction.ST_ETH_BUNDLER_IFC.encodeFunctionData("wrapStEth", [amount]);
   }
 
-  static unwrapStEth(amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.ST_ETH_BUNDLER_IFC.encodeFunctionData("unwrapStEth", [amount, receiver]);
+  static unwrapStEth(amount: BigNumberish): BundlerCall {
+    return BundlerAction.ST_ETH_BUNDLER_IFC.encodeFunctionData("unwrapStEth", [amount]);
   }
 
   /* AaveV2 */

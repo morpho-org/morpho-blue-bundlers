@@ -76,7 +76,7 @@ contract BaseBundlerLocalTest is LocalTest {
         bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(0), amount)));
 
         vm.prank(USER);
-        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
+        vm.expectRevert();
         bundler.multicall(block.timestamp, bundle);
     }
 

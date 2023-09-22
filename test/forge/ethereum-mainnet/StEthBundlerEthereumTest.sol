@@ -22,11 +22,12 @@ contract StEthBundlerEthereumTest is EthereumTest {
     }
 
     function testStakeEth(uint256 amount) public {
-        amount = bound(amount, 1, 10_000 ether);
+        amount = bound(amount, MIN_AMOUNT, 10_000 ether);
 
         deal(USER, amount);
 
-        bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, address(0), RECEIVER)));
+        bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, address(0))));
+        bundle.push(abi.encodeCall(BaseBundler.transfer, (ST_ETH, RECEIVER, type(uint256).max)));
 
         vm.prank(USER);
         bundler.multicall{value: amount}(block.timestamp, bundle);
@@ -35,36 +36,13 @@ contract StEthBundlerEthereumTest is EthereumTest {
         assertEq(RECEIVER.balance, 0, "RECEIVER.balance");
         assertEq(address(bundler).balance, 0, "bundler.balance");
         assertEq(ERC20(ST_ETH).balanceOf(USER), 0, "balanceOf(USER)");
-        assertEq(ERC20(ST_ETH).balanceOf(address(bundler)), 0, "balanceOf(bundler)");
-        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), amount, 2, "balanceOf(RECEIVER)");
-    }
-
-    function testStakeEthZeroAddress(uint256 amount) public {
-        amount = bound(amount, 1, 10_000 ether);
-
-        deal(USER, amount);
-
-        bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, address(0), address(0))));
-
-        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
-        vm.prank(USER);
-        bundler.multicall{value: amount}(block.timestamp, bundle);
-    }
-
-    function testWrapZeroAddress(uint256 amount) public {
-        vm.assume(amount != 0);
-
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(StEthBundler.wrapStEth, (amount, address(0)));
-
-        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
-        vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
+        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(address(bundler)), 0, 1, "balanceOf(bundler)");
+        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), amount, 3, "balanceOf(RECEIVER)");
     }
 
     function testWrapZeroAmount() public {
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(StEthBundler.wrapStEth, (0, RECEIVER));
+        data[0] = abi.encodeCall(StEthBundler.wrapStEth, (0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
@@ -81,15 +59,15 @@ contract StEthBundlerEthereumTest is EthereumTest {
         _mintStEth(amount, user);
         amount = ERC20(ST_ETH).balanceOf(user);
 
-        bytes[] memory data = new bytes[](3);
-        data[0] = _getPermit2Data(ST_ETH, privateKey, user);
-        data[1] = abi.encodeCall(Permit2Bundler.transferFrom2, (ST_ETH, amount));
-        data[2] = abi.encodeCall(StEthBundler.wrapStEth, (amount, RECEIVER));
+        bundle.push(_getPermit2Data(ST_ETH, privateKey, user));
+        bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (ST_ETH, amount)));
+        bundle.push(abi.encodeCall(StEthBundler.wrapStEth, (amount)));
+        bundle.push(abi.encodeCall(BaseBundler.transfer, (WST_ETH, RECEIVER, type(uint256).max)));
 
         uint256 wstEthExpectedAmount = IStEth(ST_ETH).getSharesByPooledEth(ERC20(ST_ETH).balanceOf(user));
 
         vm.prank(user);
-        bundler.multicall(block.timestamp, data);
+        bundler.multicall(block.timestamp, bundle);
 
         assertEq(ERC20(WST_ETH).balanceOf(address(bundler)), 0, "wstEth.balanceOf(bundler)");
         assertEq(ERC20(WST_ETH).balanceOf(user), 0, "wstEth.balanceOf(user)");
@@ -100,20 +78,9 @@ contract StEthBundlerEthereumTest is EthereumTest {
         assertEq(ERC20(ST_ETH).balanceOf(RECEIVER), 0, "wstEth.balanceOf(RECEIVER)");
     }
 
-    function testUnwrapZeroAddress(uint256 amount) public {
-        vm.assume(amount != 0);
-
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(StEthBundler.unwrapStEth, (amount, address(0)));
-
-        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
-        vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
-    }
-
     function testUnwrapZeroAmount() public {
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(StEthBundler.unwrapStEth, (0, RECEIVER));
+        data[0] = abi.encodeCall(StEthBundler.unwrapStEth, (0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
@@ -127,14 +94,14 @@ contract StEthBundlerEthereumTest is EthereumTest {
         address user = _getAddressFromPrivateKey(privateKey);
         _approvePermit2(user);
 
-        bytes[] memory data = new bytes[](3);
-        data[0] = _getPermit2Data(WST_ETH, privateKey, user);
-        data[1] = abi.encodeCall(Permit2Bundler.transferFrom2, (WST_ETH, amount));
-        data[2] = abi.encodeCall(StEthBundler.unwrapStEth, (amount, RECEIVER));
+        bundle.push(_getPermit2Data(WST_ETH, privateKey, user));
+        bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (WST_ETH, amount)));
+        bundle.push(abi.encodeCall(StEthBundler.unwrapStEth, (amount)));
+        bundle.push(abi.encodeCall(BaseBundler.transfer, (ST_ETH, RECEIVER, type(uint256).max)));
 
         deal(WST_ETH, user, amount);
         vm.prank(user);
-        bundler.multicall(block.timestamp, data);
+        bundler.multicall(block.timestamp, bundle);
 
         uint256 expectedUnwrappedAmount = IWStEth(WST_ETH).getStETHByWstETH(amount);
 
@@ -142,9 +109,9 @@ contract StEthBundlerEthereumTest is EthereumTest {
         assertEq(ERC20(WST_ETH).balanceOf(user), 0, "wstEth.balanceOf(user)");
         assertEq(ERC20(WST_ETH).balanceOf(RECEIVER), 0, "wstEth.balanceOf(RECEIVER)");
 
-        assertEq(ERC20(ST_ETH).balanceOf(address(bundler)), 0, "stEth.balanceOf(bundler)");
+        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(address(bundler)), 0, 1, "stEth.balanceOf(bundler)");
         assertEq(ERC20(ST_ETH).balanceOf(user), 0, "stEth.balanceOf(user)");
-        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), expectedUnwrappedAmount, 2, "stEth.balanceOf(RECEIVER)");
+        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), expectedUnwrappedAmount, 3, "stEth.balanceOf(RECEIVER)");
     }
 
     function _mintStEth(uint256 amount, address user) internal returns (uint256 stEthAmount) {

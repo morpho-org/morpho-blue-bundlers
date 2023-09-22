@@ -28,6 +28,7 @@ contract AaveV2MigrationBundler is Permit2Bundler, MigrationBundler {
 
     /// @notice Repays `amount` of `asset` on AaveV2, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @dev Pass in `type(uint256).max` to repay all.
     function aaveV2Repay(address asset, uint256 amount, uint256 interestRateMode) external payable {
         amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
 
