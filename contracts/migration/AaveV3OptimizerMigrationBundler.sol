@@ -42,6 +42,7 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     /// to `receiver`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously approved the bundler to manage their AaveV3 Optimizer position.
+    /// @dev Pass in an amount larger than the balance to withdraw all.
     function aaveV3OptimizerWithdraw(address underlying, uint256 amount, address receiver, uint256 maxIterations)
         external
         payable
@@ -53,6 +54,7 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     /// to `receiver`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously approved the bundler to manage their AaveV3 Optimizer position.
+    /// @dev Pass in an amount larger than the balance to withdraw all.
     function aaveV3OptimizerWithdrawCollateral(address underlying, uint256 amount, address receiver) external payable {
         AAVE_V3_OPTIMIZER.withdrawCollateral(underlying, amount, _initiator, receiver);
     }

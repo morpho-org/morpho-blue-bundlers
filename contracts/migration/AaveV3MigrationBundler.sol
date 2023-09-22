@@ -42,6 +42,7 @@ contract AaveV3MigrationBundler is PermitBundler, Permit2Bundler, MigrationBundl
 
     /// @notice Withdraws `amount` of `asset` on AaveV3, on behalf of the initiator, transferring funds to `receiver`.
     /// @dev Initiator must have previously transferred their aTokens to the bundler.
+    /// @dev Pass in `type(uint256).max` to withdraw all.
     function aaveV3Withdraw(address asset, uint256 amount, address receiver) external payable {
         AAVE_V3_POOL.withdraw(asset, amount, receiver);
     }

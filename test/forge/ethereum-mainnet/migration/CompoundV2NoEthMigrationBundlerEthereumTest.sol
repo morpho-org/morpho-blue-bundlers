@@ -10,6 +10,7 @@ import {CompoundV2MigrationBundler} from "contracts/migration/CompoundV2Migratio
 import "./helpers/EthereumMigrationTest.sol";
 
 contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
+    using MathLib for uint256;
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;
@@ -17,54 +18,41 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
 
     CompoundV2MigrationBundler bundler;
 
-    mapping(address => address) _cTokens;
-
-    address collateralCToken;
-    address borrowableCToken;
-
-    uint256 collateralSupplied = 10 ether;
-    uint256 borrowed = 1e6;
+    address[] internal enteredMarkets;
 
     function setUp() public override {
         super.setUp();
 
         _initMarket(DAI, USDC);
 
-        vm.label(C_ETH_V2, "cETHv2");
-        _cTokens[WETH] = C_ETH_V2;
-        vm.label(C_DAI_V2, "cDAIv2");
-        _cTokens[DAI] = C_DAI_V2;
-        vm.label(C_USDC_V2, "cUSDCv2");
-        _cTokens[USDC] = C_USDC_V2;
-
         bundler = new CompoundV2MigrationBundler(address(morpho), WETH, C_ETH_V2);
-        vm.label(address(bundler), "Compound V2 Migration Bundler");
 
-        collateralCToken = _getCToken(DAI);
-        borrowableCToken = _getCToken(USDC);
+        enteredMarkets.push(C_DAI_V2);
     }
 
     function testMigrateBorrowerWithPermit2(uint256 privateKey) public {
+        uint256 collateral = 10 ether;
+        uint256 borrowed = 1e6;
+
         address user;
         (privateKey, user) = _getUserAndKey(privateKey);
 
         _provideLiquidity(borrowed);
 
-        deal(marketParams.collateralToken, user, collateralSupplied);
+        deal(marketParams.collateralToken, user, collateral);
 
         vm.startPrank(user);
-        ERC20(marketParams.collateralToken).safeApprove(collateralCToken, collateralSupplied);
-        require(ICToken(collateralCToken).mint(collateralSupplied) == 0, "mint error");
-        address[] memory enteredMarkets = new address[](1);
-        enteredMarkets[0] = collateralCToken;
+        ERC20(marketParams.collateralToken).safeApprove(C_DAI_V2, collateral);
+        require(ICToken(C_DAI_V2).mint(collateral) == 0, "mint error");
         require(IComptroller(COMPTROLLER).enterMarkets(enteredMarkets)[0] == 0, "enter market error");
-        require(ICToken(borrowableCToken).borrow(borrowed) == 0, "borrow error");
+        require(ICToken(C_USDC_V2).borrow(borrowed) == 0, "borrow error");
         vm.stopPrank();
 
-        uint256 cTokenBalance = ICToken(collateralCToken).balanceOf(user);
+        uint256 cTokenBalance = ICToken(C_DAI_V2).balanceOf(user);
+        collateral = cTokenBalance.wMulDown(ICToken(C_DAI_V2).exchangeRateStored());
 
         vm.prank(user);
-        ERC20(collateralCToken).safeApprove(address(Permit2Lib.PERMIT2), cTokenBalance);
+        ERC20(C_DAI_V2).safeApprove(address(Permit2Lib.PERMIT2), cTokenBalance);
 
         bytes[] memory data = new bytes[](1);
         bytes[] memory callbackData = new bytes[](7);
@@ -72,16 +60,16 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
         callbackData[1] = _morphoBorrowCall(borrowed, address(bundler));
         callbackData[2] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1);
-        callbackData[3] = _compoundV2RepayCall(borrowableCToken, borrowed);
-        callbackData[4] = _erc20Approve2Call(privateKey, collateralCToken, uint160(cTokenBalance), address(bundler), 0);
-        callbackData[5] = _erc20TransferFrom2Call(collateralCToken, cTokenBalance);
-        callbackData[6] = _compoundV2WithdrawCall(collateralCToken, collateralSupplied);
-        data[0] = _morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackData));
+        callbackData[3] = _compoundV2RepayCall(C_USDC_V2, borrowed);
+        callbackData[4] = _erc20Approve2Call(privateKey, C_DAI_V2, uint160(cTokenBalance), address(bundler), 0);
+        callbackData[5] = _erc20TransferFrom2Call(C_DAI_V2, cTokenBalance);
+        callbackData[6] = _compoundV2RedeemCall(C_DAI_V2, cTokenBalance);
+        data[0] = _morphoSupplyCollateralCall(collateral, user, abi.encode(callbackData));
 
         vm.prank(user);
         bundler.multicall(SIG_DEADLINE, data);
 
-        _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
+        _assertBorrowerPosition(collateral, borrowed, user, address(bundler));
     }
 
     function testMigrateSupplierWithPermit2(uint256 privateKey, uint256 supplied) public {
@@ -92,20 +80,21 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
         deal(marketParams.borrowableToken, user, supplied);
 
         vm.startPrank(user);
-        ERC20(marketParams.borrowableToken).safeApprove(borrowableCToken, supplied);
-        require(ICToken(borrowableCToken).mint(supplied) == 0, "mint error");
+        ERC20(marketParams.borrowableToken).safeApprove(C_USDC_V2, supplied);
+        require(ICToken(C_USDC_V2).mint(supplied) == 0, "mint error");
         vm.stopPrank();
 
-        uint256 cTokenBalance = ICToken(borrowableCToken).balanceOf(user);
+        uint256 cTokenBalance = ICToken(C_USDC_V2).balanceOf(user);
+        supplied = cTokenBalance.wMulDown(ICToken(C_USDC_V2).exchangeRateStored());
 
         vm.prank(user);
-        ERC20(borrowableCToken).safeApprove(address(Permit2Lib.PERMIT2), cTokenBalance);
+        ERC20(C_USDC_V2).safeApprove(address(Permit2Lib.PERMIT2), cTokenBalance);
 
         bytes[] memory data = new bytes[](4);
 
-        data[0] = _erc20Approve2Call(privateKey, borrowableCToken, uint160(cTokenBalance), address(bundler), 0);
-        data[1] = _erc20TransferFrom2Call(borrowableCToken, cTokenBalance);
-        data[2] = _compoundV2WithdrawCall(borrowableCToken, supplied);
+        data[0] = _erc20Approve2Call(privateKey, C_USDC_V2, uint160(cTokenBalance), address(bundler), 0);
+        data[1] = _erc20TransferFrom2Call(C_USDC_V2, cTokenBalance);
+        data[2] = _compoundV2RedeemCall(C_USDC_V2, cTokenBalance);
         data[3] = _morphoSupplyCall(supplied, user, hex"");
 
         vm.prank(user);
@@ -122,20 +111,21 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
         deal(marketParams.borrowableToken, user, supplied);
 
         vm.startPrank(user);
-        ERC20(marketParams.borrowableToken).safeApprove(borrowableCToken, supplied);
-        require(ICToken(borrowableCToken).mint(supplied) == 0, "mint error");
+        ERC20(marketParams.borrowableToken).safeApprove(C_USDC_V2, supplied);
+        require(ICToken(C_USDC_V2).mint(supplied) == 0, "mint error");
         vm.stopPrank();
 
-        uint256 cTokenBalance = ICToken(borrowableCToken).balanceOf(user);
+        uint256 cTokenBalance = ICToken(C_USDC_V2).balanceOf(user);
+        supplied = cTokenBalance.wMulDown(ICToken(C_USDC_V2).exchangeRateStored());
 
         vm.prank(user);
-        ERC20(borrowableCToken).safeApprove(address(Permit2Lib.PERMIT2), cTokenBalance);
+        ERC20(C_USDC_V2).safeApprove(address(Permit2Lib.PERMIT2), cTokenBalance);
 
         bytes[] memory data = new bytes[](4);
 
-        data[0] = _erc20Approve2Call(privateKey, borrowableCToken, uint160(cTokenBalance), address(bundler), 0);
-        data[1] = _erc20TransferFrom2Call(borrowableCToken, cTokenBalance);
-        data[2] = _compoundV2WithdrawCall(borrowableCToken, supplied);
+        data[0] = _erc20Approve2Call(privateKey, C_USDC_V2, uint160(cTokenBalance), address(bundler), 0);
+        data[1] = _erc20TransferFrom2Call(C_USDC_V2, cTokenBalance);
+        data[2] = _compoundV2RedeemCall(C_USDC_V2, cTokenBalance);
         data[3] = _erc4626DepositCall(address(suppliersVault), supplied, user);
 
         vm.prank(user);
@@ -144,17 +134,11 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
         _assertVaultSupplierPosition(supplied, user, address(bundler));
     }
 
-    function _getCToken(address asset) internal view returns (address) {
-        address res = _cTokens[asset];
-        require(res != address(0), "unknown compound v2 asset");
-        return res;
-    }
-
     function _compoundV2RepayCall(address cToken, uint256 repayAmount) internal pure returns (bytes memory) {
         return abi.encodeCall(CompoundV2MigrationBundler.compoundV2Repay, (cToken, repayAmount));
     }
 
-    function _compoundV2WithdrawCall(address cToken, uint256 amount) internal pure returns (bytes memory) {
+    function _compoundV2RedeemCall(address cToken, uint256 amount) internal pure returns (bytes memory) {
         return abi.encodeCall(CompoundV2MigrationBundler.compoundV2Redeem, (cToken, amount));
     }
 }

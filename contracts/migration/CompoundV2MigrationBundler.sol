@@ -63,6 +63,10 @@ contract CompoundV2MigrationBundler is Permit2Bundler, WNativeBundler, Migration
     /// @notice Redeems `amount` of `cToken` from CompoundV2.
     /// @dev Initiator must have previously transferred their cTokens to the bundler.
     function compoundV2Redeem(address cToken, uint256 amount) external payable {
+        amount = Math.min(amount, ERC20(cToken).balanceOf(address(this)));
+
+        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
+
         // Doesn't revert in case of error.
         uint256 err = ICToken(cToken).redeem(amount);
         require(err == 0, ErrorsLib.REDEEM_ERROR);
