@@ -33,15 +33,11 @@ abstract contract StEthBundler is BaseBundler {
 
     /* ACTIONS */
 
-    function stakeEth(uint256 amount, address referral, address receiver) external payable {
-        require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
-
+    function stakeEth(uint256 amount, address referral) external payable {
         amount = Math.min(amount, address(this).balance);
 
         // Lido will revert with ZERO_DEPOSIT in case amount == 0.
-        uint256 stakedShares = IStEth(ST_ETH).submit{value: amount}(referral);
-
-        if (receiver != address(this)) IStEth(ST_ETH).transferShares(receiver, stakedShares);
+        IStEth(ST_ETH).submit{value: amount}(referral);
     }
 
     /// @notice Wraps the given `amount` of stETH to wstETH and transfers it to `receiver`.

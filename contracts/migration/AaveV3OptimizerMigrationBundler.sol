@@ -3,9 +3,11 @@ pragma solidity 0.8.21;
 
 import {IMorpho as IAaveV3Optimizer} from "@morpho-aave-v3/interfaces/IMorpho.sol";
 
+import {ErrorsLib} from "../libraries/ErrorsLib.sol";
+import {Math} from "@morpho-utils/math/Math.sol";
 import {Types} from "@morpho-aave-v3/libraries/Types.sol";
 
-import {MigrationBundler} from "./MigrationBundler.sol";
+import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 
 /// @title AaveV3OptimizerMigrationBundler
 /// @author Morpho Labs
@@ -27,6 +29,10 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     /// @notice Repays `amount` of `underlying` on the AaveV3 Optimizer, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     function aaveV3OptimizerRepay(address underlying, uint256 amount) external payable {
+        amount = Math.min(amount, ERC20(underlying).balanceOf(address(this)));
+
+        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
+
         _approveMaxTo(underlying, address(AAVE_V3_OPTIMIZER));
 
         AAVE_V3_OPTIMIZER.repay(underlying, amount, _initiator);
@@ -36,6 +42,7 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     /// to `receiver`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously approved the bundler to manage their AaveV3 Optimizer position.
+    /// @dev Pass in an amount larger than the balance to withdraw all.
     function aaveV3OptimizerWithdraw(address underlying, uint256 amount, address receiver, uint256 maxIterations)
         external
         payable
@@ -47,6 +54,7 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     /// to `receiver`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously approved the bundler to manage their AaveV3 Optimizer position.
+    /// @dev Pass in an amount larger than the balance to withdraw all.
     function aaveV3OptimizerWithdrawCollateral(address underlying, uint256 amount, address receiver) external payable {
         AAVE_V3_OPTIMIZER.withdrawCollateral(underlying, amount, _initiator, receiver);
     }
