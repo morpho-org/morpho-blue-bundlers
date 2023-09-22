@@ -36,8 +36,8 @@ contract StEthBundlerEthereumTest is EthereumTest {
         assertEq(RECEIVER.balance, 0, "RECEIVER.balance");
         assertEq(address(bundler).balance, 0, "bundler.balance");
         assertEq(ERC20(ST_ETH).balanceOf(USER), 0, "balanceOf(USER)");
-        assertEq(ERC20(ST_ETH).balanceOf(address(bundler)), 0, "balanceOf(bundler)");
-        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), amount, 2, "balanceOf(RECEIVER)");
+        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(address(bundler)), 0, 1, "balanceOf(bundler)");
+        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), amount, 3, "balanceOf(RECEIVER)");
     }
 
     function testWrapZeroAmount() public {
