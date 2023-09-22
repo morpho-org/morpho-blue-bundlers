@@ -33,7 +33,7 @@ abstract contract StEthBundler is BaseBundler {
 
     /* ACTIONS */
 
-    /// @notice Stakes the given amount of ETH via Lido, using the referral id.
+    /// @notice Stakes the given `amount` of ETH via Lido, using the `referral` id.
     /// @dev Use `BaseBundler.transfer` to transfer the stEth to some `receiver`.
     /// @dev Pass in `type(uint256).max` to stake all.
     function stakeEth(uint256 amount, address referral) external payable {
