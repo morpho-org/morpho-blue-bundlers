@@ -10,8 +10,6 @@ import "./helpers/LocalTest.sol";
 contract BaseBundlerLocalTest is LocalTest {
     BaseBundlerMock internal bundler;
 
-    bytes[] internal bundle;
-
     function setUp() public override {
         super.setUp();
 

@@ -19,20 +19,9 @@ contract WNativeBundlerEthereumTest is EthereumTest {
         ERC20(WETH).approve(address(bundler), type(uint256).max);
     }
 
-    function testWrapZeroAddress(uint256 amount) public {
-        vm.assume(amount != 0);
-
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(WNativeBundler.wrapNative, (amount, address(0)));
-
-        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
-        vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
-    }
-
     function testWrapZeroAmount() public {
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(WNativeBundler.wrapNative, (0, RECEIVER));
+        data[0] = abi.encodeCall(WNativeBundler.wrapNative, (0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
@@ -42,12 +31,12 @@ contract WNativeBundlerEthereumTest is EthereumTest {
     function testWrapNative(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(WNativeBundler.wrapNative, (amount, RECEIVER));
+        bundle.push(abi.encodeCall(WNativeBundler.wrapNative, (amount)));
+        bundle.push(abi.encodeCall(BaseBundler.transfer, (WETH, RECEIVER, type(uint256).max)));
 
         vm.deal(USER, amount);
         vm.prank(USER);
-        bundler.multicall{value: amount}(block.timestamp, data);
+        bundler.multicall{value: amount}(block.timestamp, bundle);
 
         assertEq(ERC20(WETH).balanceOf(address(bundler)), 0, "Bundler's wrapped token balance");
         assertEq(ERC20(WETH).balanceOf(USER), 0, "User's wrapped token balance");
@@ -58,31 +47,9 @@ contract WNativeBundlerEthereumTest is EthereumTest {
         assertEq(RECEIVER.balance, 0, "Receiver's native token balance");
     }
 
-    function testUnwrapZeroAddress(uint256 amount) public {
-        vm.assume(amount != 0);
-
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(WNativeBundler.unwrapNative, (amount, address(0)));
-
-        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
-        vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
-    }
-
-    function testUnwrapBundlerAddress(uint256 amount) public {
-        vm.assume(amount != 0);
-
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(WNativeBundler.unwrapNative, (amount, address(bundler)));
-
-        vm.expectRevert(bytes(ErrorsLib.BUNDLER_ADDRESS));
-        vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
-    }
-
     function testUnwrapZeroAmount() public {
         bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(WNativeBundler.unwrapNative, (0, RECEIVER));
+        data[0] = abi.encodeCall(WNativeBundler.unwrapNative, (0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
@@ -92,13 +59,13 @@ contract WNativeBundlerEthereumTest is EthereumTest {
     function testUnwrapNative(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bytes[] memory data = new bytes[](2);
-        data[0] = abi.encodeCall(BaseBundler.transferFrom, (WETH, amount));
-        data[1] = abi.encodeCall(WNativeBundler.unwrapNative, (amount, RECEIVER));
+        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (WETH, amount)));
+        bundle.push(abi.encodeCall(WNativeBundler.unwrapNative, (amount)));
+        bundle.push(abi.encodeCall(BaseBundler.transferNative, (RECEIVER, type(uint256).max)));
 
         deal(WETH, USER, amount);
         vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
+        bundler.multicall(block.timestamp, bundle);
 
         assertEq(ERC20(WETH).balanceOf(address(bundler)), 0, "Bundler's wrapped token balance");
         assertEq(ERC20(WETH).balanceOf(USER), 0, "User's wrapped token balance");

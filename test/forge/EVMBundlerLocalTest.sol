@@ -20,8 +20,6 @@ contract EVMBundlerLocalTest is LocalTest {
 
     EVMBundler private bundler;
 
-    bytes[] private bundle;
-
     function setUp() public override {
         super.setUp();
 

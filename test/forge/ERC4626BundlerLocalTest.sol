@@ -12,8 +12,6 @@ contract ERC4626BundlerLocalTest is LocalTest {
     ERC4626Mock private vault;
     ERC4626BundlerMock internal bundler;
 
-    bytes[] internal bundle;
-
     function setUp() public override {
         super.setUp();
 
