@@ -10,11 +10,11 @@ import {MorphoLib} from "@morpho-blue/libraries/periphery/MorphoLib.sol";
 import {MorphoBalancesLib} from "@morpho-blue/libraries/periphery/MorphoBalancesLib.sol";
 
 import "../../helpers/EthereumTest.sol";
-import {BaseBundler} from "contracts/BaseBundler.sol";
-import {MorphoBundler} from "contracts/MorphoBundler.sol";
-import {ERC4626Bundler} from "contracts/ERC4626Bundler.sol";
-import {Permit2Bundler} from "contracts/Permit2Bundler.sol";
-import {ERC4626Mock} from "contracts/mocks/ERC4626Mock.sol";
+import {BaseBundler} from "src/BaseBundler.sol";
+import {MorphoBundler} from "src/MorphoBundler.sol";
+import {ERC4626Bundler} from "src/ERC4626Bundler.sol";
+import {Permit2Bundler} from "src/Permit2Bundler.sol";
+import {ERC4626Mock} from "src/mocks/ERC4626Mock.sol";
 
 contract EthereumMigrationTest is EthereumTest {
     using SafeTransferLib for ERC20;

@@ -14,7 +14,7 @@ import {
   CompoundV2MigrationBundler__factory,
   CompoundV3MigrationBundler__factory,
 } from "types";
-import { AuthorizationStruct, MarketParamsStruct } from "types/contracts/MorphoBundler";
+import { AuthorizationStruct, MarketParamsStruct } from "types/src/MorphoBundler";
 
 export type BundlerCall = string;
 

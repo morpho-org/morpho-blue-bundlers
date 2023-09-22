@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {ILendingPool} from "@morpho-v1/aave-v2/interfaces/aave/ILendingPool.sol";
 import {IAToken} from "@morpho-v1/aave-v2/interfaces/aave/IAToken.sol";
 
-import {AaveV2MigrationBundler} from "contracts/migration/AaveV2MigrationBundler.sol";
+import "src/migration/AaveV2MigrationBundler.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
 

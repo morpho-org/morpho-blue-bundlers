@@ -2,10 +2,10 @@
 pragma solidity ^0.8.0;
 
 import {SigUtils} from "./helpers/SigUtils.sol";
-import {ErrorsLib} from "contracts/libraries/ErrorsLib.sol";
+import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
 import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
 
-import "contracts/mocks/bundlers/MorphoBundlerMock.sol";
+import "src/mocks/bundlers/MorphoBundlerMock.sol";
 
 import "./helpers/LocalTest.sol";
 

@@ -1,5 +1,5 @@
 config/=config/
-contracts/=contracts/
+src/=src/
 test/=test/
 
 solmate/=lib/solmate/
