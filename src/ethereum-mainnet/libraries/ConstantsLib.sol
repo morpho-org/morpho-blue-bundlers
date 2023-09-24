@@ -9,3 +9,6 @@ address constant ST_ETH_MAINNET = 0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84;
 
 /// @dev The address of the wstETH contract on Ethereum mainnet.
 address constant WST_ETH_MAINNET = 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0;
+
+/// @dev The address of AaveV2's lending pool contract on Ethereum mainnet.
+address constant AAVE_V2_POOL_MAINNET = 0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9;
