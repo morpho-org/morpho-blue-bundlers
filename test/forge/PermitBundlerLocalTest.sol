@@ -59,12 +59,11 @@ contract PermitBundlerLocalTest is LocalTest {
         returns (bytes memory)
     {
         uint256 nonce = IERC20Permit(token).nonces(user);
-        bytes32 domainSeparator = IERC20Permit(token).DOMAIN_SEPARATOR();
 
         Permit memory permit = Permit(user, address(bundler), amount, nonce, deadline);
-        bytes32 hashed = SigUtils.getTypedDataHash(domainSeparator, SigUtils.getPermitStructHash(permit));
 
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, hashed);
+        bytes32 digest = SigUtils.toTypedDataHash(IERC20Permit(token).DOMAIN_SEPARATOR(), permit);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, digest);
 
         return abi.encodeCall(PermitBundler.permit, (token, amount, deadline, v, r, s));
     }

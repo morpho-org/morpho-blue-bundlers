@@ -3,19 +3,18 @@ pragma solidity ^0.8.0;
 
 import {SigUtils} from "./helpers/SigUtils.sol";
 import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
-import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
 
 import "src/mocks/bundlers/MorphoBundlerMock.sol";
 
 import "./helpers/LocalTest.sol";
+
+uint256 constant SIGNATURE_DEADLINE = type(uint32).max;
 
 contract MorphoBundlerLocalTest is LocalTest {
     using MathLib for uint256;
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
     using SharesMathLib for uint256;
-
-    uint256 internal constant SIG_DEADLINE = type(uint32).max;
 
     MorphoBundlerMock internal bundler;
 
@@ -57,24 +56,20 @@ contract MorphoBundlerLocalTest is LocalTest {
         bool isAuthorized,
         uint256 nonce
     ) internal view returns (bytes memory) {
-        Authorization memory auth = Authorization({
+        Authorization memory authorization = Authorization({
             authorizer: vm.addr(privateKey),
             authorized: authorized,
             isAuthorized: isAuthorized,
             nonce: nonce,
-            deadline: SIG_DEADLINE
+            deadline: SIGNATURE_DEADLINE
         });
 
-        bytes32 authorizationTypehash = keccak256(
-            "Authorization(address authorizer,address authorized,bool isAuthorized,uint256 nonce,uint256 deadline)"
-        );
-        bytes32 digest =
-            ECDSA.toTypedDataHash(morpho.DOMAIN_SEPARATOR(), keccak256(abi.encode(authorizationTypehash, auth)));
+        bytes32 digest = SigUtils.toTypedDataHash(morpho.DOMAIN_SEPARATOR(), authorization);
 
         Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (auth, sig));
+        return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (authorization, sig));
     }
 
     function assumeOnBehalf(address onBehalf) internal view {
@@ -90,15 +85,15 @@ contract MorphoBundlerLocalTest is LocalTest {
         address user = vm.addr(privateKey);
         vm.assume(user != USER);
 
-        Authorization memory authorization;
-        authorization.authorizer = user;
-        authorization.authorized = address(bundler);
-        authorization.deadline = deadline;
-        authorization.nonce = morpho.nonce(user);
-        authorization.isAuthorized = true;
+        Authorization memory authorization = Authorization({
+            authorizer: user,
+            authorized: address(bundler),
+            deadline: deadline,
+            nonce: morpho.nonce(user),
+            isAuthorized: true
+        });
 
-        bytes32 digest =
-            SigUtils.getTypedDataHash(morpho.DOMAIN_SEPARATOR(), SigUtils.getAuthorizationStructHash(authorization));
+        bytes32 digest = SigUtils.toTypedDataHash(morpho.DOMAIN_SEPARATOR(), authorization);
 
         Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);

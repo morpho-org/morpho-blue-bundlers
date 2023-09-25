@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
 
 import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
-import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
 import {MarketParamsLib} from "@morpho-blue/libraries/MarketParamsLib.sol";
 import {MorphoLib} from "@morpho-blue/libraries/periphery/MorphoLib.sol";
 import {MorphoBalancesLib} from "@morpho-blue/libraries/periphery/MorphoBalancesLib.sol";
@@ -17,13 +16,13 @@ import {ERC4626Bundler} from "src/ERC4626Bundler.sol";
 import {MorphoBundler} from "src/MorphoBundler.sol";
 import {ERC4626Mock} from "src/mocks/ERC4626Mock.sol";
 
+uint256 constant SIGNATURE_DEADLINE = type(uint32).max;
+
 contract EthereumMigrationTest is EthereumTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
-
-    uint256 internal constant SIG_DEADLINE = type(uint32).max;
 
     MarketParams internal marketParams;
     ERC4626Mock internal suppliersVault;
@@ -57,24 +56,20 @@ contract EthereumMigrationTest is EthereumTest {
         bool isAuthorized,
         uint256 nonce
     ) internal view returns (bytes memory) {
-        Authorization memory auth = Authorization({
+        Authorization memory authorization = Authorization({
             authorizer: vm.addr(privateKey),
             authorized: authorized,
             isAuthorized: isAuthorized,
             nonce: nonce,
-            deadline: SIG_DEADLINE
+            deadline: SIGNATURE_DEADLINE
         });
 
-        bytes32 authorizationTypehash = keccak256(
-            "Authorization(address authorizer,address authorized,bool isAuthorized,uint256 nonce,uint256 deadline)"
-        );
-        bytes32 digest =
-            ECDSA.toTypedDataHash(morpho.DOMAIN_SEPARATOR(), keccak256(abi.encode(authorizationTypehash, auth)));
+        bytes32 digest = SigUtils.toTypedDataHash(morpho.DOMAIN_SEPARATOR(), authorization);
 
         Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (auth, sig));
+        return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (authorization, sig));
     }
 
     function _morphoBorrowCall(uint256 amount, address receiver) internal view returns (bytes memory) {
@@ -110,26 +105,24 @@ contract EthereumMigrationTest is EthereumTest {
         view
         returns (bytes memory)
     {
-        bytes32 digest = ECDSA.toTypedDataHash(
+        bytes32 digest = SigUtils.toTypedDataHash(
             Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(),
-            PermitHash.hash(
-                IAllowanceTransfer.PermitSingle({
-                    details: IAllowanceTransfer.PermitDetails({
-                        token: asset,
-                        amount: amount,
-                        expiration: type(uint48).max,
-                        nonce: nonce
-                    }),
-                    spender: spender,
-                    sigDeadline: SIG_DEADLINE
-                })
-            )
+            IAllowanceTransfer.PermitSingle({
+                details: IAllowanceTransfer.PermitDetails({
+                    token: asset,
+                    amount: amount,
+                    expiration: type(uint48).max,
+                    nonce: nonce
+                }),
+                spender: spender,
+                sigDeadline: SIGNATURE_DEADLINE
+            })
         );
 
         Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(Permit2Bundler.approve2, (asset, amount, SIG_DEADLINE, sig));
+        return abi.encodeCall(Permit2Bundler.approve2, (asset, amount, SIGNATURE_DEADLINE, sig));
     }
 
     function _erc4626DepositCall(address vault, uint256 amount, address receiver)
