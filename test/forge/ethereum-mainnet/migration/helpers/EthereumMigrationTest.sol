@@ -74,7 +74,7 @@ contract EthereumMigrationTest is EthereumTest {
         Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (auth, sig));
+        return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (auth, sig, false));
     }
 
     function _morphoBorrowCall(uint256 amount, address receiver) internal view returns (bytes memory) {
@@ -129,7 +129,7 @@ contract EthereumMigrationTest is EthereumTest {
         Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(Permit2Bundler.approve2, (asset, amount, SIG_DEADLINE, sig));
+        return abi.encodeCall(Permit2Bundler.approve2, (asset, amount, SIG_DEADLINE, sig, false));
     }
 
     function _erc4626DepositCall(address vault, uint256 amount, address receiver)

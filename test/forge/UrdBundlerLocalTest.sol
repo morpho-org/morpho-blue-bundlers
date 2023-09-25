@@ -38,7 +38,9 @@ contract UrdBundlerLocalTest is LocalTest {
         bytes32[] memory proof;
 
         bundle.push(
-            abi.encodeCall(UrdBundler.urdClaim, (address(0), account, address(borrowableToken), claimable, proof))
+            abi.encodeCall(
+                UrdBundler.urdClaim, (address(0), account, address(borrowableToken), claimable, proof, false)
+            )
         );
 
         vm.prank(USER);
@@ -52,7 +54,9 @@ contract UrdBundlerLocalTest is LocalTest {
         bytes32[] memory proof;
 
         bundle.push(
-            abi.encodeCall(UrdBundler.urdClaim, (distributor, address(0), address(borrowableToken), claimable, proof))
+            abi.encodeCall(
+                UrdBundler.urdClaim, (distributor, address(0), address(borrowableToken), claimable, proof, false)
+            )
         );
 
         vm.prank(USER);
@@ -67,7 +71,7 @@ contract UrdBundlerLocalTest is LocalTest {
 
         bundle.push(
             abi.encodeCall(
-                UrdBundler.urdClaim, (distributor, address(bundler), address(borrowableToken), claimable, proof)
+                UrdBundler.urdClaim, (distributor, address(bundler), address(borrowableToken), claimable, proof, false)
             )
         );
 
@@ -90,12 +94,14 @@ contract UrdBundlerLocalTest is LocalTest {
 
         bundle.push(
             abi.encodeCall(
-                UrdBundler.urdClaim, (distributor, USER, address(borrowableToken), claimable, borrowableTokenProof)
+                UrdBundler.urdClaim,
+                (distributor, USER, address(borrowableToken), claimable, borrowableTokenProof, false)
             )
         );
         bundle.push(
             abi.encodeCall(
-                UrdBundler.urdClaim, (distributor, USER, address(collateralToken), claimable, collateralTokenProof)
+                UrdBundler.urdClaim,
+                (distributor, USER, address(collateralToken), claimable, collateralTokenProof, false)
             )
         );
 

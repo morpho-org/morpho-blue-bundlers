@@ -48,7 +48,7 @@ contract Permit2BundlerEthereumTest is EthereumTest {
         (signature.v, signature.r, signature.s) = vm.sign(privateKey, hashed);
 
         bundle.push(
-            abi.encodeCall(Permit2Bundler.approve2, (marketParams.borrowableToken, amount, deadline, signature))
+            abi.encodeCall(Permit2Bundler.approve2, (marketParams.borrowableToken, amount, deadline, signature, false))
         );
 
         vm.prank(user);
@@ -72,7 +72,8 @@ contract Permit2BundlerEthereumTest is EthereumTest {
 
         bundle.push(
             abi.encodeCall(
-                Permit2Bundler.approve2, (marketParams.borrowableToken, 0, deadline, Signature({v: 0, r: 0, s: 0}))
+                Permit2Bundler.approve2,
+                (marketParams.borrowableToken, 0, deadline, Signature({v: 0, r: 0, s: 0}), false)
             )
         );
 

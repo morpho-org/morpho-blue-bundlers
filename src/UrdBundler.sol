@@ -14,13 +14,25 @@ import {BaseBundler} from "./BaseBundler.sol";
 contract UrdBundler is BaseBundler {
     /// @notice Claims `amount` of `reward` on behalf of `account` on the given rewards distributor, using `proof`.
     /// @dev Assumes the given distributor implements IUniversalRewardsDistributor.
-    function urdClaim(address distributor, address account, address reward, uint256 amount, bytes32[] calldata proof)
-        external
-        payable
-    {
+    function urdClaim(
+        address distributor,
+        address account,
+        address reward,
+        uint256 amount,
+        bytes32[] calldata proof,
+        bool allowRevert
+    ) external payable {
         require(account != address(0), ErrorsLib.ZERO_ADDRESS);
         require(account != address(this), ErrorsLib.BUNDLER_ADDRESS);
 
-        IUniversalRewardsDistributor(distributor).claim(account, reward, amount, proof);
+        try IUniversalRewardsDistributor(distributor).claim(account, reward, amount, proof) {}
+        catch (bytes memory data) {
+            if (!allowRevert) {
+                assembly ("memory-safe") {
+                    // Bubble up error.
+                    revert(add(32, data), mload(data))
+                }
+            }
+        }
     }
 }
