@@ -61,7 +61,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         data[0] = _morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackData));
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, data);
 
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
     }
@@ -99,7 +99,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         data[0] = _morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackData));
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, data);
 
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
     }
@@ -127,7 +127,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         data[3] = _morphoSupplyCall(supplied, user, hex"");
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, data);
 
         _assertSupplierPosition(supplied, user, address(bundler));
     }
@@ -158,7 +158,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         data[3] = _morphoSupplyCall(supplied, user, hex"");
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, data);
 
         _assertSupplierPosition(supplied, user, address(bundler));
     }
@@ -186,7 +186,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         data[3] = _erc4626DepositCall(address(suppliersVault), supplied, user);
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, data);
 
         _assertVaultSupplierPosition(supplied, user, address(bundler));
     }
@@ -217,7 +217,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         data[3] = _erc4626DepositCall(address(suppliersVault), supplied, user);
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, data);
 
         _assertVaultSupplierPosition(supplied, user, address(bundler));
     }
@@ -233,14 +233,13 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
     {
         address user = vm.addr(privateKey);
         uint256 nonce = IAToken(aToken).nonces(user);
-        bytes32 domainSeparator = IAToken(aToken).DOMAIN_SEPARATOR();
 
-        Permit memory permit = Permit(user, address(bundler), amount, nonce, SIG_DEADLINE);
-        bytes32 hashed = SigUtils.getTypedDataHash(domainSeparator, SigUtils.getPermitStructHash(permit));
+        Permit memory permit = Permit(user, address(bundler), amount, nonce, SIGNATURE_DEADLINE);
+        bytes32 hashed = SigUtils.toTypedDataHash(IAToken(aToken).DOMAIN_SEPARATOR(), permit);
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, hashed);
 
-        return abi.encodeCall(PermitBundler.permit, (aToken, amount, SIG_DEADLINE, v, r, s));
+        return abi.encodeCall(PermitBundler.permit, (aToken, amount, SIGNATURE_DEADLINE, v, r, s));
     }
 
     function _aaveV3RepayCall(address asset, uint256 amount, uint256 interestRateMode)

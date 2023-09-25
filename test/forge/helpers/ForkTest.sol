@@ -2,7 +2,8 @@
 pragma solidity ^0.8.0;
 
 import {Permit2Lib} from "@permit2/libraries/Permit2Lib.sol";
-import {PermitHash} from "@permit2/libraries/PermitHash.sol";
+
+import {SigUtils} from "./SigUtils.sol";
 
 import "config/Configured.sol";
 import "./BaseTest.sol";

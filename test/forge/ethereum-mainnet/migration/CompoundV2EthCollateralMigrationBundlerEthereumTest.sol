@@ -63,7 +63,7 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         bundle.push(_morphoSupplyCollateralCall(collateral, user, abi.encode(callbackBundle)));
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, bundle);
+        bundler.multicall(SIGNATURE_DEADLINE, bundle);
 
         _assertBorrowerPosition(collateral, borrowed, user, address(bundler));
     }

@@ -3,8 +3,6 @@ pragma solidity ^0.8.0;
 
 import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
 
-import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
-
 import "src/ethereum-mainnet/EthereumBundler.sol";
 
 import "./helpers/EthereumTest.sol";
@@ -42,20 +40,18 @@ contract EthereumBundlerEthereumTest is EthereumTest {
         MarketParams memory marketParams = _randomMarketParams(seed);
 
         (,, uint48 nonce) = Permit2Lib.PERMIT2.allowance(user, marketParams.borrowableToken, address(bundler));
-        bytes32 hashed = ECDSA.toTypedDataHash(
+        bytes32 hashed = SigUtils.toTypedDataHash(
             Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(),
-            PermitHash.hash(
-                IAllowanceTransfer.PermitSingle({
-                    details: IAllowanceTransfer.PermitDetails({
-                        token: marketParams.borrowableToken,
-                        amount: uint160(amount),
-                        expiration: type(uint48).max,
-                        nonce: nonce
-                    }),
-                    spender: address(bundler),
-                    sigDeadline: deadline
-                })
-            )
+            IAllowanceTransfer.PermitSingle({
+                details: IAllowanceTransfer.PermitDetails({
+                    token: marketParams.borrowableToken,
+                    amount: uint160(amount),
+                    expiration: type(uint48).max,
+                    nonce: nonce
+                }),
+                spender: address(bundler),
+                sigDeadline: deadline
+            })
         );
 
         Signature memory signature;

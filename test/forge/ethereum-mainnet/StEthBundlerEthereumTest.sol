@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
-import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
-
 import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
+
+import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
 
 import "src/mocks/bundlers/ethereum-mainnet/StEthBundlerMock.sol";
 
@@ -121,20 +120,18 @@ contract StEthBundlerEthereumTest is EthereumTest {
 
     function _getPermit2Data(address token, uint256 privateKey, address user) internal view returns (bytes memory) {
         (,, uint48 nonce) = Permit2Lib.PERMIT2.allowance(user, token, address(bundler));
-        bytes32 hashed = ECDSA.toTypedDataHash(
+        bytes32 hashed = SigUtils.toTypedDataHash(
             Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(),
-            PermitHash.hash(
-                IAllowanceTransfer.PermitSingle({
-                    details: IAllowanceTransfer.PermitDetails({
-                        token: token,
-                        amount: type(uint160).max,
-                        expiration: type(uint48).max,
-                        nonce: nonce
-                    }),
-                    spender: address(bundler),
-                    sigDeadline: type(uint48).max
-                })
-            )
+            IAllowanceTransfer.PermitSingle({
+                details: IAllowanceTransfer.PermitDetails({
+                    token: token,
+                    amount: type(uint160).max,
+                    expiration: type(uint48).max,
+                    nonce: nonce
+                }),
+                spender: address(bundler),
+                sigDeadline: type(uint48).max
+            })
         );
 
         Signature memory signature;
