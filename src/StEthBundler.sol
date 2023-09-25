@@ -27,7 +27,7 @@ abstract contract StEthBundler is BaseBundler {
 
     /* CONSTRUCTOR */
 
-    /// @dev Warning: assumes the given addresses are non-zero.
+    /// @dev Warning: assumes the given addresses are non-zero (they are not expected to be deployment arguments).
     constructor(address stEth, address wstEth) {
         ST_ETH = stEth;
         WST_ETH = wstEth;
