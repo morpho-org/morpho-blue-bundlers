@@ -27,29 +27,8 @@ contract Permit2BundlerEthereumTest is EthereumTest {
         address user = vm.addr(privateKey);
         MarketParams memory marketParams = _randomMarketParams(seed);
 
-        (,, uint48 nonce) = Permit2Lib.PERMIT2.allowance(user, marketParams.borrowableToken, address(bundler));
-        bytes32 hashed = ECDSA.toTypedDataHash(
-            Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(),
-            PermitHash.hash(
-                IAllowanceTransfer.PermitSingle({
-                    details: IAllowanceTransfer.PermitDetails({
-                        token: marketParams.borrowableToken,
-                        amount: uint160(amount),
-                        expiration: type(uint48).max,
-                        nonce: nonce
-                    }),
-                    spender: address(bundler),
-                    sigDeadline: deadline
-                })
-            )
-        );
-
-        Signature memory signature;
-        (signature.v, signature.r, signature.s) = vm.sign(privateKey, hashed);
-
-        bundle.push(
-            abi.encodeCall(Permit2Bundler.approve2, (marketParams.borrowableToken, amount, deadline, signature, false))
-        );
+        bundle.push(_approve2Call(marketParams, privateKey, amount, deadline, false));
+        bundle.push(_approve2Call(marketParams, privateKey, amount, deadline, true));
 
         vm.prank(user);
         bundler.multicall(block.timestamp, bundle);
@@ -63,6 +42,22 @@ contract Permit2BundlerEthereumTest is EthereumTest {
             0,
             "borrowable.allowance(user, bundler)"
         );
+    }
+
+    function testApprove2Revert(uint256 seed, uint256 privateKey, uint256 deadline, uint256 amount) public {
+        privateKey = bound(privateKey, 1, type(uint160).max);
+        deadline = bound(deadline, block.timestamp, type(uint48).max);
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        address user = vm.addr(privateKey);
+        MarketParams memory marketParams = _randomMarketParams(seed);
+
+        bundle.push(_approve2Call(marketParams, privateKey, amount, deadline, false));
+        bundle.push(_approve2Call(marketParams, privateKey, amount, deadline, false));
+
+        vm.prank(user);
+        vm.expectRevert();
+        bundler.multicall(block.timestamp, bundle);
     }
 
     function testApprove2Zero(uint256 seed, uint256 deadline) public {
@@ -79,5 +74,39 @@ contract Permit2BundlerEthereumTest is EthereumTest {
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(block.timestamp, bundle);
+    }
+
+    function _approve2Call(
+        MarketParams memory marketParams,
+        uint256 privateKey,
+        uint256 amount,
+        uint256 deadline,
+        bool allowRevert
+    ) internal view returns (bytes memory) {
+        address user = vm.addr(privateKey);
+
+        (,, uint48 nonce) = Permit2Lib.PERMIT2.allowance(user, marketParams.borrowableToken, address(bundler));
+        bytes32 digest = ECDSA.toTypedDataHash(
+            Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(),
+            PermitHash.hash(
+                IAllowanceTransfer.PermitSingle({
+                    details: IAllowanceTransfer.PermitDetails({
+                        token: marketParams.borrowableToken,
+                        amount: uint160(amount),
+                        expiration: type(uint48).max,
+                        nonce: nonce
+                    }),
+                    spender: address(bundler),
+                    sigDeadline: deadline
+                })
+            )
+        );
+
+        Signature memory signature;
+        (signature.v, signature.r, signature.s) = vm.sign(privateKey, digest);
+
+        return abi.encodeCall(
+            Permit2Bundler.approve2, (marketParams.borrowableToken, amount, deadline, signature, allowRevert)
+        );
     }
 }
