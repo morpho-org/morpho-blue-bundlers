@@ -24,9 +24,8 @@ abstract contract WNativeBundler is BaseBundler, Permit2Bundler {
 
     /* CONSTRUCTOR */
 
+    /// @dev Warning: assumes the given addresses are non-zero (they are not expected to be deployment arguments).
     constructor(address wNative) {
-        require(wNative != address(0), ErrorsLib.ZERO_ADDRESS);
-
         WRAPPED_NATIVE = wNative;
     }
 
