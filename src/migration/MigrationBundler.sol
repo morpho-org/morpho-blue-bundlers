@@ -3,6 +3,8 @@ pragma solidity 0.8.21;
 
 import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
 
+import {PermitBundler} from "../PermitBundler.sol";
+import {Permit2Bundler} from "../Permit2Bundler.sol";
 import {ERC4626Bundler} from "../ERC4626Bundler.sol";
 import {MorphoBundler} from "../MorphoBundler.sol";
 
@@ -10,7 +12,7 @@ import {MorphoBundler} from "../MorphoBundler.sol";
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Abstract contract allowing to migrate a position from one lending protocol to Morpho Blue easily.
-abstract contract MigrationBundler is ERC4626Bundler, MorphoBundler {
+abstract contract MigrationBundler is PermitBundler, Permit2Bundler, ERC4626Bundler, MorphoBundler {
     using SafeTransferLib for ERC20;
 
     /* CONSTRUCTOR */

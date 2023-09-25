@@ -4,17 +4,17 @@ pragma solidity ^0.8.0;
 import {ILendingPool} from "@morpho-v1/aave-v2/interfaces/aave/ILendingPool.sol";
 import {IAToken} from "@morpho-v1/aave-v2/interfaces/aave/IAToken.sol";
 
-import "src/migration/AaveV2MigrationBundler.sol";
+import "src/ethereum-mainnet/migration/AaveV2EthereumMigrationBundler.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
 
-contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
+contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
 
-    AaveV2MigrationBundler bundler;
+    AaveV2EthereumMigrationBundler bundler;
 
     uint256 collateralSupplied = 10_000 ether;
     uint256 borrowed = 1 ether;
@@ -26,8 +26,7 @@ contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.label(AAVE_V2_POOL, "Aave V2 Pool");
 
-        bundler = new AaveV2MigrationBundler(address(morpho), address(AAVE_V2_POOL));
-        vm.label(address(bundler), "Aave V2 Migration Bundler");
+        bundler = new AaveV2EthereumMigrationBundler(address(morpho));
     }
 
     function testMigrateBorrowerWithPermit2(uint256 privateKey) public {

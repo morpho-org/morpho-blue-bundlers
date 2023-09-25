@@ -6,14 +6,13 @@ import {ICompoundV3} from "./interfaces/ICompoundV3.sol";
 import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 import {Math} from "@morpho-utils/math/Math.sol";
 
-import {Permit2Bundler} from "../Permit2Bundler.sol";
 import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 
 /// @title CompoundV3MigrationBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from Compound V3 to Morpho Blue easily.
-contract CompoundV3MigrationBundler is Permit2Bundler, MigrationBundler {
+contract CompoundV3MigrationBundler is MigrationBundler {
     /* CONSTRUCTOR */
 
     constructor(address morpho) MigrationBundler(morpho) {}

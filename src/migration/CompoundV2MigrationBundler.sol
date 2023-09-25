@@ -7,7 +7,6 @@ import {ICToken} from "./interfaces/ICToken.sol";
 import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 import {Math} from "@morpho-utils/math/Math.sol";
 
-import {Permit2Bundler} from "../Permit2Bundler.sol";
 import {WNativeBundler} from "../WNativeBundler.sol";
 import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 
@@ -15,7 +14,7 @@ import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from Compound V2 to Morpho Blue easily.
-contract CompoundV2MigrationBundler is Permit2Bundler, WNativeBundler, MigrationBundler {
+contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
     /* IMMUTABLES */
 
     address public immutable C_ETH;
