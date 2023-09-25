@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import "./libraries/ConstantsLib.sol";
+import {GoerliLib} from "./libraries/GoerliLib.sol";
 
 import {PermitBundler} from "../PermitBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
@@ -27,8 +27,8 @@ contract GoerliBundler is
     /* CONSTRUCTOR */
 
     constructor(address morpho)
-        WNativeBundler(WETH_GOERLI)
-        StEthBundler(ST_ETH_GOERLI, WST_ETH_GOERLI)
+        WNativeBundler(GoerliLib.WETH)
+        StEthBundler(GoerliLib.ST_ETH, GoerliLib.WST_ETH)
         MorphoBundler(morpho)
     {}
 }

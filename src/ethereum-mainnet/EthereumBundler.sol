@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import "./libraries/ConstantsLib.sol";
+import {MainnetLib} from "./libraries/MainnetLib.sol";
 
 import {PermitBundler} from "../PermitBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
@@ -27,8 +27,8 @@ contract EthereumBundler is
     /* CONSTRUCTOR */
 
     constructor(address morpho)
-        WNativeBundler(WETH_MAINNET)
-        StEthBundler(ST_ETH_MAINNET, WST_ETH_MAINNET)
+        WNativeBundler(MainnetLib.WETH)
+        StEthBundler(MainnetLib.ST_ETH, MainnetLib.WST_ETH)
         MorphoBundler(morpho)
     {}
 }
