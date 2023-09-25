@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import "./libraries/ConstantsLib.sol";
+import {MainnetLib} from "./libraries/MainnetLib.sol";
 
 import {StEthBundler} from "../StEthBundler.sol";
 
@@ -12,5 +12,5 @@ import {StEthBundler} from "../StEthBundler.sol";
 abstract contract EthereumStEthBundler is StEthBundler {
     /* CONSTRUCTOR */
 
-    constructor() StEthBundler(ST_ETH_MAINNET, WST_ETH_MAINNET) {}
+    constructor() StEthBundler(MainnetLib.ST_ETH, MainnetLib.WST_ETH) {}
 }

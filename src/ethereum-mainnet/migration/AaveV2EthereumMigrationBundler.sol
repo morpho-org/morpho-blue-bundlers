@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import "../libraries/ConstantsLib.sol";
+import {MainnetLib} from "../libraries/MainnetLib.sol";
 
 import {EthereumStEthBundler} from "../EthereumStEthBundler.sol";
 import {AaveV2MigrationBundler} from "../../migration/AaveV2MigrationBundler.sol";
@@ -13,5 +13,5 @@ import {AaveV2MigrationBundler} from "../../migration/AaveV2MigrationBundler.sol
 contract AaveV2EthereumMigrationBundler is EthereumStEthBundler, AaveV2MigrationBundler {
     /* CONSTRUCTOR */
 
-    constructor(address morpho) AaveV2MigrationBundler(morpho, AAVE_V2_POOL_MAINNET) {}
+    constructor(address morpho) AaveV2MigrationBundler(morpho, MainnetLib.AAVE_V2_POOL) {}
 }
