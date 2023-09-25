@@ -5,6 +5,7 @@ import {IMorphoBundler} from "./interfaces/IMorphoBundler.sol";
 import {MarketParams, Signature, Authorization, IMorpho} from "@morpho-blue/interfaces/IMorpho.sol";
 
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
+import {ConditionalCallLib} from "./libraries/ConditionalCallLib.sol";
 
 import {Math} from "@morpho-utils/math/Math.sol";
 import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
@@ -17,6 +18,7 @@ import {BaseBundler} from "./BaseBundler.sol";
 /// @notice Bundler contract managing interactions with Morpho.
 abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     using SafeTransferLib for ERC20;
+    using ConditionalCallLib for address;
 
     /* IMMUTABLES */
 
@@ -61,15 +63,9 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         Signature calldata signature,
         bool allowRevert
     ) external payable {
-        try MORPHO.setAuthorizationWithSig(authorization, signature) {}
-        catch (bytes memory data) {
-            if (!allowRevert) {
-                assembly ("memory-safe") {
-                    // Bubble up error.
-                    revert(add(32, data), mload(data))
-                }
-            }
-        }
+        address(MORPHO).conditionalCall(
+            abi.encodeCall(MORPHO.setAuthorizationWithSig, (authorization, signature)), allowRevert
+        );
     }
 
     /// @notice Supplies `amount` of `asset` of `onBehalf` using permit2 in a single tx.

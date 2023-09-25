@@ -5,10 +5,18 @@ import {Signature} from "@morpho-blue/interfaces/IMorpho.sol";
 import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
 
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
-import {ERC20, Permit2Lib} from "@permit2/libraries/Permit2Lib.sol";
 import {SafeCast160} from "@permit2/libraries/SafeCast160.sol";
+import {ERC20, Permit2Lib} from "@permit2/libraries/Permit2Lib.sol";
+import {ConditionalCallLib} from "./libraries/ConditionalCallLib.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
+
+/// @dev Permit2 interface exposing one single `permit` function version to avoid issues when querying the function
+/// pointer.
+interface IPermit2Internal {
+    function permit(address owner, IAllowanceTransfer.PermitSingle memory permitSingle, bytes calldata signature)
+        external;
+}
 
 /// @title Permit2Bundler
 /// @author Morpho Labs
@@ -17,6 +25,7 @@ import {BaseBundler} from "./BaseBundler.sol";
 /// @dev It leverages Uniswap's Permit2 contract.
 abstract contract Permit2Bundler is BaseBundler {
     using SafeCast160 for uint256;
+    using ConditionalCallLib for address;
 
     /* ACTIONS */
 
@@ -31,29 +40,28 @@ abstract contract Permit2Bundler is BaseBundler {
 
         (,, uint48 nonce) = Permit2Lib.PERMIT2.allowance(_initiator, asset, address(this));
 
-        try Permit2Lib.PERMIT2.permit(
-            _initiator,
-            IAllowanceTransfer.PermitSingle({
-                details: IAllowanceTransfer.PermitDetails({
-                    token: asset,
-                    amount: amount.toUint160(),
-                    // Use an unlimited expiration because it most
-                    // closely mimics how a standard approval works.
-                    expiration: type(uint48).max,
-                    nonce: nonce
-                }),
-                spender: address(this),
-                sigDeadline: deadline
-            }),
-            bytes.concat(signature.r, signature.s, bytes1(signature.v))
-        ) {} catch (bytes memory data) {
-            if (!allowRevert) {
-                assembly ("memory-safe") {
-                    // Bubble up error.
-                    revert(add(32, data), mload(data))
-                }
-            }
-        }
+        address(Permit2Lib.PERMIT2).conditionalCall(
+            abi.encodeCall(
+                IPermit2Internal(address(Permit2Lib.PERMIT2)).permit,
+                (
+                    _initiator,
+                    IAllowanceTransfer.PermitSingle({
+                        details: IAllowanceTransfer.PermitDetails({
+                            token: asset,
+                            amount: amount.toUint160(),
+                            // Use an unlimited expiration because it most
+                            // closely mimics how a standard approval works.
+                            expiration: type(uint48).max,
+                            nonce: nonce
+                        }),
+                        spender: address(this),
+                        sigDeadline: deadline
+                    }),
+                    bytes.concat(signature.r, signature.s, bytes1(signature.v))
+                )
+            ),
+            allowRevert
+        );
     }
 
     /// @notice Transfers the given `amount` of `asset` from sender to this contract via ERC20 transfer with Permit2.
