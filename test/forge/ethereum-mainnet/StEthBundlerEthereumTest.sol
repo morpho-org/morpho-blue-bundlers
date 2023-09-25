@@ -2,13 +2,11 @@
 pragma solidity ^0.8.0;
 
 import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
-import {ErrorsLib} from "contracts/libraries/ErrorsLib.sol";
+import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
 
 import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
-import {IStEth} from "contracts/ethereum-mainnet/interfaces/IStEth.sol";
-import {IWStEth} from "contracts/ethereum-mainnet/interfaces/IWStEth.sol";
 
-import "contracts/mocks/bundlers/ethereum-mainnet/StEthBundlerMock.sol";
+import "src/mocks/bundlers/ethereum-mainnet/StEthBundlerMock.sol";
 
 import "./helpers/EthereumTest.sol";
 

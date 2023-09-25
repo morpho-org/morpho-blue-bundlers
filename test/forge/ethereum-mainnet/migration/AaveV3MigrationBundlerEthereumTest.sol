@@ -5,8 +5,7 @@ import {IPool} from "@aave/v3-core/interfaces/IPool.sol";
 import {IAToken} from "@aave/v3-core/interfaces/IAToken.sol";
 
 import {SigUtils, Permit} from "test/forge/helpers/SigUtils.sol";
-import {PermitBundler} from "contracts/PermitBundler.sol";
-import {AaveV3MigrationBundler} from "contracts/migration/AaveV3MigrationBundler.sol";
+import "src/migration/AaveV3MigrationBundler.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
 

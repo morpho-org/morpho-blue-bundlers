@@ -34,5 +34,5 @@ jobs:
       - name: Build contracts
         run: yarn build:hardhat --force # don't use compilation cache
 
-      - name: Build typescript
-        run: yarn build:ts
+      - name: Build package
+        run: yarn build:pkg

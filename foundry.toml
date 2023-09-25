@@ -2,7 +2,7 @@
 names = true
 sizes = true
 via-ir = true
-src = "contracts"
+src = "src"
 test = "test/forge"
 evm_version = "paris"
 fs_permissions = [

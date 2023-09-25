@@ -3,12 +3,12 @@ pragma solidity ^0.8.0;
 
 import {IUniversalRewardsDistributor} from "@universal-rewards-distributor/interfaces/IUniversalRewardsDistributor.sol";
 
-import {ErrorsLib} from "contracts/libraries/ErrorsLib.sol";
+import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
 
 import {Merkle} from "@murky/src/Merkle.sol";
 import {UrdFactory} from "@universal-rewards-distributor/UrdFactory.sol";
 
-import "contracts/mocks/bundlers/UrdBundlerMock.sol";
+import "src/mocks/bundlers/UrdBundlerMock.sol";
 
 import "./helpers/LocalTest.sol";
 

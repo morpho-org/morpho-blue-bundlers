@@ -1,5 +1,5 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src", "types"],
+  "include": ["pkg", "types"],
   "files": []
 }

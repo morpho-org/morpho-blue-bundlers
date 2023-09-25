@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {ErrorsLib} from "contracts/libraries/ErrorsLib.sol";
 import {SigUtils, Permit} from "test/forge/helpers/SigUtils.sol";
-import {Permit2Bundler} from "contracts/Permit2Bundler.sol";
 
-import "contracts/mocks/bundlers/PermitBundlerMock.sol";
-import {IERC20Permit} from "@openzeppelin/token/ERC20/extensions/IERC20Permit.sol";
-import {ERC20PermitMock} from "contracts/mocks/ERC20PermitMock.sol";
+import "src/mocks/bundlers/PermitBundlerMock.sol";
+import {ERC20PermitMock} from "src/mocks/ERC20PermitMock.sol";
 
 import "./helpers/LocalTest.sol";
 

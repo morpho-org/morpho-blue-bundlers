@@ -5,9 +5,7 @@ import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
 
 import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
 
-import "contracts/ethereum-mainnet/EthereumBundler.sol";
-import {MorphoBundler} from "contracts/MorphoBundler.sol";
-import {Permit2Bundler} from "contracts/Permit2Bundler.sol";
+import "src/ethereum-mainnet/EthereumBundler.sol";
 
 import "./helpers/EthereumTest.sol";
 

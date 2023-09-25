@@ -3,10 +3,10 @@ pragma solidity ^0.8.0;
 
 import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
 
-import {ErrorsLib} from "contracts/libraries/ErrorsLib.sol";
+import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
 import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
 
-import "contracts/mocks/bundlers/Permit2BundlerMock.sol";
+import "src/mocks/bundlers/Permit2BundlerMock.sol";
 
 import "./helpers/EthereumTest.sol";
 
