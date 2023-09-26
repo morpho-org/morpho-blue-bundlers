@@ -64,7 +64,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     ) external payable {
         try MORPHO.setAuthorizationWithSig(authorization, signature) {}
         catch (bytes memory returnData) {
-            _handleRevert(returnData, allowRevert);
+            if (!allowRevert) _bubbleRevert(returnData);
         }
     }
 

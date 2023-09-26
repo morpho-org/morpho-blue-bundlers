@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
+import {ErrorsLib} from "./libraries/ErrorsLib.sol";
+
 /// @title BaseSelfMulticall
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
@@ -9,24 +11,24 @@ pragma solidity 0.8.21;
 abstract contract BaseSelfMulticall {
     /* INTERNAL */
 
-    /// @notice Executes a series of delegate calls to the contract itself.
-    function _multicall(bytes[] memory data) internal returns (bytes[] memory results) {
-        results = new bytes[](data.length);
-
+    /// @dev Executes a series of delegate calls to the contract itself.
+    function _multicall(bytes[] memory data) internal {
         for (uint256 i; i < data.length; ++i) {
-            (bool success, bytes memory result) = address(this).delegatecall(data[i]);
+            (bool success, bytes memory returnData) = address(this).delegatecall(data[i]);
 
-            if (!success) {
-                if (result.length < 68) revert();
+            // No need to check that `address(this)` has code in case of success.
+            if (!success) _bubbleRevert(returnData);
+        }
+    }
 
-                assembly {
-                    result := add(result, 0x04)
-                }
+    /// @dev Bubbles up the revert reason / custom error encoded in `returnData`.
+    /// @dev Assumes `returnData` is the return data of any kind of failing CALL to a contract.
+    function _bubbleRevert(bytes memory returnData) internal pure {
+        uint256 length = returnData.length;
+        require(length > 0, ErrorsLib.CALL_FAILED);
 
-                revert(abi.decode(result, (string)));
-            }
-
-            results[i] = result;
+        assembly ("memory-safe") {
+            revert(add(32, returnData), length)
         }
     }
 }

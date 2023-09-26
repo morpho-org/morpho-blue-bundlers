@@ -48,7 +48,7 @@ abstract contract Permit2Bundler is BaseBundler {
             }),
             bytes.concat(signature.r, signature.s, bytes1(signature.v))
         ) {} catch (bytes memory returnData) {
-            _handleRevert(returnData, allowRevert);
+            if (!allowRevert) _bubbleRevert(returnData);
         }
     }
 

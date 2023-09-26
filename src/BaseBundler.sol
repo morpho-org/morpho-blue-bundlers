@@ -4,7 +4,6 @@ pragma solidity 0.8.21;
 import {Math} from "@morpho-utils/math/Math.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
-import {Address} from "@openzeppelin/utils/Address.sol";
 
 import {BaseSelfMulticall} from "./BaseSelfMulticall.sol";
 import {BaseCallbackReceiver} from "./BaseCallbackReceiver.sol";
@@ -23,15 +22,10 @@ abstract contract BaseBundler is BaseSelfMulticall, BaseCallbackReceiver {
     /* EXTERNAL */
 
     /// @notice Executes a series of calls in a single transaction to self.
-    function multicall(uint256 deadline, bytes[] calldata data)
-        external
-        payable
-        lockInitiator
-        returns (bytes[] memory)
-    {
+    function multicall(uint256 deadline, bytes[] calldata data) external payable lockInitiator {
         require(block.timestamp <= deadline, ErrorsLib.DEADLINE_EXPIRED);
 
-        return _multicall(data);
+        _multicall(data);
     }
 
     /* ACTIONS */
@@ -73,14 +67,5 @@ abstract contract BaseBundler is BaseSelfMulticall, BaseCallbackReceiver {
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
         ERC20(asset).safeTransferFrom(_initiator, address(this), amount);
-    }
-
-    /* INTERNAL */
-
-    /// @dev Handles whether the return data from a call
-    function _handleRevert(bytes memory returnData, bool allowRevert) internal pure {
-        if (!allowRevert) {
-            Address.verifyCallResult(false, returnData, ErrorsLib.CALL_FAILED);
-        }
     }
 }

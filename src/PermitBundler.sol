@@ -20,7 +20,7 @@ abstract contract PermitBundler is BaseBundler {
     {
         try IERC20Permit(asset).permit(_initiator, address(this), amount, deadline, v, r, s) {}
         catch (bytes memory returnData) {
-            _handleRevert(returnData, allowRevert);
+            if (!allowRevert) _bubbleRevert(returnData);
         }
     }
 }

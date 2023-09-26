@@ -28,7 +28,7 @@ abstract contract UrdBundler is BaseBundler {
 
         try IUniversalRewardsDistributor(distributor).claim(account, reward, amount, proof) {}
         catch (bytes memory returnData) {
-            _handleRevert(returnData, allowRevert);
+            if (!allowRevert) _bubbleRevert(returnData);
         }
     }
 }

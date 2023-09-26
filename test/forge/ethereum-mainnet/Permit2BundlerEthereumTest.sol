@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
+import {SignatureVerification} from "@permit2/libraries/SignatureVerification.sol";
 
 import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
 
@@ -55,7 +56,7 @@ contract Permit2BundlerEthereumTest is EthereumTest {
         bundle.push(_approve2Call(marketParams, privateKey, amount, deadline, false));
 
         vm.prank(user);
-        vm.expectRevert();
+        vm.expectRevert(SignatureVerification.InvalidSigner.selector);
         bundler.multicall(block.timestamp, bundle);
     }
 
