@@ -11,9 +11,10 @@ import {BaseBundler} from "./BaseBundler.sol";
 /// @author Morpho Labs
 /// @custom:contact security@morpho.xyz
 /// @notice Bundler that allows to claim token rewards on the Universal Rewards Distributor.
-contract UrdBundler is BaseBundler {
+abstract contract UrdBundler is BaseBundler {
     /// @notice Claims `amount` of `reward` on behalf of `account` on the given rewards distributor, using `proof`.
     /// @dev Assumes the given distributor implements IUniversalRewardsDistributor.
+    /// @dev Pass `allowRevert == true` to avoid failing in case the signature expired and is optional.
     function urdClaim(
         address distributor,
         address account,
@@ -26,13 +27,8 @@ contract UrdBundler is BaseBundler {
         require(account != address(this), ErrorsLib.BUNDLER_ADDRESS);
 
         try IUniversalRewardsDistributor(distributor).claim(account, reward, amount, proof) {}
-        catch (bytes memory data) {
-            if (!allowRevert) {
-                assembly ("memory-safe") {
-                    // Bubble up error.
-                    revert(add(32, data), mload(data))
-                }
-            }
+        catch (bytes memory returnData) {
+            _handleRevert(returnData, allowRevert);
         }
     }
 }

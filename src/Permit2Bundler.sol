@@ -23,6 +23,7 @@ abstract contract Permit2Bundler is BaseBundler {
     /// @notice Approves the given `amount` of `asset` from sender to be spent by this contract via Permit2 with the
     /// given `deadline` & EIP-712 `signature`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @dev Pass `allowRevert == true` to avoid failing in case the signature expired and is optional.
     function approve2(address asset, uint256 amount, uint256 deadline, Signature calldata signature, bool allowRevert)
         external
         payable
@@ -46,13 +47,8 @@ abstract contract Permit2Bundler is BaseBundler {
                 sigDeadline: deadline
             }),
             bytes.concat(signature.r, signature.s, bytes1(signature.v))
-        ) {} catch (bytes memory data) {
-            if (!allowRevert) {
-                assembly ("memory-safe") {
-                    // Bubble up error.
-                    revert(add(32, data), mload(data))
-                }
-            }
+        ) {} catch (bytes memory returnData) {
+            _handleRevert(returnData, allowRevert);
         }
     }
 
