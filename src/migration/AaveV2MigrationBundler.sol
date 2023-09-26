@@ -3,8 +3,8 @@ pragma solidity 0.8.21;
 
 import {ILendingPool} from "@morpho-v1/aave-v2/interfaces/aave/ILendingPool.sol";
 
-import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 import {Math} from "@morpho-utils/math/Math.sol";
+import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 
 import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 

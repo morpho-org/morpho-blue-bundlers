@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: AGPL-3.0-only
-pragma solidity >=0.6.2;
+// SPDX-License-Identifier: GPL-2.0-or-later
+pragma solidity >=0.5.0;
 
 interface IStEth {
     function transferShares(address _recipient, uint256 _sharesAmount) external returns (uint256);

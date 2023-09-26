@@ -3,8 +3,8 @@ pragma solidity 0.8.21;
 
 import {IMorpho as IAaveV3Optimizer} from "@morpho-aave-v3/interfaces/IMorpho.sol";
 
-import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 import {Math} from "@morpho-utils/math/Math.sol";
+import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 import {Types} from "@morpho-aave-v3/libraries/Types.sol";
 
 import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
