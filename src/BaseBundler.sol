@@ -17,6 +17,8 @@ import {BaseCallbackReceiver} from "./BaseCallbackReceiver.sol";
 /// @dev Every bundler inheriting from this contract must have their external functions payable as they will be
 /// delegate called by the `multicall` function (which is payable, and thus might pass a non-null ETH value). It is
 /// recommended not to rely on `msg.value` as the same value can be reused for multiple calls.
+/// @dev Assumes that any tokens left on the contract can be seized by anyone.
+/// @dev Assumes that tokens do not take fees on transfers.
 abstract contract BaseBundler is BaseSelfMulticall, BaseCallbackReceiver {
     using SafeTransferLib for ERC20;
 
