@@ -69,7 +69,10 @@ contract MorphoBundlerLocalTest is LocalTest {
         Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (authorization, sig));
+        return abi.encodeCall(
+            MorphoBundler.morphoSetAuthorizationWithSig,
+            (authorization.isAuthorized, authorization.nonce, authorization.deadline, sig)
+        );
     }
 
     function assumeOnBehalf(address onBehalf) internal view {
@@ -98,8 +101,14 @@ contract MorphoBundlerLocalTest is LocalTest {
         Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
-        bundle.push(abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (authorization, sig)));
+        bundle.push(
+            abi.encodeCall(
+                MorphoBundler.morphoSetAuthorizationWithSig,
+                (authorization.isAuthorized, authorization.nonce, authorization.deadline, sig)
+            )
+        );
 
+        vm.prank(user);
         bundler.multicall(block.timestamp, bundle);
 
         assertTrue(morpho.isAuthorized(user, address(bundler)), "isAuthorized(bundler)");

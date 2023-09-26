@@ -56,11 +56,22 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /* ACTIONS */
 
     /// @notice Approves this contract to manage the `authorization.authorizer`'s position via EIP712 `signature`.
-    function morphoSetAuthorizationWithSig(Authorization calldata authorization, Signature calldata signature)
-        external
-        payable
-    {
-        MORPHO.setAuthorizationWithSig(authorization, signature);
+    function morphoSetAuthorizationWithSig(
+        bool isAuthorized,
+        uint256 nonce,
+        uint256 deadline,
+        Signature calldata signature
+    ) external payable {
+        MORPHO.setAuthorizationWithSig(
+            Authorization({
+                authorizer: _initiator,
+                authorized: address(this),
+                isAuthorized: isAuthorized,
+                nonce: nonce,
+                deadline: deadline
+            }),
+            signature
+        );
     }
 
     /// @notice Supplies `amount` of `asset` of `onBehalf` using permit2 in a single tx.

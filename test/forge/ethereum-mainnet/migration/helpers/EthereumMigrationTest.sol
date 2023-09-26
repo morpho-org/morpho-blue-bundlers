@@ -69,7 +69,10 @@ contract EthereumMigrationTest is EthereumTest {
         Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (authorization, sig));
+        return abi.encodeCall(
+            MorphoBundler.morphoSetAuthorizationWithSig,
+            (authorization.isAuthorized, authorization.nonce, authorization.deadline, sig)
+        );
     }
 
     function _morphoBorrowCall(uint256 amount, address receiver) internal view returns (bytes memory) {

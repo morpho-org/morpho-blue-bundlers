@@ -14,7 +14,7 @@ import {
   CompoundV2MigrationBundler__factory,
   CompoundV3MigrationBundler__factory,
 } from "types";
-import { AuthorizationStruct, MarketParamsStruct } from "types/src/MorphoBundler";
+import { MarketParamsStruct } from "types/src/MorphoBundler";
 
 export type BundlerCall = string;
 
@@ -95,9 +95,16 @@ export class BundlerAction {
 
   /* Morpho */
 
-  static morphoSetAuthorizationWithSig(authorization: AuthorizationStruct, signature: Signature): BundlerCall {
+  static morphoSetAuthorizationWithSig(
+    isAuthorized: boolean,
+    nonce: BigNumberish,
+    deadline: BigNumberish,
+    signature: Signature,
+  ): BundlerCall {
     return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoSetAuthorizationWithSig", [
-      authorization,
+      isAuthorized,
+      nonce,
+      deadline,
       { v: signature.v, r: signature.r, s: signature.s },
     ]);
   }
