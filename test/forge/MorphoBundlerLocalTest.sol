@@ -3,20 +3,19 @@ pragma solidity ^0.8.0;
 
 import {SigUtils} from "./helpers/SigUtils.sol";
 import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
-import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
 import {ErrorsLib as MorphoErrorsLib} from "@morpho-blue/libraries/ErrorsLib.sol";
 
 import "src/mocks/bundlers/MorphoBundlerMock.sol";
 
 import "./helpers/LocalTest.sol";
 
+uint256 constant SIGNATURE_DEADLINE = type(uint32).max;
+
 contract MorphoBundlerLocalTest is LocalTest {
     using MathLib for uint256;
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
     using SharesMathLib for uint256;
-
-    uint256 internal constant SIG_DEADLINE = type(uint32).max;
 
     MorphoBundlerMock internal bundler;
 
@@ -59,24 +58,20 @@ contract MorphoBundlerLocalTest is LocalTest {
     {
         address user = vm.addr(privateKey);
 
-        Authorization memory auth = Authorization({
+        Authorization memory authorization = Authorization({
             authorizer: user,
             authorized: address(bundler),
             isAuthorized: isAuthorized,
             nonce: morpho.nonce(user),
-            deadline: SIG_DEADLINE
+            deadline: SIGNATURE_DEADLINE
         });
 
-        bytes32 authorizationTypehash = keccak256(
-            "Authorization(address authorizer,address authorized,bool isAuthorized,uint256 nonce,uint256 deadline)"
-        );
-        bytes32 digest =
-            ECDSA.toTypedDataHash(morpho.DOMAIN_SEPARATOR(), keccak256(abi.encode(authorizationTypehash, auth)));
+        bytes32 digest = SigUtils.toTypedDataHash(morpho.DOMAIN_SEPARATOR(), authorization);
 
         Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (auth, sig, allowRevert));
+        return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (authorization, sig, allowRevert));
     }
 
     function assumeOnBehalf(address onBehalf) internal view {
@@ -96,7 +91,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
         bundler.multicall(block.timestamp, bundle);
 
-        assertTrue(morpho.isAuthorized(user, address(bundler)), "isAuthorized(bundler)");
+        assertTrue(morpho.isAuthorized(user, address(bundler)), "isAuthorized(user, bundler)");
     }
 
     function testSetAuthorizationWithSigRevert(uint256 privateKey, uint32 deadline) public {

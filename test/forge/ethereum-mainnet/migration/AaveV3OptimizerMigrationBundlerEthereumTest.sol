@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import {IMorpho as IAaveV3Optimizer} from "@morpho-aave-v3/interfaces/IMorpho.sol";
 
 import {Types} from "@morpho-aave-v3/libraries/Types.sol";
+import {AaveV3OptimizerAuthorization} from "../../helpers/SigUtils.sol";
 
 import "src/migration/AaveV3OptimizerMigrationBundler.sol";
 
@@ -59,7 +60,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         data[0] = _morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackData));
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, data);
 
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
     }
@@ -84,7 +85,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         data[3] = _morphoSupplyCall(supplied, user, hex"");
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, data);
 
         _assertSupplierPosition(supplied, user, address(bundler));
     }
@@ -109,7 +110,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         data[3] = _erc4626DepositCall(address(suppliersVault), supplied, user);
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, data);
 
         _assertVaultSupplierPosition(supplied, user, address(bundler));
     }
@@ -119,18 +120,17 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         view
         returns (bytes memory)
     {
-        bytes32 permitTypehash =
-            keccak256("Authorization(address delegator,address manager,bool isAllowed,uint256 nonce,uint256 deadline)");
-        bytes32 digest = ECDSA.toTypedDataHash(
+        bytes32 digest = SigUtils.toTypedDataHash(
             IAaveV3Optimizer(AAVE_V3_OPTIMIZER).DOMAIN_SEPARATOR(),
-            keccak256(abi.encode(permitTypehash, vm.addr(privateKey), manager, isAllowed, nonce, SIG_DEADLINE))
+            AaveV3OptimizerAuthorization(vm.addr(privateKey), manager, isAllowed, nonce, SIGNATURE_DEADLINE)
         );
 
         Types.Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
         return abi.encodeCall(
-            AaveV3OptimizerMigrationBundler.aaveV3OptimizerApproveManagerWithSig, (isAllowed, nonce, SIG_DEADLINE, sig)
+            AaveV3OptimizerMigrationBundler.aaveV3OptimizerApproveManagerWithSig,
+            (isAllowed, nonce, SIGNATURE_DEADLINE, sig)
         );
     }
 

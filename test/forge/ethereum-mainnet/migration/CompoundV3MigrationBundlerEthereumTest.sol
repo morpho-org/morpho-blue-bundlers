@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
+import {CompoundV3Authorization} from "../../helpers/SigUtils.sol";
+
 import "src/migration/CompoundV3MigrationBundler.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
@@ -61,7 +63,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         data[0] = _morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackData));
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, data);
 
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
     }
@@ -87,7 +89,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         data[3] = _morphoSupplyCall(supplied, user, hex"");
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, data);
 
         _assertSupplierPosition(supplied, user, address(bundler));
     }
@@ -118,7 +120,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         data[3] = _morphoSupplyCall(supplied, user, hex"");
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, data);
 
         _assertSupplierPosition(supplied, user, address(bundler));
     }
@@ -144,7 +146,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         data[3] = _erc4626DepositCall(address(suppliersVault), supplied, user);
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, data);
 
         _assertVaultSupplierPosition(supplied, user, address(bundler));
     }
@@ -175,7 +177,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         data[3] = _erc4626DepositCall(address(suppliersVault), supplied, user);
 
         vm.prank(user);
-        bundler.multicall(SIG_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, data);
 
         _assertVaultSupplierPosition(supplied, user, address(bundler));
     }
@@ -191,22 +193,8 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         view
         returns (bytes memory)
     {
-        bytes32 permitTypehash =
-            keccak256("Authorization(address owner,address manager,bool isAllowed,uint256 nonce,uint256 expiry)");
-        bytes32 domainTypehash =
-            keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
-        bytes32 domainSeparator = keccak256(
-            abi.encode(
-                domainTypehash,
-                keccak256(bytes(ICompoundV3(instance).name())),
-                keccak256(bytes(ICompoundV3(instance).version())),
-                block.chainid,
-                instance
-            )
-        );
-        bytes32 digest = ECDSA.toTypedDataHash(
-            domainSeparator,
-            keccak256(abi.encode(permitTypehash, vm.addr(privateKey), manager, isAllowed, nonce, SIG_DEADLINE))
+        bytes32 digest = SigUtils.toTypedDataHash(
+            instance, CompoundV3Authorization(vm.addr(privateKey), manager, isAllowed, nonce, SIGNATURE_DEADLINE)
         );
 
         Signature memory sig;
@@ -214,7 +202,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         return abi.encodeCall(
             CompoundV3MigrationBundler.compoundV3AllowBySig,
-            (instance, isAllowed, nonce, SIG_DEADLINE, sig.v, sig.r, sig.s)
+            (instance, isAllowed, nonce, SIGNATURE_DEADLINE, sig.v, sig.r, sig.s)
         );
     }
 
