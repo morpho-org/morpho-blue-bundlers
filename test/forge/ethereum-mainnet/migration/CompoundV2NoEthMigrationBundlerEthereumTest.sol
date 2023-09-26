@@ -75,10 +75,10 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
         (privateKey, user) = _getUserAndKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
 
-        deal(marketParams.borrowableToken, user, supplied);
+        deal(marketParams.loanToken, user, supplied);
 
         vm.startPrank(user);
-        ERC20(marketParams.borrowableToken).safeApprove(C_USDC_V2, supplied);
+        ERC20(marketParams.loanToken).safeApprove(C_USDC_V2, supplied);
         require(ICToken(C_USDC_V2).mint(supplied) == 0, "mint error");
         vm.stopPrank();
 
@@ -106,10 +106,10 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
         (privateKey, user) = _getUserAndKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
 
-        deal(marketParams.borrowableToken, user, supplied);
+        deal(marketParams.loanToken, user, supplied);
 
         vm.startPrank(user);
-        ERC20(marketParams.borrowableToken).safeApprove(C_USDC_V2, supplied);
+        ERC20(marketParams.loanToken).safeApprove(C_USDC_V2, supplied);
         require(ICToken(C_USDC_V2).mint(supplied) == 0, "mint error");
         vm.stopPrank();
 

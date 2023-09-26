@@ -24,21 +24,21 @@ contract MorphoBundlerLocalTest is LocalTest {
         bundler = new MorphoBundlerMock(address(morpho));
 
         vm.startPrank(USER);
-        borrowableToken.approve(address(morpho), type(uint256).max);
+        loanToken.approve(address(morpho), type(uint256).max);
         collateralToken.approve(address(morpho), type(uint256).max);
-        borrowableToken.approve(address(bundler), type(uint256).max);
+        loanToken.approve(address(bundler), type(uint256).max);
         collateralToken.approve(address(bundler), type(uint256).max);
         vm.stopPrank();
 
         vm.prank(LIQUIDATOR);
-        borrowableToken.approve(address(bundler), type(uint256).max);
+        loanToken.approve(address(bundler), type(uint256).max);
     }
 
     function approveERC20ToMorphoAndBundler(address user) internal {
         vm.startPrank(user);
-        borrowableToken.approve(address(morpho), type(uint256).max);
+        loanToken.approve(address(morpho), type(uint256).max);
         collateralToken.approve(address(morpho), type(uint256).max);
-        borrowableToken.approve(address(bundler), type(uint256).max);
+        loanToken.approve(address(bundler), type(uint256).max);
         collateralToken.approve(address(bundler), type(uint256).max);
         vm.stopPrank();
     }
@@ -136,10 +136,10 @@ contract MorphoBundlerLocalTest is LocalTest {
 
     function _testSupply(uint256 amount, address onBehalf) internal {
         assertEq(collateralToken.balanceOf(USER), 0, "collateral.balanceOf(USER)");
-        assertEq(borrowableToken.balanceOf(USER), 0, "borrowable.balanceOf(USER)");
+        assertEq(loanToken.balanceOf(USER), 0, "loan.balanceOf(USER)");
 
         assertEq(collateralToken.balanceOf(onBehalf), 0, "collateral.balanceOf(onBehalf)");
-        assertEq(borrowableToken.balanceOf(onBehalf), 0, "borrowable.balanceOf(onBehalf)");
+        assertEq(loanToken.balanceOf(onBehalf), 0, "loan.balanceOf(onBehalf)");
 
         assertEq(morpho.collateral(id, onBehalf), 0, "collateral(onBehalf)");
         assertEq(morpho.supplyShares(id, onBehalf), amount * SharesMathLib.VIRTUAL_SHARES, "supplyShares(onBehalf)");
@@ -157,10 +157,10 @@ contract MorphoBundlerLocalTest is LocalTest {
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(borrowableToken), amount)));
+        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(loanToken), amount)));
         bundle.push(abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, amount, 0, onBehalf, hex"")));
 
-        borrowableToken.setBalance(USER, amount);
+        loanToken.setBalance(USER, amount);
 
         vm.prank(USER);
         bundler.multicall(block.timestamp, bundle);
@@ -173,10 +173,10 @@ contract MorphoBundlerLocalTest is LocalTest {
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(borrowableToken), amount)));
+        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(loanToken), amount)));
         bundle.push(abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, type(uint256).max, 0, onBehalf, hex"")));
 
-        borrowableToken.setBalance(USER, amount);
+        loanToken.setBalance(USER, amount);
 
         vm.prank(USER);
         bundler.multicall(block.timestamp, bundle);
@@ -190,13 +190,13 @@ contract MorphoBundlerLocalTest is LocalTest {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         bytes[] memory callbackData = new bytes[](1);
-        callbackData[0] = abi.encodeCall(BaseBundler.transferFrom, (address(borrowableToken), amount));
+        callbackData[0] = abi.encodeCall(BaseBundler.transferFrom, (address(loanToken), amount));
 
         bundle.push(
             abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, amount, 0, onBehalf, abi.encode(callbackData)))
         );
 
-        borrowableToken.setBalance(USER, amount);
+        loanToken.setBalance(USER, amount);
 
         vm.prank(USER);
         bundler.multicall(block.timestamp, bundle);
@@ -206,10 +206,10 @@ contract MorphoBundlerLocalTest is LocalTest {
 
     function _testSupplyCollateral(uint256 amount, address onBehalf) internal {
         assertEq(collateralToken.balanceOf(USER), 0, "collateral.balanceOf(USER)");
-        assertEq(borrowableToken.balanceOf(USER), 0, "borrowable.balanceOf(USER)");
+        assertEq(loanToken.balanceOf(USER), 0, "loan.balanceOf(USER)");
 
         assertEq(collateralToken.balanceOf(onBehalf), 0, "collateral.balanceOf(onBehalf)");
-        assertEq(borrowableToken.balanceOf(onBehalf), 0, "borrowable.balanceOf(onBehalf)");
+        assertEq(loanToken.balanceOf(onBehalf), 0, "loan.balanceOf(onBehalf)");
 
         assertEq(morpho.collateral(id, onBehalf), amount, "collateral(onBehalf)");
         assertEq(morpho.supplyShares(id, onBehalf), 0, "supplyShares(onBehalf)");
@@ -270,18 +270,16 @@ contract MorphoBundlerLocalTest is LocalTest {
         data[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
         data[1] = abi.encodeCall(MorphoBundler.morphoWithdraw, (marketParams, 0, withdrawnShares, user));
 
-        borrowableToken.setBalance(user, amount);
+        loanToken.setBalance(user, amount);
         vm.startPrank(user);
         morpho.supply(marketParams, amount, 0, user, hex"");
         bundler.multicall(block.timestamp, data);
         vm.stopPrank();
 
-        assertEq(borrowableToken.balanceOf(user), expectedWithdrawnAmount, "borrowable.balanceOf(user)");
-        assertEq(borrowableToken.balanceOf(address(bundler)), 0, "borrowable.balanceOf(address(bundler))");
+        assertEq(loanToken.balanceOf(user), expectedWithdrawnAmount, "loan.balanceOf(user)");
+        assertEq(loanToken.balanceOf(address(bundler)), 0, "loan.balanceOf(address(bundler))");
         assertEq(
-            borrowableToken.balanceOf(address(morpho)),
-            amount - expectedWithdrawnAmount,
-            "borrowable.balanceOf(address(morpho))"
+            loanToken.balanceOf(address(morpho)), amount - expectedWithdrawnAmount, "loan.balanceOf(address(morpho))"
         );
 
         assertEq(morpho.collateral(id, user), 0, "collateral(user)");
@@ -291,7 +289,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
     function _testSupplyCollateralBorrow(address user, uint256 amount, uint256 collateralAmount) internal {
         assertEq(collateralToken.balanceOf(RECEIVER), 0, "collateral.balanceOf(RECEIVER)");
-        assertEq(borrowableToken.balanceOf(RECEIVER), amount, "borrowable.balanceOf(RECEIVER)");
+        assertEq(loanToken.balanceOf(RECEIVER), amount, "loan.balanceOf(RECEIVER)");
 
         assertEq(morpho.collateral(id, user), collateralAmount, "collateral(user)");
         assertEq(morpho.supplyShares(id, user), 0, "supplyShares(user)");
@@ -303,7 +301,7 @@ contract MorphoBundlerLocalTest is LocalTest {
             assertEq(morpho.borrowShares(id, RECEIVER), 0, "borrowShares(RECEIVER)");
 
             assertEq(collateralToken.balanceOf(user), 0, "collateral.balanceOf(user)");
-            assertEq(borrowableToken.balanceOf(user), 0, "borrowable.balanceOf(user)");
+            assertEq(loanToken.balanceOf(user), 0, "loan.balanceOf(user)");
         }
     }
 
@@ -314,7 +312,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        borrowableToken.setBalance(address(this), amount);
+        loanToken.setBalance(address(this), amount);
         morpho.supply(marketParams, amount, 0, SUPPLIER, hex"");
 
         uint256 collateralAmount = amount.wDivUp(LLTV);
@@ -339,7 +337,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        borrowableToken.setBalance(address(this), amount);
+        loanToken.setBalance(address(this), amount);
         morpho.supply(marketParams, amount, 0, SUPPLIER, hex"");
 
         uint256 collateralAmount = amount.wDivUp(LLTV);
@@ -365,7 +363,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
     function _testRepayWithdrawCollateral(address user, uint256 collateralAmount) internal {
         assertEq(collateralToken.balanceOf(RECEIVER), collateralAmount, "collateral.balanceOf(RECEIVER)");
-        assertEq(borrowableToken.balanceOf(RECEIVER), 0, "borrowable.balanceOf(RECEIVER)");
+        assertEq(loanToken.balanceOf(RECEIVER), 0, "loan.balanceOf(RECEIVER)");
 
         assertEq(morpho.collateral(id, user), 0, "collateral(user)");
         assertEq(morpho.supplyShares(id, user), 0, "supplyShares(user)");
@@ -377,7 +375,7 @@ contract MorphoBundlerLocalTest is LocalTest {
             assertEq(morpho.borrowShares(id, RECEIVER), 0, "borrowShares(RECEIVER)");
 
             assertEq(collateralToken.balanceOf(user), 0, "collateral.balanceOf(user)");
-            assertEq(borrowableToken.balanceOf(user), 0, "borrowable.balanceOf(user)");
+            assertEq(loanToken.balanceOf(user), 0, "loan.balanceOf(user)");
         }
     }
 
@@ -388,7 +386,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        borrowableToken.setBalance(address(this), amount);
+        loanToken.setBalance(address(this), amount);
         morpho.supply(marketParams, amount, 0, SUPPLIER, hex"");
 
         uint256 collateralAmount = amount.wDivUp(LLTV);
@@ -399,7 +397,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         morpho.borrow(marketParams, amount, 0, user, user);
         vm.stopPrank();
 
-        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(borrowableToken), amount)));
+        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(loanToken), amount)));
         bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
         bundle.push(abi.encodeCall(MorphoBundler.morphoRepay, (marketParams, amount, 0, user, hex"")));
         bundle.push(abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, RECEIVER)));
@@ -417,7 +415,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        borrowableToken.setBalance(address(this), amount);
+        loanToken.setBalance(address(this), amount);
         morpho.supply(marketParams, amount, 0, SUPPLIER, hex"");
 
         uint256 collateralAmount = amount.wDivUp(LLTV);
@@ -428,7 +426,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         morpho.borrow(marketParams, amount, 0, user, user);
         vm.stopPrank();
 
-        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(borrowableToken), amount)));
+        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(loanToken), amount)));
         bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
         bundle.push(abi.encodeCall(MorphoBundler.morphoRepay, (marketParams, type(uint256).max, 0, user, hex"")));
         bundle.push(abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, RECEIVER)));
@@ -446,7 +444,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        borrowableToken.setBalance(address(this), amount);
+        loanToken.setBalance(address(this), amount);
         morpho.supply(marketParams, amount, 0, SUPPLIER, hex"");
 
         uint256 collateralAmount = amount.wDivUp(LLTV);
@@ -461,7 +459,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
         callbackData[1] =
             abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, RECEIVER));
-        callbackData[2] = abi.encodeCall(BaseBundler.transferFrom, (address(borrowableToken), amount));
+        callbackData[2] = abi.encodeCall(BaseBundler.transferFrom, (address(loanToken), amount));
 
         bundle.push(
             abi.encodeCall(MorphoBundler.morphoRepay, (marketParams, amount, 0, user, abi.encode(callbackData)))
@@ -477,7 +475,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         amountCollateral = bound(amountCollateral, MIN_AMOUNT, MAX_AMOUNT);
         uint256 amountBorrowed = amountCollateral.wMulDown(LLTV);
 
-        borrowableToken.setBalance(USER, amountBorrowed);
+        loanToken.setBalance(USER, amountBorrowed);
         collateralToken.setBalance(USER, amountCollateral);
 
         vm.startPrank(USER);
@@ -497,18 +495,18 @@ contract MorphoBundlerLocalTest is LocalTest {
             seizedCollateral.mulDivUp(ORACLE_PRICE_SCALE / 2, ORACLE_PRICE_SCALE).wDivUp(incentiveFactor);
         uint256 expectedRepaidShares = repaidAssets.toSharesDown(amountBorrowed, borrowShares);
 
-        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(borrowableToken), repaidAssets)));
+        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(loanToken), repaidAssets)));
         bundle.push(abi.encodeCall(MorphoBundler.morphoLiquidate, (marketParams, USER, seizedCollateral, 0, hex"")));
         bundle.push(abi.encodeCall(BaseBundler.transfer, (address(collateralToken), LIQUIDATOR, seizedCollateral)));
 
-        borrowableToken.setBalance(LIQUIDATOR, repaidAssets);
+        loanToken.setBalance(LIQUIDATOR, repaidAssets);
 
         vm.prank(LIQUIDATOR);
         bundler.multicall(block.timestamp, bundle);
 
-        assertEq(borrowableToken.balanceOf(USER), amountBorrowed, "User's borrowable token balance");
-        assertEq(borrowableToken.balanceOf(LIQUIDATOR), 0, "Liquidator's borrowable token balance");
-        assertEq(borrowableToken.balanceOf(address(morpho)), repaidAssets, "User's borrowable token balance");
+        assertEq(loanToken.balanceOf(USER), amountBorrowed, "User's loan token balance");
+        assertEq(loanToken.balanceOf(LIQUIDATOR), 0, "Liquidator's loan token balance");
+        assertEq(loanToken.balanceOf(address(morpho)), repaidAssets, "User's loan token balance");
 
         assertEq(collateralToken.balanceOf(USER), 0, "User's collateral token balance");
         assertEq(collateralToken.balanceOf(LIQUIDATOR), seizedCollateral, "Liquidator's collateral token balance");
@@ -532,9 +530,9 @@ contract MorphoBundlerLocalTest is LocalTest {
         uint256 expectedTotalSupply;
         uint256 expectedTotalBorrow;
         uint256 expectedCollateral;
-        uint256 expectedBundlerBorrowableBalance;
+        uint256 expectedBundlerLoanBalance;
         uint256 expectedBundlerCollateralBalance;
-        uint256 initialUserBorrowableBalance;
+        uint256 initialUserLoanBalance;
         uint256 initialUserCollateralBalance;
     }
 
@@ -560,7 +558,7 @@ contract MorphoBundlerLocalTest is LocalTest {
             else if (actionId == 10) _addWithdrawCollateralData(vars, amount);
         }
 
-        borrowableToken.setBalance(user, vars.initialUserBorrowableBalance);
+        loanToken.setBalance(user, vars.initialUserLoanBalance);
         collateralToken.setBalance(user, vars.initialUserCollateralBalance);
 
         vm.prank(user);
@@ -574,19 +572,15 @@ contract MorphoBundlerLocalTest is LocalTest {
         assertEq(morpho.totalBorrowAssets(id), vars.expectedTotalBorrow, "Total borrow");
         assertEq(morpho.collateral(id, user), vars.expectedCollateral, "User's collateral");
 
-        assertEq(borrowableToken.balanceOf(user), 0, "User's borrowable balance");
+        assertEq(loanToken.balanceOf(user), 0, "User's loan balance");
         assertEq(collateralToken.balanceOf(user), 0, "User's collateral balance");
         assertEq(
-            borrowableToken.balanceOf(address(morpho)),
+            loanToken.balanceOf(address(morpho)),
             vars.expectedTotalSupply - vars.expectedTotalBorrow,
-            "User's borrowable balance"
+            "User's loan balance"
         );
         assertEq(collateralToken.balanceOf(address(morpho)), vars.expectedCollateral, "Morpho's collateral balance");
-        assertEq(
-            borrowableToken.balanceOf(address(bundler)),
-            vars.expectedBundlerBorrowableBalance,
-            "Bundler's borrowable balance"
-        );
+        assertEq(loanToken.balanceOf(address(bundler)), vars.expectedBundlerLoanBalance, "Bundler's loan balance");
         assertEq(
             collateralToken.balanceOf(address(bundler)),
             vars.expectedBundlerCollateralBalance,
@@ -629,10 +623,10 @@ contract MorphoBundlerLocalTest is LocalTest {
     function _addSupplyData(BundleTransactionsVars memory vars, uint256 amount, address user) internal {
         amount = bound(amount % MAX_AMOUNT, MIN_AMOUNT, MAX_AMOUNT);
 
-        _transferMissingBorrowable(vars, amount);
+        _transferMissingLoan(vars, amount);
 
         bundle.push(_getSupplyData(amount, user));
-        vars.expectedBundlerBorrowableBalance -= amount;
+        vars.expectedBundlerLoanBalance -= amount;
 
         uint256 expectedAddedSupplyShares = amount.toSharesDown(vars.expectedTotalSupply, vars.expectedSupplyShares);
         vars.expectedTotalSupply += amount;
@@ -661,7 +655,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         amount = bound(amount % maxAmount, 1, maxAmount);
 
         bundle.push(_getWithdrawData(amount));
-        vars.expectedBundlerBorrowableBalance += amount;
+        vars.expectedBundlerLoanBalance += amount;
 
         uint256 expectedDecreasedSupplyShares = amount.toSharesUp(vars.expectedTotalSupply, vars.expectedSupplyShares);
         vars.expectedTotalSupply -= amount;
@@ -687,7 +681,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
         bundle.push(_getBorrowData(shares));
         uint256 expectedBorrowedAmount = shares.toAssetsDown(vars.expectedTotalBorrow, vars.expectedBorrowShares);
-        vars.expectedBundlerBorrowableBalance += expectedBorrowedAmount;
+        vars.expectedBundlerLoanBalance += expectedBorrowedAmount;
 
         vars.expectedTotalBorrow += expectedBorrowedAmount;
         vars.expectedBorrowShares += shares;
@@ -701,10 +695,10 @@ contract MorphoBundlerLocalTest is LocalTest {
 
         amount = bound(amount % borrowBalance, 1, borrowBalance);
 
-        _transferMissingBorrowable(vars, amount);
+        _transferMissingLoan(vars, amount);
 
         bundle.push(_getRepayData(amount, user));
-        vars.expectedBundlerBorrowableBalance -= amount;
+        vars.expectedBundlerLoanBalance -= amount;
 
         uint256 expectedDecreasedBorrowShares = amount.toSharesDown(vars.expectedTotalBorrow, vars.expectedBorrowShares);
         vars.expectedTotalBorrow -= amount;
@@ -728,12 +722,12 @@ contract MorphoBundlerLocalTest is LocalTest {
         vars.expectedCollateral -= amount;
     }
 
-    function _transferMissingBorrowable(BundleTransactionsVars memory vars, uint256 amount) internal {
-        if (amount > vars.expectedBundlerBorrowableBalance) {
-            uint256 missingAmount = amount - vars.expectedBundlerBorrowableBalance;
-            bundle.push(_getTransferFrom2Data(address(borrowableToken), missingAmount));
-            vars.initialUserBorrowableBalance += missingAmount;
-            vars.expectedBundlerBorrowableBalance += missingAmount;
+    function _transferMissingLoan(BundleTransactionsVars memory vars, uint256 amount) internal {
+        if (amount > vars.expectedBundlerLoanBalance) {
+            uint256 missingAmount = amount - vars.expectedBundlerLoanBalance;
+            bundle.push(_getTransferFrom2Data(address(loanToken), missingAmount));
+            vars.initialUserLoanBalance += missingAmount;
+            vars.expectedBundlerLoanBalance += missingAmount;
         }
     }
 
@@ -749,19 +743,18 @@ contract MorphoBundlerLocalTest is LocalTest {
     function testFlashLoan(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        borrowableToken.setBalance(address(this), amount);
+        loanToken.setBalance(address(this), amount);
         morpho.supply(marketParams, amount, 0, SUPPLIER, hex"");
 
         bytes[] memory callbackData = new bytes[](2);
-        callbackData[0] = abi.encodeCall(BaseBundler.transfer, (address(borrowableToken), USER, amount));
-        callbackData[1] = abi.encodeCall(BaseBundler.transferFrom, (address(borrowableToken), amount));
+        callbackData[0] = abi.encodeCall(BaseBundler.transfer, (address(loanToken), USER, amount));
+        callbackData[1] = abi.encodeCall(BaseBundler.transferFrom, (address(loanToken), amount));
 
         bytes[] memory data = new bytes[](1);
-        data[0] =
-            abi.encodeCall(MorphoBundler.morphoFlashLoan, (address(borrowableToken), amount, abi.encode(callbackData)));
+        data[0] = abi.encodeCall(MorphoBundler.morphoFlashLoan, (address(loanToken), amount, abi.encode(callbackData)));
 
-        assertEq(borrowableToken.balanceOf(USER), 0, "User's borrowable token balance");
-        assertEq(borrowableToken.balanceOf(address(bundler)), 0, "Bundler's borrowable token balance");
-        assertEq(borrowableToken.balanceOf(address(morpho)), amount, "Morpho's borrowable token balance");
+        assertEq(loanToken.balanceOf(USER), 0, "User's loan token balance");
+        assertEq(loanToken.balanceOf(address(bundler)), 0, "Bundler's loan token balance");
+        assertEq(loanToken.balanceOf(address(morpho)), amount, "Morpho's loan token balance");
     }
 }

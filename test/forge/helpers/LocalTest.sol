@@ -13,7 +13,7 @@ abstract contract LocalTest is BaseTest {
 
     uint256 internal constant LLTV = 0.8 ether;
 
-    ERC20Mock internal borrowableToken;
+    ERC20Mock internal loanToken;
     ERC20Mock internal collateralToken;
 
     MarketParams internal marketParams;
@@ -22,11 +22,10 @@ abstract contract LocalTest is BaseTest {
     function setUp() public virtual override {
         super.setUp();
 
-        borrowableToken = new ERC20Mock("borrowable", "B");
+        loanToken = new ERC20Mock("loan", "B");
         collateralToken = new ERC20Mock("collateral", "C");
 
-        marketParams =
-            MarketParams(address(borrowableToken), address(collateralToken), address(oracle), address(irm), LLTV);
+        marketParams = MarketParams(address(loanToken), address(collateralToken), address(oracle), address(irm), LLTV);
         id = marketParams.id();
 
         vm.startPrank(OWNER);
@@ -34,10 +33,10 @@ abstract contract LocalTest is BaseTest {
         morpho.createMarket(marketParams);
         vm.stopPrank();
 
-        borrowableToken.approve(address(morpho), type(uint256).max);
+        loanToken.approve(address(morpho), type(uint256).max);
         collateralToken.approve(address(morpho), type(uint256).max);
 
         vm.prank(SUPPLIER);
-        borrowableToken.approve(address(morpho), type(uint256).max);
+        loanToken.approve(address(morpho), type(uint256).max);
     }
 }
