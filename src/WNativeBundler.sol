@@ -29,7 +29,7 @@ abstract contract WNativeBundler is BaseBundler, Permit2Bundler {
         WRAPPED_NATIVE = wNative;
     }
 
-    /* CALLBACKS */
+    /* FALLBACKS */
 
     /// @dev Only the wNative contract is allowed to transfer the native token to this contract, without any calldata.
     receive() external payable virtual {

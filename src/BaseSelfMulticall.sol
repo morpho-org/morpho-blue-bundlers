@@ -5,7 +5,7 @@ pragma solidity 0.8.21;
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Enables calling multiple functions in a single call to the same contract (self).
-/// @dev Based on Uniswap work: https://github.com/Uniswap/v3-periphery/blob/main/contracts/base/Multicall.sol
+/// @dev Based on Uniswap's work: https://github.com/Uniswap/v3-periphery/blob/main/contracts/base/Multicall.sol
 abstract contract BaseSelfMulticall {
     /* INTERNAL */
 

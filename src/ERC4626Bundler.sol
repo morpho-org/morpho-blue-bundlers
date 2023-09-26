@@ -21,7 +21,7 @@ abstract contract ERC4626Bundler is BaseBundler, Permit2Bundler {
 
     /// @notice Mints the given amount of `shares` on the given ERC4626 `vault`, on behalf of `owner`.
     /// @dev Pass in `type(uint256).max` to mint max.
-    /// @dev Assumes the given vault implements EIP-4626.
+    /// @dev Assumes the given `vault` implements EIP-4626.
     function erc4626Mint(address vault, uint256 shares, address owner) external payable {
         require(owner != address(0), ErrorsLib.ZERO_ADDRESS);
 
@@ -40,7 +40,7 @@ abstract contract ERC4626Bundler is BaseBundler, Permit2Bundler {
 
     /// @notice Deposits the given amount of `assets` on the given ERC4626 `vault`, on behalf of `owner`.
     /// @dev Pass in `type(uint256).max` to deposit max.
-    /// @dev Assumes the given vault implements EIP-4626.
+    /// @dev Assumes the given `vault` implements EIP-4626.
     function erc4626Deposit(address vault, uint256 assets, address owner) external payable {
         require(owner != address(0), ErrorsLib.ZERO_ADDRESS);
 
@@ -61,7 +61,7 @@ abstract contract ERC4626Bundler is BaseBundler, Permit2Bundler {
     /// `receiver`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Pass in `type(uint256).max` to withdraw max.
-    /// @dev Assumes the given vault implements EIP-4626.
+    /// @dev Assumes the given `vault` implements EIP-4626.
     function erc4626Withdraw(address vault, uint256 assets, address receiver) external payable {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
 
@@ -75,7 +75,7 @@ abstract contract ERC4626Bundler is BaseBundler, Permit2Bundler {
     /// @notice Redeems the given amount of `shares` from the given ERC4626 `vault`, transferring assets to `receiver`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Pass in `type(uint256).max` to redeem max.
-    /// @dev Assumes the given vault implements EIP-4626.
+    /// @dev Assumes the given `vault` implements EIP-4626.
     function erc4626Redeem(address vault, uint256 shares, address receiver) external payable {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
 
