@@ -16,13 +16,13 @@ abstract contract BaseSelfMulticall {
             (bool success, bytes memory returnData) = address(this).delegatecall(data[i]);
 
             // No need to check that `address(this)` has code in case of success.
-            if (!success) _bubbleRevert(returnData);
+            if (!success) _revert(returnData);
         }
     }
 
     /// @dev Bubbles up the revert reason / custom error encoded in `returnData`.
     /// @dev Assumes `returnData` is the return data of any kind of failing CALL to a contract.
-    function _bubbleRevert(bytes memory returnData) internal pure {
+    function _revert(bytes memory returnData) internal pure {
         uint256 length = returnData.length;
         require(length > 0, ErrorsLib.CALL_FAILED);
 

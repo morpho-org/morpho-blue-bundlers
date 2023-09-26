@@ -54,7 +54,7 @@ export class BundlerAction {
     amount: BigNumberish,
     deadline: BigNumberish,
     signature: Signature,
-    allowRevert: boolean,
+    skipRevert: boolean,
   ): BundlerCall {
     return BundlerAction.PERMIT_BUNDLER_IFC.encodeFunctionData("permit", [
       asset,
@@ -63,7 +63,7 @@ export class BundlerAction {
       signature.v,
       signature.r,
       signature.s,
-      allowRevert,
+      skipRevert,
     ]);
   }
 
@@ -74,14 +74,14 @@ export class BundlerAction {
     amount: BigNumberish,
     deadline: BigNumberish,
     signature: Signature,
-    allowRevert: boolean,
+    skipRevert: boolean,
   ): BundlerCall {
     return BundlerAction.PERMIT2_BUNDLER_IFC.encodeFunctionData("approve2", [
       asset,
       amount,
       deadline,
       { v: signature.v, r: signature.r, s: signature.s },
-      allowRevert,
+      skipRevert,
     ]);
   }
 
@@ -112,12 +112,12 @@ export class BundlerAction {
   static morphoSetAuthorizationWithSig(
     authorization: AuthorizationStruct,
     signature: Signature,
-    allowRevert: boolean,
+    skipRevert: boolean,
   ): BundlerCall {
     return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoSetAuthorizationWithSig", [
       authorization,
       { v: signature.v, r: signature.r, s: signature.s },
-      allowRevert,
+      skipRevert,
     ]);
   }
 
@@ -221,7 +221,7 @@ export class BundlerAction {
     reward: string,
     amount: BigNumberish,
     proof: string[],
-    allowRevert: boolean,
+    skipRevert: boolean,
   ): BundlerCall {
     return BundlerAction.URD_BUNDLER_IFC.encodeFunctionData("urdClaim", [
       distributor,
@@ -229,7 +229,7 @@ export class BundlerAction {
       reward,
       amount,
       proof,
-      allowRevert,
+      skipRevert,
     ]);
   }
 

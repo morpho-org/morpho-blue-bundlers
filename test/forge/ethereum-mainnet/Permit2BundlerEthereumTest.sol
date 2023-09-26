@@ -81,7 +81,7 @@ contract Permit2BundlerEthereumTest is EthereumTest {
         uint256 privateKey,
         uint256 amount,
         uint256 deadline,
-        bool allowRevert
+        bool skipRevert
     ) internal view returns (bytes memory) {
         address user = vm.addr(privateKey);
 
@@ -104,7 +104,7 @@ contract Permit2BundlerEthereumTest is EthereumTest {
         (signature.v, signature.r, signature.s) = vm.sign(privateKey, digest);
 
         return abi.encodeCall(
-            Permit2Bundler.approve2, (marketParams.borrowableToken, amount, deadline, signature, allowRevert)
+            Permit2Bundler.approve2, (marketParams.borrowableToken, amount, deadline, signature, skipRevert)
         );
     }
 }

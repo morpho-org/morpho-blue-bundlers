@@ -51,7 +51,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         return (privateKey, user);
     }
 
-    function _morphoSetAuthorizationWithSigCall(uint256 privateKey, bool isAuthorized, bool allowRevert)
+    function _morphoSetAuthorizationWithSigCall(uint256 privateKey, bool isAuthorized, bool skipRevert)
         internal
         view
         returns (bytes memory)
@@ -71,7 +71,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (authorization, sig, allowRevert));
+        return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (authorization, sig, skipRevert));
     }
 
     function assumeOnBehalf(address onBehalf) internal view {

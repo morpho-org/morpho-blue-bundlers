@@ -69,7 +69,7 @@ contract PermitBundlerLocalTest is LocalTest {
         assertEq(permitToken.balanceOf(user), 0, "balanceOf(user)");
     }
 
-    function _permitCall(IERC20Permit token, uint256 privateKey, uint256 amount, uint256 deadline, bool allowRevert)
+    function _permitCall(IERC20Permit token, uint256 privateKey, uint256 amount, uint256 deadline, bool skipRevert)
         internal
         view
         returns (bytes memory)
@@ -81,6 +81,6 @@ contract PermitBundlerLocalTest is LocalTest {
         bytes32 digest = SigUtils.toTypedDataHash(token.DOMAIN_SEPARATOR(), permit);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(PermitBundler.permit, (address(token), amount, deadline, v, r, s, allowRevert));
+        return abi.encodeCall(PermitBundler.permit, (address(token), amount, deadline, v, r, s, skipRevert));
     }
 }

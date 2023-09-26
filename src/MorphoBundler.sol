@@ -56,15 +56,15 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /* ACTIONS */
 
     /// @notice Approves this contract to manage the `authorization.authorizer`'s position via EIP712 `signature`.
-    /// @dev Pass `allowRevert == true` to avoid failing in case the signature expired and is optional.
+    /// @dev Pass `skipRevert == true` to avoid failing in case the signature expired and is optional.
     function morphoSetAuthorizationWithSig(
         Authorization calldata authorization,
         Signature calldata signature,
-        bool allowRevert
+        bool skipRevert
     ) external payable {
         try MORPHO.setAuthorizationWithSig(authorization, signature) {}
         catch (bytes memory returnData) {
-            if (!allowRevert) _bubbleRevert(returnData);
+            if (!skipRevert) _revert(returnData);
         }
     }
 
