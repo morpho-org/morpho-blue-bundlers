@@ -3,9 +3,11 @@ pragma solidity ^0.8.0;
 
 import {ILendingPool} from "@morpho-v1/aave-v2/interfaces/aave/ILendingPool.sol";
 import {IAToken} from "@morpho-v1/aave-v2/interfaces/aave/IAToken.sol";
+import {IERC4626} from "@openzeppelin/interfaces/IERC4626.sol";
 import {IStEth} from "src/interfaces/IStEth.sol";
-import {StEthBundler} from "src/StEthBundler.sol";
 
+import {ERC4626Bundler} from "src/ERC4626Bundler.sol";
+import {StEthBundler} from "src/StEthBundler.sol";
 import "src/ethereum-mainnet/migration/AaveV2EthereumMigrationBundler.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
@@ -67,6 +69,48 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         bundler.multicall(SIGNATURE_DEADLINE, data);
 
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
+    }
+
+    function testMigrateBorrowerDaiToSDaiWithPermit2(uint256 privateKey) public {
+        address user;
+        (privateKey, user) = _getUserAndKey(privateKey);
+
+        _initMarket(S_DAI, WETH);
+        _provideLiquidity(borrowed);
+
+        deal(DAI, user, collateralSupplied);
+
+        vm.startPrank(user);
+        ERC20(DAI).safeApprove(AAVE_V2_POOL, collateralSupplied);
+        ILendingPool(AAVE_V2_POOL).deposit(DAI, collateralSupplied, user, 0);
+        ILendingPool(AAVE_V2_POOL).borrow(marketParams.borrowableToken, borrowed, 2, 0, user);
+        vm.stopPrank();
+
+        address aToken = _getATokenV2(DAI);
+        uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
+
+        vm.prank(user);
+        ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
+
+        uint256 sDaiAmount = IERC4626(S_DAI).previewDeposit(collateralSupplied);
+
+        bytes[] memory data = new bytes[](1);
+        bytes[] memory callbackData = new bytes[](8);
+
+        callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
+        callbackData[1] = _morphoBorrowCall(borrowed, address(bundler));
+        callbackData[2] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1);
+        callbackData[3] = _aaveV2RepayCall(marketParams.borrowableToken, borrowed, 2);
+        callbackData[4] = _erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0);
+        callbackData[5] = _erc20TransferFrom2Call(aToken, aTokenBalance);
+        callbackData[6] = _aaveV2WithdrawCall(DAI, collateralSupplied, address(bundler));
+        callbackData[7] = _mintSDaiCall(collateralSupplied);
+        data[0] = _morphoSupplyCollateralCall(sDaiAmount, user, abi.encode(callbackData));
+
+        vm.prank(user);
+        bundler.multicall(SIGNATURE_DEADLINE, data);
+
+        _assertBorrowerPosition(sDaiAmount, borrowed, user, address(bundler));
     }
 
     function testMigrateStEthPositionWithPermit2(uint256 privateKey) public {
@@ -190,5 +234,9 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function _wrapStEthCall(uint256 amount) internal pure returns (bytes memory) {
         return abi.encodeCall(StEthBundler.wrapStEth, (amount));
+    }
+
+    function _mintSDaiCall(uint256 amount) internal view returns (bytes memory) {
+        return abi.encodeCall(ERC4626Bundler.erc4626Deposit, (S_DAI, amount, address(bundler)));
     }
 }
