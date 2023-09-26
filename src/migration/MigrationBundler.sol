@@ -22,8 +22,7 @@ abstract contract MigrationBundler is PermitBundler, Permit2Bundler, ERC4626Bund
     /* INTERNAL */
 
     /// @dev Gives the max approval to `to` to spend the given `asset` if not already approved.
-    /// @dev Assumes that `type(uint256).max` is large enough to never have to increase the allowance again. Thus,
-    /// tokens preventing the allowance frontrunning attack should be safe.
+    /// @dev Assumes that `type(uint256).max` is large enough to never have to increase the allowance again.
     function _approveMaxTo(address asset, address to) internal {
         if (ERC20(asset).allowance(address(this), to) == 0) {
             ERC20(asset).safeApprove(to, type(uint256).max);
