@@ -1,7 +1,7 @@
 {
     "chainId": 1,
     "rpcAlias": "mainnet",
-    "forkBlockNumber": 17891982,
+    "forkBlockNumber": 18227677,
     "markets": [
         {
             "loanToken": "WETH",
