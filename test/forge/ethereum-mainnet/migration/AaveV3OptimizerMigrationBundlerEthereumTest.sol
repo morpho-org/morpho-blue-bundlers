@@ -43,7 +43,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.startPrank(user);
         ERC20(marketParams.collateralToken).safeApprove(AAVE_V3_OPTIMIZER, collateralSupplied + 1);
         IAaveV3Optimizer(AAVE_V3_OPTIMIZER).supplyCollateral(marketParams.collateralToken, collateralSupplied + 1, user);
-        IAaveV3Optimizer(AAVE_V3_OPTIMIZER).borrow(marketParams.borrowableToken, borrowed, user, user, 15);
+        IAaveV3Optimizer(AAVE_V3_OPTIMIZER).borrow(marketParams.loanToken, borrowed, user, user, 15);
         vm.stopPrank();
 
         bytes[] memory data = new bytes[](1);
@@ -52,7 +52,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
         callbackData[1] = _morphoBorrowCall(borrowed, address(bundler));
         callbackData[2] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1);
-        callbackData[3] = _aaveV3OptimizerRepayCall(marketParams.borrowableToken, borrowed);
+        callbackData[3] = _aaveV3OptimizerRepayCall(marketParams.loanToken, borrowed);
         callbackData[4] = _aaveV3OptimizerApproveManagerCall(privateKey, address(bundler), true, 0);
         callbackData[5] =
             _aaveV3OptimizerWithdrawCollateralCall(marketParams.collateralToken, collateralSupplied, address(bundler));
@@ -70,17 +70,17 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         (privateKey, user) = _getUserAndKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
 
-        deal(marketParams.borrowableToken, user, supplied + 1);
+        deal(marketParams.loanToken, user, supplied + 1);
 
         vm.startPrank(user);
-        ERC20(marketParams.borrowableToken).safeApprove(AAVE_V3_OPTIMIZER, supplied + 1);
-        IAaveV3Optimizer(AAVE_V3_OPTIMIZER).supply(marketParams.borrowableToken, supplied + 1, user, 15);
+        ERC20(marketParams.loanToken).safeApprove(AAVE_V3_OPTIMIZER, supplied + 1);
+        IAaveV3Optimizer(AAVE_V3_OPTIMIZER).supply(marketParams.loanToken, supplied + 1, user, 15);
         vm.stopPrank();
 
         bytes[] memory data = new bytes[](4);
 
         data[0] = _aaveV3OptimizerApproveManagerCall(privateKey, address(bundler), true, 0);
-        data[1] = _aaveV3OptimizerWithdraw(marketParams.borrowableToken, supplied, address(bundler), 15);
+        data[1] = _aaveV3OptimizerWithdraw(marketParams.loanToken, supplied, address(bundler), 15);
         data[2] = _aaveV3OptimizerApproveManagerCall(privateKey, address(bundler), false, 1);
         data[3] = _morphoSupplyCall(supplied, user, hex"");
 
@@ -95,17 +95,17 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         (privateKey, user) = _getUserAndKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
 
-        deal(marketParams.borrowableToken, user, supplied + 1);
+        deal(marketParams.loanToken, user, supplied + 1);
 
         vm.startPrank(user);
-        ERC20(marketParams.borrowableToken).safeApprove(AAVE_V3_OPTIMIZER, supplied + 1);
-        IAaveV3Optimizer(AAVE_V3_OPTIMIZER).supply(marketParams.borrowableToken, supplied + 1, user, 15);
+        ERC20(marketParams.loanToken).safeApprove(AAVE_V3_OPTIMIZER, supplied + 1);
+        IAaveV3Optimizer(AAVE_V3_OPTIMIZER).supply(marketParams.loanToken, supplied + 1, user, 15);
         vm.stopPrank();
 
         bytes[] memory data = new bytes[](4);
 
         data[0] = _aaveV3OptimizerApproveManagerCall(privateKey, address(bundler), true, 0);
-        data[1] = _aaveV3OptimizerWithdraw(marketParams.borrowableToken, supplied, address(bundler), 15);
+        data[1] = _aaveV3OptimizerWithdraw(marketParams.loanToken, supplied, address(bundler), 15);
         data[2] = _aaveV3OptimizerApproveManagerCall(privateKey, address(bundler), false, 1);
         data[3] = _erc4626DepositCall(address(suppliersVault), supplied, user);
 

@@ -4,8 +4,8 @@ pragma solidity 0.8.21;
 import {IWStEth} from "./interfaces/IWStEth.sol";
 import {IStEth} from "./interfaces/IStEth.sol";
 
-import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {Math} from "@morpho-utils/math/Math.sol";
+import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";

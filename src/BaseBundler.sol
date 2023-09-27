@@ -15,22 +15,19 @@ import {BaseCallbackReceiver} from "./BaseCallbackReceiver.sol";
 /// Bundler contracts.
 /// @dev Every Bundler must inherit from this contract.
 /// @dev Every bundler inheriting from this contract must have their external functions payable as they will be
-/// delegate called by the `multicall` function (which is payable, and thus might pass a non-null ETH value).
+/// delegate called by the `multicall` function (which is payable, and thus might pass a non-null ETH value). It is
+/// recommended not to rely on `msg.value` as the same value can be reused for multiple calls.
+/// @dev Assumes that any tokens left on the contract can be seized by anyone.
 abstract contract BaseBundler is BaseSelfMulticall, BaseCallbackReceiver {
     using SafeTransferLib for ERC20;
 
     /* EXTERNAL */
 
     /// @notice Executes a series of calls in a single transaction to self.
-    function multicall(uint256 deadline, bytes[] calldata data)
-        external
-        payable
-        lockInitiator
-        returns (bytes[] memory)
-    {
+    function multicall(uint256 deadline, bytes[] calldata data) external payable lockInitiator {
         require(block.timestamp <= deadline, ErrorsLib.DEADLINE_EXPIRED);
 
-        return _multicall(data);
+        _multicall(data);
     }
 
     /* ACTIONS */

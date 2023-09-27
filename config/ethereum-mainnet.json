@@ -4,7 +4,7 @@
     "forkBlockNumber": 17891982,
     "markets": [
         {
-            "borrowableToken": "WETH",
+            "loanToken": "WETH",
             "collateralToken": "DAI",
             "lltv": 800000000000000000
         }
