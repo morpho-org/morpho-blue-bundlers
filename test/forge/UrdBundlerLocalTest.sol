@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import {IUniversalRewardsDistributor} from "@universal-rewards-distributor/interfaces/IUniversalRewardsDistributor.sol";
 
 import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
+import {ErrorsLib as UrdErrorsLib} from "@universal-rewards-distributor/libraries/ErrorsLib.sol";
 
 import {Merkle} from "@murky/src/Merkle.sol";
 import {UrdFactory} from "@universal-rewards-distributor/UrdFactory.sol";
@@ -28,7 +29,7 @@ contract UrdBundlerLocalTest is LocalTest {
         urdFactory = new UrdFactory();
         merkle = new Merkle();
 
-        distributor = urdFactory.createUrd(OWNER, 0, bytes32(0), hex"", hex"");
+        distributor = address(urdFactory.createUrd(OWNER, 0, bytes32(0), hex"", hex""));
     }
 
     function testClaimRewardsZeroAddressDistributor(uint256 claimable, address account) public {
@@ -38,7 +39,9 @@ contract UrdBundlerLocalTest is LocalTest {
         bytes32[] memory proof;
 
         bundle.push(
-            abi.encodeCall(UrdBundler.urdClaim, (address(0), account, address(borrowableToken), claimable, proof))
+            abi.encodeCall(
+                UrdBundler.urdClaim, (address(0), account, address(borrowableToken), claimable, proof, false)
+            )
         );
 
         vm.prank(USER);
@@ -52,7 +55,9 @@ contract UrdBundlerLocalTest is LocalTest {
         bytes32[] memory proof;
 
         bundle.push(
-            abi.encodeCall(UrdBundler.urdClaim, (distributor, address(0), address(borrowableToken), claimable, proof))
+            abi.encodeCall(
+                UrdBundler.urdClaim, (distributor, address(0), address(borrowableToken), claimable, proof, false)
+            )
         );
 
         vm.prank(USER);
@@ -67,7 +72,7 @@ contract UrdBundlerLocalTest is LocalTest {
 
         bundle.push(
             abi.encodeCall(
-                UrdBundler.urdClaim, (distributor, address(bundler), address(borrowableToken), claimable, proof)
+                UrdBundler.urdClaim, (distributor, address(bundler), address(borrowableToken), claimable, proof, false)
             )
         );
 
@@ -90,12 +95,26 @@ contract UrdBundlerLocalTest is LocalTest {
 
         bundle.push(
             abi.encodeCall(
-                UrdBundler.urdClaim, (distributor, USER, address(borrowableToken), claimable, borrowableTokenProof)
+                UrdBundler.urdClaim,
+                (distributor, USER, address(borrowableToken), claimable, borrowableTokenProof, false)
             )
         );
         bundle.push(
             abi.encodeCall(
-                UrdBundler.urdClaim, (distributor, USER, address(collateralToken), claimable, collateralTokenProof)
+                UrdBundler.urdClaim,
+                (distributor, USER, address(collateralToken), claimable, collateralTokenProof, false)
+            )
+        );
+        bundle.push(
+            abi.encodeCall(
+                UrdBundler.urdClaim,
+                (distributor, USER, address(borrowableToken), claimable, collateralTokenProof, true)
+            )
+        );
+        bundle.push(
+            abi.encodeCall(
+                UrdBundler.urdClaim,
+                (distributor, USER, address(collateralToken), claimable, borrowableTokenProof, true)
             )
         );
 
@@ -104,6 +123,42 @@ contract UrdBundlerLocalTest is LocalTest {
 
         assertEq(borrowableToken.balanceOf(USER), claimable, "User's borrowable balance");
         assertEq(collateralToken.balanceOf(USER), claimable, "User's collateral balance");
+    }
+
+    function testClaimRewardsRevert(uint256 claimable, uint256 size) public {
+        claimable = bound(claimable, 1 ether, 1000 ether);
+        size = bound(size, 2, 20);
+
+        bytes32[] memory tree = _setupRewards(claimable, size);
+
+        borrowableToken.setBalance(distributor, claimable);
+        collateralToken.setBalance(distributor, claimable);
+
+        bytes32[] memory borrowableTokenProof = merkle.getProof(tree, 0);
+        bytes32[] memory collateralTokenProof = merkle.getProof(tree, 1);
+
+        bundle.push(
+            abi.encodeCall(
+                UrdBundler.urdClaim,
+                (distributor, USER, address(borrowableToken), claimable, borrowableTokenProof, false)
+            )
+        );
+        bundle.push(
+            abi.encodeCall(
+                UrdBundler.urdClaim,
+                (distributor, USER, address(collateralToken), claimable, collateralTokenProof, false)
+            )
+        );
+        bundle.push(
+            abi.encodeCall(
+                UrdBundler.urdClaim,
+                (distributor, USER, address(borrowableToken), claimable, borrowableTokenProof, false)
+            )
+        );
+
+        vm.prank(USER);
+        vm.expectRevert(bytes(UrdErrorsLib.ALREADY_CLAIMED));
+        bundler.multicall(block.timestamp, bundle);
     }
 
     function _setupRewards(uint256 claimable, uint256 size) internal returns (bytes32[] memory tree) {
