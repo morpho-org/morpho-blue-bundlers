@@ -67,7 +67,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /// @notice The supplied amount cannot be used as collateral but is eligible to earn interest.
     /// @dev Pass `amount = type(uint256).max` to supply the bundler's loan asset balance.
     function morphoSupply(
-        MarketParams calldata marketparams,
+        MarketParams calldata marketParams,
         uint256 amount,
         uint256 shares,
         address onBehalf,
@@ -78,17 +78,17 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
         // Don't always cap the amount to the bundler's balance because the liquidity can be transferred later
         // (via the `onMorphoSupply` callback).
-        if (amount == type(uint256).max) amount = ERC20(marketparams.loanToken).balanceOf(address(this));
+        if (amount == type(uint256).max) amount = ERC20(marketParams.loanToken).balanceOf(address(this));
 
-        _approveMaxBlue(marketparams.loanToken);
+        _approveMaxBlue(marketParams.loanToken);
 
-        MORPHO.supply(marketparams, amount, shares, onBehalf, data);
+        MORPHO.supply(marketParams, amount, shares, onBehalf, data);
     }
 
     /// @notice Supplies `amount` of `asset` collateral to the pool on behalf of `onBehalf`.
     /// @dev Pass `amount = type(uint256).max` to supply the bundler's collateral asset balance.
     function morphoSupplyCollateral(
-        MarketParams calldata marketparams,
+        MarketParams calldata marketParams,
         uint256 amount,
         address onBehalf,
         bytes calldata data
@@ -98,27 +98,27 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
         // Don't always cap the amount to the bundler's balance because the liquidity can be transferred later
         // (via the `onMorphoSupplyCollateral` callback).
-        if (amount == type(uint256).max) amount = ERC20(marketparams.collateralToken).balanceOf(address(this));
+        if (amount == type(uint256).max) amount = ERC20(marketParams.collateralToken).balanceOf(address(this));
 
-        _approveMaxBlue(marketparams.collateralToken);
+        _approveMaxBlue(marketParams.collateralToken);
 
-        MORPHO.supplyCollateral(marketparams, amount, onBehalf, data);
+        MORPHO.supplyCollateral(marketParams, amount, onBehalf, data);
     }
 
     /// @notice Borrows `amount` of `asset` on behalf of the sender.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously authorized the bundler to act on their behalf on Blue.
-    function morphoBorrow(MarketParams calldata marketparams, uint256 amount, uint256 shares, address receiver)
+    function morphoBorrow(MarketParams calldata marketParams, uint256 amount, uint256 shares, address receiver)
         external
         payable
     {
-        MORPHO.borrow(marketparams, amount, shares, _initiator, receiver);
+        MORPHO.borrow(marketParams, amount, shares, _initiator, receiver);
     }
 
     /// @notice Repays `amount` of `asset` on behalf of `onBehalf`.
     /// @dev Pass `amount = type(uint256).max` to repay the bundler's loan asset balance.
     function morphoRepay(
-        MarketParams calldata marketparams,
+        MarketParams calldata marketParams,
         uint256 amount,
         uint256 shares,
         address onBehalf,
@@ -129,44 +129,44 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
         // Don't always cap the amount to the bundler's balance because the liquidity can be transferred later
         // (via the `onMorphoRepay` callback).
-        if (amount == type(uint256).max) amount = ERC20(marketparams.loanToken).balanceOf(address(this));
+        if (amount == type(uint256).max) amount = ERC20(marketParams.loanToken).balanceOf(address(this));
 
-        _approveMaxBlue(marketparams.loanToken);
+        _approveMaxBlue(marketParams.loanToken);
 
-        MORPHO.repay(marketparams, amount, shares, onBehalf, data);
+        MORPHO.repay(marketParams, amount, shares, onBehalf, data);
     }
 
     /// @notice Withdraws `amount` of the loan asset on behalf of `onBehalf`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously authorized the bundler to act on their behalf on Blue.
-    function morphoWithdraw(MarketParams calldata marketparams, uint256 amount, uint256 shares, address receiver)
+    function morphoWithdraw(MarketParams calldata marketParams, uint256 amount, uint256 shares, address receiver)
         external
         payable
     {
-        MORPHO.withdraw(marketparams, amount, shares, _initiator, receiver);
+        MORPHO.withdraw(marketParams, amount, shares, _initiator, receiver);
     }
 
     /// @notice Withdraws `amount` of the collateral asset on behalf of sender.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously authorized the bundler to act on their behalf on Blue.
-    function morphoWithdrawCollateral(MarketParams calldata marketparams, uint256 amount, address receiver)
+    function morphoWithdrawCollateral(MarketParams calldata marketParams, uint256 amount, address receiver)
         external
         payable
     {
-        MORPHO.withdrawCollateral(marketparams, amount, _initiator, receiver);
+        MORPHO.withdrawCollateral(marketParams, amount, _initiator, receiver);
     }
 
     /// @notice Triggers a liquidation on Blue.
     function morphoLiquidate(
-        MarketParams calldata marketparams,
+        MarketParams calldata marketParams,
         address borrower,
         uint256 seizedAssets,
         uint256 repaidShares,
         bytes memory data
     ) external payable {
-        _approveMaxBlue(marketparams.loanToken);
+        _approveMaxBlue(marketParams.loanToken);
 
-        MORPHO.liquidate(marketparams, borrower, seizedAssets, repaidShares, data);
+        MORPHO.liquidate(marketParams, borrower, seizedAssets, repaidShares, data);
     }
 
     /// @notice Triggers a flash loan on Blue.
