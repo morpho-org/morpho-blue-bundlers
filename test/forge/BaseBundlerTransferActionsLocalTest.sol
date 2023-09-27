@@ -7,7 +7,7 @@ import "src/mocks/bundlers/BaseBundlerMock.sol";
 
 import "./helpers/LocalTest.sol";
 
-contract BaseBundlerLocalTest is LocalTest {
+contract BaseBundlerTransferActionsLocalTest is LocalTest {
     BaseBundlerMock internal bundler;
 
     function setUp() public override {

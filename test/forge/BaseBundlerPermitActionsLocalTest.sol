@@ -3,20 +3,20 @@ pragma solidity ^0.8.0;
 
 import {SigUtils, Permit} from "test/forge/helpers/SigUtils.sol";
 
-import "src/mocks/bundlers/PermitBundlerMock.sol";
+import "src/mocks/bundlers/BaseBundlerMock.sol";
 import {ERC20PermitMock} from "src/mocks/ERC20PermitMock.sol";
 
 import "./helpers/LocalTest.sol";
 
-contract PermitBundlerLocalTest is LocalTest {
-    PermitBundlerMock internal bundler;
+contract BaseBundlerPermitActionsLocalTest is LocalTest {
+    BaseBundlerMock internal bundler;
     ERC20PermitMock internal permitToken;
 
     function setUp() public override {
         super.setUp();
 
         permitToken = new ERC20PermitMock("Permit Token", "PT");
-        bundler = new PermitBundlerMock();
+        bundler = new BaseBundlerMock();
     }
 
     function testPermit(uint256 amount, uint256 privateKey, uint256 deadline) public {
@@ -81,6 +81,6 @@ contract PermitBundlerLocalTest is LocalTest {
         bytes32 digest = SigUtils.toTypedDataHash(token.DOMAIN_SEPARATOR(), permit);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(PermitBundler.permit, (address(token), amount, deadline, v, r, s, skipRevert));
+        return abi.encodeCall(BaseBundler.permit, (address(token), amount, deadline, v, r, s, skipRevert));
     }
 }

@@ -6,17 +6,17 @@ import {SignatureVerification} from "@permit2/libraries/SignatureVerification.so
 
 import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
 
-import "src/mocks/bundlers/Permit2BundlerMock.sol";
+import "src/mocks/bundlers/BaseBundlerMock.sol";
 
 import "./helpers/EthereumTest.sol";
 
-contract Permit2BundlerEthereumTest is EthereumTest {
-    Permit2BundlerMock internal bundler;
+contract BaseBundlerPermit2ActionsEthereumTest is EthereumTest {
+    BaseBundlerMock internal bundler;
 
     function setUp() public override {
         super.setUp();
 
-        bundler = new Permit2BundlerMock();
+        bundler = new BaseBundlerMock();
     }
 
     function testApprove2(uint256 seed, uint256 privateKey, uint256 deadline, uint256 amount) public {
@@ -62,7 +62,7 @@ contract Permit2BundlerEthereumTest is EthereumTest {
 
         bundle.push(
             abi.encodeCall(
-                Permit2Bundler.approve2, (marketParams.loanToken, 0, deadline, Signature({v: 0, r: 0, s: 0}), false)
+                BaseBundler.approve2, (marketParams.loanToken, 0, deadline, Signature({v: 0, r: 0, s: 0}), false)
             )
         );
 
@@ -97,7 +97,6 @@ contract Permit2BundlerEthereumTest is EthereumTest {
         Signature memory signature;
         (signature.v, signature.r, signature.s) = vm.sign(privateKey, digest);
 
-        return
-            abi.encodeCall(Permit2Bundler.approve2, (marketParams.loanToken, amount, deadline, signature, skipRevert));
+        return abi.encodeCall(BaseBundler.approve2, (marketParams.loanToken, amount, deadline, signature, skipRevert));
     }
 }

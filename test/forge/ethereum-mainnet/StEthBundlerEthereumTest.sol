@@ -57,7 +57,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
         amount = ERC20(ST_ETH).balanceOf(user);
 
         bundle.push(_getPermit2Data(ST_ETH, privateKey, user));
-        bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (ST_ETH, amount)));
+        bundle.push(abi.encodeCall(BaseBundler.transferFrom2, (ST_ETH, amount)));
         bundle.push(abi.encodeCall(StEthBundler.wrapStEth, (amount)));
         bundle.push(abi.encodeCall(BaseBundler.transfer, (WST_ETH, RECEIVER, type(uint256).max)));
 
@@ -92,7 +92,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
         _approvePermit2(user);
 
         bundle.push(_getPermit2Data(WST_ETH, privateKey, user));
-        bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (WST_ETH, amount)));
+        bundle.push(abi.encodeCall(BaseBundler.transferFrom2, (WST_ETH, amount)));
         bundle.push(abi.encodeCall(StEthBundler.unwrapStEth, (amount)));
         bundle.push(abi.encodeCall(BaseBundler.transfer, (ST_ETH, RECEIVER, type(uint256).max)));
 
@@ -137,7 +137,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
         Signature memory signature;
         (signature.v, signature.r, signature.s) = vm.sign(privateKey, hashed);
 
-        return abi.encodeCall(Permit2Bundler.approve2, (token, type(uint160).max, type(uint48).max, signature, false));
+        return abi.encodeCall(BaseBundler.approve2, (token, type(uint160).max, type(uint48).max, signature, false));
     }
 
     function _getAddressFromPrivateKey(uint256 privateKey) internal view returns (address user) {

@@ -10,9 +10,9 @@ import {MorphoBalancesLib} from "@morpho-blue/libraries/periphery/MorphoBalances
 
 import "../../helpers/EthereumTest.sol";
 import {BaseBundler} from "src/BaseBundler.sol";
-import {PermitBundler} from "src/PermitBundler.sol";
-import {Permit2Bundler} from "src/Permit2Bundler.sol";
-import {ERC4626Bundler} from "src/ERC4626Bundler.sol";
+import {BaseBundler} from "src/BaseBundler.sol";
+import {BaseBundler} from "src/BaseBundler.sol";
+import {BaseBundler} from "src/BaseBundler.sol";
 import {MorphoBundler} from "src/MorphoBundler.sol";
 import {ERC4626Mock} from "src/mocks/ERC4626Mock.sol";
 
@@ -97,7 +97,7 @@ contract EthereumMigrationTest is EthereumTest {
     }
 
     function _erc20TransferFrom2Call(address asset, uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(Permit2Bundler.transferFrom2, (asset, amount));
+        return abi.encodeCall(BaseBundler.transferFrom2, (asset, amount));
     }
 
     function _erc20Approve2Call(uint256 privateKey, address asset, uint160 amount, address spender, uint48 nonce)
@@ -122,7 +122,7 @@ contract EthereumMigrationTest is EthereumTest {
         Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(Permit2Bundler.approve2, (asset, amount, SIGNATURE_DEADLINE, sig, false));
+        return abi.encodeCall(BaseBundler.approve2, (asset, amount, SIGNATURE_DEADLINE, sig, false));
     }
 
     function _erc4626DepositCall(address vault, uint256 amount, address receiver)
@@ -130,7 +130,7 @@ contract EthereumMigrationTest is EthereumTest {
         pure
         returns (bytes memory)
     {
-        return abi.encodeCall(ERC4626Bundler.erc4626Deposit, (vault, amount, receiver));
+        return abi.encodeCall(BaseBundler.erc4626Deposit, (vault, amount, receiver));
     }
 
     function _provideLiquidity(uint256 liquidity) internal {

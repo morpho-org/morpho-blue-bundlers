@@ -1,9 +1,6 @@
 import { BigNumberish, Signature } from "ethers";
 import {
   BaseBundler__factory,
-  PermitBundler__factory,
-  Permit2Bundler__factory,
-  ERC4626Bundler__factory,
   MorphoBundler__factory,
   UrdBundler__factory,
   WNativeBundler__factory,
@@ -20,9 +17,6 @@ export type BundlerCall = string;
 
 export class BundlerAction {
   private static BASE_BUNDLER_IFC = BaseBundler__factory.createInterface();
-  private static PERMIT_BUNDLER_IFC = PermitBundler__factory.createInterface();
-  private static PERMIT2_BUNDLER_IFC = Permit2Bundler__factory.createInterface();
-  private static ERC4626_BUNDLER_IFC = ERC4626Bundler__factory.createInterface();
   private static MORPHO_BUNDLER_IFC = MorphoBundler__factory.createInterface();
   private static URD_BUNDLER_IFC = UrdBundler__factory.createInterface();
   private static WNATIVE_BUNDLER_IFC = WNativeBundler__factory.createInterface();
@@ -56,7 +50,7 @@ export class BundlerAction {
     signature: Signature,
     skipRevert: boolean,
   ): BundlerCall {
-    return BundlerAction.PERMIT_BUNDLER_IFC.encodeFunctionData("permit", [
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("permit", [
       asset,
       amount,
       deadline,
@@ -76,7 +70,7 @@ export class BundlerAction {
     signature: Signature,
     skipRevert: boolean,
   ): BundlerCall {
-    return BundlerAction.PERMIT2_BUNDLER_IFC.encodeFunctionData("approve2", [
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("approve2", [
       asset,
       amount,
       deadline,
@@ -86,25 +80,25 @@ export class BundlerAction {
   }
 
   static transferFrom2(asset: string, amount: BigNumberish): BundlerCall {
-    return BundlerAction.PERMIT2_BUNDLER_IFC.encodeFunctionData("transferFrom2", [asset, amount]);
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transferFrom2", [asset, amount]);
   }
 
   /* ERC4626 */
 
   static erc4626Mint(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Mint", [erc4626, amount, receiver]);
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("erc4626Mint", [erc4626, amount, receiver]);
   }
 
   static erc4626Deposit(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Deposit", [erc4626, amount, receiver]);
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("erc4626Deposit", [erc4626, amount, receiver]);
   }
 
   static erc4626Withdraw(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Withdraw", [erc4626, amount, receiver]);
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("erc4626Withdraw", [erc4626, amount, receiver]);
   }
 
   static erc4626Redeem(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Redeem", [erc4626, amount, receiver]);
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("erc4626Redeem", [erc4626, amount, receiver]);
   }
 
   /* Morpho */
