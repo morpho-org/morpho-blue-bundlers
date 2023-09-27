@@ -104,6 +104,52 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
     }
 
+    function testMigrateUSDTPositionWithPermit2(uint256 privateKey) public {
+        address user;
+        (privateKey, user) = _getUserAndKey(privateKey);
+
+        uint256 amountUsdt = collateralSupplied / 1e10;
+
+        ERC4626Mock vaultUSDT = new ERC4626Mock(USDT, "USDT Vault", "V");
+        _initMarket(address(vaultUSDT), WETH);
+        _provideLiquidity(borrowed);
+
+        oracle.setPrice(1e46);
+        deal(USDT, user, amountUsdt);
+
+        vm.startPrank(user);
+        ERC20(USDT).safeApprove(AAVE_V3_POOL, amountUsdt);
+        IPool(AAVE_V3_POOL).supply(USDT, amountUsdt, user, 0);
+        IPool(AAVE_V3_POOL).borrow(marketParams.loanToken, borrowed, 2, 0, user);
+        vm.stopPrank();
+
+        address aToken = _getATokenV3(USDT);
+        uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
+
+        vm.prank(user);
+        ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
+
+        uint256 erc4626Amount = vaultUSDT.previewDeposit(amountUsdt);
+
+        bytes[] memory data = new bytes[](1);
+        bytes[] memory callbackData = new bytes[](8);
+
+        callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
+        callbackData[1] = _morphoBorrowCall(borrowed, address(bundler));
+        callbackData[2] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1);
+        callbackData[3] = _aaveV3RepayCall(marketParams.loanToken, borrowed, 2);
+        callbackData[4] = _erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0);
+        callbackData[5] = _erc20TransferFrom2Call(aToken, aTokenBalance);
+        callbackData[6] = _aaveV3WithdrawCall(USDT, amountUsdt, address(bundler));
+        callbackData[7] = _erc4626DepositCall(address(vaultUSDT), amountUsdt, address(bundler));
+        data[0] = _morphoSupplyCollateralCall(erc4626Amount, user, abi.encode(callbackData));
+
+        vm.prank(user);
+        bundler.multicall(SIGNATURE_DEADLINE, data);
+
+        _assertBorrowerPosition(erc4626Amount, borrowed, user, address(bundler));
+    }
+
     function testMigrateSupplierWithATokenPermit(uint256 privateKey, uint256 supplied) public {
         address user;
         (privateKey, user) = _getUserAndKey(privateKey);
