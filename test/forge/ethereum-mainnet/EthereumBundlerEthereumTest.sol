@@ -58,7 +58,7 @@ contract EthereumBundlerEthereumTest is EthereumTest {
         (signature.v, signature.r, signature.s) = vm.sign(privateKey, hashed);
 
         bytes[] memory data = new bytes[](3);
-        data[0] = abi.encodeCall(Permit2Bundler.approve2, (marketParams.loanToken, amount, deadline, signature));
+        data[0] = abi.encodeCall(Permit2Bundler.approve2, (marketParams.loanToken, amount, deadline, signature, false));
         data[1] = abi.encodeCall(Permit2Bundler.transferFrom2, (marketParams.loanToken, amount));
         data[2] = abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, amount, 0, onBehalf, hex""));
 

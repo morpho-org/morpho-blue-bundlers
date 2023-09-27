@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import {SigUtils} from "./helpers/SigUtils.sol";
 import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
+import {ErrorsLib as MorphoErrorsLib} from "@morpho-blue/libraries/ErrorsLib.sol";
 
 import "src/mocks/bundlers/MorphoBundlerMock.sol";
 
@@ -50,17 +51,18 @@ contract MorphoBundlerLocalTest is LocalTest {
         return (privateKey, user);
     }
 
-    function _morphoSetAuthorizationWithSigCall(
-        uint256 privateKey,
-        address authorized,
-        bool isAuthorized,
-        uint256 nonce
-    ) internal view returns (bytes memory) {
+    function _morphoSetAuthorizationWithSigCall(uint256 privateKey, bool isAuthorized, bool skipRevert)
+        internal
+        view
+        returns (bytes memory)
+    {
+        address user = vm.addr(privateKey);
+
         Authorization memory authorization = Authorization({
-            authorizer: vm.addr(privateKey),
-            authorized: authorized,
+            authorizer: user,
+            authorized: address(bundler),
             isAuthorized: isAuthorized,
-            nonce: nonce,
+            nonce: morpho.nonce(user),
             deadline: SIGNATURE_DEADLINE
         });
 
@@ -69,7 +71,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (authorization, sig));
+        return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (authorization, sig, skipRevert));
     }
 
     function assumeOnBehalf(address onBehalf) internal view {
@@ -83,26 +85,24 @@ contract MorphoBundlerLocalTest is LocalTest {
         deadline = uint32(bound(deadline, block.timestamp + 1, type(uint32).max));
 
         address user = vm.addr(privateKey);
-        vm.assume(user != USER);
 
-        Authorization memory authorization = Authorization({
-            authorizer: user,
-            authorized: address(bundler),
-            deadline: deadline,
-            nonce: morpho.nonce(user),
-            isAuthorized: true
-        });
-
-        bytes32 digest = SigUtils.toTypedDataHash(morpho.DOMAIN_SEPARATOR(), authorization);
-
-        Signature memory sig;
-        (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
-
-        bundle.push(abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (authorization, sig)));
+        bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, true, false));
+        bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, true, true));
 
         bundler.multicall(block.timestamp, bundle);
 
-        assertTrue(morpho.isAuthorized(user, address(bundler)), "isAuthorized(bundler)");
+        assertTrue(morpho.isAuthorized(user, address(bundler)), "isAuthorized(user, bundler)");
+    }
+
+    function testSetAuthorizationWithSigRevert(uint256 privateKey, uint32 deadline) public {
+        privateKey = bound(privateKey, 1, type(uint32).max);
+        deadline = uint32(bound(deadline, block.timestamp + 1, type(uint32).max));
+
+        bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, true, false));
+        bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, true, false));
+
+        vm.expectRevert(bytes(MorphoErrorsLib.INVALID_NONCE));
+        bundler.multicall(block.timestamp, bundle);
     }
 
     function testSupplyOnBehalfBundlerAddress(uint256 assets) public {
@@ -267,7 +267,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         uint256 expectedWithdrawnAmount = withdrawnShares.toAssetsDown(amount, expectedSupplyShares);
 
         bytes[] memory data = new bytes[](2);
-        data[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
+        data[0] = _morphoSetAuthorizationWithSigCall(privateKey, true, false);
         data[1] = abi.encodeCall(MorphoBundler.morphoWithdraw, (marketParams, 0, withdrawnShares, user));
 
         loanToken.setBalance(user, amount);
@@ -318,7 +318,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         uint256 collateralAmount = amount.wDivUp(LLTV);
 
         bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(collateralToken), collateralAmount)));
-        bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
+        bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, true, false));
         bundle.push(abi.encodeCall(MorphoBundler.morphoSupplyCollateral, (marketParams, collateralAmount, user, hex"")));
         bundle.push(abi.encodeCall(MorphoBundler.morphoBorrow, (marketParams, amount, 0, RECEIVER)));
 
@@ -343,7 +343,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         uint256 collateralAmount = amount.wDivUp(LLTV);
 
         bytes[] memory callbackData = new bytes[](3);
-        callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
+        callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, true, false);
         callbackData[1] = abi.encodeCall(MorphoBundler.morphoBorrow, (marketParams, amount, 0, RECEIVER));
         callbackData[2] = abi.encodeCall(BaseBundler.transferFrom, (address(collateralToken), collateralAmount));
 
@@ -398,7 +398,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         vm.stopPrank();
 
         bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(loanToken), amount)));
-        bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
+        bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, true, false));
         bundle.push(abi.encodeCall(MorphoBundler.morphoRepay, (marketParams, amount, 0, user, hex"")));
         bundle.push(abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, RECEIVER)));
 
@@ -427,7 +427,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         vm.stopPrank();
 
         bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(loanToken), amount)));
-        bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
+        bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, true, false));
         bundle.push(abi.encodeCall(MorphoBundler.morphoRepay, (marketParams, type(uint256).max, 0, user, hex"")));
         bundle.push(abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, RECEIVER)));
 
@@ -456,7 +456,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         vm.stopPrank();
 
         bytes[] memory callbackData = new bytes[](3);
-        callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
+        callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, true, false);
         callbackData[1] =
             abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, RECEIVER));
         callbackData[2] = abi.encodeCall(BaseBundler.transferFrom, (address(loanToken), amount));
@@ -540,7 +540,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         address user;
         (privateKey, user) = _getUserAndKey(privateKey);
         approveERC20ToMorphoAndBundler(user);
-        bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
+        bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, true, false));
 
         seedAction = bound(seedAction, 0, type(uint256).max - 30);
         seedAmount = bound(seedAmount, 0, type(uint256).max - 30);
