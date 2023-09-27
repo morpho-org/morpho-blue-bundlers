@@ -24,15 +24,10 @@ abstract contract BaseBundler is BaseSelfMulticall, BaseCallbackReceiver {
     /* EXTERNAL */
 
     /// @notice Executes a series of calls in a single transaction to self.
-    function multicall(uint256 deadline, bytes[] calldata data)
-        external
-        payable
-        lockInitiator
-        returns (bytes[] memory)
-    {
+    function multicall(uint256 deadline, bytes[] calldata data) external payable lockInitiator {
         require(block.timestamp <= deadline, ErrorsLib.DEADLINE_EXPIRED);
 
-        return _multicall(data);
+        _multicall(data);
     }
 
     /* ACTIONS */

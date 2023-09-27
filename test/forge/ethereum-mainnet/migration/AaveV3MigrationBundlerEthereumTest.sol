@@ -239,7 +239,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, hashed);
 
-        return abi.encodeCall(PermitBundler.permit, (aToken, amount, SIGNATURE_DEADLINE, v, r, s));
+        return abi.encodeCall(PermitBundler.permit, (aToken, amount, SIGNATURE_DEADLINE, v, r, s, false));
     }
 
     function _aaveV3RepayCall(address asset, uint256 amount, uint256 interestRateMode)

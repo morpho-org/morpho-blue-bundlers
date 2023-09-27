@@ -137,7 +137,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
         Signature memory signature;
         (signature.v, signature.r, signature.s) = vm.sign(privateKey, hashed);
 
-        return abi.encodeCall(Permit2Bundler.approve2, (token, type(uint160).max, type(uint48).max, signature));
+        return abi.encodeCall(Permit2Bundler.approve2, (token, type(uint160).max, type(uint48).max, signature, false));
     }
 
     function _getAddressFromPrivateKey(uint256 privateKey) internal view returns (address user) {
