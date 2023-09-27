@@ -19,29 +19,45 @@ contract PermitBundlerLocalTest is LocalTest {
         bundler = new PermitBundlerMock();
     }
 
-    function testPermitAllowance(uint256 amount, uint256 privateKey, uint256 deadline) public {
+    function testPermit(uint256 amount, uint256 privateKey, uint256 deadline) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
         deadline = bound(deadline, block.timestamp, type(uint48).max);
         privateKey = bound(privateKey, 1, type(uint160).max);
 
         address user = vm.addr(privateKey);
 
-        bundle.push(_getPermitData(address(permitToken), privateKey, user, amount, deadline));
+        bundle.push(_permitCall(permitToken, privateKey, amount, deadline, false));
+        bundle.push(_permitCall(permitToken, privateKey, amount, deadline, true));
 
         vm.prank(user);
         bundler.multicall(block.timestamp, bundle);
 
-        assertEq(permitToken.allowance(user, address(bundler)), amount, "permitToken.allowance(user, address(bundler))");
+        assertEq(permitToken.allowance(user, address(bundler)), amount, "allowance(user, bundler)");
     }
 
-    function testPermitTransferFrom(uint256 amount, uint256 privateKey, uint256 deadline) public {
+    function testPermitRevert(uint256 amount, uint256 privateKey, uint256 deadline) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
         deadline = bound(deadline, block.timestamp, type(uint48).max);
         privateKey = bound(privateKey, 1, type(uint160).max);
 
         address user = vm.addr(privateKey);
 
-        bundle.push(_getPermitData(address(permitToken), privateKey, user, amount, deadline));
+        bundle.push(_permitCall(permitToken, privateKey, amount, deadline, false));
+        bundle.push(_permitCall(permitToken, privateKey, amount, deadline, false));
+
+        vm.prank(user);
+        vm.expectRevert("ERC20Permit: invalid signature");
+        bundler.multicall(block.timestamp, bundle);
+    }
+
+    function testTransferFrom(uint256 amount, uint256 privateKey, uint256 deadline) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+        deadline = bound(deadline, block.timestamp, type(uint48).max);
+        privateKey = bound(privateKey, 1, type(uint160).max);
+
+        address user = vm.addr(privateKey);
+
+        bundle.push(_permitCall(permitToken, privateKey, amount, deadline, false));
         bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(permitToken), amount)));
 
         permitToken.setBalance(user, amount);
@@ -49,22 +65,22 @@ contract PermitBundlerLocalTest is LocalTest {
         vm.prank(user);
         bundler.multicall(block.timestamp, bundle);
 
-        assertEq(permitToken.balanceOf(address(bundler)), amount, "permitToken.balanceOf(bundler)");
-        assertEq(permitToken.balanceOf(user), 0, "permitToken.balanceOf(USER)");
+        assertEq(permitToken.balanceOf(address(bundler)), amount, "balanceOf(bundler)");
+        assertEq(permitToken.balanceOf(user), 0, "balanceOf(user)");
     }
 
-    function _getPermitData(address token, uint256 privateKey, address user, uint256 amount, uint256 deadline)
+    function _permitCall(IERC20Permit token, uint256 privateKey, uint256 amount, uint256 deadline, bool skipRevert)
         internal
         view
         returns (bytes memory)
     {
-        uint256 nonce = IERC20Permit(token).nonces(user);
+        address user = vm.addr(privateKey);
 
-        Permit memory permit = Permit(user, address(bundler), amount, nonce, deadline);
+        Permit memory permit = Permit(user, address(bundler), amount, token.nonces(user), deadline);
 
-        bytes32 digest = SigUtils.toTypedDataHash(IERC20Permit(token).DOMAIN_SEPARATOR(), permit);
+        bytes32 digest = SigUtils.toTypedDataHash(token.DOMAIN_SEPARATOR(), permit);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(PermitBundler.permit, (token, amount, deadline, v, r, s));
+        return abi.encodeCall(PermitBundler.permit, (address(token), amount, deadline, v, r, s, skipRevert));
     }
 }

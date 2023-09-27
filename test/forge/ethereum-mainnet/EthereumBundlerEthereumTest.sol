@@ -39,12 +39,12 @@ contract EthereumBundlerEthereumTest is EthereumTest {
         address user = vm.addr(privateKey);
         MarketParams memory marketParams = _randomMarketParams(seed);
 
-        (,, uint48 nonce) = Permit2Lib.PERMIT2.allowance(user, marketParams.borrowableToken, address(bundler));
+        (,, uint48 nonce) = Permit2Lib.PERMIT2.allowance(user, marketParams.loanToken, address(bundler));
         bytes32 hashed = SigUtils.toTypedDataHash(
             Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(),
             IAllowanceTransfer.PermitSingle({
                 details: IAllowanceTransfer.PermitDetails({
-                    token: marketParams.borrowableToken,
+                    token: marketParams.loanToken,
                     amount: uint160(amount),
                     expiration: type(uint48).max,
                     nonce: nonce
@@ -58,35 +58,31 @@ contract EthereumBundlerEthereumTest is EthereumTest {
         (signature.v, signature.r, signature.s) = vm.sign(privateKey, hashed);
 
         bytes[] memory data = new bytes[](3);
-        data[0] = abi.encodeCall(Permit2Bundler.approve2, (marketParams.borrowableToken, amount, deadline, signature));
-        data[1] = abi.encodeCall(Permit2Bundler.transferFrom2, (marketParams.borrowableToken, amount));
+        data[0] = abi.encodeCall(Permit2Bundler.approve2, (marketParams.loanToken, amount, deadline, signature, false));
+        data[1] = abi.encodeCall(Permit2Bundler.transferFrom2, (marketParams.loanToken, amount));
         data[2] = abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, amount, 0, onBehalf, hex""));
 
         uint256 collateralBalanceBefore = ERC20(marketParams.collateralToken).balanceOf(onBehalf);
-        uint256 borrowableBalanceBefore = ERC20(marketParams.borrowableToken).balanceOf(onBehalf);
+        uint256 loanBalanceBefore = ERC20(marketParams.loanToken).balanceOf(onBehalf);
 
-        _deal(marketParams.borrowableToken, user, amount);
+        _deal(marketParams.loanToken, user, amount);
 
         vm.startPrank(user);
-        ERC20(marketParams.borrowableToken).safeApprove(address(Permit2Lib.PERMIT2), type(uint256).max);
+        ERC20(marketParams.loanToken).safeApprove(address(Permit2Lib.PERMIT2), type(uint256).max);
         ERC20(marketParams.collateralToken).safeApprove(address(Permit2Lib.PERMIT2), type(uint256).max);
 
         bundler.multicall(deadline, data);
         vm.stopPrank();
 
         assertEq(ERC20(marketParams.collateralToken).balanceOf(user), 0, "collateral.balanceOf(user)");
-        assertEq(ERC20(marketParams.borrowableToken).balanceOf(user), 0, "borrowable.balanceOf(user)");
+        assertEq(ERC20(marketParams.loanToken).balanceOf(user), 0, "loan.balanceOf(user)");
 
         assertEq(
             ERC20(marketParams.collateralToken).balanceOf(onBehalf),
             collateralBalanceBefore,
             "collateral.balanceOf(onBehalf)"
         );
-        assertEq(
-            ERC20(marketParams.borrowableToken).balanceOf(onBehalf),
-            borrowableBalanceBefore,
-            "borrowable.balanceOf(onBehalf)"
-        );
+        assertEq(ERC20(marketParams.loanToken).balanceOf(onBehalf), loanBalanceBefore, "loan.balanceOf(onBehalf)");
 
         Id id = marketParams.id();
 

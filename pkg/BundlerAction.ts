@@ -49,7 +49,13 @@ export class BundlerAction {
 
   /* Permit */
 
-  static permit(asset: string, amount: BigNumberish, deadline: BigNumberish, signature: Signature): BundlerCall {
+  static permit(
+    asset: string,
+    amount: BigNumberish,
+    deadline: BigNumberish,
+    signature: Signature,
+    skipRevert: boolean,
+  ): BundlerCall {
     return BundlerAction.PERMIT_BUNDLER_IFC.encodeFunctionData("permit", [
       asset,
       amount,
@@ -57,17 +63,25 @@ export class BundlerAction {
       signature.v,
       signature.r,
       signature.s,
+      skipRevert,
     ]);
   }
 
   /* Permit2 */
 
-  static approve2(asset: string, amount: BigNumberish, deadline: BigNumberish, signature: Signature): BundlerCall {
+  static approve2(
+    asset: string,
+    amount: BigNumberish,
+    deadline: BigNumberish,
+    signature: Signature,
+    skipRevert: boolean,
+  ): BundlerCall {
     return BundlerAction.PERMIT2_BUNDLER_IFC.encodeFunctionData("approve2", [
       asset,
       amount,
       deadline,
       { v: signature.v, r: signature.r, s: signature.s },
+      skipRevert,
     ]);
   }
 
@@ -95,10 +109,15 @@ export class BundlerAction {
 
   /* Morpho */
 
-  static morphoSetAuthorizationWithSig(authorization: AuthorizationStruct, signature: Signature): BundlerCall {
+  static morphoSetAuthorizationWithSig(
+    authorization: AuthorizationStruct,
+    signature: Signature,
+    skipRevert: boolean,
+  ): BundlerCall {
     return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoSetAuthorizationWithSig", [
       authorization,
       { v: signature.v, r: signature.r, s: signature.s },
+      skipRevert,
     ]);
   }
 
@@ -202,8 +221,16 @@ export class BundlerAction {
     reward: string,
     amount: BigNumberish,
     proof: string[],
+    skipRevert: boolean,
   ): BundlerCall {
-    return BundlerAction.URD_BUNDLER_IFC.encodeFunctionData("urdClaim", [distributor, account, reward, amount, proof]);
+    return BundlerAction.URD_BUNDLER_IFC.encodeFunctionData("urdClaim", [
+      distributor,
+      account,
+      reward,
+      amount,
+      proof,
+      skipRevert,
+    ]);
   }
 
   /* Wrapped Native */

@@ -29,6 +29,9 @@ library ErrorsLib {
     /// @dev Thrown when only the wrapped native token can send ETH to the contract.
     string internal constant ONLY_WNATIVE = "only wrapped native";
 
+    /// @dev Thrown when a call reverted and wasn't allowed to revert.
+    string internal constant CALL_FAILED = "call failed";
+
     /* MIGRATION BUNDLERS */
 
     /// @dev Thrown when a redeem on Compound V2 failed.
