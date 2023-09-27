@@ -124,7 +124,8 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         _initMarket(WST_ETH, WETH);
         _provideLiquidity(borrowed);
 
-        vm.deal(user, collateralSupplied);
+        deal(user, collateralSupplied);
+
         vm.prank(user);
         IStEth(ST_ETH).submit{value: collateralSupplied}(address(0));
 
@@ -134,10 +135,13 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         ILendingPool(AAVE_V2_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
         vm.stopPrank();
 
+        // The amount of stEth as collateral is decreased by 10 beceause of roundings.
+        collateralSupplied -= 10;
+
         address aToken = _getATokenV2(ST_ETH);
         uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
 
-        uint256 wstEthAmount = IStEth(ST_ETH).getSharesByPooledEth(collateralSupplied - 4);
+        uint256 wstEthAmount = IStEth(ST_ETH).getSharesByPooledEth(collateralSupplied);
 
         vm.prank(user);
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
@@ -149,14 +153,14 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackBundle.push(_erc20Approve2Call(privateKey, aToken, type(uint160).max, address(bundler), 0));
         callbackBundle.push(_erc20TransferFrom2Call(aToken, aTokenBalance));
         callbackBundle.push(_aaveV2WithdrawCall(ST_ETH, type(uint256).max, address(bundler)));
-        // The amount of stEth is decreased by 1 beceause of roundings at each transfer.
-        callbackBundle.push(_wrapStEthCall(collateralSupplied - 4));
-        bundle.push(_morphoSupplyCollateralCall(wstEthAmount - 2, user, abi.encode(callbackBundle)));
+        callbackBundle.push(_wrapStEthCall(type(uint256).max));
+
+        bundle.push(_morphoSupplyCollateralCall(wstEthAmount, user, abi.encode(callbackBundle)));
 
         vm.prank(user);
         bundler.multicall(bundle);
 
-        _assertBorrowerPosition(wstEthAmount - 2, borrowed, user, address(bundler));
+        _assertBorrowerPosition(wstEthAmount, borrowed, user, address(bundler));
     }
 
     function testMigrateSupplierWithPermit2(uint256 privateKey, uint256 supplied) public {
