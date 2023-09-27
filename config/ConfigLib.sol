@@ -9,9 +9,9 @@ struct Config {
 
 /// @dev Warning: keys must be ordered alphabetically.
 struct RawConfigMarket {
-    string loanToken;
     string collateralToken;
     uint256 lltv;
+    string loanToken;
 }
 
 struct ConfigMarket {
