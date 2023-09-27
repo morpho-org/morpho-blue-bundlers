@@ -26,12 +26,12 @@ contract Permit2BundlerEthereumTest is EthereumTest {
         address user = vm.addr(privateKey);
         MarketParams memory marketParams = _randomMarketParams(seed);
 
-        (,, uint48 nonce) = Permit2Lib.PERMIT2.allowance(user, marketParams.borrowableToken, address(bundler));
+        (,, uint48 nonce) = Permit2Lib.PERMIT2.allowance(user, marketParams.loanToken, address(bundler));
         bytes32 hashed = SigUtils.toTypedDataHash(
             Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(),
             IAllowanceTransfer.PermitSingle({
                 details: IAllowanceTransfer.PermitDetails({
-                    token: marketParams.borrowableToken,
+                    token: marketParams.loanToken,
                     amount: uint160(amount),
                     expiration: type(uint48).max,
                     nonce: nonce
@@ -44,22 +44,15 @@ contract Permit2BundlerEthereumTest is EthereumTest {
         Signature memory signature;
         (signature.v, signature.r, signature.s) = vm.sign(privateKey, hashed);
 
-        bundle.push(
-            abi.encodeCall(Permit2Bundler.approve2, (marketParams.borrowableToken, amount, deadline, signature))
-        );
+        bundle.push(abi.encodeCall(Permit2Bundler.approve2, (marketParams.loanToken, amount, deadline, signature)));
 
         vm.prank(user);
         bundler.multicall(block.timestamp, bundle);
 
-        (uint160 permit2Allowance,,) =
-            Permit2Lib.PERMIT2.allowance(user, marketParams.borrowableToken, address(bundler));
+        (uint160 permit2Allowance,,) = Permit2Lib.PERMIT2.allowance(user, marketParams.loanToken, address(bundler));
 
         assertEq(permit2Allowance, amount, "PERMIT2.allowance(user, bundler)");
-        assertEq(
-            ERC20(marketParams.borrowableToken).allowance(user, address(bundler)),
-            0,
-            "borrowable.allowance(user, bundler)"
-        );
+        assertEq(ERC20(marketParams.loanToken).allowance(user, address(bundler)), 0, "loan.allowance(user, bundler)");
     }
 
     function testApprove2Zero(uint256 seed, uint256 deadline) public {
@@ -69,7 +62,7 @@ contract Permit2BundlerEthereumTest is EthereumTest {
 
         bundle.push(
             abi.encodeCall(
-                Permit2Bundler.approve2, (marketParams.borrowableToken, 0, deadline, Signature({v: 0, r: 0, s: 0}))
+                Permit2Bundler.approve2, (marketParams.loanToken, 0, deadline, Signature({v: 0, r: 0, s: 0}))
             )
         );
 

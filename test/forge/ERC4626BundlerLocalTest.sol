@@ -15,7 +15,7 @@ contract ERC4626BundlerLocalTest is LocalTest {
     function setUp() public override {
         super.setUp();
 
-        vault = new ERC4626Mock(address(borrowableToken), "BorrowableToken Vault", "BV");
+        vault = new ERC4626Mock(address(loanToken), "LoanToken Vault", "BV");
         bundler = new ERC4626BundlerMock();
     }
 
@@ -108,18 +108,18 @@ contract ERC4626BundlerLocalTest is LocalTest {
 
         uint256 assets = vault.previewMint(shares);
 
-        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(borrowableToken), assets)));
+        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(loanToken), assets)));
         bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(vault), shares, USER)));
 
-        borrowableToken.setBalance(USER, assets);
+        loanToken.setBalance(USER, assets);
 
         vm.startPrank(USER);
-        borrowableToken.approve(address(bundler), assets);
+        loanToken.approve(address(bundler), assets);
         bundler.multicall(block.timestamp, bundle);
         vm.stopPrank();
 
-        assertEq(borrowableToken.balanceOf(address(vault)), assets, "borrowable.balanceOf(vault)");
-        assertEq(borrowableToken.balanceOf(address(bundler)), 0, "borrowable.balanceOf(bundler)");
+        assertEq(loanToken.balanceOf(address(vault)), assets, "loan.balanceOf(vault)");
+        assertEq(loanToken.balanceOf(address(bundler)), 0, "loan.balanceOf(bundler)");
         assertEq(vault.balanceOf(address(bundler)), 0, "vault.balanceOf(USER)");
         assertEq(vault.balanceOf(USER), shares, "vault.balanceOf(USER)");
     }
@@ -129,18 +129,18 @@ contract ERC4626BundlerLocalTest is LocalTest {
 
         uint256 shares = vault.previewDeposit(assets);
 
-        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(borrowableToken), assets)));
+        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(loanToken), assets)));
         bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(vault), assets, USER)));
 
-        borrowableToken.setBalance(USER, assets);
+        loanToken.setBalance(USER, assets);
 
         vm.startPrank(USER);
-        borrowableToken.approve(address(bundler), assets);
+        loanToken.approve(address(bundler), assets);
         bundler.multicall(block.timestamp, bundle);
         vm.stopPrank();
 
-        assertEq(borrowableToken.balanceOf(address(vault)), assets, "borrowable.balanceOf(vault)");
-        assertEq(borrowableToken.balanceOf(address(bundler)), 0, "borrowable.balanceOf(bundler)");
+        assertEq(loanToken.balanceOf(address(vault)), assets, "loan.balanceOf(vault)");
+        assertEq(loanToken.balanceOf(address(bundler)), 0, "loan.balanceOf(bundler)");
         assertEq(vault.balanceOf(address(bundler)), 0, "vault.balanceOf(USER)");
         assertEq(vault.balanceOf(USER), shares, "vault.balanceOf(USER)");
     }
@@ -161,9 +161,9 @@ contract ERC4626BundlerLocalTest is LocalTest {
         bundler.multicall(block.timestamp, bundle);
         vm.stopPrank();
 
-        assertEq(borrowableToken.balanceOf(address(vault)), deposited - assets, "borrowable.balanceOf(vault)");
-        assertEq(borrowableToken.balanceOf(address(bundler)), 0, "borrowable.balanceOf(bundler)");
-        assertEq(borrowableToken.balanceOf(RECEIVER), assets, "borrowable.balanceOf(RECEIVER)");
+        assertEq(loanToken.balanceOf(address(vault)), deposited - assets, "loan.balanceOf(vault)");
+        assertEq(loanToken.balanceOf(address(bundler)), 0, "loan.balanceOf(bundler)");
+        assertEq(loanToken.balanceOf(RECEIVER), assets, "loan.balanceOf(RECEIVER)");
         assertEq(vault.balanceOf(USER), minted - redeemed, "vault.balanceOf(USER)");
         assertEq(vault.balanceOf(RECEIVER), 0, "vault.balanceOf(RECEIVER)");
     }
@@ -184,18 +184,18 @@ contract ERC4626BundlerLocalTest is LocalTest {
         bundler.multicall(block.timestamp, bundle);
         vm.stopPrank();
 
-        assertEq(borrowableToken.balanceOf(address(vault)), deposited - withdrawn, "borrowable.balanceOf(vault)");
-        assertEq(borrowableToken.balanceOf(address(bundler)), 0, "borrowable.balanceOf(bundler)");
-        assertEq(borrowableToken.balanceOf(RECEIVER), withdrawn, "borrowable.balanceOf(RECEIVER)");
+        assertEq(loanToken.balanceOf(address(vault)), deposited - withdrawn, "loan.balanceOf(vault)");
+        assertEq(loanToken.balanceOf(address(bundler)), 0, "loan.balanceOf(bundler)");
+        assertEq(loanToken.balanceOf(RECEIVER), withdrawn, "loan.balanceOf(RECEIVER)");
         assertEq(vault.balanceOf(USER), minted - shares, "vault.balanceOf(USER)");
         assertEq(vault.balanceOf(RECEIVER), 0, "vault.balanceOf(RECEIVER)");
     }
 
     function _depositVault(uint256 assets) internal returns (uint256 shares) {
-        borrowableToken.setBalance(USER, assets);
+        loanToken.setBalance(USER, assets);
 
         vm.startPrank(USER);
-        borrowableToken.approve(address(vault), assets);
+        loanToken.approve(address(vault), assets);
         shares = vault.deposit(assets, USER);
         vm.stopPrank();
     }
