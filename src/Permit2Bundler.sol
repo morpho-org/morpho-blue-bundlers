@@ -23,7 +23,7 @@ abstract contract Permit2Bundler is BaseBundler {
     /// @notice Approves the given `amount` of `asset` from sender to be spent by this contract via Permit2 with the
     /// given `deadline` & EIP-712 `signature`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
-    /// @dev Pass `skipRevert == true` to avoid failing in case the signature expired and is optional.
+    /// @dev Pass `skipRevert == true` to avoid reverting the whole bundle in case the signature expired.
     function approve2(address asset, uint256 amount, uint256 deadline, Signature calldata signature, bool skipRevert)
         external
         payable
