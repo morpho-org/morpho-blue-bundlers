@@ -82,7 +82,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.startPrank(user);
         ERC20(DAI).safeApprove(AAVE_V2_POOL, collateralSupplied);
         ILendingPool(AAVE_V2_POOL).deposit(DAI, collateralSupplied, user, 0);
-        ILendingPool(AAVE_V2_POOL).borrow(marketParams.borrowableToken, borrowed, 2, 0, user);
+        ILendingPool(AAVE_V2_POOL).borrow(marketParams.loanToken, borrowed, 2, 0, user);
         vm.stopPrank();
 
         address aToken = _getATokenV2(DAI);
@@ -99,7 +99,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
         callbackData[1] = _morphoBorrowCall(borrowed, address(bundler));
         callbackData[2] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1);
-        callbackData[3] = _aaveV2RepayCall(marketParams.borrowableToken, borrowed, 2);
+        callbackData[3] = _aaveV2RepayCall(marketParams.loanToken, borrowed, 2);
         callbackData[4] = _erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0);
         callbackData[5] = _erc20TransferFrom2Call(aToken, aTokenBalance);
         callbackData[6] = _aaveV2WithdrawCall(DAI, collateralSupplied, address(bundler));
@@ -126,7 +126,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.startPrank(user);
         ERC20(ST_ETH).safeApprove(AAVE_V2_POOL, collateralSupplied);
         ILendingPool(AAVE_V2_POOL).deposit(ST_ETH, collateralSupplied, user, 0);
-        ILendingPool(AAVE_V2_POOL).borrow(marketParams.borrowableToken, borrowed, 2, 0, user);
+        ILendingPool(AAVE_V2_POOL).borrow(marketParams.loanToken, borrowed, 2, 0, user);
         vm.stopPrank();
 
         address aToken = _getATokenV2(ST_ETH);
@@ -143,7 +143,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
         callbackData[1] = _morphoBorrowCall(borrowed, address(bundler));
         callbackData[2] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1);
-        callbackData[3] = _aaveV2RepayCall(marketParams.borrowableToken, borrowed, 2);
+        callbackData[3] = _aaveV2RepayCall(marketParams.loanToken, borrowed, 2);
         callbackData[4] = _erc20Approve2Call(privateKey, aToken, type(uint160).max, address(bundler), 0);
         callbackData[5] = _erc20TransferFrom2Call(aToken, aTokenBalance);
         callbackData[6] = _aaveV2WithdrawCall(ST_ETH, type(uint256).max, address(bundler));
