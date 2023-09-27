@@ -6,7 +6,6 @@ import {IAToken} from "@morpho-v1/aave-v2/interfaces/aave/IAToken.sol";
 import {IERC4626} from "@openzeppelin/interfaces/IERC4626.sol";
 import {IStEth} from "src/interfaces/IStEth.sol";
 
-import {ERC4626Bundler} from "src/ERC4626Bundler.sol";
 import {StEthBundler} from "src/StEthBundler.sol";
 import "src/ethereum-mainnet/migration/AaveV2EthereumMigrationBundler.sol";
 
@@ -104,7 +103,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackData[4] = _erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0);
         callbackData[5] = _erc20TransferFrom2Call(aToken, aTokenBalance);
         callbackData[6] = _aaveV2WithdrawCall(DAI, collateralSupplied, address(bundler));
-        callbackData[7] = _mintSDaiCall(collateralSupplied);
+        callbackData[7] = _erc4626DepositCall(S_DAI, collateralSupplied, address(bundler));
         data[0] = _morphoSupplyCollateralCall(sDaiAmount, user, abi.encode(callbackData));
 
         vm.prank(user);
@@ -234,9 +233,5 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function _wrapStEthCall(uint256 amount) internal pure returns (bytes memory) {
         return abi.encodeCall(StEthBundler.wrapStEth, (amount));
-    }
-
-    function _mintSDaiCall(uint256 amount) internal view returns (bytes memory) {
-        return abi.encodeCall(ERC4626Bundler.erc4626Deposit, (S_DAI, amount, address(bundler)));
     }
 }
