@@ -52,20 +52,18 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.prank(user);
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
 
-        bytes[] memory data = new bytes[](1);
-        bytes[] memory callbackData = new bytes[](7);
+        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
+        callbackBundle.push(_morphoBorrowCall(borrowed, address(bundler)));
+        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1));
+        callbackBundle.push(_aaveV2RepayCall(marketParams.loanToken, borrowed, 2));
+        callbackBundle.push(_erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0));
+        callbackBundle.push(_erc20TransferFrom2Call(aToken, aTokenBalance));
+        callbackBundle.push(_aaveV2WithdrawCall(marketParams.collateralToken, collateralSupplied, address(bundler)));
 
-        callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
-        callbackData[1] = _morphoBorrowCall(borrowed, address(bundler));
-        callbackData[2] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1);
-        callbackData[3] = _aaveV2RepayCall(marketParams.loanToken, borrowed, 2);
-        callbackData[4] = _erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0);
-        callbackData[5] = _erc20TransferFrom2Call(aToken, aTokenBalance);
-        callbackData[6] = _aaveV2WithdrawCall(marketParams.collateralToken, collateralSupplied, address(bundler));
-        data[0] = _morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackData));
+        bundle.push(_morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackBundle)));
 
         vm.prank(user);
-        bundler.multicall(SIGNATURE_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, bundle);
 
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
     }
@@ -93,21 +91,19 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
         uint256 sDaiAmount = IERC4626(S_DAI).previewDeposit(collateralSupplied);
 
-        bytes[] memory data = new bytes[](1);
-        bytes[] memory callbackData = new bytes[](8);
+        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
+        callbackBundle.push(_morphoBorrowCall(borrowed, address(bundler)));
+        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1));
+        callbackBundle.push(_aaveV2RepayCall(marketParams.loanToken, borrowed, 2));
+        callbackBundle.push(_erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0));
+        callbackBundle.push(_erc20TransferFrom2Call(aToken, aTokenBalance));
+        callbackBundle.push(_aaveV2WithdrawCall(DAI, collateralSupplied, address(bundler)));
+        callbackBundle.push(_erc4626DepositCall(S_DAI, collateralSupplied, address(bundler)));
 
-        callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
-        callbackData[1] = _morphoBorrowCall(borrowed, address(bundler));
-        callbackData[2] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1);
-        callbackData[3] = _aaveV2RepayCall(marketParams.loanToken, borrowed, 2);
-        callbackData[4] = _erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0);
-        callbackData[5] = _erc20TransferFrom2Call(aToken, aTokenBalance);
-        callbackData[6] = _aaveV2WithdrawCall(DAI, collateralSupplied, address(bundler));
-        callbackData[7] = _erc4626DepositCall(S_DAI, collateralSupplied, address(bundler));
-        data[0] = _morphoSupplyCollateralCall(sDaiAmount, user, abi.encode(callbackData));
+        bundle.push(_morphoSupplyCollateralCall(sDaiAmount, user, abi.encode(callbackBundle)));
 
         vm.prank(user);
-        bundler.multicall(SIGNATURE_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, bundle);
 
         _assertBorrowerPosition(sDaiAmount, borrowed, user, address(bundler));
     }
@@ -137,22 +133,19 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.prank(user);
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
 
-        bytes[] memory data = new bytes[](1);
-        bytes[] memory callbackData = new bytes[](8);
-
-        callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
-        callbackData[1] = _morphoBorrowCall(borrowed, address(bundler));
-        callbackData[2] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1);
-        callbackData[3] = _aaveV2RepayCall(marketParams.loanToken, borrowed, 2);
-        callbackData[4] = _erc20Approve2Call(privateKey, aToken, type(uint160).max, address(bundler), 0);
-        callbackData[5] = _erc20TransferFrom2Call(aToken, aTokenBalance);
-        callbackData[6] = _aaveV2WithdrawCall(ST_ETH, type(uint256).max, address(bundler));
+        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
+        callbackBundle.push(_morphoBorrowCall(borrowed, address(bundler)));
+        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1));
+        callbackBundle.push(_aaveV2RepayCall(marketParams.loanToken, borrowed, 2));
+        callbackBundle.push(_erc20Approve2Call(privateKey, aToken, type(uint160).max, address(bundler), 0));
+        callbackBundle.push(_erc20TransferFrom2Call(aToken, aTokenBalance));
+        callbackBundle.push(_aaveV2WithdrawCall(ST_ETH, type(uint256).max, address(bundler)));
         // The amount of stEth is decreased by 1 beceause of roundings at each transfer.
-        callbackData[7] = _wrapStEthCall(collateralSupplied - 4);
-        data[0] = _morphoSupplyCollateralCall(wstEthAmount - 2, user, abi.encode(callbackData));
+        callbackBundle.push(_wrapStEthCall(collateralSupplied - 4));
+        bundle.push(_morphoSupplyCollateralCall(wstEthAmount - 2, user, abi.encode(callbackBundle)));
 
         vm.prank(user);
-        bundler.multicall(SIGNATURE_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, bundle);
 
         _assertBorrowerPosition(wstEthAmount - 2, borrowed, user, address(bundler));
     }
@@ -175,15 +168,13 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.prank(user);
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
 
-        bytes[] memory data = new bytes[](4);
-
-        data[0] = _erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0);
-        data[1] = _erc20TransferFrom2Call(aToken, aTokenBalance);
-        data[2] = _aaveV2WithdrawCall(marketParams.loanToken, supplied, address(bundler));
-        data[3] = _morphoSupplyCall(supplied, user, hex"");
+        bundle.push(_erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0));
+        bundle.push(_erc20TransferFrom2Call(aToken, aTokenBalance));
+        bundle.push(_aaveV2WithdrawCall(marketParams.loanToken, supplied, address(bundler)));
+        bundle.push(_morphoSupplyCall(supplied, user, hex""));
 
         vm.prank(user);
-        bundler.multicall(SIGNATURE_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, bundle);
 
         _assertSupplierPosition(supplied, user, address(bundler));
     }
@@ -206,15 +197,13 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.prank(user);
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
 
-        bytes[] memory data = new bytes[](4);
-
-        data[0] = _erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0);
-        data[1] = _erc20TransferFrom2Call(aToken, aTokenBalance);
-        data[2] = _aaveV2WithdrawCall(marketParams.loanToken, supplied, address(bundler));
-        data[3] = _erc4626DepositCall(address(suppliersVault), supplied, user);
+        bundle.push(_erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0));
+        bundle.push(_erc20TransferFrom2Call(aToken, aTokenBalance));
+        bundle.push(_aaveV2WithdrawCall(marketParams.loanToken, supplied, address(bundler)));
+        bundle.push(_erc4626DepositCall(address(suppliersVault), supplied, user));
 
         vm.prank(user);
-        bundler.multicall(SIGNATURE_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, bundle);
 
         _assertVaultSupplierPosition(supplied, user, address(bundler));
     }
