@@ -27,9 +27,9 @@ contract EthereumMigrationTest is EthereumTest {
     MarketParams internal marketParams;
     ERC4626Mock internal suppliersVault;
 
-    function _initMarket(address collateral, address borrowable) internal {
+    function _initMarket(address collateral, address loan) internal {
         marketParams.collateralToken = collateral;
-        marketParams.borrowableToken = borrowable;
+        marketParams.loanToken = loan;
         marketParams.oracle = address(oracle);
         marketParams.irm = address(irm);
         marketParams.lltv = 0.8 ether;
@@ -39,7 +39,7 @@ contract EthereumMigrationTest is EthereumTest {
             morpho.createMarket(marketParams);
         }
 
-        suppliersVault = new ERC4626Mock(marketParams.borrowableToken, "suppliers vault", "vault");
+        suppliersVault = new ERC4626Mock(marketParams.loanToken, "suppliers vault", "vault");
         vm.label(address(suppliersVault), "Suppliers Vault");
     }
 
@@ -134,8 +134,8 @@ contract EthereumMigrationTest is EthereumTest {
     }
 
     function _provideLiquidity(uint256 liquidity) internal {
-        deal(marketParams.borrowableToken, address(this), liquidity);
-        ERC20(marketParams.borrowableToken).safeApprove(address(morpho), liquidity);
+        deal(marketParams.loanToken, address(this), liquidity);
+        ERC20(marketParams.loanToken).safeApprove(address(morpho), liquidity);
         morpho.supply(marketParams, liquidity, 0, address(this), hex"");
     }
 

@@ -36,7 +36,7 @@ abstract contract ForkTest is BaseTest, Configured {
 
             MarketParams memory marketParams = MarketParams({
                 collateralToken: configMarket.collateralToken,
-                borrowableToken: configMarket.borrowableToken,
+                loanToken: configMarket.loanToken,
                 oracle: address(oracle),
                 irm: address(irm),
                 lltv: configMarket.lltv

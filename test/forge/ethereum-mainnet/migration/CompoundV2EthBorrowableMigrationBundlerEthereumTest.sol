@@ -7,7 +7,7 @@ import "src/migration/CompoundV2MigrationBundler.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
 
-contract CompoundV2EthBorrowableMigrationBundlerEthereumTest is EthereumMigrationTest {
+contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest {
     using MathLib for uint256;
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;

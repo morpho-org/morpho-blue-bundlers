@@ -9,14 +9,14 @@ struct Config {
 
 /// @dev Warning: keys must be ordered alphabetically.
 struct RawConfigMarket {
-    string borrowableToken;
     string collateralToken;
     uint256 lltv;
+    string loanToken;
 }
 
 struct ConfigMarket {
     address collateralToken;
-    address borrowableToken;
+    address loanToken;
     uint256 lltv;
 }
 
@@ -76,7 +76,7 @@ library ConfigLib {
 
             markets[i] = ConfigMarket({
                 collateralToken: getAddress(config, rawMarket.collateralToken),
-                borrowableToken: getAddress(config, rawMarket.borrowableToken),
+                loanToken: getAddress(config, rawMarket.loanToken),
                 lltv: rawMarket.lltv
             });
         }

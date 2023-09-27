@@ -39,9 +39,7 @@ contract UrdBundlerLocalTest is LocalTest {
         bytes32[] memory proof;
 
         bundle.push(
-            abi.encodeCall(
-                UrdBundler.urdClaim, (address(0), account, address(borrowableToken), claimable, proof, false)
-            )
+            abi.encodeCall(UrdBundler.urdClaim, (address(0), account, address(loanToken), claimable, proof, false))
         );
 
         vm.prank(USER);
@@ -55,9 +53,7 @@ contract UrdBundlerLocalTest is LocalTest {
         bytes32[] memory proof;
 
         bundle.push(
-            abi.encodeCall(
-                UrdBundler.urdClaim, (distributor, address(0), address(borrowableToken), claimable, proof, false)
-            )
+            abi.encodeCall(UrdBundler.urdClaim, (distributor, address(0), address(loanToken), claimable, proof, false))
         );
 
         vm.prank(USER);
@@ -72,7 +68,7 @@ contract UrdBundlerLocalTest is LocalTest {
 
         bundle.push(
             abi.encodeCall(
-                UrdBundler.urdClaim, (distributor, address(bundler), address(borrowableToken), claimable, proof, false)
+                UrdBundler.urdClaim, (distributor, address(bundler), address(loanToken), claimable, proof, false)
             )
         );
 
@@ -87,16 +83,15 @@ contract UrdBundlerLocalTest is LocalTest {
 
         bytes32[] memory tree = _setupRewards(claimable, size);
 
-        borrowableToken.setBalance(distributor, claimable);
+        loanToken.setBalance(distributor, claimable);
         collateralToken.setBalance(distributor, claimable);
 
-        bytes32[] memory borrowableTokenProof = merkle.getProof(tree, 0);
+        bytes32[] memory loanTokenProof = merkle.getProof(tree, 0);
         bytes32[] memory collateralTokenProof = merkle.getProof(tree, 1);
 
         bundle.push(
             abi.encodeCall(
-                UrdBundler.urdClaim,
-                (distributor, USER, address(borrowableToken), claimable, borrowableTokenProof, false)
+                UrdBundler.urdClaim, (distributor, USER, address(loanToken), claimable, loanTokenProof, false)
             )
         );
         bundle.push(
@@ -107,21 +102,19 @@ contract UrdBundlerLocalTest is LocalTest {
         );
         bundle.push(
             abi.encodeCall(
-                UrdBundler.urdClaim,
-                (distributor, USER, address(borrowableToken), claimable, collateralTokenProof, true)
+                UrdBundler.urdClaim, (distributor, USER, address(loanToken), claimable, collateralTokenProof, true)
             )
         );
         bundle.push(
             abi.encodeCall(
-                UrdBundler.urdClaim,
-                (distributor, USER, address(collateralToken), claimable, borrowableTokenProof, true)
+                UrdBundler.urdClaim, (distributor, USER, address(collateralToken), claimable, loanTokenProof, true)
             )
         );
 
         vm.prank(USER);
         bundler.multicall(block.timestamp, bundle);
 
-        assertEq(borrowableToken.balanceOf(USER), claimable, "User's borrowable balance");
+        assertEq(loanToken.balanceOf(USER), claimable, "User's loan balance");
         assertEq(collateralToken.balanceOf(USER), claimable, "User's collateral balance");
     }
 
@@ -131,16 +124,15 @@ contract UrdBundlerLocalTest is LocalTest {
 
         bytes32[] memory tree = _setupRewards(claimable, size);
 
-        borrowableToken.setBalance(distributor, claimable);
+        loanToken.setBalance(distributor, claimable);
         collateralToken.setBalance(distributor, claimable);
 
-        bytes32[] memory borrowableTokenProof = merkle.getProof(tree, 0);
+        bytes32[] memory loanTokenProof = merkle.getProof(tree, 0);
         bytes32[] memory collateralTokenProof = merkle.getProof(tree, 1);
 
         bundle.push(
             abi.encodeCall(
-                UrdBundler.urdClaim,
-                (distributor, USER, address(borrowableToken), claimable, borrowableTokenProof, false)
+                UrdBundler.urdClaim, (distributor, USER, address(loanToken), claimable, loanTokenProof, false)
             )
         );
         bundle.push(
@@ -151,8 +143,7 @@ contract UrdBundlerLocalTest is LocalTest {
         );
         bundle.push(
             abi.encodeCall(
-                UrdBundler.urdClaim,
-                (distributor, USER, address(borrowableToken), claimable, borrowableTokenProof, false)
+                UrdBundler.urdClaim, (distributor, USER, address(loanToken), claimable, loanTokenProof, false)
             )
         );
 
@@ -164,14 +155,14 @@ contract UrdBundlerLocalTest is LocalTest {
     function _setupRewards(uint256 claimable, uint256 size) internal returns (bytes32[] memory tree) {
         tree = new bytes32[](size);
 
-        tree[0] = keccak256(bytes.concat(keccak256(abi.encode(USER, address(borrowableToken), claimable))));
+        tree[0] = keccak256(bytes.concat(keccak256(abi.encode(USER, address(loanToken), claimable))));
         tree[1] = keccak256(bytes.concat(keccak256(abi.encode(USER, address(collateralToken), claimable))));
 
         for (uint256 i = 2; i < size - 1; i += 2) {
             uint256 rank = i + 1;
 
             tree[i] = keccak256(
-                bytes.concat(keccak256(abi.encode(vm.addr(rank), address(borrowableToken), uint256(claimable / rank))))
+                bytes.concat(keccak256(abi.encode(vm.addr(rank), address(loanToken), uint256(claimable / rank))))
             );
             tree[i + 1] = keccak256(
                 bytes.concat(keccak256(abi.encode(vm.addr(rank), address(collateralToken), uint256(claimable / rank))))
