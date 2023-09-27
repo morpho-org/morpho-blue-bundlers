@@ -3,7 +3,6 @@ import {
   BaseBundler__factory,
   MorphoBundler__factory,
   UrdBundler__factory,
-  WNativeBundler__factory,
   StEthBundler__factory,
   AaveV2MigrationBundler__factory,
   AaveV3MigrationBundler__factory,
@@ -19,7 +18,7 @@ export class BundlerAction {
   private static BASE_BUNDLER_IFC = BaseBundler__factory.createInterface();
   private static MORPHO_BUNDLER_IFC = MorphoBundler__factory.createInterface();
   private static URD_BUNDLER_IFC = UrdBundler__factory.createInterface();
-  private static WNATIVE_BUNDLER_IFC = WNativeBundler__factory.createInterface();
+  private static WNATIVE_BUNDLER_IFC = BaseBundler__factory.createInterface();
   private static ST_ETH_BUNDLER_IFC = StEthBundler__factory.createInterface();
   private static AAVE_V2_BUNDLER_IFC = AaveV2MigrationBundler__factory.createInterface();
   private static AAVE_V3_BUNDLER_IFC = AaveV3MigrationBundler__factory.createInterface();
@@ -230,11 +229,11 @@ export class BundlerAction {
   /* Wrapped Native */
 
   static wrapNative(amount: BigNumberish): BundlerCall {
-    return BundlerAction.WNATIVE_BUNDLER_IFC.encodeFunctionData("wrapNative", [amount]);
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("wrapNative", [amount]);
   }
 
   static unwrapNative(amount: BigNumberish): BundlerCall {
-    return BundlerAction.WNATIVE_BUNDLER_IFC.encodeFunctionData("unwrapNative", [amount]);
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("unwrapNative", [amount]);
   }
 
   /* stETH */

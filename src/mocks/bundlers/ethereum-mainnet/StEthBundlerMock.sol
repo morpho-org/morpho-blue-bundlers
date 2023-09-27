@@ -7,5 +7,5 @@ import "../../../BaseBundler.sol";
 import "../../../StEthBundler.sol";
 
 contract StEthBundlerMock is BaseBundler, StEthBundler {
-    constructor() StEthBundler(MainnetLib.ST_ETH, MainnetLib.WST_ETH) {}
+    constructor() StEthBundler(MainnetLib.ST_ETH, MainnetLib.WST_ETH) BaseBundler(MainnetLib.WETH) {}
 }

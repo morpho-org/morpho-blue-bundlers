@@ -20,7 +20,7 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
 
     /* CONSTRUCTOR */
 
-    constructor(address morpho, address aaveV3Optimizer) MigrationBundler(morpho) {
+    constructor(address morpho, address wNative, address aaveV3Optimizer) MigrationBundler(morpho, wNative) {
         AAVE_V3_OPTIMIZER = IAaveV3Optimizer(aaveV3Optimizer);
     }
 

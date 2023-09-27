@@ -27,7 +27,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.label(AAVE_V3_POOL, "Aave V3 Pool");
 
-        bundler = new AaveV3MigrationBundler(address(morpho), address(AAVE_V3_POOL));
+        bundler = new AaveV3MigrationBundler(address(morpho), address(0), address(AAVE_V3_POOL));
         vm.label(address(bundler), "Aave V3 Migration Bundler");
     }
 

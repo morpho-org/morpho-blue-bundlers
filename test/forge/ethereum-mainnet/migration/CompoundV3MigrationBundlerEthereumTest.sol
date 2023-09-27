@@ -33,7 +33,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.label(address(bundler), "Compound V3 Migration Bundler");
         cToken = _getCTokenV3(marketParams.loanToken);
 
-        bundler = new CompoundV3MigrationBundler(address(morpho));
+        bundler = new CompoundV3MigrationBundler(address(morpho), address(0));
     }
 
     function testMigrateBorrowerWithCompoundAllowance(uint256 privateKey) public {

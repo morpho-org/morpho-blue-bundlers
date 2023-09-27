@@ -19,7 +19,7 @@ contract AaveV3MigrationBundler is MigrationBundler {
 
     /* CONSTRUCTOR */
 
-    constructor(address morpho, address aaveV3Pool) MigrationBundler(morpho) {
+    constructor(address morpho, address wNative, address aaveV3Pool) MigrationBundler(morpho, wNative) {
         AAVE_V3_POOL = IPool(aaveV3Pool);
     }
 

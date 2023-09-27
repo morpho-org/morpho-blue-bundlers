@@ -16,7 +16,7 @@ contract BaseBundlerPermit2ActionsEthereumTest is EthereumTest {
     function setUp() public override {
         super.setUp();
 
-        bundler = new BaseBundlerMock();
+        bundler = new BaseBundlerMock(address(0));
     }
 
     function testApprove2(uint256 seed, uint256 privateKey, uint256 deadline, uint256 amount) public {

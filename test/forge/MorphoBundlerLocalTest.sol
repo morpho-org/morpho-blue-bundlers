@@ -22,7 +22,7 @@ contract MorphoBundlerLocalTest is LocalTest {
     function setUp() public override {
         super.setUp();
 
-        bundler = new MorphoBundlerMock(address(morpho));
+        bundler = new MorphoBundlerMock(address(morpho), address(0));
 
         vm.startPrank(USER);
         loanToken.approve(address(morpho), type(uint256).max);

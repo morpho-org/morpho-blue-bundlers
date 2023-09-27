@@ -13,5 +13,5 @@ import {AaveV2MigrationBundler} from "../../migration/AaveV2MigrationBundler.sol
 contract AaveV2EthereumMigrationBundler is EthereumStEthBundler, AaveV2MigrationBundler {
     /* CONSTRUCTOR */
 
-    constructor(address morpho) AaveV2MigrationBundler(morpho, MainnetLib.AAVE_V2_POOL) {}
+    constructor(address morpho) AaveV2MigrationBundler(morpho, MainnetLib.WETH, MainnetLib.AAVE_V2_POOL) {}
 }

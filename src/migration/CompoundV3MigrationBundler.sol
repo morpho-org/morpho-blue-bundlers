@@ -15,7 +15,7 @@ import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 contract CompoundV3MigrationBundler is MigrationBundler {
     /* CONSTRUCTOR */
 
-    constructor(address morpho) MigrationBundler(morpho) {}
+    constructor(address morpho, address wNative) MigrationBundler(morpho, wNative) {}
 
     /* ACTIONS */
 

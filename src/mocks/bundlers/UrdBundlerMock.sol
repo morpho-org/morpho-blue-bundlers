@@ -2,5 +2,8 @@
 pragma solidity ^0.8.0;
 
 import "../../UrdBundler.sol";
+import "../../BaseBundler.sol";
 
-contract UrdBundlerMock is UrdBundler {}
+contract UrdBundlerMock is BaseBundler, UrdBundler {
+    constructor(address wNative) BaseBundler(wNative) {}
+}

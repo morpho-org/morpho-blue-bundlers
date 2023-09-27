@@ -16,7 +16,7 @@ contract BaseBundlerERC4626ActionsLocalTest is LocalTest {
         super.setUp();
 
         vault = new ERC4626Mock(address(loanToken), "LoanToken Vault", "BV");
-        bundler = new BaseBundlerMock();
+        bundler = new BaseBundlerMock(address(0));
     }
 
     function testErc4626MintZeroAdressVault(uint256 shares) public {

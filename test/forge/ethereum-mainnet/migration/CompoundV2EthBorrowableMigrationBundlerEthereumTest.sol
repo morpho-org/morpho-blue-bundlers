@@ -55,7 +55,7 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
         callbackBundle.push(_morphoBorrowCall(borrowed, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1));
-        callbackBundle.push(abi.encodeCall(WNativeBundler.unwrapNative, (borrowed)));
+        callbackBundle.push(abi.encodeCall(BaseBundler.unwrapNative, (borrowed)));
         callbackBundle.push(_compoundV2RepayCall(C_ETH_V2, borrowed));
         callbackBundle.push(_erc20Approve2Call(privateKey, C_DAI_V2, uint160(cTokenBalance), address(bundler), 0));
         callbackBundle.push(_erc20TransferFrom2Call(C_DAI_V2, cTokenBalance));
@@ -88,7 +88,7 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         bundle.push(_erc20Approve2Call(privateKey, C_ETH_V2, uint160(cTokenBalance), address(bundler), 0));
         bundle.push(_erc20TransferFrom2Call(C_ETH_V2, cTokenBalance));
         bundle.push(_compoundV2RedeemCall(C_ETH_V2, cTokenBalance));
-        bundle.push(abi.encodeCall(WNativeBundler.wrapNative, (supplied)));
+        bundle.push(abi.encodeCall(BaseBundler.wrapNative, (supplied)));
         bundle.push(_morphoSupplyCall(supplied, user, hex""));
 
         vm.prank(user);
@@ -116,7 +116,7 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         bundle.push(_erc20Approve2Call(privateKey, C_ETH_V2, uint160(cTokenBalance), address(bundler), 0));
         bundle.push(_erc20TransferFrom2Call(C_ETH_V2, cTokenBalance));
         bundle.push(_compoundV2RedeemCall(C_ETH_V2, cTokenBalance));
-        bundle.push(abi.encodeCall(WNativeBundler.wrapNative, (supplied)));
+        bundle.push(abi.encodeCall(BaseBundler.wrapNative, (supplied)));
         bundle.push(_erc4626DepositCall(address(suppliersVault), supplied, user));
 
         vm.prank(user);

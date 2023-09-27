@@ -28,7 +28,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.label(AAVE_V3_OPTIMIZER, "Aave V3 Optimizer");
 
-        bundler = new AaveV3OptimizerMigrationBundler(address(morpho), address(AAVE_V3_OPTIMIZER));
+        bundler = new AaveV3OptimizerMigrationBundler(address(morpho), address(0), address(AAVE_V3_OPTIMIZER));
         vm.label(address(bundler), "Aave V3 Optimizer Migration Bundler");
     }
 

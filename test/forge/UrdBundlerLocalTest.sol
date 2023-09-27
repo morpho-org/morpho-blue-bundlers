@@ -24,7 +24,7 @@ contract UrdBundlerLocalTest is LocalTest {
     function setUp() public override {
         super.setUp();
 
-        bundler = new UrdBundlerMock();
+        bundler = new UrdBundlerMock(address(0));
 
         urdFactory = new UrdFactory();
         merkle = new Merkle();
