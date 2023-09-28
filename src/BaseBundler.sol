@@ -37,6 +37,13 @@ abstract contract BaseBundler is IMulticall {
         delete _initiator;
     }
 
+    /// @dev Checks that the contract is in an initiated execution context.
+    modifier onlyInitiated() {
+        require(_initiator != address(0), ErrorsLib.UNINITIATED);
+
+        _;
+    }
+
     /* PUBLIC */
 
     /// @notice Executes a series of delegate calls to the contract itself.
@@ -98,11 +105,6 @@ abstract contract BaseBundler is IMulticall {
             // No need to check that `address(this)` has code in case of success.
             if (!success) _revert(returnData);
         }
-    }
-
-    /// @dev Checks that the contract is in an initiated execution context.
-    function _checkInitiated() internal view {
-        require(_initiator != address(0), ErrorsLib.UNINITIATED);
     }
 
     /// @dev Bubbles up the revert reason / custom error encoded in `returnData`.

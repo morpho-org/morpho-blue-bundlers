@@ -33,22 +33,22 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /* CALLBACKS */
 
-    function onMorphoSupply(uint256, bytes calldata data) external {
+    function onMorphoSupply(uint256, bytes calldata data) external onlyInitiated {
         // Don't need to approve Morpho to pull tokens because it should already be approved max.
         _callback(data);
     }
 
-    function onMorphoSupplyCollateral(uint256, bytes calldata data) external {
+    function onMorphoSupplyCollateral(uint256, bytes calldata data) external onlyInitiated {
         // Don't need to approve Morpho to pull tokens because it should already be approved max.
         _callback(data);
     }
 
-    function onMorphoRepay(uint256, bytes calldata data) external {
+    function onMorphoRepay(uint256, bytes calldata data) external onlyInitiated {
         // Don't need to approve Morpho to pull tokens because it should already be approved max.
         _callback(data);
     }
 
-    function onMorphoFlashLoan(uint256, bytes calldata data) external {
+    function onMorphoFlashLoan(uint256, bytes calldata data) external onlyInitiated {
         // Don't need to approve Morpho to pull tokens because it should already be approved max.
         _callback(data);
     }
@@ -185,8 +185,6 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /// @dev Triggers `_multicall` logic during a callback.
     function _callback(bytes calldata data) internal {
-        _checkInitiated();
-
         _multicall(abi.decode(data, (bytes[])));
     }
 
