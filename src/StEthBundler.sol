@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import {IWStEth} from "./interfaces/IWStEth.sol";
+import {IWstEth} from "./interfaces/IWstEth.sol";
 import {IStEth} from "./interfaces/IStEth.sol";
 
 import {Math} from "@morpho-utils/math/Math.sol";
@@ -38,7 +38,7 @@ abstract contract StEthBundler is BaseBundler {
     /* ACTIONS */
 
     /// @notice Stakes the given `amount` of ETH via Lido, using the `referral` id.
-    /// @dev Use `BaseBundler.transfer` to transfer the stEth to some `receiver`.
+    /// @dev Use `BaseBundler.erc20Transfer` to transfer the stEth to some `receiver`.
     /// @dev Pass in `type(uint256).max` to stake all.
     function stakeEth(uint256 amount, address referral) external payable {
         amount = Math.min(amount, address(this).balance);
@@ -48,24 +48,24 @@ abstract contract StEthBundler is BaseBundler {
     }
 
     /// @notice Wraps the given `amount` of stETH to wstETH.
-    /// @dev Use `BaseBundler.transfer` to transfer the wrapped stEth to some `receiver`.
+    /// @dev Use `BaseBundler.erc20Transfer` to transfer the wrapped stEth to some `receiver`.
     /// @dev Pass in `type(uint256).max` to wrap all.
     function wrapStEth(uint256 amount) external payable {
         amount = Math.min(amount, ERC20(ST_ETH).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        IWStEth(WST_ETH).wrap(amount);
+        IWstEth(WST_ETH).wrap(amount);
     }
 
     /// @notice Unwraps the given `amount` of wstETH to stETH.
-    /// @dev Use `BaseBundler.transfer` to transfer the unwrapped stEth to some `receiver`.
+    /// @dev Use `BaseBundler.erc20Transfer` to transfer the unwrapped stEth to some `receiver`.
     /// @dev Pass in `type(uint256).max` to unwrap all.
     function unwrapStEth(uint256 amount) external payable {
         amount = Math.min(amount, ERC20(WST_ETH).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        IWStEth(WST_ETH).unwrap(amount);
+        IWstEth(WST_ETH).unwrap(amount);
     }
 }

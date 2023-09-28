@@ -19,11 +19,11 @@ contract BaseBundlerLocalTest is LocalTest {
     function testTransfer(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(abi.encodeCall(BaseBundler.transfer, (address(loanToken), RECEIVER, amount)));
+        bundle.push(abi.encodeCall(BaseBundler.erc20Transfer, (address(loanToken), RECEIVER, amount)));
 
         loanToken.setBalance(address(bundler), amount);
 
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         assertEq(loanToken.balanceOf(address(bundler)), 0, "loan.balanceOf(bundler)");
         assertEq(loanToken.balanceOf(RECEIVER), amount, "loan.balanceOf(RECEIVER)");
@@ -32,26 +32,26 @@ contract BaseBundlerLocalTest is LocalTest {
     function testTranferZeroAddress(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(abi.encodeCall(BaseBundler.transfer, (address(loanToken), address(0), amount)));
+        bundle.push(abi.encodeCall(BaseBundler.erc20Transfer, (address(loanToken), address(0), amount)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function testTranferBundlerAddress(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(abi.encodeCall(BaseBundler.transfer, (address(loanToken), address(bundler), amount)));
+        bundle.push(abi.encodeCall(BaseBundler.erc20Transfer, (address(loanToken), address(bundler), amount)));
 
         vm.expectRevert(bytes(ErrorsLib.BUNDLER_ADDRESS));
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function testTranferZeroAmount() public {
-        bundle.push(abi.encodeCall(BaseBundler.transfer, (address(loanToken), RECEIVER, 0)));
+        bundle.push(abi.encodeCall(BaseBundler.erc20Transfer, (address(loanToken), RECEIVER, 0)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function testTransferNativeZeroAddress(uint256 amount) public {
@@ -82,13 +82,13 @@ contract BaseBundlerLocalTest is LocalTest {
     function testTransferFrom(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(loanToken), amount)));
+        bundle.push(abi.encodeCall(BaseBundler.erc20TransferFrom, (address(loanToken), amount)));
 
         loanToken.setBalance(USER, amount);
 
         vm.startPrank(USER);
         loanToken.approve(address(bundler), type(uint256).max);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
         vm.stopPrank();
 
         assertEq(loanToken.balanceOf(address(bundler)), amount, "loan.balanceOf(bundler)");
@@ -98,18 +98,18 @@ contract BaseBundlerLocalTest is LocalTest {
     function testTranferFromZeroAddress(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(0), amount)));
+        bundle.push(abi.encodeCall(BaseBundler.erc20TransferFrom, (address(0), amount)));
 
         vm.prank(USER);
         vm.expectRevert();
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function testTranferFromZeroAmount() public {
-        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(loanToken), 0)));
+        bundle.push(abi.encodeCall(BaseBundler.erc20TransferFrom, (address(loanToken), 0)));
 
         vm.prank(USER);
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 }

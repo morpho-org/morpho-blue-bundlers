@@ -9,6 +9,7 @@ abstract contract ConfiguredEthereum is Configured {
     address internal ST_ETH;
     address internal WST_ETH;
     address internal CB_ETH;
+    address internal S_DAI;
     address[] internal allEthereumMainnetAssets;
 
     function _network() internal view virtual override returns (string memory) {
@@ -21,8 +22,9 @@ abstract contract ConfiguredEthereum is Configured {
         ST_ETH = CONFIG.getAddress("stETH");
         WST_ETH = CONFIG.getAddress("wstETH");
         CB_ETH = CONFIG.getAddress("cbETH");
+        S_DAI = CONFIG.getAddress("sDai");
 
-        allEthereumMainnetAssets = [ST_ETH, WST_ETH, CB_ETH];
+        allEthereumMainnetAssets = [ST_ETH, WST_ETH, CB_ETH, S_DAI];
 
         for (uint256 i; i < allEthereumMainnetAssets.length; ++i) {
             allAssets.push(allEthereumMainnetAssets[i]);

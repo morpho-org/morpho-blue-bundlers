@@ -31,7 +31,7 @@ contract Permit2BundlerEthereumTest is EthereumTest {
         bundle.push(_approve2Call(marketParams, privateKey, amount, deadline, true));
 
         vm.prank(user);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         (uint160 permit2Allowance,,) = Permit2Lib.PERMIT2.allowance(user, marketParams.loanToken, address(bundler));
 
@@ -52,7 +52,7 @@ contract Permit2BundlerEthereumTest is EthereumTest {
 
         vm.prank(user);
         vm.expectRevert(SignatureVerification.InvalidSigner.selector);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function testApprove2Zero(uint256 seed, uint256 deadline) public {
@@ -67,7 +67,7 @@ contract Permit2BundlerEthereumTest is EthereumTest {
         );
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function testTransferFrom2ZeroAmount() public {

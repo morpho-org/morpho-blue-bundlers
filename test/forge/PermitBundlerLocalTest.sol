@@ -30,7 +30,7 @@ contract PermitBundlerLocalTest is LocalTest {
         bundle.push(_permitCall(permitToken, privateKey, amount, deadline, true));
 
         vm.prank(user);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         assertEq(permitToken.allowance(user, address(bundler)), amount, "allowance(user, bundler)");
     }
@@ -47,7 +47,7 @@ contract PermitBundlerLocalTest is LocalTest {
 
         vm.prank(user);
         vm.expectRevert("ERC20Permit: invalid signature");
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function testTransferFrom(uint256 amount, uint256 privateKey, uint256 deadline) public {
@@ -58,12 +58,12 @@ contract PermitBundlerLocalTest is LocalTest {
         address user = vm.addr(privateKey);
 
         bundle.push(_permitCall(permitToken, privateKey, amount, deadline, false));
-        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(permitToken), amount)));
+        bundle.push(abi.encodeCall(BaseBundler.erc20TransferFrom, (address(permitToken), amount)));
 
         permitToken.setBalance(user, amount);
 
         vm.prank(user);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         assertEq(permitToken.balanceOf(address(bundler)), amount, "balanceOf(bundler)");
         assertEq(permitToken.balanceOf(user), 0, "balanceOf(user)");

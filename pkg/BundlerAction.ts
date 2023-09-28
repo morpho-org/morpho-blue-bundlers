@@ -13,6 +13,7 @@ import {
   AaveV3OptimizerMigrationBundler__factory,
   CompoundV2MigrationBundler__factory,
   CompoundV3MigrationBundler__factory,
+  EthereumPermitBundler__factory,
 } from "types";
 import { AuthorizationStruct, MarketParamsStruct } from "types/src/MorphoBundler";
 
@@ -27,6 +28,8 @@ export class BundlerAction {
   private static URD_BUNDLER_IFC = UrdBundler__factory.createInterface();
   private static WNATIVE_BUNDLER_IFC = WNativeBundler__factory.createInterface();
   private static ST_ETH_BUNDLER_IFC = StEthBundler__factory.createInterface();
+  private static ETHEREUM_PERMIT_BUNDLER_IFC = EthereumPermitBundler__factory.createInterface();
+
   private static AAVE_V2_BUNDLER_IFC = AaveV2MigrationBundler__factory.createInterface();
   private static AAVE_V3_BUNDLER_IFC = AaveV3MigrationBundler__factory.createInterface();
   private static AAVE_V3_OPTIMIZER_BUNDLER_IFC = AaveV3OptimizerMigrationBundler__factory.createInterface();
@@ -35,16 +38,16 @@ export class BundlerAction {
 
   /* ERC20 */
 
-  static transfer(asset: string, recipient: string, amount: BigNumberish): BundlerCall {
-    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transfer", [asset, recipient, amount]);
+  static nativeTransfer(recipient: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("nativeTransfer", [recipient, amount]);
   }
 
-  static transferNative(recipient: string, amount: BigNumberish): BundlerCall {
-    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transferNative", [recipient, amount]);
+  static erc20Transfer(asset: string, recipient: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("erc20Transfer", [asset, recipient, amount]);
   }
 
-  static transferFrom(asset: string, amount: BigNumberish): BundlerCall {
-    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transferFrom", [asset, amount]);
+  static erc20TransferFrom(asset: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("erc20TransferFrom", [asset, amount]);
   }
 
   /* Permit */
@@ -60,6 +63,24 @@ export class BundlerAction {
       asset,
       amount,
       deadline,
+      signature.v,
+      signature.r,
+      signature.s,
+      skipRevert,
+    ]);
+  }
+
+  static permitDai(
+    nonce: BigNumberish,
+    expiry: BigNumberish,
+    allowed: boolean,
+    signature: Signature,
+    skipRevert: boolean,
+  ): BundlerCall {
+    return BundlerAction.ETHEREUM_PERMIT_BUNDLER_IFC.encodeFunctionData("permitDai", [
+      nonce,
+      expiry,
+      allowed,
       signature.v,
       signature.r,
       signature.s,
