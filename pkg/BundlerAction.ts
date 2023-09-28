@@ -35,8 +35,8 @@ export class BundlerAction {
 
   /* ERC20 */
 
-  static transfer(recipient: string, amount: BigNumberish): BundlerCall {
-    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transfer", [recipient, amount]);
+  static nativeTransfer(recipient: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("nativeTransfer", [recipient, amount]);
   }
 
   static erc20Transfer(asset: string, recipient: string, amount: BigNumberish): BundlerCall {
