@@ -7,7 +7,7 @@ import {PermitBundler} from "../PermitBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
 import {ERC4626Bundler} from "../ERC4626Bundler.sol";
 import {WNativeBundler} from "../WNativeBundler.sol";
-import {EthereumStEthBundler} from "./EthereumStEthBundler.sol";
+import {EthereumWstEthBundler} from "./EthereumWstEthBundler.sol";
 import {UrdBundler} from "../UrdBundler.sol";
 import {MorphoBundler} from "../MorphoBundler.sol";
 
@@ -20,7 +20,7 @@ contract EthereumBundler is
     Permit2Bundler,
     ERC4626Bundler,
     WNativeBundler,
-    EthereumStEthBundler,
+    EthereumWstEthBundler,
     UrdBundler,
     MorphoBundler
 {

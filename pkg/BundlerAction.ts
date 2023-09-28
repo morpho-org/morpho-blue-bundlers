@@ -7,7 +7,7 @@ import {
   MorphoBundler__factory,
   UrdBundler__factory,
   WNativeBundler__factory,
-  StEthBundler__factory,
+  WstEthBundler__factory,
   AaveV2MigrationBundler__factory,
   AaveV3MigrationBundler__factory,
   AaveV3OptimizerMigrationBundler__factory,
@@ -26,7 +26,7 @@ export class BundlerAction {
   private static MORPHO_BUNDLER_IFC = MorphoBundler__factory.createInterface();
   private static URD_BUNDLER_IFC = UrdBundler__factory.createInterface();
   private static WNATIVE_BUNDLER_IFC = WNativeBundler__factory.createInterface();
-  private static ST_ETH_BUNDLER_IFC = StEthBundler__factory.createInterface();
+  private static ST_ETH_BUNDLER_IFC = WstEthBundler__factory.createInterface();
   private static AAVE_V2_BUNDLER_IFC = AaveV2MigrationBundler__factory.createInterface();
   private static AAVE_V3_BUNDLER_IFC = AaveV3MigrationBundler__factory.createInterface();
   private static AAVE_V3_OPTIMIZER_BUNDLER_IFC = AaveV3OptimizerMigrationBundler__factory.createInterface();

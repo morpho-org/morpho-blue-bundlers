@@ -10,11 +10,11 @@ import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
 
-/// @title StEthBundler
+/// @title WstEthBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to bundle multiple interactions with stETH together.
-abstract contract StEthBundler is BaseBundler {
+abstract contract WstEthBundler is BaseBundler {
     using SafeTransferLib for ERC20;
 
     /* IMMUTABLES */
@@ -37,14 +37,17 @@ abstract contract StEthBundler is BaseBundler {
 
     /* ACTIONS */
 
-    /// @notice Stakes the given `amount` of ETH via Lido, using the `referral` id.
+    /// @notice Stakes the given `amount` of ETH on Lido via wstETH.
     /// @dev Use `BaseBundler.transfer` to transfer the stEth to some `receiver`.
     /// @dev Pass in `type(uint256).max` to stake all.
-    function stakeEth(uint256 amount, address referral) external payable {
+    function stakeEth(uint256 amount) external payable {
         amount = Math.min(amount, address(this).balance);
 
         // Lido will revert with ZERO_DEPOSIT in case amount == 0.
-        IStEth(ST_ETH).submit{value: amount}(referral);
+        (bool success, bytes memory returnData) = WST_ETH.call{value: amount}("");
+
+        // No need to check that `WST_ETH` has code in case of success.
+        if (!success) _revert(returnData);
     }
 
     /// @notice Wraps the given `amount` of stETH to wstETH.
