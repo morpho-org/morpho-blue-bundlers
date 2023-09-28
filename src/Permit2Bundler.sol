@@ -30,10 +30,10 @@ abstract contract Permit2Bundler is BaseBundler {
     {
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        (,, uint48 nonce) = Permit2Lib.PERMIT2.allowance(_initiator, asset, address(this));
+        (,, uint48 nonce) = Permit2Lib.PERMIT2.allowance(initiator, asset, address(this));
 
         try Permit2Lib.PERMIT2.permit(
-            _initiator,
+            initiator,
             IAllowanceTransfer.PermitSingle({
                 details: IAllowanceTransfer.PermitDetails({
                     token: asset,
@@ -57,6 +57,6 @@ abstract contract Permit2Bundler is BaseBundler {
     function transferFrom2(address asset, uint256 amount) external payable {
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        Permit2Lib.PERMIT2.transferFrom(_initiator, address(this), amount.toUint160(), asset);
+        Permit2Lib.PERMIT2.transferFrom(initiator, address(this), amount.toUint160(), asset);
     }
 }
