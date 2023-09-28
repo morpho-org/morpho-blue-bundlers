@@ -79,11 +79,8 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         deal(USDT, user, amountUsdt + 1);
 
-        console2.log(ERC20(USDT).allowance(user, AAVE_V3_OPTIMIZER));
-
         vm.startPrank(user);
         ERC20(USDT).safeApprove(AAVE_V3_OPTIMIZER, amountUsdt + 1);
-        console2.log(ERC20(USDT).allowance(user, AAVE_V3_OPTIMIZER));
         IAaveV3Optimizer(AAVE_V3_OPTIMIZER).supplyCollateral(USDT, amountUsdt + 1, user);
         IAaveV3Optimizer(AAVE_V3_OPTIMIZER).borrow(marketParams.loanToken, borrowed, user, user, MAX_ITERATIONS);
         vm.stopPrank();
