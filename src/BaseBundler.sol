@@ -5,9 +5,6 @@ import {Math} from "@morpho-utils/math/Math.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
 
-import {SelfMulticall} from "./SelfMulticall.sol";
-import {BaseCallbackReceiver} from "./BaseCallbackReceiver.sol";
-
 /// @title BaseBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
@@ -18,10 +15,36 @@ import {BaseCallbackReceiver} from "./BaseCallbackReceiver.sol";
 /// delegate called by the `multicall` function (which is payable, and thus might pass a non-null ETH value). It is
 /// recommended not to rely on `msg.value` as the same value can be reused for multiple calls.
 /// @dev Assumes that any tokens left on the contract can be seized by anyone.
-abstract contract BaseBundler is SelfMulticall, BaseCallbackReceiver {
+abstract contract BaseBundler {
     using SafeTransferLib for ERC20;
 
-    /* ACTIONS */
+    /* STORAGE */
+
+    /// @dev Keeps track of the bundler's latest batch initiator. Also prevents interacting with the bundler outside of
+    /// an initiated execution context.
+    address internal _initiator;
+
+    /* MODIFIERS */
+
+    /// @dev Sets the contract's `_initiator` to the caller of the function, and resets it after the function returns.
+    modifier lockInitiator() {
+        _initiator = msg.sender;
+
+        _;
+
+        delete _initiator;
+    }
+
+    /* PUBLIC */
+
+    /// @notice Executes a series of delegate calls to the contract itself.
+    /// @dev It also intitiates `_initiator`.
+    /// @dev All functions delegatecalled must be `payable` if `msg.value` is non-zero.
+    function multicall(bytes[] memory data) external payable lockInitiator {
+        _multicall(data);
+    }
+
+    /* TRANSFER ACTIONS */
 
     /// @notice Transfers the minimum between the given `amount` and the bundler's balance of `asset` from the bundler
     /// to `recipient`.
@@ -60,5 +83,34 @@ abstract contract BaseBundler is SelfMulticall, BaseCallbackReceiver {
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
         ERC20(asset).safeTransferFrom(_initiator, address(this), amount);
+    }
+
+    /* INTERNAL */
+
+    /// @dev Executes a series of delegate calls to the contract itself.
+    /// @dev All functions delegatecalled must be `payable` if `msg.value` is non-zero.
+    function _multicall(bytes[] memory data) internal {
+        for (uint256 i; i < data.length; ++i) {
+            (bool success, bytes memory returnData) = address(this).delegatecall(data[i]);
+
+            // No need to check that `address(this)` has code in case of success.
+            if (!success) _revert(returnData);
+        }
+    }
+
+    /// @dev Checks that the contract is in an initiated execution context.
+    function _checkInitiated() internal view {
+        require(_initiator != address(0), ErrorsLib.UNINITIATED);
+    }
+
+    /// @dev Bubbles up the revert reason / custom error encoded in `returnData`.
+    /// @dev Assumes `returnData` is the return data of any kind of failing CALL to a contract.
+    function _revert(bytes memory returnData) internal pure {
+        uint256 length = returnData.length;
+        require(length > 0, ErrorsLib.CALL_FAILED);
+
+        assembly ("memory-safe") {
+            revert(add(32, returnData), length)
+        }
     }
 }
