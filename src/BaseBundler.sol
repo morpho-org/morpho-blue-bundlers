@@ -40,7 +40,7 @@ abstract contract BaseBundler is IMulticall {
     /* PUBLIC */
 
     /// @notice Executes a series of delegate calls to the contract itself.
-    /// @dev It also intitiates `_initiator`.
+    /// @dev Locks the initiator so that the sender can uniquely be identified in callbacks.
     /// @dev All functions delegatecalled must be `payable` if `msg.value` is non-zero.
     function multicall(bytes[] memory data) external payable lockInitiator {
         _multicall(data);
