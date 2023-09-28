@@ -37,7 +37,7 @@ abstract contract WstEthBundler is BaseBundler {
 
     /* ACTIONS */
 
-    /// @notice Stakes the given `amount` of ETH on Lido via wstETH.
+    /// @notice Stakes the given `amount` of ETH on Lido and automatically wraps it (receiving wstETH).
     /// @dev Use `BaseBundler.transfer` to transfer the stEth to some `receiver`.
     /// @dev Pass in `type(uint256).max` to stake all.
     function stakeEth(uint256 amount) external payable {
