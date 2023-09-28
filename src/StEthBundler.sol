@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import {IWStEth} from "./interfaces/IWStEth.sol";
+import {IWstEth} from "./interfaces/IWstEth.sol";
 import {IStEth} from "./interfaces/IStEth.sol";
 
 import {Math} from "@morpho-utils/math/Math.sol";
@@ -55,7 +55,7 @@ abstract contract StEthBundler is BaseBundler {
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        IWStEth(WST_ETH).wrap(amount);
+        IWstEth(WST_ETH).wrap(amount);
     }
 
     /// @notice Unwraps the given `amount` of wstETH to stETH.
@@ -66,6 +66,6 @@ abstract contract StEthBundler is BaseBundler {
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        IWStEth(WST_ETH).unwrap(amount);
+        IWstEth(WST_ETH).unwrap(amount);
     }
 }

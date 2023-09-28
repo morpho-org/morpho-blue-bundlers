@@ -5,17 +5,17 @@ import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
 
 import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
 
-import "src/mocks/bundlers/ethereum-mainnet/StEthBundlerMock.sol";
+import "src/mocks/bundlers/ethereum-mainnet/EthereumStEthBundlerMock.sol";
 
 import "./helpers/EthereumTest.sol";
 
-contract StEthBundlerEthereumTest is EthereumTest {
-    StEthBundlerMock private bundler;
+contract EthereumStEthBundlerEthereumTest is EthereumTest {
+    EthereumStEthBundlerMock private bundler;
 
     function setUp() public override {
         super.setUp();
 
-        bundler = new StEthBundlerMock();
+        bundler = new EthereumStEthBundlerMock();
     }
 
     function testStakeEth(uint256 amount) public {
@@ -100,7 +100,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
         vm.prank(user);
         bundler.multicall(block.timestamp, bundle);
 
-        uint256 expectedUnwrappedAmount = IWStEth(WST_ETH).getStETHByWstETH(amount);
+        uint256 expectedUnwrappedAmount = IWstEth(WST_ETH).getStETHByWstETH(amount);
 
         assertEq(ERC20(WST_ETH).balanceOf(address(bundler)), 0, "wstEth.balanceOf(bundler)");
         assertEq(ERC20(WST_ETH).balanceOf(user), 0, "wstEth.balanceOf(user)");
