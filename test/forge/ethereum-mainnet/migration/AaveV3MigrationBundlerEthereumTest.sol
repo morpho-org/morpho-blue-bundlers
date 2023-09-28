@@ -108,8 +108,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         uint256 amountUsdt = collateralSupplied / 1e10;
 
-        ERC4626Mock vaultUSDT = new ERC4626Mock(USDT, "USDT Vault", "V");
-        _initMarket(address(vaultUSDT), WETH);
+        _initMarket(USDT, WETH);
         _provideLiquidity(borrowed);
 
         oracle.setPrice(1e46);
@@ -127,8 +126,6 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.prank(user);
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
 
-        uint256 erc4626Amount = vaultUSDT.previewDeposit(amountUsdt);
-
         callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
         callbackBundle.push(_morphoBorrowCall(borrowed, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1));
@@ -136,14 +133,13 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackBundle.push(_erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0));
         callbackBundle.push(_erc20TransferFrom2Call(aToken, aTokenBalance));
         callbackBundle.push(_aaveV3WithdrawCall(USDT, amountUsdt, address(bundler)));
-        callbackBundle.push(_erc4626DepositCall(address(vaultUSDT), amountUsdt, address(bundler)));
 
-        bundle.push(_morphoSupplyCollateralCall(erc4626Amount, user, abi.encode(callbackBundle)));
+        bundle.push(_morphoSupplyCollateralCall(amountUsdt, user, abi.encode(callbackBundle)));
 
         vm.prank(user);
         bundler.multicall(SIGNATURE_DEADLINE, bundle);
 
-        _assertBorrowerPosition(erc4626Amount, borrowed, user, address(bundler));
+        _assertBorrowerPosition(amountUsdt, borrowed, user, address(bundler));
     }
 
     function testMigrateSupplierWithATokenPermit(uint256 privateKey, uint256 supplied) public {
