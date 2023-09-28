@@ -29,7 +29,7 @@ contract EthereumPermitBundlerEthereumTest is EthereumTest {
         bundle.push(_permitDaiCall(privateKey, expiry, true, true));
 
         vm.prank(user);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         assertEq(ERC20(DAI).allowance(user, address(bundler)), type(uint256).max, "allowance(user, bundler)");
     }
@@ -45,7 +45,7 @@ contract EthereumPermitBundlerEthereumTest is EthereumTest {
 
         vm.prank(user);
         vm.expectRevert("Dai/invalid-nonce");
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function _permitDaiCall(uint256 privateKey, uint256 expiry, bool allowed, bool skipRevert)
