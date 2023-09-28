@@ -50,9 +50,6 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         ICompoundV3(cToken).withdraw(marketParams.loanToken, borrowed);
         vm.stopPrank();
 
-        bytes[] memory data = new bytes[](1);
-        bytes[] memory callbackData = new bytes[](7);
-
         callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
         callbackBundle.push(_morphoBorrowCall(borrowed, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1));
@@ -65,7 +62,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         bundle.push(_morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackData)));
 
         vm.prank(user);
-        bundler.multicall(SIGNATURE_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, bundle);
 
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
     }
