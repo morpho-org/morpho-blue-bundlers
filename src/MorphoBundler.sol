@@ -183,7 +183,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /* INTERNAL */
 
-    /// @dev Triggers `multicall` logic during a callback.
+    /// @dev Triggers `_multicall` logic during a callback.
     function _callback(bytes calldata data) internal {
         _checkInitiated();
 
