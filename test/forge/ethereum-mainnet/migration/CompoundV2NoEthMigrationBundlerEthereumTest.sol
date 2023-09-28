@@ -28,6 +28,13 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
         enteredMarkets.push(C_DAI_V2);
     }
 
+    function testCompoundV2RedeemZeroAmount() public {
+        bundle.push(_compoundV2RedeemCall(C_USDC_V2, 0));
+
+        vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
+        bundler.multicall(block.timestamp, bundle);
+    }
+
     function testMigrateBorrowerWithPermit2(uint256 privateKey) public {
         uint256 collateral = 10 ether;
         uint256 borrowed = 1e6;

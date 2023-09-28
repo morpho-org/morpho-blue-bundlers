@@ -31,6 +31,13 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.label(address(bundler), "Aave V3 Migration Bundler");
     }
 
+    function testAaveV3RepayZeroAmount() public {
+        bundle.push(_aaveV3RepayCall(marketParams.loanToken, 0, 2));
+
+        vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
+        bundler.multicall(block.timestamp, bundle);
+    }
+
     function testMigrateBorrowerWithATokenPermit(uint256 privateKey) public {
         address user;
         (privateKey, user) = _getUserAndKey(privateKey);
