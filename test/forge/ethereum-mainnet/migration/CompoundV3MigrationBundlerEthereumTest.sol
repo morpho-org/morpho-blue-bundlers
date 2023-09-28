@@ -50,20 +50,18 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         ICompoundV3(cToken).withdraw(marketParams.loanToken, borrowed);
         vm.stopPrank();
 
-        bytes[] memory data = new bytes[](1);
-        bytes[] memory callbackData = new bytes[](7);
+        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
+        callbackBundle.push(_morphoBorrowCall(borrowed, address(bundler)));
+        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1));
+        callbackBundle.push(_compoundV3RepayCall(cToken, marketParams.loanToken, borrowed));
+        callbackBundle.push(_compoundV3AllowCall(privateKey, cToken, address(bundler), true, 0));
+        callbackBundle.push(_compoundV3WithdrawFromCall(cToken, marketParams.collateralToken, collateralSupplied));
+        callbackBundle.push(_compoundV3AllowCall(privateKey, cToken, address(bundler), false, 1));
 
-        callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
-        callbackData[1] = _morphoBorrowCall(borrowed, address(bundler));
-        callbackData[2] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1);
-        callbackData[3] = _compoundV3RepayCall(cToken, marketParams.loanToken, borrowed);
-        callbackData[4] = _compoundV3AllowCall(privateKey, cToken, address(bundler), true, 0);
-        callbackData[5] = _compoundV3WithdrawFromCall(cToken, marketParams.collateralToken, collateralSupplied);
-        callbackData[6] = _compoundV3AllowCall(privateKey, cToken, address(bundler), false, 1);
-        data[0] = _morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackData));
+        bundle.push(_morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackBundle)));
 
         vm.prank(user);
-        bundler.multicall(data);
+        bundler.multicall(bundle);
 
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
     }
@@ -81,15 +79,13 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         ICompoundV3(cToken).supply(marketParams.loanToken, supplied + 100);
         vm.stopPrank();
 
-        bytes[] memory data = new bytes[](4);
-
-        data[0] = _compoundV3AllowCall(privateKey, cToken, address(bundler), true, 0);
-        data[1] = _compoundV3WithdrawFromCall(cToken, marketParams.loanToken, supplied);
-        data[2] = _compoundV3AllowCall(privateKey, cToken, address(bundler), false, 1);
-        data[3] = _morphoSupplyCall(supplied, user, hex"");
+        bundle.push(_compoundV3AllowCall(privateKey, cToken, address(bundler), true, 0));
+        bundle.push(_compoundV3WithdrawFromCall(cToken, marketParams.loanToken, supplied));
+        bundle.push(_compoundV3AllowCall(privateKey, cToken, address(bundler), false, 1));
+        bundle.push(_morphoSupplyCall(supplied, user, hex""));
 
         vm.prank(user);
-        bundler.multicall(data);
+        bundler.multicall(bundle);
 
         _assertSupplierPosition(supplied, user, address(bundler));
     }
@@ -112,15 +108,13 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.prank(user);
         ERC20(cToken).safeApprove(address(Permit2Lib.PERMIT2), type(uint256).max);
 
-        bytes[] memory data = new bytes[](4);
-
-        data[0] = _erc20Approve2Call(privateKey, cToken, uint160(cTokenBalance), address(bundler), 0);
-        data[1] = _erc20TransferFrom2Call(cToken, cTokenBalance);
-        data[2] = _compoundV3WithdrawCall(cToken, marketParams.loanToken, supplied);
-        data[3] = _morphoSupplyCall(supplied, user, hex"");
+        bundle.push(_erc20Approve2Call(privateKey, cToken, uint160(cTokenBalance), address(bundler), 0));
+        bundle.push(_erc20TransferFrom2Call(cToken, cTokenBalance));
+        bundle.push(_compoundV3WithdrawCall(cToken, marketParams.loanToken, supplied));
+        bundle.push(_morphoSupplyCall(supplied, user, hex""));
 
         vm.prank(user);
-        bundler.multicall(data);
+        bundler.multicall(bundle);
 
         _assertSupplierPosition(supplied, user, address(bundler));
     }
@@ -138,15 +132,13 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         ICompoundV3(cToken).supply(marketParams.loanToken, supplied + 100);
         vm.stopPrank();
 
-        bytes[] memory data = new bytes[](4);
-
-        data[0] = _compoundV3AllowCall(privateKey, cToken, address(bundler), true, 0);
-        data[1] = _compoundV3WithdrawFromCall(cToken, marketParams.loanToken, supplied);
-        data[2] = _compoundV3AllowCall(privateKey, cToken, address(bundler), false, 1);
-        data[3] = _erc4626DepositCall(address(suppliersVault), supplied, user);
+        bundle.push(_compoundV3AllowCall(privateKey, cToken, address(bundler), true, 0));
+        bundle.push(_compoundV3WithdrawFromCall(cToken, marketParams.loanToken, supplied));
+        bundle.push(_compoundV3AllowCall(privateKey, cToken, address(bundler), false, 1));
+        bundle.push(_erc4626DepositCall(address(suppliersVault), supplied, user));
 
         vm.prank(user);
-        bundler.multicall(data);
+        bundler.multicall(bundle);
 
         _assertVaultSupplierPosition(supplied, user, address(bundler));
     }
@@ -169,15 +161,13 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.prank(user);
         ERC20(cToken).safeApprove(address(Permit2Lib.PERMIT2), type(uint256).max);
 
-        bytes[] memory data = new bytes[](4);
-
-        data[0] = _erc20Approve2Call(privateKey, cToken, uint160(cTokenBalance), address(bundler), 0);
-        data[1] = _erc20TransferFrom2Call(cToken, cTokenBalance);
-        data[2] = _compoundV3WithdrawCall(cToken, marketParams.loanToken, supplied);
-        data[3] = _erc4626DepositCall(address(suppliersVault), supplied, user);
+        bundle.push(_erc20Approve2Call(privateKey, cToken, uint160(cTokenBalance), address(bundler), 0));
+        bundle.push(_erc20TransferFrom2Call(cToken, cTokenBalance));
+        bundle.push(_compoundV3WithdrawCall(cToken, marketParams.loanToken, supplied));
+        bundle.push(_erc4626DepositCall(address(suppliersVault), supplied, user));
 
         vm.prank(user);
-        bundler.multicall(data);
+        bundler.multicall(bundle);
 
         _assertVaultSupplierPosition(supplied, user, address(bundler));
     }
