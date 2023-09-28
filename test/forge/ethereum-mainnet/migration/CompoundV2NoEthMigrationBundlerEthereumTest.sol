@@ -32,7 +32,7 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
         bundle.push(_compoundV2RedeemCall(C_USDC_V2, 0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function testMigrateBorrowerWithPermit2(uint256 privateKey) public {

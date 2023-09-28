@@ -35,10 +35,10 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
     }
 
     function testAaveV2RepayZeroAmount() public {
-        bundle.push(_aaveV2RepayCall(marketParams.loanToken, 0, 2));
+        bundle.push(_aaveV2RepayCall(marketParams.loanToken, 0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function testMigrateBorrowerWithPermit2(uint256 privateKey) public {

@@ -74,7 +74,7 @@ contract Permit2BundlerEthereumTest is EthereumTest {
         bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (DAI, 0)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function _approve2Call(

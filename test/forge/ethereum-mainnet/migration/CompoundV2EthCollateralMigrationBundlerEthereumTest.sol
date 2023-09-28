@@ -32,7 +32,7 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         bundle.push(_compoundV2RepayCall(C_DAI_V2, 0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function testCompoundV2RepayErr(uint256 privateKey, uint256 amount) public {
@@ -49,7 +49,7 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
 
         vm.prank(user);
         vm.expectRevert(bytes(ErrorsLib.REPAY_ERROR));
-        bundler.multicall(SIGNATURE_DEADLINE, bundle);
+        bundler.multicall(bundle);
     }
 
     function testCompoundV2RedeemErr(uint256 privateKey, uint256 amount) public {
@@ -66,7 +66,7 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
 
         vm.prank(user);
         vm.expectRevert(bytes(ErrorsLib.REDEEM_ERROR));
-        bundler.multicall(SIGNATURE_DEADLINE, bundle);
+        bundler.multicall(bundle);
     }
 
     function testMigrateBorrowerWithPermit2(uint256 privateKey) public {
