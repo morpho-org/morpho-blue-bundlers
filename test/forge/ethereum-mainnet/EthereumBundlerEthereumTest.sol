@@ -57,10 +57,12 @@ contract EthereumBundlerEthereumTest is EthereumTest {
         Signature memory signature;
         (signature.v, signature.r, signature.s) = vm.sign(privateKey, hashed);
 
-        bytes[] memory data = new bytes[](3);
-        data[0] = abi.encodeCall(Permit2Bundler.approve2, (marketParams.loanToken, amount, deadline, signature, false));
-        data[1] = abi.encodeCall(Permit2Bundler.transferFrom2, (marketParams.loanToken, amount));
-        data[2] = abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, amount, 0, onBehalf, hex""));
+        bundle.push(
+            abi.encodeCall(Permit2Bundler.approve2, (marketParams.loanToken, amount, deadline, signature, false))
+        );
+        bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (marketParams.loanToken, amount)));
+        bundle.push(abi.encodeCall(MorphoBundler.approveMaxMorpho, (marketParams.loanToken)));
+        bundle.push(abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, amount, 0, onBehalf, hex"")));
 
         uint256 collateralBalanceBefore = ERC20(marketParams.collateralToken).balanceOf(onBehalf);
         uint256 loanBalanceBefore = ERC20(marketParams.loanToken).balanceOf(onBehalf);
@@ -71,7 +73,7 @@ contract EthereumBundlerEthereumTest is EthereumTest {
         ERC20(marketParams.loanToken).safeApprove(address(Permit2Lib.PERMIT2), type(uint256).max);
         ERC20(marketParams.collateralToken).safeApprove(address(Permit2Lib.PERMIT2), type(uint256).max);
 
-        bundler.multicall(deadline, data);
+        bundler.multicall(deadline, bundle);
         vm.stopPrank();
 
         assertEq(ERC20(marketParams.collateralToken).balanceOf(user), 0, "collateral.balanceOf(user)");

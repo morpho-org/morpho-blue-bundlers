@@ -24,6 +24,13 @@ contract MorphoBundlerLocalTest is LocalTest {
 
         bundler = new MorphoBundlerMock(address(morpho));
 
+        bundle.push(abi.encodeCall(MorphoBundler.approveMaxMorpho, (marketParams.loanToken)));
+        bundle.push(abi.encodeCall(MorphoBundler.approveMaxMorpho, (marketParams.collateralToken)));
+
+        bundler.multicall(block.timestamp, bundle);
+
+        delete bundle;
+
         vm.startPrank(USER);
         loanToken.approve(address(morpho), type(uint256).max);
         collateralToken.approve(address(morpho), type(uint256).max);

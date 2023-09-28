@@ -60,6 +60,7 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         callbackBundle.push(_erc20Approve2Call(privateKey, C_DAI_V2, uint160(cTokenBalance), address(bundler), 0));
         callbackBundle.push(_erc20TransferFrom2Call(C_DAI_V2, cTokenBalance));
         callbackBundle.push(_compoundV2RedeemCall(C_DAI_V2, cTokenBalance));
+        callbackBundle.push(abi.encodeCall(MorphoBundler.approveMaxMorpho, (marketParams.collateralToken)));
 
         bundle.push(_morphoSupplyCollateralCall(collateral, user, abi.encode(callbackBundle)));
 
@@ -89,6 +90,7 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         bundle.push(_erc20TransferFrom2Call(C_ETH_V2, cTokenBalance));
         bundle.push(_compoundV2RedeemCall(C_ETH_V2, cTokenBalance));
         bundle.push(abi.encodeCall(WNativeBundler.wrapNative, (supplied)));
+        bundle.push(abi.encodeCall(MorphoBundler.approveMaxMorpho, (marketParams.loanToken)));
         bundle.push(_morphoSupplyCall(supplied, user, hex""));
 
         vm.prank(user);
