@@ -15,6 +15,8 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
 
+    uint256 public constant RATE_MODE = 2;
+
     AaveV3MigrationBundler bundler;
 
     uint256 collateralSupplied = 10_000 ether;
@@ -42,26 +44,24 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.startPrank(user);
         ERC20(marketParams.collateralToken).safeApprove(AAVE_V3_POOL, collateralSupplied);
         IPool(AAVE_V3_POOL).supply(marketParams.collateralToken, collateralSupplied, user, 0);
-        IPool(AAVE_V3_POOL).borrow(marketParams.loanToken, borrowed, 2, 0, user);
+        IPool(AAVE_V3_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
         vm.stopPrank();
 
         address aToken = _getATokenV3(marketParams.collateralToken);
         uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
 
-        bytes[] memory data = new bytes[](1);
-        bytes[] memory callbackData = new bytes[](7);
+        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
+        callbackBundle.push(_morphoBorrowCall(borrowed, address(bundler)));
+        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1));
+        callbackBundle.push(_aaveV3RepayCall(marketParams.loanToken, borrowed));
+        callbackBundle.push(_aaveV3PermitATokenCall(aToken, privateKey, aTokenBalance));
+        callbackBundle.push(_erc20TransferFromCall(aToken, aTokenBalance));
+        callbackBundle.push(_aaveV3WithdrawCall(marketParams.collateralToken, collateralSupplied, address(bundler)));
 
-        callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
-        callbackData[1] = _morphoBorrowCall(borrowed, address(bundler));
-        callbackData[2] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1);
-        callbackData[3] = _aaveV3RepayCall(marketParams.loanToken, borrowed, 2);
-        callbackData[4] = _aaveV3PermitATokenCall(aToken, privateKey, aTokenBalance);
-        callbackData[5] = _erc20TransferFromCall(aToken, aTokenBalance);
-        callbackData[6] = _aaveV3WithdrawCall(marketParams.collateralToken, collateralSupplied, address(bundler));
-        data[0] = _morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackData));
+        bundle.push(_morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackBundle)));
 
         vm.prank(user);
-        bundler.multicall(SIGNATURE_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, bundle);
 
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
     }
@@ -77,7 +77,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.startPrank(user);
         ERC20(marketParams.collateralToken).safeApprove(AAVE_V3_POOL, collateralSupplied);
         IPool(AAVE_V3_POOL).supply(marketParams.collateralToken, collateralSupplied, user, 0);
-        IPool(AAVE_V3_POOL).borrow(marketParams.loanToken, borrowed, 2, 0, user);
+        IPool(AAVE_V3_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
         vm.stopPrank();
 
         address aToken = _getATokenV3(marketParams.collateralToken);
@@ -86,22 +86,60 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.prank(user);
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
 
-        bytes[] memory data = new bytes[](1);
-        bytes[] memory callbackData = new bytes[](7);
+        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
+        callbackBundle.push(_morphoBorrowCall(borrowed, address(bundler)));
+        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1));
+        callbackBundle.push(_aaveV3RepayCall(marketParams.loanToken, borrowed));
+        callbackBundle.push(_erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0));
+        callbackBundle.push(_erc20TransferFrom2Call(aToken, aTokenBalance));
+        callbackBundle.push(_aaveV3WithdrawCall(marketParams.collateralToken, collateralSupplied, address(bundler)));
 
-        callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0);
-        callbackData[1] = _morphoBorrowCall(borrowed, address(bundler));
-        callbackData[2] = _morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1);
-        callbackData[3] = _aaveV3RepayCall(marketParams.loanToken, borrowed, 2);
-        callbackData[4] = _erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0);
-        callbackData[5] = _erc20TransferFrom2Call(aToken, aTokenBalance);
-        callbackData[6] = _aaveV3WithdrawCall(marketParams.collateralToken, collateralSupplied, address(bundler));
-        data[0] = _morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackData));
+        bundle.push(_morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackBundle)));
 
         vm.prank(user);
-        bundler.multicall(SIGNATURE_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, bundle);
 
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
+    }
+
+    function testMigrateUSDTPositionWithPermit2(uint256 privateKey) public {
+        address user;
+        (privateKey, user) = _getUserAndKey(privateKey);
+
+        uint256 amountUsdt = collateralSupplied / 1e10;
+
+        _initMarket(USDT, WETH);
+        _provideLiquidity(borrowed);
+
+        oracle.setPrice(1e46);
+        deal(USDT, user, amountUsdt);
+
+        vm.startPrank(user);
+        ERC20(USDT).safeApprove(AAVE_V3_POOL, amountUsdt);
+        IPool(AAVE_V3_POOL).supply(USDT, amountUsdt, user, 0);
+        IPool(AAVE_V3_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
+        vm.stopPrank();
+
+        address aToken = _getATokenV3(USDT);
+        uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
+
+        vm.prank(user);
+        ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
+
+        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
+        callbackBundle.push(_morphoBorrowCall(borrowed, address(bundler)));
+        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1));
+        callbackBundle.push(_aaveV3RepayCall(marketParams.loanToken, borrowed));
+        callbackBundle.push(_erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0));
+        callbackBundle.push(_erc20TransferFrom2Call(aToken, aTokenBalance));
+        callbackBundle.push(_aaveV3WithdrawCall(USDT, amountUsdt, address(bundler)));
+
+        bundle.push(_morphoSupplyCollateralCall(amountUsdt, user, abi.encode(callbackBundle)));
+
+        vm.prank(user);
+        bundler.multicall(SIGNATURE_DEADLINE, bundle);
+
+        _assertBorrowerPosition(amountUsdt, borrowed, user, address(bundler));
     }
 
     function testMigrateSupplierWithATokenPermit(uint256 privateKey, uint256 supplied) public {
@@ -119,15 +157,13 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         address aToken = _getATokenV3(marketParams.loanToken);
         uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
 
-        bytes[] memory data = new bytes[](4);
-
-        data[0] = _aaveV3PermitATokenCall(aToken, privateKey, aTokenBalance);
-        data[1] = _erc20TransferFromCall(aToken, aTokenBalance);
-        data[2] = _aaveV3WithdrawCall(marketParams.loanToken, supplied, address(bundler));
-        data[3] = _morphoSupplyCall(supplied, user, hex"");
+        bundle.push(_aaveV3PermitATokenCall(aToken, privateKey, aTokenBalance));
+        bundle.push(_erc20TransferFromCall(aToken, aTokenBalance));
+        bundle.push(_aaveV3WithdrawCall(marketParams.loanToken, supplied, address(bundler)));
+        bundle.push(_morphoSupplyCall(supplied, user, hex""));
 
         vm.prank(user);
-        bundler.multicall(SIGNATURE_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, bundle);
 
         _assertSupplierPosition(supplied, user, address(bundler));
     }
@@ -150,15 +186,13 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.prank(user);
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
 
-        bytes[] memory data = new bytes[](4);
-
-        data[0] = _erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0);
-        data[1] = _erc20TransferFrom2Call(aToken, aTokenBalance);
-        data[2] = _aaveV3WithdrawCall(marketParams.loanToken, supplied, address(bundler));
-        data[3] = _morphoSupplyCall(supplied, user, hex"");
+        bundle.push(_erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0));
+        bundle.push(_erc20TransferFrom2Call(aToken, aTokenBalance));
+        bundle.push(_aaveV3WithdrawCall(marketParams.loanToken, supplied, address(bundler)));
+        bundle.push(_morphoSupplyCall(supplied, user, hex""));
 
         vm.prank(user);
-        bundler.multicall(SIGNATURE_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, bundle);
 
         _assertSupplierPosition(supplied, user, address(bundler));
     }
@@ -178,15 +212,13 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         address aToken = _getATokenV3(marketParams.loanToken);
         uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
 
-        bytes[] memory data = new bytes[](4);
-
-        data[0] = _aaveV3PermitATokenCall(aToken, privateKey, aTokenBalance);
-        data[1] = _erc20TransferFromCall(aToken, aTokenBalance);
-        data[2] = _aaveV3WithdrawCall(marketParams.loanToken, supplied, address(bundler));
-        data[3] = _erc4626DepositCall(address(suppliersVault), supplied, user);
+        bundle.push(_aaveV3PermitATokenCall(aToken, privateKey, aTokenBalance));
+        bundle.push(_erc20TransferFromCall(aToken, aTokenBalance));
+        bundle.push(_aaveV3WithdrawCall(marketParams.loanToken, supplied, address(bundler)));
+        bundle.push(_erc4626DepositCall(address(suppliersVault), supplied, user));
 
         vm.prank(user);
-        bundler.multicall(SIGNATURE_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, bundle);
 
         _assertVaultSupplierPosition(supplied, user, address(bundler));
     }
@@ -209,15 +241,13 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.prank(user);
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
 
-        bytes[] memory data = new bytes[](4);
-
-        data[0] = _erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0);
-        data[1] = _erc20TransferFrom2Call(aToken, aTokenBalance);
-        data[2] = _aaveV3WithdrawCall(marketParams.loanToken, supplied, address(bundler));
-        data[3] = _erc4626DepositCall(address(suppliersVault), supplied, user);
+        bundle.push(_erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0));
+        bundle.push(_erc20TransferFrom2Call(aToken, aTokenBalance));
+        bundle.push(_aaveV3WithdrawCall(marketParams.loanToken, supplied, address(bundler)));
+        bundle.push(_erc4626DepositCall(address(suppliersVault), supplied, user));
 
         vm.prank(user);
-        bundler.multicall(SIGNATURE_DEADLINE, data);
+        bundler.multicall(SIGNATURE_DEADLINE, bundle);
 
         _assertVaultSupplierPosition(supplied, user, address(bundler));
     }
@@ -242,12 +272,8 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         return abi.encodeCall(PermitBundler.permit, (aToken, amount, SIGNATURE_DEADLINE, v, r, s, false));
     }
 
-    function _aaveV3RepayCall(address asset, uint256 amount, uint256 interestRateMode)
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return abi.encodeCall(AaveV3MigrationBundler.aaveV3Repay, (asset, amount, interestRateMode));
+    function _aaveV3RepayCall(address asset, uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(AaveV3MigrationBundler.aaveV3Repay, (asset, amount, RATE_MODE));
     }
 
     function _aaveV3WithdrawCall(address asset, uint256 amount, address to) internal pure returns (bytes memory) {
