@@ -7,7 +7,7 @@ import {MarketParams, Signature, Authorization, IMorpho} from "@morpho-blue/inte
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 
 import {Math} from "@morpho-utils/math/Math.sol";
-import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
+import {ERC20} from "solmate/src/tokens/ERC20.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
 
@@ -16,8 +16,6 @@ import {BaseBundler} from "./BaseBundler.sol";
 /// @custom:contact security@morpho.org
 /// @notice Bundler contract managing interactions with Morpho.
 abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
-    using SafeTransferLib for ERC20;
-
     /* IMMUTABLES */
 
     /// @notice The Morpho contract address.
@@ -55,6 +53,23 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /* ACTIONS */
 
+    /// @notice Gives the maximum allowance to the Morpho contract to spend the given `asset`.
+    /// @dev Pass `skipRevert == true` to avoid reverting the whole bundle in case the approval was frontrunned.
+    function approveMaxMorpho(address asset, bool skipRevert) external payable {
+        (bool success, bytes memory returnData) =
+            asset.call(abi.encodeCall(ERC20.approve, (address(MORPHO), type(uint256).max)));
+
+        assembly ("memory-safe") {
+            let returnDataSize := mload(returnData)
+
+            // Set success to whether the call reverted, if not we check it either
+            // returned exactly 1 (can't just be non-zero data), or had no return data.
+            success := and(success, or(iszero(returnDataSize), eq(mload(add(32, returnData)), 1)))
+        }
+
+        if (!success && !skipRevert) _revert(returnData);
+    }
+
     /// @notice Approves this contract to manage the `authorization.authorizer`'s position via EIP712 `signature`.
     /// @dev Pass `skipRevert == true` to avoid reverting the whole bundle in case the signature expired.
     function morphoSetAuthorizationWithSig(
@@ -85,8 +100,6 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         // (via the `onMorphoSupply` callback).
         if (amount == type(uint256).max) amount = ERC20(marketParams.loanToken).balanceOf(address(this));
 
-        _approveMaxMorpho(marketParams.loanToken);
-
         MORPHO.supply(marketParams, amount, shares, onBehalf, data);
     }
 
@@ -104,8 +117,6 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         // Don't always cap the amount to the bundler's balance because the liquidity can be transferred later
         // (via the `onMorphoSupplyCollateral` callback).
         if (amount == type(uint256).max) amount = ERC20(marketParams.collateralToken).balanceOf(address(this));
-
-        _approveMaxMorpho(marketParams.collateralToken);
 
         MORPHO.supplyCollateral(marketParams, amount, onBehalf, data);
     }
@@ -135,8 +146,6 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         // Don't always cap the amount to the bundler's balance because the liquidity can be transferred later
         // (via the `onMorphoRepay` callback).
         if (amount == type(uint256).max) amount = ERC20(marketParams.loanToken).balanceOf(address(this));
-
-        _approveMaxMorpho(marketParams.loanToken);
 
         MORPHO.repay(marketParams, amount, shares, onBehalf, data);
     }
@@ -169,15 +178,11 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         uint256 repaidShares,
         bytes memory data
     ) external payable {
-        _approveMaxMorpho(marketParams.loanToken);
-
         MORPHO.liquidate(marketParams, borrower, seizedAssets, repaidShares, data);
     }
 
     /// @notice Triggers a flash loan on Morpho.
     function morphoFlashLoan(address asset, uint256 amount, bytes calldata data) external payable {
-        _approveMaxMorpho(asset);
-
         MORPHO.flashLoan(asset, amount, data);
     }
 
@@ -187,12 +192,5 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     function _callback(bytes calldata data) internal {
         _checkInitiated();
         _multicall(abi.decode(data, (bytes[])));
-    }
-
-    /// @dev Gives the max approval to the Morpho contract to spend the given `asset` if not already approved.
-    function _approveMaxMorpho(address asset) internal {
-        if (ERC20(asset).allowance(address(this), address(MORPHO)) == 0) {
-            ERC20(asset).safeApprove(address(MORPHO), type(uint256).max);
-        }
     }
 }
