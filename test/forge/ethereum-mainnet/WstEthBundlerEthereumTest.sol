@@ -23,8 +23,10 @@ contract WstEthBundlerEthereumTest is EthereumTest {
 
         deal(USER, amount);
 
+        uint256 wstEthAmount = IWStEth(WST_ETH).getWstETHByStETH(amount);
+
         bundle.push(abi.encodeCall(WstEthBundler.stakeEth, (amount)));
-        bundle.push(abi.encodeCall(BaseBundler.transfer, (ST_ETH, RECEIVER, type(uint256).max)));
+        bundle.push(abi.encodeCall(BaseBundler.transfer, (WST_ETH, RECEIVER, type(uint256).max)));
 
         vm.prank(USER);
         bundler.multicall{value: amount}(block.timestamp, bundle);
@@ -32,9 +34,9 @@ contract WstEthBundlerEthereumTest is EthereumTest {
         assertEq(USER.balance, 0, "USER.balance");
         assertEq(RECEIVER.balance, 0, "RECEIVER.balance");
         assertEq(address(bundler).balance, 0, "bundler.balance");
-        assertEq(ERC20(ST_ETH).balanceOf(USER), 0, "balanceOf(USER)");
-        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(address(bundler)), 0, 1, "balanceOf(bundler)");
-        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), amount, 3, "balanceOf(RECEIVER)");
+        assertEq(ERC20(WST_ETH).balanceOf(USER), 0, "balanceOf(USER)");
+        assertApproxEqAbs(ERC20(WST_ETH).balanceOf(address(bundler)), 0, 1, "balanceOf(bundler)");
+        assertApproxEqAbs(ERC20(WST_ETH).balanceOf(RECEIVER), wstEthAmount, 3, "balanceOf(RECEIVER)");
     }
 
     function testWrapZeroAmount() public {

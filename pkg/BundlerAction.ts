@@ -245,8 +245,8 @@ export class BundlerAction {
 
   /* stETH */
 
-  static stakeEth(amount: BigNumberish, referral: string): BundlerCall {
-    return BundlerAction.ST_ETH_BUNDLER_IFC.encodeFunctionData("stakeEth", [amount, referral]);
+  static stakeEth(amount: BigNumberish): BundlerCall {
+    return BundlerAction.ST_ETH_BUNDLER_IFC.encodeFunctionData("stakeEth", [amount]);
   }
 
   /* Wrapped stETH */
