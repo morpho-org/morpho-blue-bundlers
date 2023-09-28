@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
 
-import "src/ethereum-mainnet/EthereumBundler.sol";
+import "src/ethereum/EthereumBundler.sol";
 
 import "./helpers/EthereumTest.sol";
 

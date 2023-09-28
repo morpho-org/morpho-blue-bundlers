@@ -5,7 +5,7 @@ import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
 
 import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
 
-import "src/mocks/bundlers/ethereum-mainnet/StEthBundlerMock.sol";
+import "src/mocks/bundlers/ethereum/StEthBundlerMock.sol";
 
 import "./helpers/EthereumTest.sol";
 

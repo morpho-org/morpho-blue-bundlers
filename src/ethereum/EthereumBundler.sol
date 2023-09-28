@@ -14,7 +14,7 @@ import {MorphoBundler} from "../MorphoBundler.sol";
 /// @title EthereumBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
-/// @notice Bundler contract specific to the Ethereum mainnet.
+/// @notice Bundler contract specific to the Ethereum.
 contract EthereumBundler is
     PermitBundler,
     Permit2Bundler,

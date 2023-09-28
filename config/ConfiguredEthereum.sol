@@ -13,7 +13,7 @@ abstract contract ConfiguredEthereum is Configured {
     address[] internal allEthereumMainnetAssets;
 
     function _network() internal view virtual override returns (string memory) {
-        return "ethereum-mainnet";
+        return "ethereum";
     }
 
     function _loadConfig() internal virtual override {

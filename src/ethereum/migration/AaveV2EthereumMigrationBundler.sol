@@ -9,7 +9,7 @@ import {AaveV2MigrationBundler} from "../../migration/AaveV2MigrationBundler.sol
 /// @title AaveV2EthereumMigrationBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
-/// @notice Contract allowing to migrate a position from Aave V2 on Ethereum mainnet to Morpho Blue easily.
+/// @notice Contract allowing to migrate a position from Aave V2 on Ethereum to Morpho Blue easily.
 contract AaveV2EthereumMigrationBundler is EthereumStEthBundler, AaveV2MigrationBundler {
     /* CONSTRUCTOR */
 
