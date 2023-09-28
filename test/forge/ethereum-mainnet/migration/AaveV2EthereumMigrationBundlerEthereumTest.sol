@@ -24,7 +24,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
         _initMarket(DAI, WETH);
 
-        vm.label(AAVE_V2_POOL, "Aave V2 Pool");
+        vm.label(AAVE_V2_POOL, "AaveV2Pool");
 
         bundler = new AaveV2EthereumMigrationBundler(address(morpho));
     }
