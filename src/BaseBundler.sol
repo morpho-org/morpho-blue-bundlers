@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
+import {IMulticall} from "./interfaces/IMulticall.sol";
+
 import {Math} from "@morpho-utils/math/Math.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
@@ -15,7 +17,7 @@ import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
 /// delegate called by the `multicall` function (which is payable, and thus might pass a non-null ETH value). It is
 /// recommended not to rely on `msg.value` as the same value can be reused for multiple calls.
 /// @dev Assumes that any tokens left on the contract can be seized by anyone.
-abstract contract BaseBundler {
+abstract contract BaseBundler is IMulticall {
     using SafeTransferLib for ERC20;
 
     /* STORAGE */
