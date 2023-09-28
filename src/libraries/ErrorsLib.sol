@@ -11,9 +11,6 @@ library ErrorsLib {
     /// @dev Thrown when a call is attempted while the bundler is not in an initiated execution context.
     string internal constant UNINITIATED = "uninitiated";
 
-    /// @dev Thrown when a call is attempted while the deadline is expired.
-    string internal constant DEADLINE_EXPIRED = "deadline expired";
-
     /// @dev Thrown when a call is attempted with a zero address as input.
     string internal constant ZERO_ADDRESS = "zero address";
 

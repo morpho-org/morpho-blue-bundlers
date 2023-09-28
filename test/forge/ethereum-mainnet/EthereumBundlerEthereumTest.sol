@@ -71,7 +71,7 @@ contract EthereumBundlerEthereumTest is EthereumTest {
         ERC20(marketParams.loanToken).safeApprove(address(Permit2Lib.PERMIT2), type(uint256).max);
         ERC20(marketParams.collateralToken).safeApprove(address(Permit2Lib.PERMIT2), type(uint256).max);
 
-        bundler.multicall(deadline, data);
+        bundler.multicall(data);
         vm.stopPrank();
 
         assertEq(ERC20(marketParams.collateralToken).balanceOf(user), 0, "collateral.balanceOf(user)");
