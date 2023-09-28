@@ -102,7 +102,7 @@ jobs:
       - uses: ./.github/actions/install-cache
 
       - name: Run local tests in ${{ matrix.type }} mode
-        run: yarn test:forge:local
+        run: yarn test:forge:local -vvv
         env:
           FOUNDRY_FUZZ_RUNS: ${{ matrix.fuzz-runs }}
           FOUNDRY_FUZZ_MAX_TEST_REJECTS: ${{ matrix.max-test-rejects }}
@@ -143,7 +143,7 @@ jobs:
       - uses: ./.github/actions/install-cache
 
       - name: Run mainnet tests in ${{ matrix.type }} mode
-        run: yarn test:forge:mainnet
+        run: yarn test:forge:mainnet -vvv
         env:
           ALCHEMY_KEY: ${{ secrets.ALCHEMY_KEY }}
           FOUNDRY_FUZZ_RUNS: ${{ matrix.fuzz-runs }}
