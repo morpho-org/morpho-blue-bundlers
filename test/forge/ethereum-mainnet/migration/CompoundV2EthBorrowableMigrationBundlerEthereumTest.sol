@@ -64,7 +64,7 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         bundle.push(_morphoSupplyCollateralCall(collateral, user, abi.encode(callbackBundle)));
 
         vm.prank(user);
-        bundler.multicall(SIGNATURE_DEADLINE, bundle);
+        bundler.multicall(bundle);
 
         _assertBorrowerPosition(collateral, borrowed, user, address(bundler));
     }
@@ -92,7 +92,7 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         bundle.push(_morphoSupplyCall(supplied, user, hex""));
 
         vm.prank(user);
-        bundler.multicall(SIGNATURE_DEADLINE, bundle);
+        bundler.multicall(bundle);
 
         _assertSupplierPosition(supplied, user, address(bundler));
     }
@@ -120,7 +120,7 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         bundle.push(_erc4626DepositCall(address(suppliersVault), supplied, user));
 
         vm.prank(user);
-        bundler.multicall(SIGNATURE_DEADLINE, bundle);
+        bundler.multicall(bundle);
 
         _assertVaultSupplierPosition(supplied, user, address(bundler));
     }

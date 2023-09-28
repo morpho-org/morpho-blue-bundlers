@@ -23,7 +23,7 @@ contract BaseBundlerLocalTest is LocalTest {
 
         loanToken.setBalance(address(bundler), amount);
 
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         assertEq(loanToken.balanceOf(address(bundler)), 0, "loan.balanceOf(bundler)");
         assertEq(loanToken.balanceOf(RECEIVER), amount, "loan.balanceOf(RECEIVER)");
@@ -35,7 +35,7 @@ contract BaseBundlerLocalTest is LocalTest {
         bundle.push(abi.encodeCall(BaseBundler.erc20Transfer, (address(loanToken), address(0), amount)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function testTranferBundlerAddress(uint256 amount) public {
@@ -44,14 +44,14 @@ contract BaseBundlerLocalTest is LocalTest {
         bundle.push(abi.encodeCall(BaseBundler.erc20Transfer, (address(loanToken), address(bundler), amount)));
 
         vm.expectRevert(bytes(ErrorsLib.BUNDLER_ADDRESS));
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function testTranferZeroAmount() public {
         bundle.push(abi.encodeCall(BaseBundler.erc20Transfer, (address(loanToken), RECEIVER, 0)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function testTransferFrom(uint256 amount) public {
@@ -63,7 +63,7 @@ contract BaseBundlerLocalTest is LocalTest {
 
         vm.startPrank(USER);
         loanToken.approve(address(bundler), type(uint256).max);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
         vm.stopPrank();
 
         assertEq(loanToken.balanceOf(address(bundler)), amount, "loan.balanceOf(bundler)");
@@ -77,7 +77,7 @@ contract BaseBundlerLocalTest is LocalTest {
 
         vm.prank(USER);
         vm.expectRevert();
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function testTranferFromZeroAmount() public {
@@ -85,6 +85,6 @@ contract BaseBundlerLocalTest is LocalTest {
 
         vm.prank(USER);
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 }

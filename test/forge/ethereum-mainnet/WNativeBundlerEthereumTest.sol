@@ -25,7 +25,7 @@ contract WNativeBundlerEthereumTest is EthereumTest {
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
+        bundler.multicall(data);
     }
 
     function testWrapNative(uint256 amount) public {
@@ -36,7 +36,7 @@ contract WNativeBundlerEthereumTest is EthereumTest {
 
         vm.deal(USER, amount);
         vm.prank(USER);
-        bundler.multicall{value: amount}(block.timestamp, bundle);
+        bundler.multicall{value: amount}(bundle);
 
         assertEq(ERC20(WETH).balanceOf(address(bundler)), 0, "Bundler's wrapped token balance");
         assertEq(ERC20(WETH).balanceOf(USER), 0, "User's wrapped token balance");
@@ -53,7 +53,7 @@ contract WNativeBundlerEthereumTest is EthereumTest {
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
+        bundler.multicall(data);
     }
 
     function testUnwrapNative(uint256 amount) public {
@@ -65,7 +65,7 @@ contract WNativeBundlerEthereumTest is EthereumTest {
 
         deal(WETH, USER, amount);
         vm.prank(USER);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         assertEq(ERC20(WETH).balanceOf(address(bundler)), 0, "Bundler's wrapped token balance");
         assertEq(ERC20(WETH).balanceOf(USER), 0, "User's wrapped token balance");
