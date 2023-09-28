@@ -24,7 +24,7 @@ abstract contract ERC4626Bundler is BaseBundler, Permit2Bundler {
     /// @dev Assumes the given `vault` implements EIP-4626.
     function erc4626Mint(address vault, uint256 shares, address owner) external payable {
         require(owner != address(0), ErrorsLib.ZERO_ADDRESS);
-        /// Do net check `owner != address(this)` to allow receiving the vault's shares.
+        /// Do not check `owner != address(this)` to allow receiving the vault's shares.
 
         shares = Math.min(shares, IERC4626(vault).maxMint(owner));
 
@@ -44,7 +44,7 @@ abstract contract ERC4626Bundler is BaseBundler, Permit2Bundler {
     /// @dev Assumes the given `vault` implements EIP-4626.
     function erc4626Deposit(address vault, uint256 assets, address owner) external payable {
         require(owner != address(0), ErrorsLib.ZERO_ADDRESS);
-        /// Do net check `owner != address(this)` to allow receiving the vault's shares.
+        /// Do not check `owner != address(this)` to allow receiving the vault's shares.
 
         address asset = IERC4626(vault).asset();
 
@@ -66,7 +66,7 @@ abstract contract ERC4626Bundler is BaseBundler, Permit2Bundler {
     /// @dev Assumes the given `vault` implements EIP-4626.
     function erc4626Withdraw(address vault, uint256 assets, address receiver) external payable {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
-        /// Do net check `receiver != address(this)` to allow receiving the underlying asset.
+        /// Do not check `receiver != address(this)` to allow receiving the underlying asset.
 
         assets = Math.min(assets, IERC4626(vault).maxWithdraw(_initiator));
 
@@ -81,7 +81,7 @@ abstract contract ERC4626Bundler is BaseBundler, Permit2Bundler {
     /// @dev Assumes the given `vault` implements EIP-4626.
     function erc4626Redeem(address vault, uint256 shares, address receiver) external payable {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
-        /// Do net check `receiver != address(this)` to allow receiving the underlying asset.
+        /// Do not check `receiver != address(this)` to allow receiving the underlying asset.
 
         shares = Math.min(shares, IERC4626(vault).maxRedeem(_initiator));
 
