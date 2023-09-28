@@ -32,24 +32,10 @@ abstract contract BaseBundler is BaseSelfMulticall, BaseCallbackReceiver {
 
     /* ACTIONS */
 
-    /// @notice Transfers the minimum between the given `amount` and the bundler's balance of `asset` from the bundler
-    /// to `recipient`.
-    /// @dev Pass in `type(uint256).max` to transfer all.
-    function transfer(address asset, address recipient, uint256 amount) external payable {
-        require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
-        require(recipient != address(this), ErrorsLib.BUNDLER_ADDRESS);
-
-        amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
-
-        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
-
-        ERC20(asset).safeTransfer(recipient, amount);
-    }
-
     /// @notice Transfers the minimum between the given `amount` and the bundler's balance of native asset from the
     /// bundler to `recipient`.
     /// @dev Pass in `type(uint256).max` to transfer all.
-    function transferNative(address recipient, uint256 amount) external payable {
+    function nativeTransfer(address recipient, uint256 amount) external payable {
         require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
         require(recipient != address(this), ErrorsLib.BUNDLER_ADDRESS);
 
@@ -60,10 +46,24 @@ abstract contract BaseBundler is BaseSelfMulticall, BaseCallbackReceiver {
         SafeTransferLib.safeTransferETH(recipient, amount);
     }
 
+    /// @notice Transfers the minimum between the given `amount` and the bundler's balance of `asset` from the bundler
+    /// to `recipient`.
+    /// @dev Pass in `type(uint256).max` to transfer all.
+    function erc20Transfer(address asset, address recipient, uint256 amount) external payable {
+        require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
+        require(recipient != address(this), ErrorsLib.BUNDLER_ADDRESS);
+
+        amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
+
+        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
+
+        ERC20(asset).safeTransfer(recipient, amount);
+    }
+
     /// @notice Transfers the given `amount` of `asset` from sender to this contract via ERC20 transferFrom.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Pass in `type(uint256).max` to transfer all.
-    function transferFrom(address asset, uint256 amount) external payable {
+    function erc20TransferFrom(address asset, uint256 amount) external payable {
         amount = Math.min(amount, ERC20(asset).balanceOf(_initiator));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
