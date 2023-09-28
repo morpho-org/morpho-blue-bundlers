@@ -22,19 +22,19 @@ abstract contract BaseBundler is IMulticall {
 
     /* STORAGE */
 
-    /// @dev Keeps track of the bundler's latest batch initiator. Also prevents interacting with the bundler outside of
-    /// an initiated execution context.
-    address internal _initiator;
+    /// @notice Keeps track of the bundler's latest bundle initiator.
+    /// @dev Also prevents interacting with the bundler outside of an initiated execution context.
+    address public initiator;
 
     /* MODIFIERS */
 
-    /// @dev Sets the contract's `_initiator` to the caller of the function, and resets it after the function returns.
+    /// @dev Sets the contract's `initiator` to the caller of the function, and resets it after the function returns.
     modifier lockInitiator() {
-        _initiator = msg.sender;
+        initiator = msg.sender;
 
         _;
 
-        delete _initiator;
+        delete initiator;
     }
 
     /* PUBLIC */
@@ -80,11 +80,11 @@ abstract contract BaseBundler is IMulticall {
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Pass in `type(uint256).max` to transfer all.
     function erc20TransferFrom(address asset, uint256 amount) external payable {
-        amount = Math.min(amount, ERC20(asset).balanceOf(_initiator));
+        amount = Math.min(amount, ERC20(asset).balanceOf(initiator));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        ERC20(asset).safeTransferFrom(_initiator, address(this), amount);
+        ERC20(asset).safeTransferFrom(initiator, address(this), amount);
     }
 
     /* INTERNAL */
@@ -102,7 +102,7 @@ abstract contract BaseBundler is IMulticall {
 
     /// @dev Checks that the contract is in an initiated execution context.
     function _checkInitiated() internal view {
-        require(_initiator != address(0), ErrorsLib.UNINITIATED);
+        require(initiator != address(0), ErrorsLib.UNINITIATED);
     }
 
     /// @dev Bubbles up the revert reason / custom error encoded in `returnData`.
