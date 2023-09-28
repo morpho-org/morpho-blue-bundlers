@@ -35,16 +35,16 @@ export class BundlerAction {
 
   /* ERC20 */
 
-  static transfer(asset: string, recipient: string, amount: BigNumberish): BundlerCall {
-    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transfer", [asset, recipient, amount]);
+  static transfer(recipient: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transfer", [recipient, amount]);
   }
 
-  static transferNative(recipient: string, amount: BigNumberish): BundlerCall {
-    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transferNative", [recipient, amount]);
+  static erc20Transfer(asset: string, recipient: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("erc20Transfer", [asset, recipient, amount]);
   }
 
-  static transferFrom(asset: string, amount: BigNumberish): BundlerCall {
-    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("transferFrom", [asset, amount]);
+  static erc20TransferFrom(asset: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("erc20TransferFrom", [asset, amount]);
   }
 
   /* Permit */

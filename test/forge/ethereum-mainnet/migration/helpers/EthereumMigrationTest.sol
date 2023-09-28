@@ -93,7 +93,7 @@ contract EthereumMigrationTest is EthereumTest {
     }
 
     function _erc20TransferFromCall(address asset, uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(BaseBundler.transferFrom, (asset, amount));
+        return abi.encodeCall(BaseBundler.erc20TransferFrom, (asset, amount));
     }
 
     function _erc20TransferFrom2Call(address asset, uint256 amount) internal pure returns (bytes memory) {

@@ -58,7 +58,7 @@ contract PermitBundlerLocalTest is LocalTest {
         address user = vm.addr(privateKey);
 
         bundle.push(_permitCall(permitToken, privateKey, amount, deadline, false));
-        bundle.push(abi.encodeCall(BaseBundler.transferFrom, (address(permitToken), amount)));
+        bundle.push(abi.encodeCall(BaseBundler.erc20TransferFrom, (address(permitToken), amount)));
 
         permitToken.setBalance(user, amount);
 
