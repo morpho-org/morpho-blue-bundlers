@@ -1,7 +1,6 @@
 import { BigNumberish, Signature } from "ethers";
 import {
   BaseBundler__factory,
-  MorphoBundler__factory,
   UrdBundler__factory,
   WNativeBundler__factory,
   StEthBundler__factory,
@@ -11,13 +10,12 @@ import {
   CompoundV2MigrationBundler__factory,
   CompoundV3MigrationBundler__factory,
 } from "types";
-import { AuthorizationStruct, MarketParamsStruct } from "types/src/MorphoBundler";
+import { AuthorizationStruct, MarketParamsStruct } from "types/src/BaseBundler";
 
 export type BundlerCall = string;
 
 export class BundlerAction {
   private static BASE_BUNDLER_IFC = BaseBundler__factory.createInterface();
-  private static MORPHO_BUNDLER_IFC = MorphoBundler__factory.createInterface();
   private static URD_BUNDLER_IFC = UrdBundler__factory.createInterface();
   private static WNATIVE_BUNDLER_IFC = WNativeBundler__factory.createInterface();
   private static ST_ETH_BUNDLER_IFC = StEthBundler__factory.createInterface();
@@ -108,7 +106,7 @@ export class BundlerAction {
     signature: Signature,
     skipRevert: boolean,
   ): BundlerCall {
-    return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoSetAuthorizationWithSig", [
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("morphoSetAuthorizationWithSig", [
       authorization,
       { v: signature.v, r: signature.r, s: signature.s },
       skipRevert,
@@ -122,12 +120,12 @@ export class BundlerAction {
     onBehalf: string,
     callbackCalls: BundlerCall[],
   ): BundlerCall {
-    return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoSupply", [
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("morphoSupply", [
       market,
       amount,
       shares,
       onBehalf,
-      BundlerAction.MORPHO_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
+      BundlerAction.BASE_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
     ]);
   }
 
@@ -137,11 +135,11 @@ export class BundlerAction {
     onBehalf: string,
     callbackCalls: BundlerCall[],
   ): BundlerCall {
-    return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoSupplyCollateral", [
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("morphoSupplyCollateral", [
       market,
       amount,
       onBehalf,
-      BundlerAction.MORPHO_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
+      BundlerAction.BASE_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
     ]);
   }
 
@@ -151,7 +149,7 @@ export class BundlerAction {
     shares: BigNumberish,
     receiver: string,
   ): BundlerCall {
-    return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoBorrow", [market, amount, shares, receiver]);
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("morphoBorrow", [market, amount, shares, receiver]);
   }
 
   static morphoRepay(
@@ -161,12 +159,12 @@ export class BundlerAction {
     onBehalf: string,
     callbackCalls: BundlerCall[],
   ): BundlerCall {
-    return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoRepay", [
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("morphoRepay", [
       market,
       amount,
       shares,
       onBehalf,
-      BundlerAction.MORPHO_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
+      BundlerAction.BASE_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
     ]);
   }
 
@@ -176,11 +174,11 @@ export class BundlerAction {
     shares: BigNumberish,
     receiver: string,
   ): BundlerCall {
-    return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoWithdraw", [market, amount, shares, receiver]);
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("morphoWithdraw", [market, amount, shares, receiver]);
   }
 
   static morphoWithdrawCollateral(market: MarketParamsStruct, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoWithdrawCollateral", [market, amount, receiver]);
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("morphoWithdrawCollateral", [market, amount, receiver]);
   }
 
   static morphoLiquidate(
@@ -190,20 +188,20 @@ export class BundlerAction {
     repaidShares: BigNumberish,
     callbackCalls: BundlerCall[],
   ): BundlerCall {
-    return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoLiquidate", [
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("morphoLiquidate", [
       market,
       borrower,
       seizedAssets,
       repaidShares,
-      BundlerAction.MORPHO_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
+      BundlerAction.BASE_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
     ]);
   }
 
   static morphoFlashLoan(asset: string, amount: BigNumberish, callbackCalls: BundlerCall[]): BundlerCall {
-    return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoFlashLoan", [
+    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("morphoFlashLoan", [
       asset,
       amount,
-      BundlerAction.MORPHO_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
+      BundlerAction.BASE_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
     ]);
   }
 

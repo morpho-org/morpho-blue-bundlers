@@ -16,7 +16,7 @@ contract BaseBundlerPermitActionsLocalTest is LocalTest {
         super.setUp();
 
         permitToken = new ERC20PermitMock("Permit Token", "PT");
-        bundler = new BaseBundlerMock();
+        bundler = new BaseBundlerMock(address(morpho));
     }
 
     function testPermit(uint256 amount, uint256 privateKey, uint256 deadline) public {

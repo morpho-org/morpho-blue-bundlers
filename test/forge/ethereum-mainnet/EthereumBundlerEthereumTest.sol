@@ -60,7 +60,7 @@ contract EthereumBundlerEthereumTest is EthereumTest {
         bytes[] memory data = new bytes[](3);
         data[0] = abi.encodeCall(BaseBundler.approve2, (marketParams.loanToken, amount, deadline, signature, false));
         data[1] = abi.encodeCall(BaseBundler.transferFrom2, (marketParams.loanToken, amount));
-        data[2] = abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, amount, 0, onBehalf, hex""));
+        data[2] = abi.encodeCall(BaseBundler.morphoSupply, (marketParams, amount, 0, onBehalf, hex""));
 
         uint256 collateralBalanceBefore = ERC20(marketParams.collateralToken).balanceOf(onBehalf);
         uint256 loanBalanceBefore = ERC20(marketParams.loanToken).balanceOf(onBehalf);

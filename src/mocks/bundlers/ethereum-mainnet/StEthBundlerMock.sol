@@ -6,6 +6,6 @@ import {MainnetLib} from "../../../ethereum-mainnet/libraries/MainnetLib.sol";
 import "../../../BaseBundler.sol";
 import "../../../StEthBundler.sol";
 
-contract StEthBundlerMock is BaseBundler, StEthBundler {
-    constructor() StEthBundler(MainnetLib.ST_ETH, MainnetLib.WST_ETH) {}
+contract StEthBundlerMock is StEthBundler {
+    constructor(address morpho) StEthBundler(MainnetLib.ST_ETH, MainnetLib.WST_ETH) BaseBundler(morpho) {}
 }

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import "../../MorphoBundler.sol";
+import "../../BaseBundler.sol";
 
-contract MorphoBundlerMock is MorphoBundler {
-    constructor(address morpho) MorphoBundler(morpho) {}
+contract BaseBundlerMock is BaseBundler {
+    constructor(address morpho) BaseBundler(morpho) {}
 }

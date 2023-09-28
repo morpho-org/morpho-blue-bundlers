@@ -15,7 +15,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
     function setUp() public override {
         super.setUp();
 
-        bundler = new StEthBundlerMock();
+        bundler = new StEthBundlerMock(address(morpho));
     }
 
     function testStakeEth(uint256 amount) public {

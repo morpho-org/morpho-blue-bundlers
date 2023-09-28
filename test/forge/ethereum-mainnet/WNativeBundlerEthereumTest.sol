@@ -13,7 +13,7 @@ contract WNativeBundlerEthereumTest is EthereumTest {
     function setUp() public override {
         super.setUp();
 
-        bundler = new WNativeBundlerMock(WETH);
+        bundler = new WNativeBundlerMock(address(morpho), WETH);
 
         vm.prank(USER);
         ERC20(WETH).approve(address(bundler), type(uint256).max);

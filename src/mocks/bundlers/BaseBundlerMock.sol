@@ -3,4 +3,6 @@ pragma solidity ^0.8.0;
 
 import "../../BaseBundler.sol";
 
-contract BaseBundlerMock is BaseBundler {}
+contract BaseBundlerMock is BaseBundler {
+    constructor(address morpho) BaseBundler(morpho) {}
+}

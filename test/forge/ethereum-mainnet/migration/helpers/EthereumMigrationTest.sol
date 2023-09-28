@@ -13,7 +13,7 @@ import {BaseBundler} from "src/BaseBundler.sol";
 import {BaseBundler} from "src/BaseBundler.sol";
 import {BaseBundler} from "src/BaseBundler.sol";
 import {BaseBundler} from "src/BaseBundler.sol";
-import {MorphoBundler} from "src/MorphoBundler.sol";
+import {BaseBundler} from "src/BaseBundler.sol";
 import {ERC4626Mock} from "src/mocks/ERC4626Mock.sol";
 
 uint256 constant SIGNATURE_DEADLINE = type(uint32).max;
@@ -69,11 +69,11 @@ contract EthereumMigrationTest is EthereumTest {
         Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (authorization, sig, false));
+        return abi.encodeCall(BaseBundler.morphoSetAuthorizationWithSig, (authorization, sig, false));
     }
 
     function _morphoBorrowCall(uint256 amount, address receiver) internal view returns (bytes memory) {
-        return abi.encodeCall(MorphoBundler.morphoBorrow, (marketParams, amount, 0, receiver));
+        return abi.encodeCall(BaseBundler.morphoBorrow, (marketParams, amount, 0, receiver));
     }
 
     function _morphoSupplyCall(uint256 amount, address onBehalf, bytes memory callbackData)
@@ -81,7 +81,7 @@ contract EthereumMigrationTest is EthereumTest {
         view
         returns (bytes memory)
     {
-        return abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, amount, 0, onBehalf, callbackData));
+        return abi.encodeCall(BaseBundler.morphoSupply, (marketParams, amount, 0, onBehalf, callbackData));
     }
 
     function _morphoSupplyCollateralCall(uint256 amount, address onBehalf, bytes memory callbackData)
@@ -89,7 +89,7 @@ contract EthereumMigrationTest is EthereumTest {
         view
         returns (bytes memory)
     {
-        return abi.encodeCall(MorphoBundler.morphoSupplyCollateral, (marketParams, amount, onBehalf, callbackData));
+        return abi.encodeCall(BaseBundler.morphoSupplyCollateral, (marketParams, amount, onBehalf, callbackData));
     }
 
     function _erc20TransferFromCall(address asset, uint256 amount) internal pure returns (bytes memory) {

@@ -13,7 +13,7 @@ contract BaseBundlerTransferActionsLocalTest is LocalTest {
     function setUp() public override {
         super.setUp();
 
-        bundler = new BaseBundlerMock();
+        bundler = new BaseBundlerMock(address(morpho));
     }
 
     function testTransfer(uint256 amount) public {
