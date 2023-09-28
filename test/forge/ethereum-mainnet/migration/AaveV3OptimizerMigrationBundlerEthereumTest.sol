@@ -16,6 +16,8 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
 
+    uint256 public constant MAX_ITERATIONS = 15;
+
     AaveV3OptimizerMigrationBundler bundler;
 
     uint256 collateralSupplied = 10_000 ether;
@@ -43,7 +45,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.startPrank(user);
         ERC20(marketParams.collateralToken).safeApprove(AAVE_V3_OPTIMIZER, collateralSupplied + 1);
         IAaveV3Optimizer(AAVE_V3_OPTIMIZER).supplyCollateral(marketParams.collateralToken, collateralSupplied + 1, user);
-        IAaveV3Optimizer(AAVE_V3_OPTIMIZER).borrow(marketParams.loanToken, borrowed, user, user, 15);
+        IAaveV3Optimizer(AAVE_V3_OPTIMIZER).borrow(marketParams.loanToken, borrowed, user, user, MAX_ITERATIONS);
         vm.stopPrank();
 
         callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
@@ -84,7 +86,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         ERC20(USDT).safeApprove(AAVE_V3_OPTIMIZER, amountUsdt + 1);
         console2.log(ERC20(USDT).allowance(user, AAVE_V3_OPTIMIZER));
         IAaveV3Optimizer(AAVE_V3_OPTIMIZER).supplyCollateral(USDT, amountUsdt + 1, user);
-        IAaveV3Optimizer(AAVE_V3_OPTIMIZER).borrow(marketParams.loanToken, borrowed, user, user, 15);
+        IAaveV3Optimizer(AAVE_V3_OPTIMIZER).borrow(marketParams.loanToken, borrowed, user, user, MAX_ITERATIONS);
         vm.stopPrank();
 
         uint256 erc4626Amount = vaultUSDT.previewDeposit(amountUsdt);
@@ -115,11 +117,11 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.startPrank(user);
         ERC20(marketParams.loanToken).safeApprove(AAVE_V3_OPTIMIZER, supplied + 1);
-        IAaveV3Optimizer(AAVE_V3_OPTIMIZER).supply(marketParams.loanToken, supplied + 1, user, 15);
+        IAaveV3Optimizer(AAVE_V3_OPTIMIZER).supply(marketParams.loanToken, supplied + 1, user, MAX_ITERATIONS);
         vm.stopPrank();
 
         bundle.push(_aaveV3OptimizerApproveManagerCall(privateKey, address(bundler), true, 0));
-        bundle.push(_aaveV3OptimizerWithdraw(marketParams.loanToken, supplied, address(bundler), 15));
+        bundle.push(_aaveV3OptimizerWithdraw(marketParams.loanToken, supplied, address(bundler)));
         bundle.push(_aaveV3OptimizerApproveManagerCall(privateKey, address(bundler), false, 1));
         bundle.push(_morphoSupplyCall(supplied, user, hex""));
 
@@ -138,11 +140,11 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.startPrank(user);
         ERC20(marketParams.loanToken).safeApprove(AAVE_V3_OPTIMIZER, supplied + 1);
-        IAaveV3Optimizer(AAVE_V3_OPTIMIZER).supply(marketParams.loanToken, supplied + 1, user, 15);
+        IAaveV3Optimizer(AAVE_V3_OPTIMIZER).supply(marketParams.loanToken, supplied + 1, user, MAX_ITERATIONS);
         vm.stopPrank();
 
         bundle.push(_aaveV3OptimizerApproveManagerCall(privateKey, address(bundler), true, 0));
-        bundle.push(_aaveV3OptimizerWithdraw(marketParams.loanToken, supplied, address(bundler), 15));
+        bundle.push(_aaveV3OptimizerWithdraw(marketParams.loanToken, supplied, address(bundler)));
         bundle.push(_aaveV3OptimizerApproveManagerCall(privateKey, address(bundler), false, 1));
         bundle.push(_erc4626DepositCall(address(suppliersVault), supplied, user));
 
@@ -175,13 +177,13 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         return abi.encodeCall(AaveV3OptimizerMigrationBundler.aaveV3OptimizerRepay, (underlying, amount));
     }
 
-    function _aaveV3OptimizerWithdraw(address underlying, uint256 amount, address receiver, uint256 maxIterations)
+    function _aaveV3OptimizerWithdraw(address underlying, uint256 amount, address receiver)
         internal
         pure
         returns (bytes memory)
     {
         return abi.encodeCall(
-            AaveV3OptimizerMigrationBundler.aaveV3OptimizerWithdraw, (underlying, amount, receiver, maxIterations)
+            AaveV3OptimizerMigrationBundler.aaveV3OptimizerWithdraw, (underlying, amount, receiver, MAX_ITERATIONS)
         );
     }
 

@@ -17,6 +17,8 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
 
+    uint256 public constant RATE_MODE = 2;
+
     AaveV2EthereumMigrationBundler bundler;
 
     uint256 collateralSupplied = 10_000 ether;
@@ -43,7 +45,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.startPrank(user);
         ERC20(marketParams.collateralToken).safeApprove(AAVE_V2_POOL, collateralSupplied);
         ILendingPool(AAVE_V2_POOL).deposit(marketParams.collateralToken, collateralSupplied, user, 0);
-        ILendingPool(AAVE_V2_POOL).borrow(marketParams.loanToken, borrowed, 2, 0, user);
+        ILendingPool(AAVE_V2_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
         vm.stopPrank();
 
         address aToken = _getATokenV2(marketParams.collateralToken);
@@ -55,7 +57,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
         callbackBundle.push(_morphoBorrowCall(borrowed, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1));
-        callbackBundle.push(_aaveV2RepayCall(marketParams.loanToken, borrowed, 2));
+        callbackBundle.push(_aaveV2RepayCall(marketParams.loanToken, borrowed));
         callbackBundle.push(_erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0));
         callbackBundle.push(_erc20TransferFrom2Call(aToken, aTokenBalance));
         callbackBundle.push(_aaveV2WithdrawCall(marketParams.collateralToken, collateralSupplied, address(bundler)));
@@ -80,7 +82,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.startPrank(user);
         ERC20(DAI).safeApprove(AAVE_V2_POOL, collateralSupplied);
         ILendingPool(AAVE_V2_POOL).deposit(DAI, collateralSupplied, user, 0);
-        ILendingPool(AAVE_V2_POOL).borrow(marketParams.loanToken, borrowed, 2, 0, user);
+        ILendingPool(AAVE_V2_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
         vm.stopPrank();
 
         address aToken = _getATokenV2(DAI);
@@ -94,7 +96,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
         callbackBundle.push(_morphoBorrowCall(borrowed, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1));
-        callbackBundle.push(_aaveV2RepayCall(marketParams.loanToken, borrowed, 2));
+        callbackBundle.push(_aaveV2RepayCall(marketParams.loanToken, borrowed));
         callbackBundle.push(_erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0));
         callbackBundle.push(_erc20TransferFrom2Call(aToken, aTokenBalance));
         callbackBundle.push(_aaveV2WithdrawCall(DAI, collateralSupplied, address(bundler)));
@@ -122,7 +124,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.startPrank(user);
         ERC20(ST_ETH).safeApprove(AAVE_V2_POOL, collateralSupplied);
         ILendingPool(AAVE_V2_POOL).deposit(ST_ETH, collateralSupplied, user, 0);
-        ILendingPool(AAVE_V2_POOL).borrow(marketParams.loanToken, borrowed, 2, 0, user);
+        ILendingPool(AAVE_V2_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
         vm.stopPrank();
 
         address aToken = _getATokenV2(ST_ETH);
@@ -136,7 +138,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
         callbackBundle.push(_morphoBorrowCall(borrowed, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1));
-        callbackBundle.push(_aaveV2RepayCall(marketParams.loanToken, borrowed, 2));
+        callbackBundle.push(_aaveV2RepayCall(marketParams.loanToken, borrowed));
         callbackBundle.push(_erc20Approve2Call(privateKey, aToken, type(uint160).max, address(bundler), 0));
         callbackBundle.push(_erc20TransferFrom2Call(aToken, aTokenBalance));
         callbackBundle.push(_aaveV2WithdrawCall(ST_ETH, type(uint256).max, address(bundler)));
@@ -212,8 +214,8 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         return ILendingPool(AAVE_V2_POOL).getReserveData(asset).aTokenAddress;
     }
 
-    function _aaveV2RepayCall(address asset, uint256 amount, uint256 rateMode) internal pure returns (bytes memory) {
-        return abi.encodeCall(AaveV2MigrationBundler.aaveV2Repay, (asset, amount, rateMode));
+    function _aaveV2RepayCall(address asset, uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(AaveV2MigrationBundler.aaveV2Repay, (asset, amount, RATE_MODE));
     }
 
     function _aaveV2WithdrawCall(address asset, uint256 amount, address to) internal pure returns (bytes memory) {
