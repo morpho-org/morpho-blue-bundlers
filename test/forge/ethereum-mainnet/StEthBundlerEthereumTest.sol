@@ -27,7 +27,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
         bundle.push(abi.encodeCall(BaseBundler.transfer, (ST_ETH, RECEIVER, type(uint256).max)));
 
         vm.prank(USER);
-        bundler.multicall{value: amount}(block.timestamp, bundle);
+        bundler.multicall{value: amount}(bundle);
 
         assertEq(USER.balance, 0, "USER.balance");
         assertEq(RECEIVER.balance, 0, "RECEIVER.balance");
@@ -43,7 +43,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
+        bundler.multicall(data);
     }
 
     function testWrapStEth(uint256 amount, uint256 privateKey) public {
@@ -64,7 +64,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
         uint256 wstEthExpectedAmount = IStEth(ST_ETH).getSharesByPooledEth(ERC20(ST_ETH).balanceOf(user));
 
         vm.prank(user);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         assertEq(ERC20(WST_ETH).balanceOf(address(bundler)), 0, "wstEth.balanceOf(bundler)");
         assertEq(ERC20(WST_ETH).balanceOf(user), 0, "wstEth.balanceOf(user)");
@@ -81,7 +81,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
-        bundler.multicall(block.timestamp, data);
+        bundler.multicall(data);
     }
 
     function testUnwrapWstEth(uint256 amount, uint256 privateKey) public {
@@ -98,7 +98,7 @@ contract StEthBundlerEthereumTest is EthereumTest {
 
         deal(WST_ETH, user, amount);
         vm.prank(user);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         uint256 expectedUnwrappedAmount = IWStEth(WST_ETH).getStETHByWstETH(amount);
 

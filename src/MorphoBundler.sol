@@ -183,10 +183,11 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /* INTERNAL */
 
-    /// @dev Triggers `_multicall` logic during a callback.
+    /// @dev Triggers `multicall` logic during a callback.
     function _callback(bytes calldata data) internal {
         _checkInitiated();
-        _multicall(abi.decode(data, (bytes[])));
+
+        multicall(abi.decode(data, (bytes[])));
     }
 
     /// @dev Gives the max approval to the Morpho contract to spend the given `asset` if not already approved.

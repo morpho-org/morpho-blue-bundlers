@@ -3,15 +3,16 @@ pragma solidity 0.8.21;
 
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 
-/// @title BaseSelfMulticall
+/// @title SelfMulticall
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Enables calling multiple functions in a single call to the same contract (self).
-abstract contract BaseSelfMulticall {
-    /* INTERNAL */
+abstract contract SelfMulticall {
+    /* PUBLIC */
 
     /// @dev Executes a series of delegate calls to the contract itself.
-    function _multicall(bytes[] memory data) internal {
+    /// @dev All functions delegatecalled must be `payable` if `msg.value` is non-zero.
+    function multicall(bytes[] memory data) public payable {
         for (uint256 i; i < data.length; ++i) {
             (bool success, bytes memory returnData) = address(this).delegatecall(data[i]);
 
@@ -19,6 +20,8 @@ abstract contract BaseSelfMulticall {
             if (!success) _revert(returnData);
         }
     }
+
+    /* INTERNAL */
 
     /// @dev Bubbles up the revert reason / custom error encoded in `returnData`.
     /// @dev Assumes `returnData` is the return data of any kind of failing CALL to a contract.

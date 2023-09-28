@@ -5,7 +5,7 @@ import {Math} from "@morpho-utils/math/Math.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
 
-import {BaseSelfMulticall} from "./BaseSelfMulticall.sol";
+import {SelfMulticall} from "./SelfMulticall.sol";
 import {BaseCallbackReceiver} from "./BaseCallbackReceiver.sol";
 
 /// @title BaseBundler
@@ -18,17 +18,8 @@ import {BaseCallbackReceiver} from "./BaseCallbackReceiver.sol";
 /// delegate called by the `multicall` function (which is payable, and thus might pass a non-null ETH value). It is
 /// recommended not to rely on `msg.value` as the same value can be reused for multiple calls.
 /// @dev Assumes that any tokens left on the contract can be seized by anyone.
-abstract contract BaseBundler is BaseSelfMulticall, BaseCallbackReceiver {
+abstract contract BaseBundler is SelfMulticall, BaseCallbackReceiver {
     using SafeTransferLib for ERC20;
-
-    /* EXTERNAL */
-
-    /// @notice Executes a series of calls in a single transaction to self.
-    function multicall(uint256 deadline, bytes[] calldata data) external payable lockInitiator {
-        require(block.timestamp <= deadline, ErrorsLib.DEADLINE_EXPIRED);
-
-        _multicall(data);
-    }
 
     /* ACTIONS */
 

@@ -89,7 +89,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, true, false));
         bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, true, true));
 
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         assertTrue(morpho.isAuthorized(user, address(bundler)), "isAuthorized(user, bundler)");
     }
@@ -102,7 +102,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, true, false));
 
         vm.expectRevert(bytes(MorphoErrorsLib.INVALID_NONCE));
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function testSupplyOnBehalfBundlerAddress(uint256 assets) public {
@@ -111,7 +111,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         bundle.push(abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, assets, 0, address(bundler), hex"")));
 
         vm.expectRevert(bytes(ErrorsLib.BUNDLER_ADDRESS));
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function testSupplyCollateralOnBehalfBundlerAddress(uint256 assets) public {
@@ -122,7 +122,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         );
 
         vm.expectRevert(bytes(ErrorsLib.BUNDLER_ADDRESS));
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function testRepayOnBehalfBundlerAddress(uint256 assets) public {
@@ -131,7 +131,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         bundle.push(abi.encodeCall(MorphoBundler.morphoRepay, (marketParams, assets, 0, address(bundler), hex"")));
 
         vm.expectRevert(bytes(ErrorsLib.BUNDLER_ADDRESS));
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
     }
 
     function _testSupply(uint256 amount, address onBehalf) internal {
@@ -163,7 +163,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         loanToken.setBalance(USER, amount);
 
         vm.prank(USER);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         _testSupply(amount, onBehalf);
     }
@@ -179,7 +179,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         loanToken.setBalance(USER, amount);
 
         vm.prank(USER);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         _testSupply(amount, onBehalf);
     }
@@ -199,7 +199,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         loanToken.setBalance(USER, amount);
 
         vm.prank(USER);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         _testSupply(amount, onBehalf);
     }
@@ -233,7 +233,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         collateralToken.setBalance(USER, amount);
 
         vm.prank(USER);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         _testSupplyCollateral(amount, onBehalf);
     }
@@ -251,7 +251,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         collateralToken.setBalance(USER, amount);
 
         vm.prank(USER);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         _testSupplyCollateral(amount, onBehalf);
     }
@@ -273,7 +273,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         loanToken.setBalance(user, amount);
         vm.startPrank(user);
         morpho.supply(marketParams, amount, 0, user, hex"");
-        bundler.multicall(block.timestamp, data);
+        bundler.multicall(data);
         vm.stopPrank();
 
         assertEq(loanToken.balanceOf(user), expectedWithdrawnAmount, "loan.balanceOf(user)");
@@ -325,7 +325,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         collateralToken.setBalance(user, collateralAmount);
 
         vm.prank(user);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         _testSupplyCollateralBorrow(user, amount, collateralAmount);
     }
@@ -356,7 +356,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         collateralToken.setBalance(user, collateralAmount);
 
         vm.prank(user);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         _testSupplyCollateralBorrow(user, amount, collateralAmount);
     }
@@ -403,7 +403,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         bundle.push(abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, RECEIVER)));
 
         vm.prank(user);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         _testRepayWithdrawCollateral(user, collateralAmount);
     }
@@ -432,7 +432,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         bundle.push(abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, RECEIVER)));
 
         vm.prank(user);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         _testRepayWithdrawCollateral(user, collateralAmount);
     }
@@ -466,7 +466,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         );
 
         vm.prank(user);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         _testRepayWithdrawCollateral(user, collateralAmount);
     }
@@ -502,7 +502,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         loanToken.setBalance(LIQUIDATOR, repaidAssets);
 
         vm.prank(LIQUIDATOR);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         assertEq(loanToken.balanceOf(USER), amountBorrowed, "User's loan token balance");
         assertEq(loanToken.balanceOf(LIQUIDATOR), 0, "Liquidator's loan token balance");
@@ -562,7 +562,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         collateralToken.setBalance(user, vars.initialUserCollateralBalance);
 
         vm.prank(user);
-        bundler.multicall(block.timestamp, bundle);
+        bundler.multicall(bundle);
 
         assertEq(morpho.supplyShares(id, user), vars.expectedSupplyShares, "User's supply shares");
         assertEq(morpho.borrowShares(id, user), vars.expectedBorrowShares, "User's borrow shares");
