@@ -7,7 +7,7 @@ import {MarketParams, Signature, Authorization, IMorpho} from "@morpho-blue/inte
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 
 import {Math} from "@morpho-utils/math/Math.sol";
-import {ERC20} from "solmate/src/tokens/ERC20.sol";
+import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
 
@@ -16,6 +16,8 @@ import {BaseBundler} from "./BaseBundler.sol";
 /// @custom:contact security@morpho.org
 /// @notice Bundler contract managing interactions with Morpho.
 abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
+    using SafeTransferLib for ERC20;
+
     /* IMMUTABLES */
 
     /// @notice The Morpho contract address.
@@ -54,20 +56,10 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /* ACTIONS */
 
     /// @notice Gives the maximum allowance to the Morpho contract to spend the given `asset`.
-    /// @dev Pass `skipRevert == true` to avoid reverting the whole bundle in case the approval was frontrunned.
-    function approveMaxMorpho(address asset, bool skipRevert) external payable {
-        (bool success, bytes memory returnData) =
-            asset.call(abi.encodeCall(ERC20.approve, (address(MORPHO), type(uint256).max)));
-
-        assembly ("memory-safe") {
-            let returnDataSize := mload(returnData)
-
-            // Set success to whether the call reverted, if not we check it either
-            // returned exactly 1 (can't just be non-zero data), or had no return data.
-            success := and(success, or(iszero(returnDataSize), eq(mload(add(32, returnData)), 1)))
+    function approveMaxMorpho(address asset) external payable {
+        if (ERC20(asset).allowance(address(this), address(MORPHO)) == 0) {
+            ERC20(asset).safeApprove(address(MORPHO), type(uint256).max);
         }
-
-        if (!success && !skipRevert) _revert(returnData);
     }
 
     /// @notice Approves this contract to manage the `authorization.authorizer`'s position via EIP712 `signature`.
