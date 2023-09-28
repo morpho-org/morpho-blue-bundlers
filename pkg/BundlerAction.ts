@@ -13,6 +13,7 @@ import {
   AaveV3OptimizerMigrationBundler__factory,
   CompoundV2MigrationBundler__factory,
   CompoundV3MigrationBundler__factory,
+  EthereumPermitBundler__factory,
 } from "types";
 import { AuthorizationStruct, MarketParamsStruct } from "types/src/MorphoBundler";
 
@@ -27,6 +28,8 @@ export class BundlerAction {
   private static URD_BUNDLER_IFC = UrdBundler__factory.createInterface();
   private static WNATIVE_BUNDLER_IFC = WNativeBundler__factory.createInterface();
   private static ST_ETH_BUNDLER_IFC = StEthBundler__factory.createInterface();
+  private static ETHEREUM_PERMIT_BUNDLER_IFC = EthereumPermitBundler__factory.createInterface();
+
   private static AAVE_V2_BUNDLER_IFC = AaveV2MigrationBundler__factory.createInterface();
   private static AAVE_V3_BUNDLER_IFC = AaveV3MigrationBundler__factory.createInterface();
   private static AAVE_V3_OPTIMIZER_BUNDLER_IFC = AaveV3OptimizerMigrationBundler__factory.createInterface();
@@ -60,6 +63,24 @@ export class BundlerAction {
       asset,
       amount,
       deadline,
+      signature.v,
+      signature.r,
+      signature.s,
+      skipRevert,
+    ]);
+  }
+
+  static permitDai(
+    nonce: BigNumberish,
+    expiry: BigNumberish,
+    allowed: boolean,
+    signature: Signature,
+    skipRevert: boolean,
+  ): BundlerCall {
+    return BundlerAction.ETHEREUM_PERMIT_BUNDLER_IFC.encodeFunctionData("permitDai", [
+      nonce,
+      expiry,
+      allowed,
       signature.v,
       signature.r,
       signature.s,

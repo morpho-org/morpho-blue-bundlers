@@ -21,6 +21,17 @@ struct Permit {
     uint256 deadline;
 }
 
+bytes32 constant DAI_PERMIT_TYPEHASH =
+    keccak256("Permit(address holder,address spender,uint256 nonce,uint256 expiry,bool allowed)");
+
+struct DaiPermit {
+    address holder;
+    address spender;
+    uint256 nonce;
+    uint256 expiry;
+    bool allowed;
+}
+
 struct AaveV3OptimizerAuthorization {
     address delegator;
     address manager;
@@ -96,6 +107,17 @@ library SigUtils {
                     authorization.isAllowed,
                     authorization.nonce,
                     authorization.deadline
+                )
+            )
+        );
+    }
+
+    function toTypedDataHash(bytes32 domainSeparator, DaiPermit memory permit) internal pure returns (bytes32) {
+        return ECDSA.toTypedDataHash(
+            domainSeparator,
+            keccak256(
+                abi.encode(
+                    DAI_PERMIT_TYPEHASH, permit.holder, permit.spender, permit.nonce, permit.expiry, permit.allowed
                 )
             )
         );
