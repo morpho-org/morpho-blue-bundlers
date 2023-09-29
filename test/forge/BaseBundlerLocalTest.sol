@@ -54,6 +54,31 @@ contract BaseBundlerLocalTest is LocalTest {
         bundler.multicall(bundle);
     }
 
+    function testNativeTransferZeroAddress(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        bundle.push(abi.encodeCall(BaseBundler.nativeTransfer, (address(0), amount)));
+
+        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
+        bundler.multicall(bundle);
+    }
+
+    function testNativeTransferBundlerAddress(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        bundle.push(abi.encodeCall(BaseBundler.nativeTransfer, (address(bundler), amount)));
+
+        vm.expectRevert(bytes(ErrorsLib.BUNDLER_ADDRESS));
+        bundler.multicall(bundle);
+    }
+
+    function testNativeTransferZeroAmount() public {
+        bundle.push(abi.encodeCall(BaseBundler.nativeTransfer, (RECEIVER, 0)));
+
+        vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
+        bundler.multicall(bundle);
+    }
+
     function testTransferFrom(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 

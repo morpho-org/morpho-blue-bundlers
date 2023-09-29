@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
 
 import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
+import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
 import {MarketParamsLib} from "@morpho-blue/libraries/MarketParamsLib.sol";
 import {MorphoLib} from "@morpho-blue/libraries/periphery/MorphoLib.sol";
 import {MorphoBalancesLib} from "@morpho-blue/libraries/periphery/MorphoBalancesLib.sol";

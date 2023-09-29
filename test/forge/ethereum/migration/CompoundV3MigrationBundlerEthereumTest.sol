@@ -36,6 +36,13 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         bundler = new CompoundV3MigrationBundler(address(morpho));
     }
 
+    function testCompoundV3RepayZeroAmount() public {
+        bundle.push(_compoundV3RepayCall(cToken, marketParams.loanToken, 0));
+
+        vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
+        bundler.multicall(bundle);
+    }
+
     function testMigrateBorrowerWithCompoundAllowance(uint256 privateKey) public {
         address user;
         (privateKey, user) = _getUserAndKey(privateKey);
