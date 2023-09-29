@@ -28,6 +28,47 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         enteredMarkets.push(C_ETH_V2);
     }
 
+    function testCompoundV2RepayZeroAmount() public {
+        bundle.push(_compoundV2RepayCall(C_DAI_V2, 0));
+
+        vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
+        bundler.multicall(bundle);
+    }
+
+    function testCompoundV2RepayErr(uint256 privateKey, uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        address user;
+        (privateKey, user) = _getUserAndKey(privateKey);
+
+        deal(DAI, address(bundler), amount);
+
+        vm.mockCall(C_DAI_V2, abi.encodeWithSelector(ICToken.repayBorrowBehalf.selector), abi.encode(1));
+
+        bundle.push(_compoundV2RepayCall(C_DAI_V2, amount));
+
+        vm.prank(user);
+        vm.expectRevert(bytes(ErrorsLib.REPAY_ERROR));
+        bundler.multicall(bundle);
+    }
+
+    function testCompoundV2RedeemErr(uint256 privateKey, uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        address user;
+        (privateKey, user) = _getUserAndKey(privateKey);
+
+        deal(C_DAI_V2, address(bundler), amount);
+
+        vm.mockCall(C_DAI_V2, abi.encodeWithSelector(ICToken.redeem.selector), abi.encode(1));
+
+        bundle.push(_compoundV2RedeemCall(C_DAI_V2, amount));
+
+        vm.prank(user);
+        vm.expectRevert(bytes(ErrorsLib.REDEEM_ERROR));
+        bundler.multicall(bundle);
+    }
+
     function testMigrateBorrowerWithPermit2(uint256 privateKey) public {
         uint256 collateral = 10 ether;
         uint256 borrowed = 1 ether;
