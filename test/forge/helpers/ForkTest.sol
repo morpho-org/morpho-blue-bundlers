@@ -68,14 +68,12 @@ abstract contract ForkTest is BaseTest, Configured {
         }
     }
 
-    /// @dev Avoids to revert because of AAVE token snapshots:
-    /// https://github.com/aave/aave-token-v2/blob/master/contracts/token/base/GovernancePowerDelegationERC20.sol#L174
-    function _deal(address asset, address user, uint256 amount) internal {
+    function deal(address asset, address recipient, uint256 amount) internal virtual override {
         if (amount == 0) return;
 
-        if (asset == WETH) deal(WETH, WETH.balance + amount); // Refill wrapped Ether.
+        if (asset == WETH) super.deal(WETH, WETH.balance + amount); // Refill wrapped Ether.
 
-        deal(asset, user, amount);
+        return super.deal(asset, recipient, amount);
     }
 
     /// @dev Reverts the fork to its initial fork state.

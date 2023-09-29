@@ -93,10 +93,6 @@ contract EthereumMigrationTest is EthereumTest {
         return abi.encodeCall(MorphoBundler.morphoSupplyCollateral, (marketParams, amount, onBehalf, callbackData));
     }
 
-    function _erc20TransferFromCall(address asset, uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(BaseBundler.erc20TransferFrom, (asset, amount));
-    }
-
     function _erc20TransferFrom2Call(address asset, uint256 amount) internal pure returns (bytes memory) {
         return abi.encodeCall(Permit2Bundler.transferFrom2, (asset, amount));
     }
@@ -124,14 +120,6 @@ contract EthereumMigrationTest is EthereumTest {
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
         return abi.encodeCall(Permit2Bundler.approve2, (asset, amount, SIGNATURE_DEADLINE, sig, false));
-    }
-
-    function _erc4626DepositCall(address vault, uint256 amount, address receiver)
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return abi.encodeCall(ERC4626Bundler.erc4626Deposit, (vault, amount, receiver));
     }
 
     function _provideLiquidity(uint256 liquidity) internal {

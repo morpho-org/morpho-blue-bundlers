@@ -14,8 +14,6 @@ import "src/mocks/bundlers/UrdBundlerMock.sol";
 import "./helpers/LocalTest.sol";
 
 contract UrdBundlerLocalTest is LocalTest {
-    UrdBundlerMock internal bundler;
-
     UrdFactory internal urdFactory;
     Merkle internal merkle;
 
@@ -38,9 +36,7 @@ contract UrdBundlerLocalTest is LocalTest {
 
         bytes32[] memory proof;
 
-        bundle.push(
-            abi.encodeCall(UrdBundler.urdClaim, (address(0), account, address(loanToken), claimable, proof, false))
-        );
+        bundle.push(_urdClaim(address(0), account, address(loanToken), claimable, proof, false));
 
         vm.prank(USER);
         vm.expectRevert();
@@ -52,9 +48,7 @@ contract UrdBundlerLocalTest is LocalTest {
 
         bytes32[] memory proof;
 
-        bundle.push(
-            abi.encodeCall(UrdBundler.urdClaim, (distributor, address(0), address(loanToken), claimable, proof, false))
-        );
+        bundle.push(_urdClaim(distributor, address(0), address(loanToken), claimable, proof, false));
 
         vm.prank(USER);
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
@@ -66,11 +60,7 @@ contract UrdBundlerLocalTest is LocalTest {
 
         bytes32[] memory proof;
 
-        bundle.push(
-            abi.encodeCall(
-                UrdBundler.urdClaim, (distributor, address(bundler), address(loanToken), claimable, proof, false)
-            )
-        );
+        bundle.push(_urdClaim(distributor, address(bundler), address(loanToken), claimable, proof, false));
 
         vm.prank(USER);
         vm.expectRevert(bytes(ErrorsLib.BUNDLER_ADDRESS));
@@ -89,27 +79,10 @@ contract UrdBundlerLocalTest is LocalTest {
         bytes32[] memory loanTokenProof = merkle.getProof(tree, 0);
         bytes32[] memory collateralTokenProof = merkle.getProof(tree, 1);
 
-        bundle.push(
-            abi.encodeCall(
-                UrdBundler.urdClaim, (distributor, USER, address(loanToken), claimable, loanTokenProof, false)
-            )
-        );
-        bundle.push(
-            abi.encodeCall(
-                UrdBundler.urdClaim,
-                (distributor, USER, address(collateralToken), claimable, collateralTokenProof, false)
-            )
-        );
-        bundle.push(
-            abi.encodeCall(
-                UrdBundler.urdClaim, (distributor, USER, address(loanToken), claimable, collateralTokenProof, true)
-            )
-        );
-        bundle.push(
-            abi.encodeCall(
-                UrdBundler.urdClaim, (distributor, USER, address(collateralToken), claimable, loanTokenProof, true)
-            )
-        );
+        bundle.push(_urdClaim(distributor, USER, address(loanToken), claimable, loanTokenProof, false));
+        bundle.push(_urdClaim(distributor, USER, address(collateralToken), claimable, collateralTokenProof, false));
+        bundle.push(_urdClaim(distributor, USER, address(loanToken), claimable, collateralTokenProof, true));
+        bundle.push(_urdClaim(distributor, USER, address(collateralToken), claimable, loanTokenProof, true));
 
         vm.prank(USER);
         bundler.multicall(bundle);
@@ -130,22 +103,9 @@ contract UrdBundlerLocalTest is LocalTest {
         bytes32[] memory loanTokenProof = merkle.getProof(tree, 0);
         bytes32[] memory collateralTokenProof = merkle.getProof(tree, 1);
 
-        bundle.push(
-            abi.encodeCall(
-                UrdBundler.urdClaim, (distributor, USER, address(loanToken), claimable, loanTokenProof, false)
-            )
-        );
-        bundle.push(
-            abi.encodeCall(
-                UrdBundler.urdClaim,
-                (distributor, USER, address(collateralToken), claimable, collateralTokenProof, false)
-            )
-        );
-        bundle.push(
-            abi.encodeCall(
-                UrdBundler.urdClaim, (distributor, USER, address(loanToken), claimable, loanTokenProof, false)
-            )
-        );
+        bundle.push(_urdClaim(distributor, USER, address(loanToken), claimable, loanTokenProof, false));
+        bundle.push(_urdClaim(distributor, USER, address(collateralToken), claimable, collateralTokenProof, false));
+        bundle.push(_urdClaim(distributor, USER, address(loanToken), claimable, loanTokenProof, false));
 
         vm.prank(USER);
         vm.expectRevert(bytes(UrdErrorsLib.ALREADY_CLAIMED));

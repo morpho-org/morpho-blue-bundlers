@@ -11,8 +11,6 @@ import "./helpers/EthereumTest.sol";
 bytes32 constant DAI_DOMAIN_SEPARATOR = 0xdbb8cf42e1ecb028be3f3dbc922e1d878b963f411dc388ced501601c60f7c6f7;
 
 contract EthereumPermitBundlerEthereumTest is EthereumTest {
-    EthereumPermitBundlerMock private bundler;
-
     function setUp() public override {
         super.setUp();
 

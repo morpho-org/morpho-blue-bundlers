@@ -10,8 +10,6 @@ import "src/mocks/bundlers/ethereum/EthereumStEthBundlerMock.sol";
 import "./helpers/EthereumTest.sol";
 
 contract EthereumStEthBundlerEthereumTest is EthereumTest {
-    EthereumStEthBundlerMock private bundler;
-
     function setUp() public override {
         super.setUp();
 
@@ -24,7 +22,7 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         deal(USER, amount);
 
         bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, address(0))));
-        bundle.push(abi.encodeCall(BaseBundler.erc20Transfer, (ST_ETH, RECEIVER, type(uint256).max)));
+        bundle.push(_erc20Transfer(ST_ETH, RECEIVER, type(uint256).max));
 
         vm.prank(USER);
         bundler.multicall{value: amount}(bundle);
@@ -38,12 +36,11 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
     }
 
     function testWrapZeroAmount() public {
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(StEthBundler.wrapStEth, (0));
+        bundle.push(abi.encodeCall(StEthBundler.wrapStEth, (0)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
-        bundler.multicall(data);
+        bundler.multicall(bundle);
     }
 
     function testWrapStEth(uint256 amount, uint256 privateKey) public {
@@ -53,13 +50,14 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         address user = _getAddressFromPrivateKey(privateKey);
         _approvePermit2(user);
 
-        _mintStEth(amount, user);
+        deal(ST_ETH, user, amount);
+
         amount = ERC20(ST_ETH).balanceOf(user);
 
         bundle.push(_getPermit2Data(ST_ETH, privateKey, user));
         bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (ST_ETH, amount)));
         bundle.push(abi.encodeCall(StEthBundler.wrapStEth, (amount)));
-        bundle.push(abi.encodeCall(BaseBundler.erc20Transfer, (WST_ETH, RECEIVER, type(uint256).max)));
+        bundle.push(_erc20Transfer(WST_ETH, RECEIVER, type(uint256).max));
 
         uint256 wstEthExpectedAmount = IStEth(ST_ETH).getSharesByPooledEth(ERC20(ST_ETH).balanceOf(user));
 
@@ -76,12 +74,11 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
     }
 
     function testUnwrapZeroAmount() public {
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(StEthBundler.unwrapStEth, (0));
+        bundle.push(abi.encodeCall(StEthBundler.unwrapStEth, (0)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
-        bundler.multicall(data);
+        bundler.multicall(bundle);
     }
 
     function testUnwrapWstEth(uint256 amount, uint256 privateKey) public {
@@ -94,7 +91,7 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         bundle.push(_getPermit2Data(WST_ETH, privateKey, user));
         bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (WST_ETH, amount)));
         bundle.push(abi.encodeCall(StEthBundler.unwrapStEth, (amount)));
-        bundle.push(abi.encodeCall(BaseBundler.erc20Transfer, (ST_ETH, RECEIVER, type(uint256).max)));
+        bundle.push(_erc20Transfer(ST_ETH, RECEIVER, type(uint256).max));
 
         deal(WST_ETH, user, amount);
         vm.prank(user);
@@ -109,13 +106,6 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         assertApproxEqAbs(ERC20(ST_ETH).balanceOf(address(bundler)), 0, 1, "stEth.balanceOf(bundler)");
         assertEq(ERC20(ST_ETH).balanceOf(user), 0, "stEth.balanceOf(user)");
         assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), expectedUnwrappedAmount, 3, "stEth.balanceOf(RECEIVER)");
-    }
-
-    function _mintStEth(uint256 amount, address user) internal returns (uint256 stEthAmount) {
-        vm.deal(user, amount);
-        vm.prank(user);
-        stEthAmount = IStEth(ST_ETH).submit{value: amount}(address(0));
-        vm.assume(stEthAmount != 0);
     }
 
     function _getPermit2Data(address token, uint256 privateKey, address user) internal view returns (bytes memory) {

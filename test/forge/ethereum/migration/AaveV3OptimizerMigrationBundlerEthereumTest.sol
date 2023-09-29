@@ -18,8 +18,6 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     uint256 public constant MAX_ITERATIONS = 15;
 
-    AaveV3OptimizerMigrationBundler bundler;
-
     uint256 collateralSupplied = 10_000 ether;
     uint256 borrowed = 1 ether;
 
@@ -146,7 +144,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         bundle.push(_aaveV3OptimizerApproveManagerCall(privateKey, address(bundler), true, 0));
         bundle.push(_aaveV3OptimizerWithdraw(marketParams.loanToken, supplied, address(bundler)));
         bundle.push(_aaveV3OptimizerApproveManagerCall(privateKey, address(bundler), false, 1));
-        bundle.push(_erc4626DepositCall(address(suppliersVault), supplied, user));
+        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
 
         vm.prank(user);
         bundler.multicall(bundle);

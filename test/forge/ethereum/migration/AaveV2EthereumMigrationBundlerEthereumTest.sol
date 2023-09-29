@@ -19,8 +19,6 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
     uint256 public constant RATE_MODE = 2;
 
-    AaveV2EthereumMigrationBundler bundler;
-
     uint256 collateralSupplied = 10_000 ether;
     uint256 borrowed = 1 ether;
 
@@ -107,7 +105,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackBundle.push(_erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0));
         callbackBundle.push(_erc20TransferFrom2Call(aToken, aTokenBalance));
         callbackBundle.push(_aaveV2WithdrawCall(DAI, collateralSupplied, address(bundler)));
-        callbackBundle.push(_erc4626DepositCall(S_DAI, collateralSupplied, address(bundler)));
+        callbackBundle.push(_erc4626Deposit(S_DAI, collateralSupplied, address(bundler)));
 
         bundle.push(_morphoSupplyCollateralCall(sDaiAmount, user, abi.encode(callbackBundle)));
 
@@ -124,9 +122,9 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         _initMarket(WST_ETH, WETH);
         _provideLiquidity(borrowed);
 
-        vm.deal(user, collateralSupplied);
-        vm.prank(user);
-        IStEth(ST_ETH).submit{value: collateralSupplied}(address(0));
+        deal(ST_ETH, user, collateralSupplied);
+
+        collateralSupplied = ERC20(ST_ETH).balanceOf(user);
 
         vm.startPrank(user);
         ERC20(ST_ETH).safeApprove(AAVE_V2_POOL, collateralSupplied);
@@ -134,10 +132,13 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         ILendingPool(AAVE_V2_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
         vm.stopPrank();
 
+        // The amount of stEth as collateral is decreased by 10 beceause of roundings.
+        collateralSupplied -= 10;
+
         address aToken = _getATokenV2(ST_ETH);
         uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
 
-        uint256 wstEthAmount = IStEth(ST_ETH).getSharesByPooledEth(collateralSupplied - 4);
+        uint256 wstEthAmount = IStEth(ST_ETH).getSharesByPooledEth(collateralSupplied);
 
         vm.prank(user);
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
@@ -149,14 +150,14 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackBundle.push(_erc20Approve2Call(privateKey, aToken, type(uint160).max, address(bundler), 0));
         callbackBundle.push(_erc20TransferFrom2Call(aToken, aTokenBalance));
         callbackBundle.push(_aaveV2WithdrawCall(ST_ETH, type(uint256).max, address(bundler)));
-        // The amount of stEth is decreased by 1 beceause of roundings at each transfer.
-        callbackBundle.push(_wrapStEthCall(collateralSupplied - 4));
-        bundle.push(_morphoSupplyCollateralCall(wstEthAmount - 2, user, abi.encode(callbackBundle)));
+        callbackBundle.push(_wrapStEthCall(type(uint256).max));
+
+        bundle.push(_morphoSupplyCollateralCall(wstEthAmount, user, abi.encode(callbackBundle)));
 
         vm.prank(user);
         bundler.multicall(bundle);
 
-        _assertBorrowerPosition(wstEthAmount - 2, borrowed, user, address(bundler));
+        _assertBorrowerPosition(wstEthAmount, borrowed, user, address(bundler));
     }
 
     function testMigrateSupplierWithPermit2(uint256 privateKey, uint256 supplied) public {
@@ -209,7 +210,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         bundle.push(_erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0));
         bundle.push(_erc20TransferFrom2Call(aToken, aTokenBalance));
         bundle.push(_aaveV2WithdrawCall(marketParams.loanToken, supplied, address(bundler)));
-        bundle.push(_erc4626DepositCall(address(suppliersVault), supplied, user));
+        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
 
         vm.prank(user);
         bundler.multicall(bundle);

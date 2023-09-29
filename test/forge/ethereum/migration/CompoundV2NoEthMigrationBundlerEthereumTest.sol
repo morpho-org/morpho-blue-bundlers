@@ -14,8 +14,6 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
 
-    CompoundV2MigrationBundler bundler;
-
     address[] internal enteredMarkets;
 
     function setUp() public override {
@@ -125,7 +123,7 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
         bundle.push(_erc20Approve2Call(privateKey, C_USDC_V2, uint160(cTokenBalance), address(bundler), 0));
         bundle.push(_erc20TransferFrom2Call(C_USDC_V2, cTokenBalance));
         bundle.push(_compoundV2RedeemCall(C_USDC_V2, cTokenBalance));
-        bundle.push(_erc4626DepositCall(address(suppliersVault), supplied, user));
+        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
 
         vm.prank(user);
         bundler.multicall(bundle);

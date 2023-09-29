@@ -8,8 +8,6 @@ import "src/mocks/bundlers/WNativeBundlerMock.sol";
 import "./helpers/EthereumTest.sol";
 
 contract WNativeBundlerEthereumTest is EthereumTest {
-    WNativeBundlerMock private bundler;
-
     function setUp() public override {
         super.setUp();
 
@@ -20,21 +18,21 @@ contract WNativeBundlerEthereumTest is EthereumTest {
     }
 
     function testWrapZeroAmount() public {
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(WNativeBundler.wrapNative, (0));
+        bundle.push(abi.encodeCall(WNativeBundler.wrapNative, (0)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
-        bundler.multicall(data);
+        bundler.multicall(bundle);
     }
 
     function testWrapNative(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         bundle.push(abi.encodeCall(WNativeBundler.wrapNative, (amount)));
-        bundle.push(abi.encodeCall(BaseBundler.erc20Transfer, (WETH, RECEIVER, type(uint256).max)));
+        bundle.push(_erc20Transfer(WETH, RECEIVER, type(uint256).max));
 
-        vm.deal(USER, amount);
+        deal(USER, amount);
+
         vm.prank(USER);
         bundler.multicall{value: amount}(bundle);
 
@@ -48,22 +46,22 @@ contract WNativeBundlerEthereumTest is EthereumTest {
     }
 
     function testUnwrapZeroAmount() public {
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(WNativeBundler.unwrapNative, (0));
+        bundle.push(abi.encodeCall(WNativeBundler.unwrapNative, (0)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
-        bundler.multicall(data);
+        bundler.multicall(bundle);
     }
 
     function testUnwrapNative(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(abi.encodeCall(BaseBundler.erc20TransferFrom, (WETH, amount)));
+        bundle.push(_erc20TransferFrom(WETH, amount));
         bundle.push(abi.encodeCall(WNativeBundler.unwrapNative, (amount)));
-        bundle.push(abi.encodeCall(BaseBundler.nativeTransfer, (RECEIVER, type(uint256).max)));
+        bundle.push(_nativeTransfer(RECEIVER, type(uint256).max));
 
         deal(WETH, USER, amount);
+
         vm.prank(USER);
         bundler.multicall(bundle);
 

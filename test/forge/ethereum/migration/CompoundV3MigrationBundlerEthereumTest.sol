@@ -13,8 +13,6 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
 
-    CompoundV3MigrationBundler bundler;
-
     address internal cToken;
 
     mapping(address => address) _cTokens;
@@ -142,7 +140,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         bundle.push(_compoundV3AllowCall(privateKey, cToken, address(bundler), true, 0));
         bundle.push(_compoundV3WithdrawFromCall(cToken, marketParams.loanToken, supplied));
         bundle.push(_compoundV3AllowCall(privateKey, cToken, address(bundler), false, 1));
-        bundle.push(_erc4626DepositCall(address(suppliersVault), supplied, user));
+        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
 
         vm.prank(user);
         bundler.multicall(bundle);
@@ -171,7 +169,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         bundle.push(_erc20Approve2Call(privateKey, cToken, uint160(cTokenBalance), address(bundler), 0));
         bundle.push(_erc20TransferFrom2Call(cToken, cTokenBalance));
         bundle.push(_compoundV3WithdrawCall(cToken, marketParams.loanToken, supplied));
-        bundle.push(_erc4626DepositCall(address(suppliersVault), supplied, user));
+        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
 
         vm.prank(user);
         bundler.multicall(bundle);
