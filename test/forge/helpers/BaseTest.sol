@@ -15,6 +15,8 @@ import {LIQUIDATION_CURSOR, MAX_LIQUIDATION_INCENTIVE_FACTOR} from "@morpho-blue
 import {IrmMock} from "@morpho-blue/mocks/IrmMock.sol";
 import {OracleMock} from "@morpho-blue/mocks/OracleMock.sol";
 
+import {BaseBundler} from "src/BaseBundler.sol";
+
 import "@forge-std/Test.sol";
 import "@forge-std/console2.sol";
 
@@ -38,6 +40,8 @@ abstract contract BaseTest is Test {
     IMorpho internal morpho;
     IrmMock internal irm;
     OracleMock internal oracle;
+
+    BaseBundler internal bundler;
 
     bytes[] internal bundle;
     bytes[] internal callbackBundle;

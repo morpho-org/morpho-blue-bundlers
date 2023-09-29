@@ -10,8 +10,6 @@ import "src/mocks/bundlers/ethereum/EthereumStEthBundlerMock.sol";
 import "./helpers/EthereumTest.sol";
 
 contract EthereumStEthBundlerEthereumTest is EthereumTest {
-    EthereumStEthBundlerMock private bundler;
-
     function setUp() public override {
         super.setUp();
 

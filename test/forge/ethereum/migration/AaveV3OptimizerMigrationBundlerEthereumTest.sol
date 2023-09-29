@@ -18,8 +18,6 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     uint256 public constant MAX_ITERATIONS = 15;
 
-    AaveV3OptimizerMigrationBundler bundler;
-
     uint256 collateralSupplied = 10_000 ether;
     uint256 borrowed = 1 ether;
 

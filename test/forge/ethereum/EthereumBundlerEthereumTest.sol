@@ -14,8 +14,6 @@ contract EthereumBundlerEthereumTest is EthereumTest {
     using MarketParamsLib for MarketParams;
     using SafeTransferLib for ERC20;
 
-    EthereumBundler private bundler;
-
     function setUp() public override {
         super.setUp();
 

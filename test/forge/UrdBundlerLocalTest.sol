@@ -14,8 +14,6 @@ import "src/mocks/bundlers/UrdBundlerMock.sol";
 import "./helpers/LocalTest.sol";
 
 contract UrdBundlerLocalTest is LocalTest {
-    UrdBundlerMock internal bundler;
-
     UrdFactory internal urdFactory;
     Merkle internal merkle;
 

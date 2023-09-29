@@ -19,8 +19,6 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
     uint256 public constant RATE_MODE = 2;
 
-    AaveV2EthereumMigrationBundler bundler;
-
     uint256 collateralSupplied = 10_000 ether;
     uint256 borrowed = 1 ether;
 

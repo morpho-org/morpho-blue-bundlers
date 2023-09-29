@@ -17,8 +17,6 @@ contract MorphoBundlerLocalTest is LocalTest {
     using MorphoBalancesLib for IMorpho;
     using SharesMathLib for uint256;
 
-    MorphoBundlerMock internal bundler;
-
     function setUp() public override {
         super.setUp();
 

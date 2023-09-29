@@ -11,8 +11,6 @@ import "src/mocks/bundlers/Permit2BundlerMock.sol";
 import "./helpers/EthereumTest.sol";
 
 contract Permit2BundlerEthereumTest is EthereumTest {
-    Permit2BundlerMock internal bundler;
-
     function setUp() public override {
         super.setUp();
 

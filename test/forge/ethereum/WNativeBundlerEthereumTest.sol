@@ -8,8 +8,6 @@ import "src/mocks/bundlers/WNativeBundlerMock.sol";
 import "./helpers/EthereumTest.sol";
 
 contract WNativeBundlerEthereumTest is EthereumTest {
-    WNativeBundlerMock private bundler;
-
     function setUp() public override {
         super.setUp();
 

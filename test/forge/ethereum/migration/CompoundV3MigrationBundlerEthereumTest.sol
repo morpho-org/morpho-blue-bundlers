@@ -13,8 +13,6 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
 
-    CompoundV3MigrationBundler bundler;
-
     address internal cToken;
 
     mapping(address => address) _cTokens;

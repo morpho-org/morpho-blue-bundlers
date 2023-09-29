@@ -10,13 +10,13 @@ import "./helpers/LocalTest.sol";
 
 contract ERC4626BundlerLocalTest is LocalTest {
     ERC4626Mock internal vault;
-    ERC4626BundlerMock internal bundler;
 
     function setUp() public override {
         super.setUp();
 
-        vault = new ERC4626Mock(address(loanToken), "LoanToken Vault", "BV");
         bundler = new ERC4626BundlerMock();
+
+        vault = new ERC4626Mock(address(loanToken), "LoanToken Vault", "BV");
     }
 
     function testErc4626MintZeroAdressVault(uint256 shares) public {

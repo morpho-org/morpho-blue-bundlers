@@ -14,8 +14,6 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
 
-    CompoundV2MigrationBundler bundler;
-
     address[] internal enteredMarkets;
 
     function setUp() public override {
