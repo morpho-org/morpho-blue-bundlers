@@ -105,7 +105,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackBundle.push(_erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0));
         callbackBundle.push(_erc20TransferFrom2Call(aToken, aTokenBalance));
         callbackBundle.push(_aaveV2WithdrawCall(DAI, collateralSupplied, address(bundler)));
-        callbackBundle.push(_erc4626DepositCall(S_DAI, collateralSupplied, address(bundler)));
+        callbackBundle.push(_erc4626Deposit(S_DAI, collateralSupplied, address(bundler)));
 
         bundle.push(_morphoSupplyCollateralCall(sDaiAmount, user, abi.encode(callbackBundle)));
 
@@ -210,7 +210,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         bundle.push(_erc20Approve2Call(privateKey, aToken, uint160(aTokenBalance), address(bundler), 0));
         bundle.push(_erc20TransferFrom2Call(aToken, aTokenBalance));
         bundle.push(_aaveV2WithdrawCall(marketParams.loanToken, supplied, address(bundler)));
-        bundle.push(_erc4626DepositCall(address(suppliersVault), supplied, user));
+        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
 
         vm.prank(user);
         bundler.multicall(bundle);

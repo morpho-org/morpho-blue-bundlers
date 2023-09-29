@@ -122,14 +122,6 @@ contract EthereumMigrationTest is EthereumTest {
         return abi.encodeCall(Permit2Bundler.approve2, (asset, amount, SIGNATURE_DEADLINE, sig, false));
     }
 
-    function _erc4626DepositCall(address vault, uint256 amount, address receiver)
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return abi.encodeCall(ERC4626Bundler.erc4626Deposit, (vault, amount, receiver));
-    }
-
     function _provideLiquidity(uint256 liquidity) internal {
         deal(marketParams.loanToken, address(this), liquidity);
         ERC20(marketParams.loanToken).safeApprove(address(morpho), liquidity);

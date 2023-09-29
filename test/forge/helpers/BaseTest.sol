@@ -16,6 +16,7 @@ import {IrmMock} from "@morpho-blue/mocks/IrmMock.sol";
 import {OracleMock} from "@morpho-blue/mocks/OracleMock.sol";
 
 import {BaseBundler} from "src/BaseBundler.sol";
+import {ERC4626Bundler} from "src/ERC4626Bundler.sol";
 
 import "@forge-std/Test.sol";
 import "@forge-std/console2.sol";
@@ -74,9 +75,13 @@ abstract contract BaseTest is Test {
         require(deployed != address(0), string.concat("could not deploy `", artifactPath, "`"));
     }
 
+    /* TRANSFER */
+
     function _nativeTransfer(address recipient, uint256 amount) internal pure returns (bytes memory) {
         return abi.encodeCall(BaseBundler.nativeTransfer, (recipient, amount));
     }
+
+    /* ERC20 ACTIONS */
 
     function _erc20Transfer(address asset, address recipient, uint256 amount) internal pure returns (bytes memory) {
         return abi.encodeCall(BaseBundler.erc20Transfer, (asset, recipient, amount));
@@ -84,5 +89,23 @@ abstract contract BaseTest is Test {
 
     function _erc20TransferFrom(address asset, uint256 amount) internal pure returns (bytes memory) {
         return abi.encodeCall(BaseBundler.erc20TransferFrom, (asset, amount));
+    }
+
+    /* ERC4626 ACTIONS */
+
+    function _erc4626Mint(address vault, uint256 shares, address receiver) internal pure returns (bytes memory) {
+        return abi.encodeCall(ERC4626Bundler.erc4626Mint, (vault, shares, receiver));
+    }
+
+    function _erc4626Deposit(address vault, uint256 assets, address receiver) internal pure returns (bytes memory) {
+        return abi.encodeCall(ERC4626Bundler.erc4626Deposit, (vault, assets, receiver));
+    }
+
+    function _erc4626Withdraw(address vault, uint256 assets, address receiver) internal pure returns (bytes memory) {
+        return abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (vault, assets, receiver));
+    }
+
+    function _erc4626Redeem(address vault, uint256 shares, address receiver) internal pure returns (bytes memory) {
+        return abi.encodeCall(ERC4626Bundler.erc4626Redeem, (vault, shares, receiver));
     }
 }
