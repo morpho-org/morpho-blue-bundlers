@@ -34,7 +34,8 @@ contract WNativeBundlerEthereumTest is EthereumTest {
         bundle.push(abi.encodeCall(WNativeBundler.wrapNative, (amount)));
         bundle.push(abi.encodeCall(BaseBundler.erc20Transfer, (WETH, RECEIVER, type(uint256).max)));
 
-        vm.deal(USER, amount);
+        deal(USER, amount);
+
         vm.prank(USER);
         bundler.multicall{value: amount}(bundle);
 

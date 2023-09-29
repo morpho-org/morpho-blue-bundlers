@@ -124,10 +124,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         _initMarket(WST_ETH, WETH);
         _provideLiquidity(borrowed);
 
-        deal(user, collateralSupplied);
-
-        vm.prank(user);
-        IStEth(ST_ETH).submit{value: collateralSupplied}(address(0));
+        deal(ST_ETH, user, collateralSupplied);
 
         vm.startPrank(user);
         ERC20(ST_ETH).safeApprove(AAVE_V2_POOL, collateralSupplied);

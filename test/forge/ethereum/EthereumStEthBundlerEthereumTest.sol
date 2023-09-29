@@ -53,7 +53,8 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         address user = _getAddressFromPrivateKey(privateKey);
         _approvePermit2(user);
 
-        _mintStEth(amount, user);
+        deal(ST_ETH, user, amount);
+
         amount = ERC20(ST_ETH).balanceOf(user);
 
         bundle.push(_getPermit2Data(ST_ETH, privateKey, user));
@@ -109,13 +110,6 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         assertApproxEqAbs(ERC20(ST_ETH).balanceOf(address(bundler)), 0, 1, "stEth.balanceOf(bundler)");
         assertEq(ERC20(ST_ETH).balanceOf(user), 0, "stEth.balanceOf(user)");
         assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), expectedUnwrappedAmount, 3, "stEth.balanceOf(RECEIVER)");
-    }
-
-    function _mintStEth(uint256 amount, address user) internal returns (uint256 stEthAmount) {
-        vm.deal(user, amount);
-        vm.prank(user);
-        stEthAmount = IStEth(ST_ETH).submit{value: amount}(address(0));
-        vm.assume(stEthAmount != 0);
     }
 
     function _getPermit2Data(address token, uint256 privateKey, address user) internal view returns (bytes memory) {

@@ -65,7 +65,7 @@ contract EthereumBundlerEthereumTest is EthereumTest {
         uint256 collateralBalanceBefore = ERC20(marketParams.collateralToken).balanceOf(onBehalf);
         uint256 loanBalanceBefore = ERC20(marketParams.loanToken).balanceOf(onBehalf);
 
-        _deal(marketParams.loanToken, user, amount);
+        deal(marketParams.loanToken, user, amount);
 
         vm.startPrank(user);
         ERC20(marketParams.loanToken).safeApprove(address(Permit2Lib.PERMIT2), type(uint256).max);
