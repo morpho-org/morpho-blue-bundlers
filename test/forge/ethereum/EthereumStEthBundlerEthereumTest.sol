@@ -22,7 +22,7 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         deal(USER, amount);
 
         bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, address(0))));
-        bundle.push(abi.encodeCall(BaseBundler.erc20Transfer, (ST_ETH, RECEIVER, type(uint256).max)));
+        bundle.push(_erc20Transfer(ST_ETH, RECEIVER, type(uint256).max));
 
         vm.prank(USER);
         bundler.multicall{value: amount}(bundle);
@@ -57,7 +57,7 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         bundle.push(_getPermit2Data(ST_ETH, privateKey, user));
         bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (ST_ETH, amount)));
         bundle.push(abi.encodeCall(StEthBundler.wrapStEth, (amount)));
-        bundle.push(abi.encodeCall(BaseBundler.erc20Transfer, (WST_ETH, RECEIVER, type(uint256).max)));
+        bundle.push(_erc20Transfer(WST_ETH, RECEIVER, type(uint256).max));
 
         uint256 wstEthExpectedAmount = IStEth(ST_ETH).getSharesByPooledEth(ERC20(ST_ETH).balanceOf(user));
 
@@ -91,7 +91,7 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         bundle.push(_getPermit2Data(WST_ETH, privateKey, user));
         bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (WST_ETH, amount)));
         bundle.push(abi.encodeCall(StEthBundler.unwrapStEth, (amount)));
-        bundle.push(abi.encodeCall(BaseBundler.erc20Transfer, (ST_ETH, RECEIVER, type(uint256).max)));
+        bundle.push(_erc20Transfer(ST_ETH, RECEIVER, type(uint256).max));
 
         deal(WST_ETH, user, amount);
         vm.prank(user);

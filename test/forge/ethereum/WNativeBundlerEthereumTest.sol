@@ -29,7 +29,7 @@ contract WNativeBundlerEthereumTest is EthereumTest {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         bundle.push(abi.encodeCall(WNativeBundler.wrapNative, (amount)));
-        bundle.push(abi.encodeCall(BaseBundler.erc20Transfer, (WETH, RECEIVER, type(uint256).max)));
+        bundle.push(_erc20Transfer(WETH, RECEIVER, type(uint256).max));
 
         deal(USER, amount);
 
@@ -56,9 +56,9 @@ contract WNativeBundlerEthereumTest is EthereumTest {
     function testUnwrapNative(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(abi.encodeCall(BaseBundler.erc20TransferFrom, (WETH, amount)));
+        bundle.push(_erc20TransferFrom(WETH, amount));
         bundle.push(abi.encodeCall(WNativeBundler.unwrapNative, (amount)));
-        bundle.push(abi.encodeCall(BaseBundler.nativeTransfer, (RECEIVER, type(uint256).max)));
+        bundle.push(_nativeTransfer(RECEIVER, type(uint256).max));
 
         deal(WETH, USER, amount);
 

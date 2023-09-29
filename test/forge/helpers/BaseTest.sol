@@ -73,4 +73,16 @@ abstract contract BaseTest is Test {
 
         require(deployed != address(0), string.concat("could not deploy `", artifactPath, "`"));
     }
+
+    function _nativeTransfer(address recipient, uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(BaseBundler.nativeTransfer, (recipient, amount));
+    }
+
+    function _erc20Transfer(address asset, address recipient, uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(BaseBundler.erc20Transfer, (asset, recipient, amount));
+    }
+
+    function _erc20TransferFrom(address asset, uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(BaseBundler.erc20TransferFrom, (asset, amount));
+    }
 }

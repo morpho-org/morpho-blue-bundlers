@@ -108,7 +108,7 @@ contract ERC4626BundlerLocalTest is LocalTest {
 
         uint256 assets = vault.previewMint(shares);
 
-        bundle.push(abi.encodeCall(BaseBundler.erc20TransferFrom, (address(loanToken), assets)));
+        bundle.push(_erc20TransferFrom(address(loanToken), assets));
         bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(vault), shares, USER)));
 
         loanToken.setBalance(USER, assets);
@@ -129,7 +129,7 @@ contract ERC4626BundlerLocalTest is LocalTest {
 
         uint256 shares = vault.previewDeposit(assets);
 
-        bundle.push(abi.encodeCall(BaseBundler.erc20TransferFrom, (address(loanToken), assets)));
+        bundle.push(_erc20TransferFrom(address(loanToken), assets));
         bundle.push(abi.encodeCall(ERC4626Bundler.erc4626Mint, (address(vault), assets, USER)));
 
         loanToken.setBalance(USER, assets);
