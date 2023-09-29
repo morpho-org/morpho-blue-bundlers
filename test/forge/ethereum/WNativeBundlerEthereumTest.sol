@@ -20,12 +20,11 @@ contract WNativeBundlerEthereumTest is EthereumTest {
     }
 
     function testWrapZeroAmount() public {
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(WNativeBundler.wrapNative, (0));
+        bundle.push(abi.encodeCall(WNativeBundler.wrapNative, (0)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
-        bundler.multicall(data);
+        bundler.multicall(bundle);
     }
 
     function testWrapNative(uint256 amount) public {
@@ -49,12 +48,11 @@ contract WNativeBundlerEthereumTest is EthereumTest {
     }
 
     function testUnwrapZeroAmount() public {
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(WNativeBundler.unwrapNative, (0));
+        bundle.push(abi.encodeCall(WNativeBundler.unwrapNative, (0)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
-        bundler.multicall(data);
+        bundler.multicall(bundle);
     }
 
     function testUnwrapNative(uint256 amount) public {
@@ -65,6 +63,7 @@ contract WNativeBundlerEthereumTest is EthereumTest {
         bundle.push(abi.encodeCall(BaseBundler.nativeTransfer, (RECEIVER, type(uint256).max)));
 
         deal(WETH, USER, amount);
+
         vm.prank(USER);
         bundler.multicall(bundle);
 

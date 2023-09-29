@@ -189,11 +189,10 @@ contract MorphoBundlerLocalTest is LocalTest {
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bytes[] memory callbackData = new bytes[](1);
-        callbackData[0] = abi.encodeCall(BaseBundler.erc20TransferFrom, (address(loanToken), amount));
+        callbackBundle.push(abi.encodeCall(BaseBundler.erc20TransferFrom, (address(loanToken), amount)));
 
         bundle.push(
-            abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, amount, 0, onBehalf, abi.encode(callbackData)))
+            abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, amount, 0, onBehalf, abi.encode(callbackBundle)))
         );
 
         loanToken.setBalance(USER, amount);
@@ -266,14 +265,15 @@ contract MorphoBundlerLocalTest is LocalTest {
         withdrawnShares = bound(withdrawnShares, 1, expectedSupplyShares);
         uint256 expectedWithdrawnAmount = withdrawnShares.toAssetsDown(amount, expectedSupplyShares);
 
-        bytes[] memory data = new bytes[](2);
-        data[0] = _morphoSetAuthorizationWithSigCall(privateKey, true, false);
-        data[1] = abi.encodeCall(MorphoBundler.morphoWithdraw, (marketParams, 0, withdrawnShares, user));
+        bundle.push(_morphoSetAuthorizationWithSigCall(privateKey, true, false));
+        bundle.push(abi.encodeCall(MorphoBundler.morphoWithdraw, (marketParams, 0, withdrawnShares, user)));
 
         loanToken.setBalance(user, amount);
+
         vm.startPrank(user);
         morpho.supply(marketParams, amount, 0, user, hex"");
-        bundler.multicall(data);
+
+        bundler.multicall(bundle);
         vm.stopPrank();
 
         assertEq(loanToken.balanceOf(user), expectedWithdrawnAmount, "loan.balanceOf(user)");
@@ -342,14 +342,13 @@ contract MorphoBundlerLocalTest is LocalTest {
 
         uint256 collateralAmount = amount.wDivUp(LLTV);
 
-        bytes[] memory callbackData = new bytes[](3);
-        callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, true, false);
-        callbackData[1] = abi.encodeCall(MorphoBundler.morphoBorrow, (marketParams, amount, 0, RECEIVER));
-        callbackData[2] = abi.encodeCall(BaseBundler.erc20TransferFrom, (address(collateralToken), collateralAmount));
+        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, true, false));
+        callbackBundle.push(abi.encodeCall(MorphoBundler.morphoBorrow, (marketParams, amount, 0, RECEIVER)));
+        callbackBundle.push(abi.encodeCall(BaseBundler.erc20TransferFrom, (address(collateralToken), collateralAmount)));
 
         bundle.push(
             abi.encodeCall(
-                MorphoBundler.morphoSupplyCollateral, (marketParams, collateralAmount, user, abi.encode(callbackData))
+                MorphoBundler.morphoSupplyCollateral, (marketParams, collateralAmount, user, abi.encode(callbackBundle))
             )
         );
 
@@ -455,14 +454,14 @@ contract MorphoBundlerLocalTest is LocalTest {
         morpho.borrow(marketParams, amount, 0, user, user);
         vm.stopPrank();
 
-        bytes[] memory callbackData = new bytes[](3);
-        callbackData[0] = _morphoSetAuthorizationWithSigCall(privateKey, true, false);
-        callbackData[1] =
-            abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, RECEIVER));
-        callbackData[2] = abi.encodeCall(BaseBundler.erc20TransferFrom, (address(loanToken), amount));
+        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, true, false));
+        callbackBundle.push(
+            abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateralAmount, RECEIVER))
+        );
+        callbackBundle.push(abi.encodeCall(BaseBundler.erc20TransferFrom, (address(loanToken), amount)));
 
         bundle.push(
-            abi.encodeCall(MorphoBundler.morphoRepay, (marketParams, amount, 0, user, abi.encode(callbackData)))
+            abi.encodeCall(MorphoBundler.morphoRepay, (marketParams, amount, 0, user, abi.encode(callbackBundle)))
         );
 
         vm.prank(user);
@@ -744,14 +743,18 @@ contract MorphoBundlerLocalTest is LocalTest {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         loanToken.setBalance(address(this), amount);
+
         morpho.supply(marketParams, amount, 0, SUPPLIER, hex"");
 
-        bytes[] memory callbackData = new bytes[](2);
-        callbackData[0] = abi.encodeCall(BaseBundler.erc20Transfer, (address(loanToken), USER, amount));
-        callbackData[1] = abi.encodeCall(BaseBundler.erc20TransferFrom, (address(loanToken), amount));
+        callbackBundle.push(abi.encodeCall(BaseBundler.erc20Transfer, (address(loanToken), USER, amount)));
+        callbackBundle.push(abi.encodeCall(BaseBundler.erc20TransferFrom, (address(loanToken), amount)));
 
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(MorphoBundler.morphoFlashLoan, (address(loanToken), amount, abi.encode(callbackData)));
+        bundle.push(
+            abi.encodeCall(MorphoBundler.morphoFlashLoan, (address(loanToken), amount, abi.encode(callbackBundle)))
+        );
+
+        vm.prank(USER);
+        bundler.multicall(bundle);
 
         assertEq(loanToken.balanceOf(USER), 0, "User's loan token balance");
         assertEq(loanToken.balanceOf(address(bundler)), 0, "Bundler's loan token balance");

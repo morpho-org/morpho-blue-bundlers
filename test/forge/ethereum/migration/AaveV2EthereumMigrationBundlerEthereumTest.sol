@@ -126,6 +126,8 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
         deal(ST_ETH, user, collateralSupplied);
 
+        collateralSupplied = ERC20(ST_ETH).balanceOf(user);
+
         vm.startPrank(user);
         ERC20(ST_ETH).safeApprove(AAVE_V2_POOL, collateralSupplied);
         ILendingPool(AAVE_V2_POOL).deposit(ST_ETH, collateralSupplied, user, 0);

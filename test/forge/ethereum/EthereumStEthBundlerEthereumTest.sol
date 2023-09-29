@@ -38,12 +38,11 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
     }
 
     function testWrapZeroAmount() public {
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(StEthBundler.wrapStEth, (0));
+        bundle.push(abi.encodeCall(StEthBundler.wrapStEth, (0)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
-        bundler.multicall(data);
+        bundler.multicall(bundle);
     }
 
     function testWrapStEth(uint256 amount, uint256 privateKey) public {
@@ -77,12 +76,11 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
     }
 
     function testUnwrapZeroAmount() public {
-        bytes[] memory data = new bytes[](1);
-        data[0] = abi.encodeCall(StEthBundler.unwrapStEth, (0));
+        bundle.push(abi.encodeCall(StEthBundler.unwrapStEth, (0)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
-        bundler.multicall(data);
+        bundler.multicall(bundle);
     }
 
     function testUnwrapWstEth(uint256 amount, uint256 privateKey) public {
