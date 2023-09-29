@@ -2,6 +2,6 @@
 pragma solidity ^0.8.0;
 
 import "../../../Permit2Bundler.sol";
-import "../../../ethereum-mainnet/EthereumStEthBundler.sol";
+import "../../../ethereum/EthereumStEthBundler.sol";
 
 contract EthereumStEthBundlerMock is Permit2Bundler, EthereumStEthBundler {}

@@ -108,7 +108,7 @@ jobs:
           FOUNDRY_FUZZ_MAX_TEST_REJECTS: ${{ matrix.max-test-rejects }}
           FOUNDRY_FUZZ_SEED: 0x${{ github.event.pull_request.base.sha || github.sha }}
 
-  test-mainnet:
+  test-ethereum:
     needs: build-no-ir
 
     name: Ethereum tests
@@ -142,8 +142,8 @@ jobs:
 
       - uses: ./.github/actions/install-cache
 
-      - name: Run mainnet tests in ${{ matrix.type }} mode
-        run: yarn test:forge:mainnet
+      - name: Run ethereum tests in ${{ matrix.type }} mode
+        run: yarn test:forge:ethereum
         env:
           ALCHEMY_KEY: ${{ secrets.ALCHEMY_KEY }}
           FOUNDRY_FUZZ_RUNS: ${{ matrix.fuzz-runs }}

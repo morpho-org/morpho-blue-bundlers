@@ -1,6 +1,6 @@
 {
     "chainId": 1,
-    "rpcAlias": "mainnet",
+    "rpcAlias": "ethereum",
     "forkBlockNumber": 18227677,
     "markets": [
         {

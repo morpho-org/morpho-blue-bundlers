@@ -7,7 +7,7 @@ import {IERC4626} from "@openzeppelin/interfaces/IERC4626.sol";
 import {IStEth} from "src/interfaces/IStEth.sol";
 
 import {StEthBundler} from "src/StEthBundler.sol";
-import "src/ethereum-mainnet/migration/AaveV2EthereumMigrationBundler.sol";
+import "src/ethereum/migration/AaveV2EthereumMigrationBundler.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
 

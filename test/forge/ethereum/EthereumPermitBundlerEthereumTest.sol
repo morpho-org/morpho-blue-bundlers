@@ -3,11 +3,11 @@ pragma solidity ^0.8.0;
 
 import {DaiPermit} from "../helpers/SigUtils.sol";
 
-import "src/mocks/bundlers/ethereum-mainnet/EthereumPermitBundlerMock.sol";
+import "src/mocks/bundlers/ethereum/EthereumPermitBundlerMock.sol";
 
 import "./helpers/EthereumTest.sol";
 
-/// @dev The unique EIP-712 domain domain separator for the DAI token contract on Ethereum mainnet.
+/// @dev The unique EIP-712 domain domain separator for the DAI token contract on Ethereum.
 bytes32 constant DAI_DOMAIN_SEPARATOR = 0xdbb8cf42e1ecb028be3f3dbc922e1d878b963f411dc388ced501601c60f7c6f7;
 
 contract EthereumPermitBundlerEthereumTest is EthereumTest {

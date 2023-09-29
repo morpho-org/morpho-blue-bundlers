@@ -8,7 +8,7 @@ import {StEthBundler} from "../StEthBundler.sol";
 /// @title EthereumStEthBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
-/// @notice StEthBundler contract specific to the Ethereum mainnet.
+/// @notice StEthBundler contract specific to Ethereum.
 abstract contract EthereumStEthBundler is StEthBundler {
     /* CONSTRUCTOR */
 
