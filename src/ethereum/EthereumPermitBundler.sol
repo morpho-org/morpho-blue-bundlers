@@ -10,7 +10,7 @@ import {PermitBundler} from "../PermitBundler.sol";
 /// @title EthereumPermitBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
-/// @notice PermitBundler contract specific to the Ethereum, handling permit to DAI.
+/// @notice PermitBundler contract specific to Ethereum, handling permit to DAI.
 abstract contract EthereumPermitBundler is PermitBundler {
     /// @notice Permits DAI from sender to be spent by the bundler with the given `nonce`, `expiry` & EIP-712
     /// signature's `v`, `r` & `s`.
