@@ -3,7 +3,7 @@ pragma solidity 0.8.21;
 
 import {MainnetLib} from "./libraries/MainnetLib.sol";
 
-import {PermitBundler} from "../PermitBundler.sol";
+import {EthereumPermitBundler} from "./EthereumPermitBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
 import {ERC4626Bundler} from "../ERC4626Bundler.sol";
 import {WNativeBundler} from "../WNativeBundler.sol";
@@ -16,7 +16,7 @@ import {MorphoBundler} from "../MorphoBundler.sol";
 /// @custom:contact security@morpho.org
 /// @notice Bundler contract specific to the Ethereum.
 contract EthereumBundler is
-    PermitBundler,
+    EthereumPermitBundler,
     Permit2Bundler,
     ERC4626Bundler,
     WNativeBundler,

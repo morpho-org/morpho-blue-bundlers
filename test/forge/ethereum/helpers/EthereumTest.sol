@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
+import {IStEth} from "src/interfaces/IStEth.sol";
+import {IWstEth} from "src/interfaces/IWstEth.sol";
+
 import "config/ConfiguredEthereum.sol";
 
 import "../../helpers/ForkTest.sol";

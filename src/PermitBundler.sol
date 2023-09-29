@@ -10,7 +10,7 @@ import {BaseBundler} from "./BaseBundler.sol";
 /// @custom:contact security@morpho.xyz
 /// @notice Bundler contract managing interactions with tokens implementing EIP-2612.
 abstract contract PermitBundler is BaseBundler {
-    /// @notice Approves the given `amount` of `asset` from sender to be spent by this contract via EIP-2612 Permit with
+    /// @notice Permits the given `amount` of `asset` from sender to be spent by the bundler via EIP-2612 Permit with
     /// the given `deadline` & EIP-712 signature's `v`, `r` & `s`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Pass `skipRevert == true` to avoid reverting the whole bundle in case the signature expired.

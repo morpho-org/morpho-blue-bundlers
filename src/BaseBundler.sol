@@ -26,24 +26,17 @@ abstract contract BaseBundler is IMulticall {
     /// @dev Also prevents interacting with the bundler outside of an initiated execution context.
     address public initiator;
 
-    /* MODIFIERS */
-
-    /// @dev Sets the contract's `initiator` to the caller of the function, and resets it after the function returns.
-    modifier lockInitiator() {
-        initiator = msg.sender;
-
-        _;
-
-        delete initiator;
-    }
-
     /* PUBLIC */
 
     /// @notice Executes a series of delegate calls to the contract itself.
     /// @dev Locks the initiator so that the sender can uniquely be identified in callbacks.
     /// @dev All functions delegatecalled must be `payable` if `msg.value` is non-zero.
-    function multicall(bytes[] memory data) external payable lockInitiator {
+    function multicall(bytes[] memory data) external payable {
+        initiator = msg.sender;
+
         _multicall(data);
+
+        delete initiator;
     }
 
     /* TRANSFER ACTIONS */
