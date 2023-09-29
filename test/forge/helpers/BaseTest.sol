@@ -17,6 +17,7 @@ import {OracleMock} from "@morpho-blue/mocks/OracleMock.sol";
 
 import {BaseBundler} from "src/BaseBundler.sol";
 import {ERC4626Bundler} from "src/ERC4626Bundler.sol";
+import {UrdBundler} from "src/UrdBundler.sol";
 
 import "@forge-std/Test.sol";
 import "@forge-std/console2.sol";
@@ -107,5 +108,18 @@ abstract contract BaseTest is Test {
 
     function _erc4626Redeem(address vault, uint256 shares, address receiver) internal pure returns (bytes memory) {
         return abi.encodeCall(ERC4626Bundler.erc4626Redeem, (vault, shares, receiver));
+    }
+
+    /* URD ACTIONS */
+
+    function _urdClaim(
+        address distributor,
+        address account,
+        address reward,
+        uint256 amount,
+        bytes32[] memory proof,
+        bool skipRevert
+    ) internal pure returns (bytes memory) {
+        return abi.encodeCall(UrdBundler.urdClaim, (distributor, account, reward, amount, proof, skipRevert));
     }
 }
