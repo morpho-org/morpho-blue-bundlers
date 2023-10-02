@@ -17,7 +17,7 @@ import {BaseBundler} from "./BaseBundler.sol";
 abstract contract Permit2Bundler is BaseBundler {
     /* ACTIONS */
 
-    /// @notice Permits a transfer from the initiator to the recipient via Permit2.
+    /// @notice Permits a performs a transfer from the initiator to the recipient via Permit2.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     function permit2TransferFrom(ISignatureTransfer.PermitTransferFrom memory permit, bytes memory signature)
         external
