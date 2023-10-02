@@ -24,7 +24,6 @@ library ConfigLib {
     using stdJson for string;
 
     string internal constant CHAIN_ID_PATH = "$.chainId";
-    string internal constant RPC_ALIAS_PATH = "$.rpcAlias";
     string internal constant FORK_BLOCK_NUMBER_PATH = "$.forkBlockNumber";
     string internal constant MARKETS_PATH = "$.markets";
     string internal constant WRAPPED_NATIVE_PATH = "$.wrappedNative";
@@ -47,10 +46,6 @@ library ConfigLib {
 
     function getChainId(Config storage config) internal returns (uint256) {
         return config.json.readUint(CHAIN_ID_PATH);
-    }
-
-    function getRpcAlias(Config storage config) internal returns (string memory) {
-        return config.json.readString(RPC_ALIAS_PATH);
     }
 
     function getForkBlockNumber(Config storage config) internal returns (uint256) {

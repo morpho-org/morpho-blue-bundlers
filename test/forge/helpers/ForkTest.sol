@@ -55,7 +55,7 @@ abstract contract ForkTest is BaseTest, Configured {
     }
 
     function _fork() internal virtual {
-        string memory rpcUrl = vm.rpcUrl(_rpcAlias());
+        string memory rpcUrl = vm.rpcUrl(_network());
         uint256 forkBlockNumber = CONFIG.getForkBlockNumber();
 
         forkId = forkBlockNumber == 0 ? vm.createSelectFork(rpcUrl) : vm.createSelectFork(rpcUrl, forkBlockNumber);
@@ -113,7 +113,7 @@ abstract contract ForkTest is BaseTest, Configured {
             deadline: SIGNATURE_DEADLINE
         });
 
-        bytes32 digest = SigUtils.toTypedDataHash(Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(), permit);
+        bytes32 digest = SigUtils.toTypedDataHash(Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(), permit, address(bundler));
 
         Signature memory signature;
         (signature.v, signature.r, signature.s) = vm.sign(privateKey, digest);

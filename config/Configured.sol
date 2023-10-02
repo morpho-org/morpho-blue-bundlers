@@ -34,10 +34,6 @@ abstract contract Configured is StdChains {
 
     function _network() internal view virtual returns (string memory);
 
-    function _rpcAlias() internal virtual returns (string memory) {
-        return CONFIG.getRpcAlias();
-    }
-
     function _initConfig() internal returns (Config storage) {
         if (bytes(CONFIG.json).length == 0) {
             string memory root = vm.projectRoot();
