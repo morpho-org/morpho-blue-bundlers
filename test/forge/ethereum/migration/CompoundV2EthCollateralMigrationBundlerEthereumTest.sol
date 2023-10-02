@@ -27,7 +27,7 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
     }
 
     function testCompoundV2RepayZeroAmount() public {
-        bundle.push(_compoundV2RepayCall(C_DAI_V2, 0));
+        bundle.push(_compoundV2Repay(C_DAI_V2, 0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(bundle);
@@ -37,13 +37,13 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
 
         deal(DAI, address(bundler), amount);
 
         vm.mockCall(C_DAI_V2, abi.encodeWithSelector(ICToken.repayBorrowBehalf.selector), abi.encode(1));
 
-        bundle.push(_compoundV2RepayCall(C_DAI_V2, amount));
+        bundle.push(_compoundV2Repay(C_DAI_V2, amount));
 
         vm.prank(user);
         vm.expectRevert(bytes(ErrorsLib.REPAY_ERROR));
@@ -54,13 +54,13 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
 
         deal(C_DAI_V2, address(bundler), amount);
 
         vm.mockCall(C_DAI_V2, abi.encodeWithSelector(ICToken.redeem.selector), abi.encode(1));
 
-        bundle.push(_compoundV2RedeemCall(C_DAI_V2, amount));
+        bundle.push(_compoundV2Redeem(C_DAI_V2, amount));
 
         vm.prank(user);
         vm.expectRevert(bytes(ErrorsLib.REDEEM_ERROR));
@@ -72,7 +72,7 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         uint256 borrowed = 1 ether;
 
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
 
         _provideLiquidity(borrowed);
 
@@ -90,16 +90,16 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         vm.prank(user);
         ERC20(C_ETH_V2).safeApprove(address(Permit2Lib.PERMIT2), cTokenBalance);
 
-        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
-        callbackBundle.push(_morphoBorrowCall(borrowed, address(bundler)));
-        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1));
-        callbackBundle.push(_compoundV2RepayCall(C_DAI_V2, borrowed));
-        callbackBundle.push(_erc20Approve2Call(privateKey, C_ETH_V2, uint160(cTokenBalance), address(bundler), 0));
-        callbackBundle.push(_erc20TransferFrom2Call(C_ETH_V2, cTokenBalance));
-        callbackBundle.push(_compoundV2RedeemCall(C_ETH_V2, cTokenBalance));
-        callbackBundle.push(abi.encodeCall(WNativeBundler.wrapNative, (collateral)));
+        callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));
+        callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, address(bundler)));
+        callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, false, 1, false));
+        callbackBundle.push(_compoundV2Repay(C_DAI_V2, borrowed));
+        callbackBundle.push(_approve2(privateKey, C_ETH_V2, uint160(cTokenBalance), 0, false));
+        callbackBundle.push(_transferFrom2(C_ETH_V2, cTokenBalance));
+        callbackBundle.push(_compoundV2Redeem(C_ETH_V2, cTokenBalance));
+        callbackBundle.push(_wrapNative(collateral));
 
-        bundle.push(_morphoSupplyCollateralCall(collateral, user, abi.encode(callbackBundle)));
+        bundle.push(_morphoSupplyCollateral(marketParams, collateral, user));
 
         vm.prank(user);
         bundler.multicall(bundle);
@@ -107,11 +107,13 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         _assertBorrowerPosition(collateral, borrowed, user, address(bundler));
     }
 
-    function _compoundV2RepayCall(address cToken, uint256 repayAmount) internal pure returns (bytes memory) {
+    /* ACTIONS */
+
+    function _compoundV2Repay(address cToken, uint256 repayAmount) internal pure returns (bytes memory) {
         return abi.encodeCall(CompoundV2MigrationBundler.compoundV2Repay, (cToken, repayAmount));
     }
 
-    function _compoundV2RedeemCall(address cToken, uint256 amount) internal pure returns (bytes memory) {
+    function _compoundV2Redeem(address cToken, uint256 amount) internal pure returns (bytes memory) {
         return abi.encodeCall(CompoundV2MigrationBundler.compoundV2Redeem, (cToken, amount));
     }
 }

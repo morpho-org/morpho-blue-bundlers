@@ -33,7 +33,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
     }
 
     function testAaveV3Optimizer3RepayZeroAmount() public {
-        bundle.push(_aaveV3OptimizerRepayCall(marketParams.loanToken, 0));
+        bundle.push(_aaveV3OptimizerRepay(marketParams.loanToken, 0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(bundle);
@@ -41,7 +41,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateBorrowerWithOptimizerPermit(uint256 privateKey) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
 
         _provideLiquidity(borrowed);
 
@@ -53,17 +53,17 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         IAaveV3Optimizer(AAVE_V3_OPTIMIZER).borrow(marketParams.loanToken, borrowed, user, user, MAX_ITERATIONS);
         vm.stopPrank();
 
-        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
-        callbackBundle.push(_morphoBorrowCall(borrowed, address(bundler)));
-        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1));
-        callbackBundle.push(_aaveV3OptimizerRepayCall(marketParams.loanToken, borrowed));
-        callbackBundle.push(_aaveV3OptimizerApproveManagerCall(privateKey, address(bundler), true, 0));
+        callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));
+        callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, address(bundler)));
+        callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, false, 1, false));
+        callbackBundle.push(_aaveV3OptimizerRepay(marketParams.loanToken, borrowed));
+        callbackBundle.push(_aaveV3OptimizerApproveManager(privateKey, address(bundler), true, 0));
         callbackBundle.push(
-            _aaveV3OptimizerWithdrawCollateralCall(marketParams.collateralToken, collateralSupplied, address(bundler))
+            _aaveV3OptimizerWithdrawCollateral(marketParams.collateralToken, collateralSupplied, address(bundler))
         );
-        callbackBundle.push(_aaveV3OptimizerApproveManagerCall(privateKey, address(bundler), false, 1));
+        callbackBundle.push(_aaveV3OptimizerApproveManager(privateKey, address(bundler), false, 1));
 
-        bundle.push(_morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackBundle)));
+        bundle.push(_morphoSupplyCollateral(marketParams, collateralSupplied, user));
 
         vm.prank(user);
         bundler.multicall(bundle);
@@ -73,7 +73,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateUSDTBorrowerWithOptimizerPermit(uint256 privateKey) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
 
         uint256 amountUsdt = collateralSupplied / 1e10;
 
@@ -90,15 +90,15 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         IAaveV3Optimizer(AAVE_V3_OPTIMIZER).borrow(marketParams.loanToken, borrowed, user, user, MAX_ITERATIONS);
         vm.stopPrank();
 
-        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
-        callbackBundle.push(_morphoBorrowCall(borrowed, address(bundler)));
-        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1));
-        callbackBundle.push(_aaveV3OptimizerRepayCall(marketParams.loanToken, borrowed));
-        callbackBundle.push(_aaveV3OptimizerApproveManagerCall(privateKey, address(bundler), true, 0));
-        callbackBundle.push(_aaveV3OptimizerWithdrawCollateralCall(USDT, amountUsdt, address(bundler)));
-        callbackBundle.push(_aaveV3OptimizerApproveManagerCall(privateKey, address(bundler), false, 1));
+        callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));
+        callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, address(bundler)));
+        callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, false, 1, false));
+        callbackBundle.push(_aaveV3OptimizerRepay(marketParams.loanToken, borrowed));
+        callbackBundle.push(_aaveV3OptimizerApproveManager(privateKey, address(bundler), true, 0));
+        callbackBundle.push(_aaveV3OptimizerWithdrawCollateral(USDT, amountUsdt, address(bundler)));
+        callbackBundle.push(_aaveV3OptimizerApproveManager(privateKey, address(bundler), false, 1));
 
-        bundle.push(_morphoSupplyCollateralCall(amountUsdt, user, abi.encode(callbackBundle)));
+        bundle.push(_morphoSupplyCollateral(marketParams, amountUsdt, user));
 
         vm.prank(user);
         bundler.multicall(bundle);
@@ -108,7 +108,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateSupplierWithOptimizerPermit(uint256 privateKey, uint256 supplied) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
 
         deal(marketParams.loanToken, user, supplied + 1);
@@ -118,10 +118,10 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         IAaveV3Optimizer(AAVE_V3_OPTIMIZER).supply(marketParams.loanToken, supplied + 1, user, MAX_ITERATIONS);
         vm.stopPrank();
 
-        bundle.push(_aaveV3OptimizerApproveManagerCall(privateKey, address(bundler), true, 0));
+        bundle.push(_aaveV3OptimizerApproveManager(privateKey, address(bundler), true, 0));
         bundle.push(_aaveV3OptimizerWithdraw(marketParams.loanToken, supplied, address(bundler)));
-        bundle.push(_aaveV3OptimizerApproveManagerCall(privateKey, address(bundler), false, 1));
-        bundle.push(_morphoSupplyCall(supplied, user, hex""));
+        bundle.push(_aaveV3OptimizerApproveManager(privateKey, address(bundler), false, 1));
+        bundle.push(_morphoSupply(marketParams, supplied, 0, user));
 
         vm.prank(user);
         bundler.multicall(bundle);
@@ -131,7 +131,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateSupplierToVaultWithOptimizerPermit(uint256 privateKey, uint256 supplied) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
 
         deal(marketParams.loanToken, user, supplied + 1);
@@ -141,9 +141,9 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         IAaveV3Optimizer(AAVE_V3_OPTIMIZER).supply(marketParams.loanToken, supplied + 1, user, MAX_ITERATIONS);
         vm.stopPrank();
 
-        bundle.push(_aaveV3OptimizerApproveManagerCall(privateKey, address(bundler), true, 0));
+        bundle.push(_aaveV3OptimizerApproveManager(privateKey, address(bundler), true, 0));
         bundle.push(_aaveV3OptimizerWithdraw(marketParams.loanToken, supplied, address(bundler)));
-        bundle.push(_aaveV3OptimizerApproveManagerCall(privateKey, address(bundler), false, 1));
+        bundle.push(_aaveV3OptimizerApproveManager(privateKey, address(bundler), false, 1));
         bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
 
         vm.prank(user);
@@ -152,7 +152,9 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         _assertVaultSupplierPosition(supplied, user, address(bundler));
     }
 
-    function _aaveV3OptimizerApproveManagerCall(uint256 privateKey, address manager, bool isAllowed, uint256 nonce)
+    /* ACTIONS */
+
+    function _aaveV3OptimizerApproveManager(uint256 privateKey, address manager, bool isAllowed, uint256 nonce)
         internal
         view
         returns (bytes memory)
@@ -171,7 +173,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         );
     }
 
-    function _aaveV3OptimizerRepayCall(address underlying, uint256 amount) internal pure returns (bytes memory) {
+    function _aaveV3OptimizerRepay(address underlying, uint256 amount) internal pure returns (bytes memory) {
         return abi.encodeCall(AaveV3OptimizerMigrationBundler.aaveV3OptimizerRepay, (underlying, amount));
     }
 
@@ -185,7 +187,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         );
     }
 
-    function _aaveV3OptimizerWithdrawCollateralCall(address underlying, uint256 amount, address receiver)
+    function _aaveV3OptimizerWithdrawCollateral(address underlying, uint256 amount, address receiver)
         internal
         pure
         returns (bytes memory)

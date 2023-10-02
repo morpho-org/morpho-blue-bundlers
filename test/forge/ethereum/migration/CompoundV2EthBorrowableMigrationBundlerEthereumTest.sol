@@ -27,7 +27,7 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
     }
 
     function testCompoundV2RepayCEthZeroAmount() public {
-        bundle.push(_compoundV2RepayCall(C_ETH_V2, 0));
+        bundle.push(_compoundV2Repay(C_ETH_V2, 0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(bundle);
@@ -38,7 +38,7 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         uint256 borrowed = 1 ether;
 
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
 
         _provideLiquidity(borrowed);
 
@@ -57,16 +57,16 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         vm.prank(user);
         ERC20(C_DAI_V2).safeApprove(address(Permit2Lib.PERMIT2), cTokenBalance);
 
-        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
-        callbackBundle.push(_morphoBorrowCall(borrowed, address(bundler)));
-        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1));
-        callbackBundle.push(abi.encodeCall(WNativeBundler.unwrapNative, (borrowed)));
-        callbackBundle.push(_compoundV2RepayCall(C_ETH_V2, borrowed));
-        callbackBundle.push(_erc20Approve2Call(privateKey, C_DAI_V2, uint160(cTokenBalance), address(bundler), 0));
-        callbackBundle.push(_erc20TransferFrom2Call(C_DAI_V2, cTokenBalance));
-        callbackBundle.push(_compoundV2RedeemCall(C_DAI_V2, cTokenBalance));
+        callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));
+        callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, address(bundler)));
+        callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, false, 1, false));
+        callbackBundle.push(_unwrapNative(borrowed));
+        callbackBundle.push(_compoundV2Repay(C_ETH_V2, borrowed));
+        callbackBundle.push(_approve2(privateKey, C_DAI_V2, uint160(cTokenBalance), 0, false));
+        callbackBundle.push(_transferFrom2(C_DAI_V2, cTokenBalance));
+        callbackBundle.push(_compoundV2Redeem(C_DAI_V2, cTokenBalance));
 
-        bundle.push(_morphoSupplyCollateralCall(collateral, user, abi.encode(callbackBundle)));
+        bundle.push(_morphoSupplyCollateral(marketParams, collateral, user));
 
         vm.prank(user);
         bundler.multicall(bundle);
@@ -76,7 +76,7 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
 
     function testMigrateSupplierWithPermit2(uint256 privateKey, uint256 supplied) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 0.1 ether, 100 ether);
 
         deal(user, supplied);
@@ -90,11 +90,11 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         vm.prank(user);
         ERC20(C_ETH_V2).safeApprove(address(Permit2Lib.PERMIT2), cTokenBalance);
 
-        bundle.push(_erc20Approve2Call(privateKey, C_ETH_V2, uint160(cTokenBalance), address(bundler), 0));
-        bundle.push(_erc20TransferFrom2Call(C_ETH_V2, cTokenBalance));
-        bundle.push(_compoundV2RedeemCall(C_ETH_V2, cTokenBalance));
-        bundle.push(abi.encodeCall(WNativeBundler.wrapNative, (supplied)));
-        bundle.push(_morphoSupplyCall(supplied, user, hex""));
+        bundle.push(_approve2(privateKey, C_ETH_V2, uint160(cTokenBalance), 0, false));
+        bundle.push(_transferFrom2(C_ETH_V2, cTokenBalance));
+        bundle.push(_compoundV2Redeem(C_ETH_V2, cTokenBalance));
+        bundle.push(_wrapNative(supplied));
+        bundle.push(_morphoSupply(marketParams, supplied, 0, user));
 
         vm.prank(user);
         bundler.multicall(bundle);
@@ -104,7 +104,7 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
 
     function testMigrateSupplierToVaultWithPermit2(uint256 privateKey, uint256 supplied) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 0.1 ether, 100 ether);
 
         deal(user, supplied);
@@ -118,10 +118,10 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         vm.prank(user);
         ERC20(C_ETH_V2).safeApprove(address(Permit2Lib.PERMIT2), cTokenBalance);
 
-        bundle.push(_erc20Approve2Call(privateKey, C_ETH_V2, uint160(cTokenBalance), address(bundler), 0));
-        bundle.push(_erc20TransferFrom2Call(C_ETH_V2, cTokenBalance));
-        bundle.push(_compoundV2RedeemCall(C_ETH_V2, cTokenBalance));
-        bundle.push(abi.encodeCall(WNativeBundler.wrapNative, (supplied)));
+        bundle.push(_approve2(privateKey, C_ETH_V2, uint160(cTokenBalance), 0, false));
+        bundle.push(_transferFrom2(C_ETH_V2, cTokenBalance));
+        bundle.push(_compoundV2Redeem(C_ETH_V2, cTokenBalance));
+        bundle.push(_wrapNative(supplied));
         bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
 
         vm.prank(user);
@@ -130,11 +130,13 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         _assertVaultSupplierPosition(supplied, user, address(bundler));
     }
 
-    function _compoundV2RepayCall(address cToken, uint256 repayAmount) internal pure returns (bytes memory) {
+    /* ACTIONS */
+
+    function _compoundV2Repay(address cToken, uint256 repayAmount) internal pure returns (bytes memory) {
         return abi.encodeCall(CompoundV2MigrationBundler.compoundV2Repay, (cToken, repayAmount));
     }
 
-    function _compoundV2RedeemCall(address cToken, uint256 amount) internal pure returns (bytes memory) {
+    function _compoundV2Redeem(address cToken, uint256 amount) internal pure returns (bytes memory) {
         return abi.encodeCall(CompoundV2MigrationBundler.compoundV2Redeem, (cToken, amount));
     }
 }
