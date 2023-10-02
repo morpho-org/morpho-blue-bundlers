@@ -13,10 +13,6 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
 
-    address internal cToken;
-
-    mapping(address => address) _cTokens;
-
     uint256 collateralSupplied = 10 ether;
     uint256 borrowed = 1 ether;
 
@@ -25,17 +21,11 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         _initMarket(CB_ETH, WETH);
 
-        vm.label(C_WETH_V3, "cWETHv3");
-        _cTokens[WETH] = C_WETH_V3;
-
-        vm.label(address(bundler), "Compound V3 Migration Bundler");
-        cToken = _getCTokenV3(marketParams.loanToken);
-
         bundler = new CompoundV3MigrationBundler(address(morpho));
     }
 
     function testCompoundV3RepayZeroAmount() public {
-        bundle.push(_compoundV3RepayCall(cToken, marketParams.loanToken, 0));
+        bundle.push(_compoundV3Repay(C_WETH_V3, marketParams.loanToken, 0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(bundle);
@@ -50,20 +40,20 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         deal(marketParams.collateralToken, user, collateralSupplied);
 
         vm.startPrank(user);
-        ERC20(marketParams.collateralToken).safeApprove(cToken, collateralSupplied);
-        ICompoundV3(cToken).supply(marketParams.collateralToken, collateralSupplied);
-        ICompoundV3(cToken).withdraw(marketParams.loanToken, borrowed);
+        ERC20(marketParams.collateralToken).safeApprove(C_WETH_V3, collateralSupplied);
+        ICompoundV3(C_WETH_V3).supply(marketParams.collateralToken, collateralSupplied);
+        ICompoundV3(C_WETH_V3).withdraw(marketParams.loanToken, borrowed);
         vm.stopPrank();
 
-        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), true, 0));
-        callbackBundle.push(_morphoBorrowCall(borrowed, address(bundler)));
-        callbackBundle.push(_morphoSetAuthorizationWithSigCall(privateKey, address(bundler), false, 1));
-        callbackBundle.push(_compoundV3RepayCall(cToken, marketParams.loanToken, borrowed));
-        callbackBundle.push(_compoundV3AllowCall(privateKey, cToken, address(bundler), true, 0));
-        callbackBundle.push(_compoundV3WithdrawFromCall(cToken, marketParams.collateralToken, collateralSupplied));
-        callbackBundle.push(_compoundV3AllowCall(privateKey, cToken, address(bundler), false, 1));
+        callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));
+        callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, address(bundler)));
+        callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, false, 1, false));
+        callbackBundle.push(_compoundV3Repay(C_WETH_V3, marketParams.loanToken, borrowed));
+        callbackBundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0));
+        callbackBundle.push(_compoundV3WithdrawFrom(C_WETH_V3, marketParams.collateralToken, collateralSupplied));
+        callbackBundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1));
 
-        bundle.push(_morphoSupplyCollateralCall(collateralSupplied, user, abi.encode(callbackBundle)));
+        bundle.push(_morphoSupplyCollateral(marketParams, collateralSupplied, user));
 
         vm.prank(user);
         bundler.multicall(bundle);
@@ -76,18 +66,20 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         (privateKey, user) = _getUserAndKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
 
-        deal(marketParams.loanToken, user, supplied + 100);
+        deal(marketParams.loanToken, user, supplied);
 
         vm.startPrank(user);
-        // Margin necessary due to CompoundV3 roundings.
-        ERC20(marketParams.loanToken).safeApprove(cToken, supplied + 100);
-        ICompoundV3(cToken).supply(marketParams.loanToken, supplied + 100);
+        ERC20(marketParams.loanToken).safeApprove(C_WETH_V3, supplied);
+        ICompoundV3(C_WETH_V3).supply(marketParams.loanToken, supplied);
         vm.stopPrank();
 
-        bundle.push(_compoundV3AllowCall(privateKey, cToken, address(bundler), true, 0));
-        bundle.push(_compoundV3WithdrawFromCall(cToken, marketParams.loanToken, supplied));
-        bundle.push(_compoundV3AllowCall(privateKey, cToken, address(bundler), false, 1));
-        bundle.push(_morphoSupplyCall(supplied, user, hex""));
+        // Margin necessary due to CompoundV3 roundings.
+        supplied -= 100;
+
+        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0));
+        bundle.push(_compoundV3WithdrawFrom(C_WETH_V3, marketParams.loanToken, supplied));
+        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1));
+        bundle.push(_morphoSupply(marketParams, supplied, 0, user));
 
         vm.prank(user);
         bundler.multicall(bundle);
@@ -100,26 +92,27 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         (privateKey, user) = _getUserAndKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
 
-        deal(marketParams.loanToken, user, supplied + 100);
+        deal(marketParams.loanToken, user, supplied);
 
         vm.startPrank(user);
-        // Margin necessary due to CompoundV3 roundings.
-        ERC20(marketParams.loanToken).safeApprove(cToken, supplied + 100);
-        ICompoundV3(cToken).supply(marketParams.loanToken, supplied + 100);
+        ERC20(marketParams.loanToken).safeApprove(C_WETH_V3, supplied);
+        ICompoundV3(C_WETH_V3).supply(marketParams.loanToken, supplied);
         vm.stopPrank();
 
-        uint256 cTokenBalance = ICompoundV3(cToken).balanceOf(user);
+        // Margin necessary due to CompoundV3 roundings.
+        supplied -= 100;
 
-        vm.prank(user);
-        ERC20(cToken).safeApprove(address(Permit2Lib.PERMIT2), type(uint256).max);
+        uint256 cTokenBalance = ICompoundV3(C_WETH_V3).balanceOf(user);
 
-        bundle.push(_erc20Approve2Call(privateKey, cToken, uint160(cTokenBalance), address(bundler), 0));
-        bundle.push(_erc20TransferFrom2Call(cToken, cTokenBalance));
-        bundle.push(_compoundV3WithdrawCall(cToken, marketParams.loanToken, supplied));
-        bundle.push(_morphoSupplyCall(supplied, user, hex""));
+        bundle.push(_approve2(privateKey, C_WETH_V3, uint160(cTokenBalance), 0, false));
+        bundle.push(_transferFrom2(C_WETH_V3, cTokenBalance));
+        bundle.push(_compoundV3Withdraw(C_WETH_V3, marketParams.loanToken, supplied));
+        bundle.push(_morphoSupply(marketParams, supplied, 0, user));
 
-        vm.prank(user);
+        vm.startPrank(user);
+        ERC20(C_WETH_V3).safeApprove(address(Permit2Lib.PERMIT2), type(uint256).max);
         bundler.multicall(bundle);
+        vm.stopPrank();
 
         _assertSupplierPosition(supplied, user, address(bundler));
     }
@@ -129,17 +122,19 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         (privateKey, user) = _getUserAndKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
 
-        deal(marketParams.loanToken, user, supplied + 100);
+        deal(marketParams.loanToken, user, supplied);
 
         vm.startPrank(user);
-        // Margin necessary due to CompoundV3 roundings.
-        ERC20(marketParams.loanToken).safeApprove(cToken, supplied + 100);
-        ICompoundV3(cToken).supply(marketParams.loanToken, supplied + 100);
+        ERC20(marketParams.loanToken).safeApprove(C_WETH_V3, supplied);
+        ICompoundV3(C_WETH_V3).supply(marketParams.loanToken, supplied);
         vm.stopPrank();
 
-        bundle.push(_compoundV3AllowCall(privateKey, cToken, address(bundler), true, 0));
-        bundle.push(_compoundV3WithdrawFromCall(cToken, marketParams.loanToken, supplied));
-        bundle.push(_compoundV3AllowCall(privateKey, cToken, address(bundler), false, 1));
+        // Margin necessary due to CompoundV3 roundings.
+        supplied -= 100;
+
+        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0));
+        bundle.push(_compoundV3WithdrawFrom(C_WETH_V3, marketParams.loanToken, supplied));
+        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1));
         bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
 
         vm.prank(user);
@@ -153,37 +148,34 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         (privateKey, user) = _getUserAndKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
 
-        deal(marketParams.loanToken, user, supplied + 100);
+        deal(marketParams.loanToken, user, supplied);
 
         vm.startPrank(user);
-        // Margin necessary due to CompoundV3 roundings.
-        ERC20(marketParams.loanToken).safeApprove(cToken, supplied + 100);
-        ICompoundV3(cToken).supply(marketParams.loanToken, supplied + 100);
+        ERC20(marketParams.loanToken).safeApprove(C_WETH_V3, supplied);
+        ICompoundV3(C_WETH_V3).supply(marketParams.loanToken, supplied);
         vm.stopPrank();
 
-        uint256 cTokenBalance = ICompoundV3(cToken).balanceOf(user);
+        // Margin necessary due to CompoundV3 roundings.
+        supplied -= 100;
 
-        vm.prank(user);
-        ERC20(cToken).safeApprove(address(Permit2Lib.PERMIT2), type(uint256).max);
+        uint256 cTokenBalance = ICompoundV3(C_WETH_V3).balanceOf(user);
 
-        bundle.push(_erc20Approve2Call(privateKey, cToken, uint160(cTokenBalance), address(bundler), 0));
-        bundle.push(_erc20TransferFrom2Call(cToken, cTokenBalance));
-        bundle.push(_compoundV3WithdrawCall(cToken, marketParams.loanToken, supplied));
+        bundle.push(_approve2(privateKey, C_WETH_V3, uint160(cTokenBalance), 0, false));
+        bundle.push(_transferFrom2(C_WETH_V3, cTokenBalance));
+        bundle.push(_compoundV3Withdraw(C_WETH_V3, marketParams.loanToken, supplied));
         bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
 
-        vm.prank(user);
+        vm.startPrank(user);
+        ERC20(C_WETH_V3).safeApprove(address(Permit2Lib.PERMIT2), type(uint256).max);
         bundler.multicall(bundle);
+        vm.stopPrank();
 
         _assertVaultSupplierPosition(supplied, user, address(bundler));
     }
 
-    function _getCTokenV3(address asset) internal view returns (address) {
-        address result = _cTokens[asset];
-        require(result != address(0), "unknown compound v3 market");
-        return result;
-    }
+    /* ACTIONS */
 
-    function _compoundV3AllowCall(uint256 privateKey, address instance, address manager, bool isAllowed, uint256 nonce)
+    function _compoundV3Allow(uint256 privateKey, address instance, address manager, bool isAllowed, uint256 nonce)
         internal
         view
         returns (bytes memory)
@@ -201,15 +193,11 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         );
     }
 
-    function _compoundV3RepayCall(address instance, address asset, uint256 amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function _compoundV3Repay(address instance, address asset, uint256 amount) internal pure returns (bytes memory) {
         return abi.encodeCall(CompoundV3MigrationBundler.compoundV3Repay, (instance, asset, amount));
     }
 
-    function _compoundV3WithdrawCall(address instance, address asset, uint256 amount)
+    function _compoundV3Withdraw(address instance, address asset, uint256 amount)
         internal
         pure
         returns (bytes memory)
@@ -217,7 +205,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         return abi.encodeCall(CompoundV3MigrationBundler.compoundV3Withdraw, (instance, asset, amount));
     }
 
-    function _compoundV3WithdrawFromCall(address instance, address asset, uint256 amount)
+    function _compoundV3WithdrawFrom(address instance, address asset, uint256 amount)
         internal
         pure
         returns (bytes memory)

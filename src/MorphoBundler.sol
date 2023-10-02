@@ -165,13 +165,13 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     function morphoLiquidate(
         MarketParams calldata marketParams,
         address borrower,
-        uint256 seizedAssets,
+        uint256 seizedCollateral,
         uint256 repaidShares,
         bytes memory data
     ) external payable {
         _approveMaxMorpho(marketParams.loanToken);
 
-        MORPHO.liquidate(marketParams, borrower, seizedAssets, repaidShares, data);
+        MORPHO.liquidate(marketParams, borrower, seizedCollateral, repaidShares, data);
     }
 
     /// @notice Triggers a flash loan on Morpho.

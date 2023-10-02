@@ -1,9 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.0;
 
+import {IStEth} from "src/interfaces/IStEth.sol";
+import {IWstEth} from "src/interfaces/IWstEth.sol";
+import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
+
 import {Permit2Lib} from "@permit2/libraries/Permit2Lib.sol";
 
-import {SigUtils} from "./SigUtils.sol";
+import {Permit2Bundler} from "src/Permit2Bundler.sol";
+import {WNativeBundler} from "src/WNativeBundler.sol";
+import {StEthBundler} from "src/StEthBundler.sol";
 
 import "config/Configured.sol";
 import "./BaseTest.sol";
@@ -94,5 +100,51 @@ abstract contract ForkTest is BaseTest, Configured {
 
     function _randomMarketParams(uint256 seed) internal view returns (MarketParams memory) {
         return allMarketParams[seed % allMarketParams.length];
+    }
+
+    /* PERMIT2 ACTIONS */
+
+    function _approve2(uint256 privateKey, address asset, uint160 amount, uint48 nonce, bool skipRevert)
+        internal
+        view
+        returns (bytes memory)
+    {
+        IAllowanceTransfer.PermitSingle memory permit = IAllowanceTransfer.PermitSingle({
+            details: IAllowanceTransfer.PermitDetails({
+                token: asset,
+                amount: amount,
+                expiration: type(uint48).max,
+                nonce: nonce
+            }),
+            spender: address(bundler),
+            sigDeadline: SIGNATURE_DEADLINE
+        });
+
+        bytes32 digest = SigUtils.toTypedDataHash(Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(), permit);
+
+        Signature memory signature;
+        (signature.v, signature.r, signature.s) = vm.sign(privateKey, digest);
+
+        return abi.encodeCall(Permit2Bundler.approve2, (asset, amount, SIGNATURE_DEADLINE, signature, skipRevert));
+    }
+
+    function _transferFrom2(address asset, uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(Permit2Bundler.transferFrom2, (asset, amount));
+    }
+
+    /* wstETH ACTIONS */
+
+    function _wrapStEth(uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(StEthBundler.wrapStEth, (amount));
+    }
+
+    /* WRAPPED NATIVE ACTIONS */
+
+    function _wrapNative(uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(WNativeBundler.wrapNative, (amount));
+    }
+
+    function _unwrapNative(uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(WNativeBundler.unwrapNative, (amount));
     }
 }
