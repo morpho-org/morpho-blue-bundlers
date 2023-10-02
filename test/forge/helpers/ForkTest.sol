@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {IStEth} from "src/interfaces/IStEth.sol";
 import {IWstEth} from "src/interfaces/IWstEth.sol";
-import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
+import {ISignatureTransfer} from "@permit2/interfaces/ISignatureTransfer.sol";
 
 import {Permit2Lib} from "@permit2/libraries/Permit2Lib.sol";
 
@@ -104,20 +104,15 @@ abstract contract ForkTest is BaseTest, Configured {
 
     /* PERMIT2 ACTIONS */
 
-    function _approve2(uint256 privateKey, address asset, uint160 amount, uint48 nonce, bool skipRevert)
+    function _permit2TransferFrom(uint256 privateKey, address asset, uint256 amount, uint256 nonce)
         internal
         view
         returns (bytes memory)
     {
-        IAllowanceTransfer.PermitSingle memory permit = IAllowanceTransfer.PermitSingle({
-            details: IAllowanceTransfer.PermitDetails({
-                token: asset,
-                amount: amount,
-                expiration: type(uint48).max,
-                nonce: nonce
-            }),
-            spender: address(bundler),
-            sigDeadline: SIGNATURE_DEADLINE
+        ISignatureTransfer.PermitTransferFrom memory permit = ISignatureTransfer.PermitTransferFrom({
+            permitted: ISignatureTransfer.TokenPermissions({token: asset, amount: amount}),
+            nonce: nonce,
+            deadline: SIGNATURE_DEADLINE
         });
 
         bytes32 digest = SigUtils.toTypedDataHash(Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(), permit);
@@ -125,17 +120,17 @@ abstract contract ForkTest is BaseTest, Configured {
         Signature memory signature;
         (signature.v, signature.r, signature.s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(Permit2Bundler.approve2, (asset, amount, SIGNATURE_DEADLINE, signature, skipRevert));
-    }
-
-    function _transferFrom2(address asset, uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(Permit2Bundler.transferFrom2, (asset, amount));
+        return abi.encodeCall(Permit2Bundler.permit2TransferFrom, (permit, signature));
     }
 
     /* wstETH ACTIONS */
 
     function _wrapStEth(uint256 amount) internal pure returns (bytes memory) {
         return abi.encodeCall(StEthBundler.wrapStEth, (amount));
+    }
+
+    function _unwrapStEth(uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(StEthBundler.unwrapStEth, (amount));
     }
 
     /* WRAPPED NATIVE ACTIONS */

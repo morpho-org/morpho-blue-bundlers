@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {ICompoundV3} from "src/migration/interfaces/ICompoundV3.sol";
 import {Authorization} from "@morpho-blue/interfaces/IMorpho.sol";
-import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
+import {ISignatureTransfer} from "@permit2/interfaces/ISignatureTransfer.sol";
 
 import {PermitHash} from "@permit2/libraries/PermitHash.sol";
 import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
@@ -84,12 +84,12 @@ library SigUtils {
         );
     }
 
-    function toTypedDataHash(bytes32 domainSeparator, IAllowanceTransfer.PermitSingle memory permitSingle)
+    function toTypedDataHash(bytes32 domainSeparator, ISignatureTransfer.PermitTransferFrom memory permit)
         internal
-        pure
+        view
         returns (bytes32)
     {
-        return ECDSA.toTypedDataHash(domainSeparator, PermitHash.hash(permitSingle));
+        return ECDSA.toTypedDataHash(domainSeparator, PermitHash.hash(permit));
     }
 
     function toTypedDataHash(bytes32 domainSeparator, AaveV3OptimizerAuthorization memory authorization)

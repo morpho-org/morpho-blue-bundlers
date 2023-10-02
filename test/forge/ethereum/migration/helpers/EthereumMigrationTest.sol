@@ -47,31 +47,6 @@ contract EthereumMigrationTest is EthereumTest {
         return (privateKey, user);
     }
 
-    function _erc20Approve2Call(uint256 privateKey, address asset, uint160 amount, address spender, uint48 nonce)
-        internal
-        view
-        returns (bytes memory)
-    {
-        bytes32 digest = SigUtils.toTypedDataHash(
-            Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(),
-            IAllowanceTransfer.PermitSingle({
-                details: IAllowanceTransfer.PermitDetails({
-                    token: asset,
-                    amount: amount,
-                    expiration: type(uint48).max,
-                    nonce: nonce
-                }),
-                spender: spender,
-                sigDeadline: SIGNATURE_DEADLINE
-            })
-        );
-
-        Signature memory sig;
-        (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
-
-        return abi.encodeCall(Permit2Bundler.approve2, (asset, amount, SIGNATURE_DEADLINE, sig, false));
-    }
-
     function _provideLiquidity(uint256 liquidity) internal {
         deal(marketParams.loanToken, address(this), liquidity);
         ERC20(marketParams.loanToken).safeApprove(address(morpho), liquidity);

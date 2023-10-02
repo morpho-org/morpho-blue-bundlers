@@ -37,29 +37,8 @@ contract EthereumBundlerEthereumTest is EthereumTest {
         address user = vm.addr(privateKey);
         MarketParams memory marketParams = _randomMarketParams(seed);
 
-        (,, uint48 nonce) = Permit2Lib.PERMIT2.allowance(user, marketParams.loanToken, address(bundler));
-        bytes32 hashed = SigUtils.toTypedDataHash(
-            Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(),
-            IAllowanceTransfer.PermitSingle({
-                details: IAllowanceTransfer.PermitDetails({
-                    token: marketParams.loanToken,
-                    amount: uint160(amount),
-                    expiration: type(uint48).max,
-                    nonce: nonce
-                }),
-                spender: address(bundler),
-                sigDeadline: deadline
-            })
-        );
-
-        Signature memory signature;
-        (signature.v, signature.r, signature.s) = vm.sign(privateKey, hashed);
-
-        bundle.push(
-            abi.encodeCall(Permit2Bundler.approve2, (marketParams.loanToken, amount, deadline, signature, false))
-        );
-        bundle.push(abi.encodeCall(Permit2Bundler.transferFrom2, (marketParams.loanToken, amount)));
-        bundle.push(abi.encodeCall(MorphoBundler.morphoSupply, (marketParams, amount, 0, onBehalf, hex"")));
+        bundle.push(_permit2TransferFrom(privateKey, marketParams.loanToken, amount, 0));
+        bundle.push(_morphoSupply(marketParams, amount, 0, onBehalf));
 
         uint256 collateralBalanceBefore = ERC20(marketParams.collateralToken).balanceOf(onBehalf);
         uint256 loanBalanceBefore = ERC20(marketParams.loanToken).balanceOf(onBehalf);
