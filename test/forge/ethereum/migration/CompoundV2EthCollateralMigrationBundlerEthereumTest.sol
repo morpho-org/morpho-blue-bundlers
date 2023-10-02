@@ -37,7 +37,7 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
 
         deal(DAI, address(bundler), amount);
 
@@ -54,7 +54,7 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
 
         deal(C_DAI_V2, address(bundler), amount);
 
@@ -72,7 +72,7 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         uint256 borrowed = 1 ether;
 
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
 
         _provideLiquidity(borrowed);
 

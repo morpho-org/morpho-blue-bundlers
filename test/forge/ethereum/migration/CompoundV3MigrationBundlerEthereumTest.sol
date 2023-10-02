@@ -33,7 +33,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateBorrowerWithCompoundAllowance(uint256 privateKey) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
 
         _provideLiquidity(borrowed);
 
@@ -63,8 +63,8 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateSupplierWithCompoundAllowance(uint256 privateKey, uint256 supplied) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
-        supplied = bound(supplied, 100, 100 ether);
+        (privateKey, user) = _boundPrivateKey(privateKey);
+        supplied = bound(supplied, 101, 100 ether);
 
         deal(marketParams.loanToken, user, supplied);
 
@@ -89,8 +89,8 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateSupplierWithPermit2(uint256 privateKey, uint256 supplied) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
-        supplied = bound(supplied, 100, 100 ether);
+        (privateKey, user) = _boundPrivateKey(privateKey);
+        supplied = bound(supplied, 101, 100 ether);
 
         deal(marketParams.loanToken, user, supplied);
 
@@ -119,8 +119,8 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateSupplierToVaultWithCompoundAllowance(uint256 privateKey, uint256 supplied) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
-        supplied = bound(supplied, 100, 100 ether);
+        (privateKey, user) = _boundPrivateKey(privateKey);
+        supplied = bound(supplied, 101, 100 ether);
 
         deal(marketParams.loanToken, user, supplied);
 
@@ -145,8 +145,8 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateSupplierToVaultWithPermit2(uint256 privateKey, uint256 supplied) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
-        supplied = bound(supplied, 100, 100 ether);
+        (privateKey, user) = _boundPrivateKey(privateKey);
+        supplied = bound(supplied, 101, 100 ether);
 
         deal(marketParams.loanToken, user, supplied);
 

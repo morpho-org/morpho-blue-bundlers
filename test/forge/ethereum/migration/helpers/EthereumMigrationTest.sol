@@ -40,13 +40,6 @@ contract EthereumMigrationTest is EthereumTest {
         vm.label(address(suppliersVault), "Suppliers Vault");
     }
 
-    function _getUserAndKey(uint256 privateKey) internal returns (uint256, address) {
-        privateKey = bound(privateKey, 1, type(uint32).max);
-        address user = vm.addr(privateKey);
-        vm.label(user, "user");
-        return (privateKey, user);
-    }
-
     function _erc20Approve2Call(uint256 privateKey, address asset, uint160 amount, address spender, uint48 nonce)
         internal
         view

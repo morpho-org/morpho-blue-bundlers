@@ -40,7 +40,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateBorrowerWithATokenPermit(uint256 privateKey) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
 
         _provideLiquidity(borrowed);
 
@@ -73,7 +73,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateBorrowerWithPermit2(uint256 privateKey) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
 
         _provideLiquidity(borrowed);
 
@@ -109,7 +109,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateUSDTPositionWithPermit2(uint256 privateKey) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
 
         uint256 amountUsdt = collateralSupplied / 1e10;
 
@@ -149,7 +149,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateSupplierWithATokenPermit(uint256 privateKey, uint256 supplied) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
 
         deal(marketParams.loanToken, user, supplied + 1);
@@ -175,7 +175,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateSupplierWithPermit2(uint256 privateKey, uint256 supplied) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
 
         deal(marketParams.loanToken, user, supplied + 1);
@@ -204,7 +204,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateSupplierToVaultWithATokenPermit(uint256 privateKey, uint256 supplied) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
 
         deal(marketParams.loanToken, user, supplied + 1);
@@ -230,7 +230,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateSupplierToVaultWithPermit2(uint256 privateKey, uint256 supplied) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
 
         deal(marketParams.loanToken, user, supplied + 1);
