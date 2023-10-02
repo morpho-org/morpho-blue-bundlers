@@ -25,14 +25,11 @@ abstract contract ForkTest is BaseTest, Configured {
 
     MarketParams[] allMarketParams;
 
-    constructor() {
+    function setUp() public virtual override {
         _initConfig();
         _loadConfig();
 
         _fork();
-    }
-
-    function setUp() public virtual override {
         _label();
 
         super.setUp();
@@ -62,6 +59,7 @@ abstract contract ForkTest is BaseTest, Configured {
         uint256 forkBlockNumber = CONFIG.getForkBlockNumber();
 
         forkId = forkBlockNumber == 0 ? vm.createSelectFork(rpcUrl) : vm.createSelectFork(rpcUrl, forkBlockNumber);
+
         vm.chainId(CONFIG.getChainId());
     }
 
