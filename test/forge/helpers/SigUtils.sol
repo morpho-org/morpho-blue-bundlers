@@ -55,6 +55,8 @@ struct CompoundV3Authorization {
 }
 
 library SigUtils {
+    using PermitHash for ISignatureTransfer.PermitTransferFrom;
+
     function toTypedDataHash(bytes32 domainSeparator, Permit memory permit) internal pure returns (bytes32) {
         return ECDSA.toTypedDataHash(
             domainSeparator,
@@ -89,7 +91,7 @@ library SigUtils {
         view
         returns (bytes32)
     {
-        return ECDSA.toTypedDataHash(domainSeparator, PermitHash.hash(permit));
+        return ECDSA.toTypedDataHash(domainSeparator, permit.hash());
     }
 
     function toTypedDataHash(bytes32 domainSeparator, AaveV3OptimizerAuthorization memory authorization)

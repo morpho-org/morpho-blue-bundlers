@@ -38,7 +38,7 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
         uint256 borrowed = 1e6;
 
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
 
         _provideLiquidity(borrowed);
 
@@ -73,7 +73,7 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateSupplierWithPermit2(uint256 privateKey, uint256 supplied) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
 
         deal(marketParams.loanToken, user, supplied);
@@ -101,7 +101,7 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateSupplierToVaultWithPermit2(uint256 privateKey, uint256 supplied) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
 
         deal(marketParams.loanToken, user, supplied);

@@ -8,13 +8,12 @@ import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
-import {Permit2Bundler} from "./Permit2Bundler.sol";
 
 /// @title WNativeBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Bundler contract managing interactions with network's wrapped native token.
-abstract contract WNativeBundler is BaseBundler, Permit2Bundler {
+abstract contract WNativeBundler is BaseBundler {
     using SafeTransferLib for ERC20;
 
     /* IMMUTABLES */

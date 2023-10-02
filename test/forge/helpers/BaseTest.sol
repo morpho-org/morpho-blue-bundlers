@@ -93,6 +93,15 @@ abstract contract BaseTest is Test {
         require(deployed != address(0), string.concat("could not deploy `", artifactPath, "`"));
     }
 
+    function _boundPrivateKey(uint256 privateKey) internal returns (uint256, address) {
+        privateKey = bound(privateKey, 1, type(uint160).max);
+
+        address user = vm.addr(privateKey);
+        vm.label(user, "User");
+
+        return (privateKey, user);
+    }
+
     /* TRANSFER */
 
     function _nativeTransfer(address recipient, uint256 amount) internal pure returns (bytes memory) {

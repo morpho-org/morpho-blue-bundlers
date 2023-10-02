@@ -40,13 +40,6 @@ contract MorphoBundlerLocalTest is LocalTest {
         vm.stopPrank();
     }
 
-    function _getUserAndKey(uint256 privateKey) internal returns (uint256, address) {
-        privateKey = bound(privateKey, 1, type(uint32).max);
-        address user = vm.addr(privateKey);
-        vm.label(user, "user");
-        return (privateKey, user);
-    }
-
     function assumeOnBehalf(address onBehalf) internal view {
         vm.assume(onBehalf != address(0));
         vm.assume(onBehalf != address(morpho));
@@ -54,10 +47,9 @@ contract MorphoBundlerLocalTest is LocalTest {
     }
 
     function testSetAuthorizationWithSig(uint256 privateKey, uint32 deadline) public {
-        privateKey = bound(privateKey, 1, type(uint32).max);
+        address user;
+        (privateKey, user) = _boundPrivateKey(privateKey);
         deadline = uint32(bound(deadline, block.timestamp + 1, type(uint32).max));
-
-        address user = vm.addr(privateKey);
 
         bundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));
         bundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, true));
@@ -68,7 +60,8 @@ contract MorphoBundlerLocalTest is LocalTest {
     }
 
     function testSetAuthorizationWithSigRevert(uint256 privateKey, uint32 deadline) public {
-        privateKey = bound(privateKey, 1, type(uint32).max);
+        address user;
+        (privateKey, user) = _boundPrivateKey(privateKey);
         deadline = uint32(bound(deadline, block.timestamp + 1, type(uint32).max));
 
         bundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));
@@ -224,7 +217,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
     function testWithdraw(uint256 privateKey, uint256 amount, uint256 withdrawnShares) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
         approveERC20ToMorphoAndBundler(user);
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
@@ -274,7 +267,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
     function testSupplyCollateralBorrow(uint256 privateKey, uint256 amount) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
         approveERC20ToMorphoAndBundler(user);
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
@@ -299,7 +292,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
     function testSupplyCollateralBorrowViaCallback(uint256 privateKey, uint256 amount) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
         approveERC20ToMorphoAndBundler(user);
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
@@ -343,7 +336,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
     function testRepayWithdrawCollateral(uint256 privateKey, uint256 amount) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
         approveERC20ToMorphoAndBundler(user);
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
@@ -372,7 +365,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
     function testRepayMaxAndWithdrawCollateral(uint256 privateKey, uint256 amount) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
         approveERC20ToMorphoAndBundler(user);
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
@@ -401,7 +394,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
     function testRepayWithdrawCollateralViaCallback(uint256 privateKey, uint256 amount) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
         approveERC20ToMorphoAndBundler(user);
 
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
@@ -496,7 +489,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
     function testBundleTransactions(uint256 privateKey, uint256 size, uint256 seedAction, uint256 seedAmount) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
         approveERC20ToMorphoAndBundler(user);
 
         bundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));

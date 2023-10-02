@@ -40,7 +40,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateBorrowerWithPermit2(uint256 privateKey) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
 
         _provideLiquidity(borrowed);
 
@@ -75,7 +75,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateBorrowerDaiToSDaiWithPermit2(uint256 privateKey) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
 
         _initMarket(S_DAI, WETH);
         _provideLiquidity(borrowed);
@@ -114,7 +114,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateStEthPositionWithPermit2(uint256 privateKey) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
 
         _initMarket(WST_ETH, WETH);
         _provideLiquidity(borrowed);
@@ -158,7 +158,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateSupplierWithPermit2(uint256 privateKey, uint256 supplied) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
 
         deal(marketParams.loanToken, user, supplied + 1);
@@ -186,7 +186,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testMigrateSupplierToVaultWithPermit2(uint256 privateKey, uint256 supplied) public {
         address user;
-        (privateKey, user) = _getUserAndKey(privateKey);
+        (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
 
         deal(marketParams.loanToken, user, supplied + 1);

@@ -8,13 +8,12 @@ import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
-import {Permit2Bundler} from "./Permit2Bundler.sol";
 
 /// @title ERC4626Bundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Bundler contract managing interactions with ERC4626 compliant tokens.
-abstract contract ERC4626Bundler is BaseBundler, Permit2Bundler {
+abstract contract ERC4626Bundler is BaseBundler {
     using SafeTransferLib for ERC20;
 
     /* ACTIONS */
