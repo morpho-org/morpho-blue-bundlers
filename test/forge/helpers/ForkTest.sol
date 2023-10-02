@@ -115,10 +115,9 @@ abstract contract ForkTest is BaseTest, Configured {
 
         bytes32 digest = SigUtils.toTypedDataHash(Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(), permit, address(bundler));
 
-        Signature memory signature;
-        (signature.v, signature.r, signature.s) = vm.sign(privateKey, digest);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(Permit2Bundler.permit2TransferFrom, (permit, signature));
+        return abi.encodeCall(Permit2Bundler.permit2TransferFrom, (permit, abi.encodePacked(r, s, v)));
     }
 
     /* wstETH ACTIONS */

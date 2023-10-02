@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import {Signature} from "@morpho-blue/interfaces/IMorpho.sol";
 import {ISignatureTransfer} from "@permit2/interfaces/ISignatureTransfer.sol";
 
 import "./libraries/ConstantsLib.sol";
@@ -20,7 +19,7 @@ abstract contract Permit2Bundler is BaseBundler {
 
     /// @notice Permits a transfer from the initiator to the recipient via Permit2.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
-    function permit2TransferFrom(ISignatureTransfer.PermitTransferFrom memory permit, Signature calldata signature)
+    function permit2TransferFrom(ISignatureTransfer.PermitTransferFrom memory permit, bytes memory signature)
         external
         payable
     {
@@ -31,8 +30,6 @@ abstract contract Permit2Bundler is BaseBundler {
         ISignatureTransfer.SignatureTransferDetails memory transferDetails =
             ISignatureTransfer.SignatureTransferDetails({to: address(this), requestedAmount: amount});
 
-        ISignatureTransfer(PERMIT2).permitTransferFrom(
-            permit, transferDetails, initiator, bytes.concat(signature.r, signature.s, bytes1(signature.v))
-        );
+        ISignatureTransfer(PERMIT2).permitTransferFrom(permit, transferDetails, initiator, signature);
     }
 }
