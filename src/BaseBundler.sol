@@ -4,6 +4,7 @@ pragma solidity 0.8.21;
 import {IMulticall} from "./interfaces/IMulticall.sol";
 
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
+import {UNSET_INITIATOR} from "./libraries/ConstantsLib.sol";
 
 /// @title BaseBundler
 /// @author Morpho Labs
@@ -14,11 +15,6 @@ import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 /// delegate called by the `multicall` function (which is payable, and thus might pass a non-null ETH value). It is
 /// recommended not to rely on `msg.value` as the same value can be reused for multiple calls.
 abstract contract BaseBundler is IMulticall {
-    /* CONSTANT */
-
-    /// @dev The default value of the initiator is not the address zero to save gas.
-    address internal constant UNSET_INITIATOR = address(1);
-
     /* STORAGE */
 
     /// @notice Keeps track of the bundler's latest bundle initiator.
@@ -27,6 +23,7 @@ abstract contract BaseBundler is IMulticall {
 
     /* PUBLIC */
 
+    /// @notice Returns the address of the initiator of the multicall transaction.
     /// @dev Specialized getter to prevent using `_initiator` directly.
     function initiator() public view returns (address) {
         return _initiator;
