@@ -3,30 +3,24 @@ pragma solidity 0.8.21;
 
 import {IMulticall} from "./interfaces/IMulticall.sol";
 
-import {Math} from "@morpho-utils/math/Math.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
-import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
 
 /// @title BaseBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
-/// @notice Enables calling multiple functions in a single call to the same contract (self) as well as calling other
-/// Bundler contracts.
+/// @notice Enables calling multiple functions in a single call to the same contract (self).
 /// @dev Every Bundler must inherit from this contract.
 /// @dev Every bundler inheriting from this contract must have their external functions payable as they will be
 /// delegate called by the `multicall` function (which is payable, and thus might pass a non-null ETH value). It is
 /// recommended not to rely on `msg.value` as the same value can be reused for multiple calls.
-/// @dev Assumes that any tokens left on the contract can be seized by anyone.
 abstract contract BaseBundler is IMulticall {
-    using SafeTransferLib for ERC20;
-
     /* STORAGE */
 
     /// @notice Keeps track of the bundler's latest bundle initiator.
     /// @dev Also prevents interacting with the bundler outside of an initiated execution context.
     address public initiator;
 
-    /* PUBLIC */
+    /* EXTERNAL */
 
     /// @notice Executes a series of delegate calls to the contract itself.
     /// @dev Locks the initiator so that the sender can uniquely be identified in callbacks.
@@ -37,47 +31,6 @@ abstract contract BaseBundler is IMulticall {
         _multicall(data);
 
         delete initiator;
-    }
-
-    /* TRANSFER ACTIONS */
-
-    /// @notice Transfers the minimum between the given `amount` and the bundler's balance of native asset from the
-    /// bundler to `recipient`.
-    /// @dev Pass in `type(uint256).max` to transfer all.
-    function nativeTransfer(address recipient, uint256 amount) external payable {
-        require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
-        require(recipient != address(this), ErrorsLib.BUNDLER_ADDRESS);
-
-        amount = Math.min(amount, address(this).balance);
-
-        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
-
-        SafeTransferLib.safeTransferETH(recipient, amount);
-    }
-
-    /// @notice Transfers the minimum between the given `amount` and the bundler's balance of `asset` from the bundler
-    /// to `recipient`.
-    /// @dev Pass in `type(uint256).max` to transfer all.
-    function erc20Transfer(address asset, address recipient, uint256 amount) external payable {
-        require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
-        require(recipient != address(this), ErrorsLib.BUNDLER_ADDRESS);
-
-        amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
-
-        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
-
-        ERC20(asset).safeTransfer(recipient, amount);
-    }
-
-    /// @notice Transfers the given `amount` of `asset` from sender to this contract via ERC20 transferFrom.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
-    /// @dev Pass in `type(uint256).max` to transfer all.
-    function erc20TransferFrom(address asset, uint256 amount) external payable {
-        amount = Math.min(amount, ERC20(asset).balanceOf(initiator));
-
-        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
-
-        ERC20(asset).safeTransferFrom(initiator, address(this), amount);
     }
 
     /* INTERNAL */

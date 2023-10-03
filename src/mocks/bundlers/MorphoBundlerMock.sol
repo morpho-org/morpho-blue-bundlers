@@ -2,7 +2,8 @@
 pragma solidity ^0.8.0;
 
 import "../../MorphoBundler.sol";
+import "../../TransferBundler.sol";
 
-contract MorphoBundlerMock is MorphoBundler {
+contract MorphoBundlerMock is TransferBundler, MorphoBundler {
     constructor(address morpho) MorphoBundler(morpho) {}
 }
