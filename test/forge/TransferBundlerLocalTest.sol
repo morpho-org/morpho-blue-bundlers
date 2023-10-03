@@ -3,15 +3,15 @@ pragma solidity ^0.8.0;
 
 import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
 
-import "src/mocks/bundlers/BaseBundlerMock.sol";
+import "src/mocks/bundlers/TransferBundlerMock.sol";
 
 import "./helpers/LocalTest.sol";
 
-contract BaseBundlerLocalTest is LocalTest {
+contract TransferBundlerLocalTest is LocalTest {
     function setUp() public override {
         super.setUp();
 
-        bundler = new BaseBundlerMock();
+        bundler = new TransferBundlerMock();
     }
 
     function testTransfer(uint256 amount) public {
