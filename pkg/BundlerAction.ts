@@ -21,7 +21,6 @@ import { AuthorizationStruct, MarketParamsStruct } from "types/src/MorphoBundler
 export type BundlerCall = string;
 
 export class BundlerAction {
-  private static BASE_BUNDLER_IFC = BaseBundler__factory.createInterface();
   private static TRANSFER_BUNDLER_IFC = TransferBundler__factory.createInterface();
   private static PERMIT_BUNDLER_IFC = PermitBundler__factory.createInterface();
   private static PERMIT2_BUNDLER_IFC = Permit2Bundler__factory.createInterface();
