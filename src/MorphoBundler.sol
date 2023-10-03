@@ -117,7 +117,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         external
         payable
     {
-        MORPHO.borrow(marketParams, amount, shares, initiator, receiver);
+        MORPHO.borrow(marketParams, amount, shares, getInitiator(), receiver);
     }
 
     /// @notice Repays `amount` of `asset` on behalf of `onBehalf`.
@@ -148,7 +148,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         external
         payable
     {
-        MORPHO.withdraw(marketParams, amount, shares, initiator, receiver);
+        MORPHO.withdraw(marketParams, amount, shares, getInitiator(), receiver);
     }
 
     /// @notice Withdraws `amount` of the collateral asset on behalf of sender.
@@ -158,7 +158,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         external
         payable
     {
-        MORPHO.withdrawCollateral(marketParams, amount, initiator, receiver);
+        MORPHO.withdrawCollateral(marketParams, amount, getInitiator(), receiver);
     }
 
     /// @notice Triggers a liquidation on Morpho.
@@ -185,7 +185,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /// @dev Triggers `_multicall` logic during a callback.
     function _callback(bytes calldata data) internal {
-        _checkInitiated();
+        _checkInit();
 
         _multicall(abi.decode(data, (bytes[])));
     }

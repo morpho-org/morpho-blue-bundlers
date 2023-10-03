@@ -11,3 +11,14 @@ Each Bundler is a domain-specific abstract layer of contract that implements som
 Some chain-specific domains are also scoped to the chain-specific folder, because they are not expected to be used on any other chain (e.g. DAI and its specific `permit` function is only available on Ethereum - see [`EthereumPermitBundler`](./src/ethereum/EthereumPermitBundler.sol)).
 
 User-end bundlers are provided in each chain-specific folder, instanciating all the intermediary domain-specific bundlers and associated parameters (such as chain-specific protocol addresses, e.g. [`EthereumBundler`](./src/ethereum/EthereumBundler.sol)).
+
+## Usage
+
+Install dependencies with `forge install`.
+
+You need to build Morpho Blue to run tests for the first time:
+
+```
+cd lib/morpho-blue
+forge build
+```
