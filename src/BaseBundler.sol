@@ -58,6 +58,11 @@ abstract contract BaseBundler is IMulticall {
         }
     }
 
+    /// @dev Checks that the contract is in an initiated execution context.
+    function _checkInitiated() internal view {
+        require(_initiator != UNSET_INITIATOR, ErrorsLib.UNINITIATED);
+    }
+
     /// @dev Bubbles up the revert reason / custom error encoded in `returnData`.
     /// @dev Assumes `returnData` is the return data of any kind of failing CALL to a contract.
     function _revert(bytes memory returnData) internal pure {
@@ -67,10 +72,5 @@ abstract contract BaseBundler is IMulticall {
         assembly ("memory-safe") {
             revert(add(32, returnData), length)
         }
-    }
-
-    /// @dev Checks that the contract is in an initiated execution context.
-    function _checkInit() internal view {
-        require(_initiator != UNSET_INITIATOR, ErrorsLib.UNINITIATED);
     }
 }
