@@ -13,11 +13,7 @@ contract Init {
 
     /// @notice Keeps track of the bundler's latest bundle initiator.
     /// @dev Also prevents interacting with the bundler outside of an initiated execution context.
-    address private initiator;
-
-    constructor() {
-        initiator = UNSET_INITIATOR;
-    }
+    address private initiator = UNSET_INITIATOR;
 
     /* PUBLIC */
 

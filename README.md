@@ -14,11 +14,6 @@ User-end bundlers are provided in each chain-specific folder, instanciating all 
 
 ## Usage
 
-Install dependencies with `forge install`.
+Install dependencies with `yarn`.
 
-You need to build Morpho Blue to run tests for the first time:
-
-```
-cd lib/morpho-blue
-forge build
-```
+The first time running the tests with `yarn test:forge` will build Morpho Blue.

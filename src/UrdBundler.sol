@@ -14,7 +14,7 @@ import {BaseBundler} from "./BaseBundler.sol";
 abstract contract UrdBundler is BaseBundler {
     /// @notice Claims `amount` of `reward` on behalf of `account` on the given rewards distributor, using `proof`.
     /// @dev Assumes the given distributor implements IUniversalRewardsDistributor.
-    /// @dev Pass `skipRevert == true` to avoid reverting the whole bundle in case the proof expired.
+    /// @dev Pass `skipRevert = true` to avoid reverting the whole bundle in case the proof expired.
     function urdClaim(
         address distributor,
         address account,
