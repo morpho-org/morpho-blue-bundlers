@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
 import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
-import {MarketParamsLib} from "@morpho-blue/libraries/MarketParamsLib.sol";
-import {MorphoLib} from "@morpho-blue/libraries/periphery/MorphoLib.sol";
-import {MorphoBalancesLib} from "@morpho-blue/libraries/periphery/MorphoBalancesLib.sol";
+import {MarketParamsLib} from "morpho-blue/libraries/MarketParamsLib.sol";
+import {MorphoLib} from "morpho-blue/libraries/periphery/MorphoLib.sol";
+import {MorphoBalancesLib} from "morpho-blue/libraries/periphery/MorphoBalancesLib.sol";
 
 import "../../helpers/EthereumTest.sol";
 import {BaseBundler} from "src/BaseBundler.sol";

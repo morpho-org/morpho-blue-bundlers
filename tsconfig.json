@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "es2020",
     "strict": true,
     "esModuleInterop": true,
     "rootDir": ".",
@@ -10,6 +10,6 @@
     "resolveJsonModule": true,
     "declaration": true
   },
-  "include": ["pkg", "types"],
+  "include": ["pkg", "test/hardhat", "types"],
   "files": ["hardhat.config.ts"]
 }

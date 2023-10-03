@@ -4,10 +4,11 @@ test/=test/
 
 solmate/=lib/solmate/
 
+@morpho-blue-irm/=lib/morpho-blue-irm/src/
+morpho-blue/=lib/morpho-blue-irm/lib/morpho-blue/src/
+
 @forge-std/=lib/morpho-blue/lib/forge-std/src/
-@solmate/=lib/solmate/src/
 @morpho-v1/=lib/morpho-v1/src/
-@morpho-blue/=lib/morpho-blue/src/
 @morpho-utils/=lib/morpho-utils/src/
 @universal-rewards-distributor/=lib/universal-rewards-distributor/src/
 @morpho-aave-v3/=lib/morpho-aave-v3/src
