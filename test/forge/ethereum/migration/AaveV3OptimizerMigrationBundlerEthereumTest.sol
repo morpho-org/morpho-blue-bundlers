@@ -10,7 +10,7 @@ import "src/migration/AaveV3OptimizerMigrationBundler.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
 
-contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
+contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;
@@ -26,10 +26,9 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         _initMarket(DAI, WETH);
 
-        vm.label(AAVE_V3_OPTIMIZER, "Aave V3 Optimizer");
+        vm.label(AAVE_V3_OPTIMIZER, "AaveV3Optimizer");
 
         bundler = new AaveV3OptimizerMigrationBundler(address(morpho), address(AAVE_V3_OPTIMIZER));
-        vm.label(address(bundler), "Aave V3 Optimizer Migration Bundler");
     }
 
     function testAaveV3Optimizer3RepayZeroAmount() public {

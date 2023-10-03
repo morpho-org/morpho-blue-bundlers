@@ -15,6 +15,7 @@ import {
   CompoundV2MigrationBundler__factory,
   CompoundV3MigrationBundler__factory,
   EthereumPermitBundler__factory,
+  ISignatureTransfer,
 } from "types";
 import { AuthorizationStruct, MarketParamsStruct } from "types/src/MorphoBundler";
 
@@ -91,24 +92,8 @@ export class BundlerAction {
 
   /* Permit2 */
 
-  static approve2(
-    asset: string,
-    amount: BigNumberish,
-    deadline: BigNumberish,
-    signature: Signature,
-    skipRevert: boolean,
-  ): BundlerCall {
-    return BundlerAction.PERMIT2_BUNDLER_IFC.encodeFunctionData("approve2", [
-      asset,
-      amount,
-      deadline,
-      { v: signature.v, r: signature.r, s: signature.s },
-      skipRevert,
-    ]);
-  }
-
-  static transferFrom2(asset: string, amount: BigNumberish): BundlerCall {
-    return BundlerAction.PERMIT2_BUNDLER_IFC.encodeFunctionData("transferFrom2", [asset, amount]);
+  static permit2TransferFrom(permit: ISignatureTransfer.PermitTransferFromStruct, signature: Signature): BundlerCall {
+    return BundlerAction.PERMIT2_BUNDLER_IFC.encodeFunctionData("permit2TransferFrom", [permit, signature.serialized]);
   }
 
   /* ERC4626 */
