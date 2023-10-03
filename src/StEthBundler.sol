@@ -39,7 +39,7 @@ abstract contract StEthBundler is BaseBundler {
 
     /// @notice Stakes the given `amount` of ETH via Lido, using the `referral` id.
     /// @dev Use `BaseBundler.erc20Transfer` to transfer the stEth to some `receiver`.
-    /// @dev Pass in `type(uint256).max` to stake all.
+    /// @dev Pass `amount = type(uint256).max` to stake all.
     function stakeEth(uint256 amount, address referral) external payable {
         amount = Math.min(amount, address(this).balance);
 
@@ -49,7 +49,7 @@ abstract contract StEthBundler is BaseBundler {
 
     /// @notice Wraps the given `amount` of stETH to wstETH.
     /// @dev Use `BaseBundler.erc20Transfer` to transfer the wrapped stEth to some `receiver`.
-    /// @dev Pass in `type(uint256).max` to wrap all.
+    /// @dev Pass `amount = type(uint256).max` to wrap all.
     function wrapStEth(uint256 amount) external payable {
         amount = Math.min(amount, ERC20(ST_ETH).balanceOf(address(this)));
 
@@ -60,7 +60,7 @@ abstract contract StEthBundler is BaseBundler {
 
     /// @notice Unwraps the given `amount` of wstETH to stETH.
     /// @dev Use `BaseBundler.erc20Transfer` to transfer the unwrapped stEth to some `receiver`.
-    /// @dev Pass in `type(uint256).max` to unwrap all.
+    /// @dev Pass `amount = type(uint256).max` to unwrap all.
     function unwrapStEth(uint256 amount) external payable {
         amount = Math.min(amount, ERC20(WST_ETH).balanceOf(address(this)));
 

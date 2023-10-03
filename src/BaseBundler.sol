@@ -43,7 +43,7 @@ abstract contract BaseBundler is IMulticall {
 
     /// @notice Transfers the minimum between the given `amount` and the bundler's balance of native asset from the
     /// bundler to `recipient`.
-    /// @dev Pass in `type(uint256).max` to transfer all.
+    /// @dev Pass `amount = type(uint256).max` to transfer all.
     function nativeTransfer(address recipient, uint256 amount) external payable {
         require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
         require(recipient != address(this), ErrorsLib.BUNDLER_ADDRESS);
@@ -57,7 +57,7 @@ abstract contract BaseBundler is IMulticall {
 
     /// @notice Transfers the minimum between the given `amount` and the bundler's balance of `asset` from the bundler
     /// to `recipient`.
-    /// @dev Pass in `type(uint256).max` to transfer all.
+    /// @dev Pass `amount = type(uint256).max` to transfer all.
     function erc20Transfer(address asset, address recipient, uint256 amount) external payable {
         require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
         require(recipient != address(this), ErrorsLib.BUNDLER_ADDRESS);
@@ -71,7 +71,7 @@ abstract contract BaseBundler is IMulticall {
 
     /// @notice Transfers the given `amount` of `asset` from sender to this contract via ERC20 transferFrom.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
-    /// @dev Pass in `type(uint256).max` to transfer all.
+    /// @dev Pass `amount = type(uint256).max` to transfer all.
     function erc20TransferFrom(address asset, uint256 amount) external payable {
         amount = Math.min(amount, ERC20(asset).balanceOf(initiator));
 
