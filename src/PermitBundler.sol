@@ -18,7 +18,7 @@ abstract contract PermitBundler is BaseBundler {
         external
         payable
     {
-        try IERC20Permit(asset).permit(getInitiator(), address(this), amount, deadline, v, r, s) {}
+        try IERC20Permit(asset).permit(initiator(), address(this), amount, deadline, v, r, s) {}
         catch (bytes memory returnData) {
             if (!skipRevert) _revert(returnData);
         }

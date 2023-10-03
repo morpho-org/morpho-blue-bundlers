@@ -28,7 +28,7 @@ abstract contract BaseBundler is IMulticall {
     /* PUBLIC */
 
     /// @dev Specialized getter to prevent using `_initiator` directly.
-    function getInitiator() public view returns (address) {
+    function initiator() public view returns (address) {
         return _initiator;
     }
 

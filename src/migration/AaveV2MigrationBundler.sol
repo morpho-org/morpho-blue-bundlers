@@ -36,7 +36,7 @@ contract AaveV2MigrationBundler is MigrationBundler {
 
         _approveMaxTo(asset, address(AAVE_V2_POOL));
 
-        AAVE_V2_POOL.repay(asset, amount, interestRateMode, getInitiator());
+        AAVE_V2_POOL.repay(asset, amount, interestRateMode, initiator());
     }
 
     /// @notice Withdraws `amount` of `asset` on AaveV2, on behalf of the initiator, transferring funds to `receiver`.
