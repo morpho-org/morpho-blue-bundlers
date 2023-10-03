@@ -2,7 +2,8 @@
 pragma solidity ^0.8.0;
 
 import "../../WNativeBundler.sol";
+import "../../TransferBundler.sol";
 
-contract WNativeBundlerMock is WNativeBundler {
+contract WNativeBundlerMock is WNativeBundler, TransferBundler {
     constructor(address wNative) WNativeBundler(wNative) {}
 }

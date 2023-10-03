@@ -21,6 +21,7 @@ import {IrmMock} from "@morpho-blue/mocks/IrmMock.sol";
 import {OracleMock} from "@morpho-blue/mocks/OracleMock.sol";
 
 import {BaseBundler} from "src/BaseBundler.sol";
+import {TransferBundler} from "src/TransferBundler.sol";
 import {ERC4626Bundler} from "src/ERC4626Bundler.sol";
 import {UrdBundler} from "src/UrdBundler.sol";
 import {MorphoBundler} from "src/MorphoBundler.sol";
@@ -105,17 +106,17 @@ abstract contract BaseTest is Test {
     /* TRANSFER */
 
     function _nativeTransfer(address recipient, uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(BaseBundler.nativeTransfer, (recipient, amount));
+        return abi.encodeCall(TransferBundler.nativeTransfer, (recipient, amount));
     }
 
     /* ERC20 ACTIONS */
 
     function _erc20Transfer(address asset, address recipient, uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(BaseBundler.erc20Transfer, (asset, recipient, amount));
+        return abi.encodeCall(TransferBundler.erc20Transfer, (asset, recipient, amount));
     }
 
     function _erc20TransferFrom(address asset, uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(BaseBundler.erc20TransferFrom, (asset, amount));
+        return abi.encodeCall(TransferBundler.erc20TransferFrom, (asset, amount));
     }
 
     /* ERC4626 ACTIONS */
