@@ -38,11 +38,11 @@ abstract contract BaseBundler is IMulticall {
     /// @dev Locks the initiator so that the sender can uniquely be identified in callbacks.
     /// @dev All functions delegatecalled must be `payable` if `msg.value` is non-zero.
     function multicall(bytes[] memory data) external payable {
-        _init();
+        _initiator = msg.sender;
 
         _multicall(data);
 
-        _resetInit();
+        _initiator = UNSET_INITIATOR;
     }
 
     /* INTERNAL */
@@ -67,16 +67,6 @@ abstract contract BaseBundler is IMulticall {
         assembly ("memory-safe") {
             revert(add(32, returnData), length)
         }
-    }
-
-    /// @dev To initiate the contract's execution context.
-    function _init() internal {
-        _initiator = msg.sender;
-    }
-
-    /// @dev To reset the contract's execution context.
-    function _resetInit() internal {
-        _initiator = UNSET_INITIATOR;
     }
 
     /// @dev Checks that the contract is in an initiated execution context.
