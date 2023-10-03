@@ -1,6 +1,7 @@
 import { BigNumberish, Signature } from "ethers";
 import {
   BaseBundler__factory,
+  TransferBundler__factory,
   PermitBundler__factory,
   Permit2Bundler__factory,
   ERC4626Bundler__factory,
@@ -21,6 +22,7 @@ export type BundlerCall = string;
 
 export class BundlerAction {
   private static BASE_BUNDLER_IFC = BaseBundler__factory.createInterface();
+  private static TRANSFER_BUNDLER_IFC = TransferBundler__factory.createInterface();
   private static PERMIT_BUNDLER_IFC = PermitBundler__factory.createInterface();
   private static PERMIT2_BUNDLER_IFC = Permit2Bundler__factory.createInterface();
   private static ERC4626_BUNDLER_IFC = ERC4626Bundler__factory.createInterface();
@@ -39,15 +41,15 @@ export class BundlerAction {
   /* ERC20 */
 
   static nativeTransfer(recipient: string, amount: BigNumberish): BundlerCall {
-    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("nativeTransfer", [recipient, amount]);
+    return BundlerAction.TRANSFER_BUNDLER_IFC.encodeFunctionData("nativeTransfer", [recipient, amount]);
   }
 
   static erc20Transfer(asset: string, recipient: string, amount: BigNumberish): BundlerCall {
-    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("erc20Transfer", [asset, recipient, amount]);
+    return BundlerAction.TRANSFER_BUNDLER_IFC.encodeFunctionData("erc20Transfer", [asset, recipient, amount]);
   }
 
   static erc20TransferFrom(asset: string, amount: BigNumberish): BundlerCall {
-    return BundlerAction.BASE_BUNDLER_IFC.encodeFunctionData("erc20TransferFrom", [asset, amount]);
+    return BundlerAction.TRANSFER_BUNDLER_IFC.encodeFunctionData("erc20TransferFrom", [asset, amount]);
   }
 
   /* Permit */
