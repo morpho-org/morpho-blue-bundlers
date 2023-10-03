@@ -2,7 +2,6 @@
 pragma solidity 0.8.21;
 
 import {IMulticall} from "./interfaces/IMulticall.sol";
-import {Init} from "./Init.sol";
 
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 
@@ -14,7 +13,25 @@ import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 /// @dev Every bundler inheriting from this contract must have their external functions payable as they will be
 /// delegate called by the `multicall` function (which is payable, and thus might pass a non-null ETH value). It is
 /// recommended not to rely on `msg.value` as the same value can be reused for multiple calls.
-abstract contract BaseBundler is IMulticall, Init {
+abstract contract BaseBundler is IMulticall {
+    /* CONSTANT */
+
+    /// @dev The default value of the initiator is not the address zero to save gas.
+    address internal constant UNSET_INITIATOR = address(1);
+
+    /* STORAGE */
+
+    /// @notice Keeps track of the bundler's latest bundle initiator.
+    /// @dev Also prevents interacting with the bundler outside of an initiated execution context.
+    address private _initiator = UNSET_INITIATOR;
+
+    /* PUBLIC */
+
+    /// @dev Specialized getter to prevent using `_initiator` directly.
+    function getInitiator() public view returns (address) {
+        return _initiator;
+    }
+
     /* EXTERNAL */
 
     /// @notice Executes a series of delegate calls to the contract itself.
@@ -50,5 +67,20 @@ abstract contract BaseBundler is IMulticall, Init {
         assembly ("memory-safe") {
             revert(add(32, returnData), length)
         }
+    }
+
+    /// @dev To initiate the contract's execution context.
+    function _init() internal {
+        _initiator = msg.sender;
+    }
+
+    /// @dev To reset the contract's execution context.
+    function _resetInit() internal {
+        _initiator = UNSET_INITIATOR;
+    }
+
+    /// @dev Checks that the contract is in an initiated execution context.
+    function _checkInit() internal view {
+        require(_initiator != UNSET_INITIATOR, ErrorsLib.UNINITIATED);
     }
 }

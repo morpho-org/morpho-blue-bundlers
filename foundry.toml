@@ -1,7 +1,6 @@
 [profile.default]
 names = true
 sizes = true
-via-ir = true
 src = "src"
 test = "test/forge"
 evm_version = "paris"
