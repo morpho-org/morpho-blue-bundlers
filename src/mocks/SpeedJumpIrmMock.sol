@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {SpeedJumpIrm} from "@morpho-blue-irm/SpeedJumpIrm.sol";
+import {SpeedJumpIrm} from "@bundlers/morpho-blue-irm/src/SpeedJumpIrm.sol";
 
 uint256 constant LN2 = 0.69314718056 ether;
 uint256 constant TARGET_UTILIZATION = 0.8 ether;

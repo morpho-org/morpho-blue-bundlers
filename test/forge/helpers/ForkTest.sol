@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 import {IStEth} from "src/interfaces/IStEth.sol";
 import {IWstEth} from "src/interfaces/IWstEth.sol";
-import {ISignatureTransfer} from "@permit2/interfaces/ISignatureTransfer.sol";
+import {ISignatureTransfer} from "@bundlers/permit2/src/interfaces/ISignatureTransfer.sol";
 
-import {Permit2Lib} from "@permit2/libraries/Permit2Lib.sol";
+import {Permit2Lib} from "@bundlers/permit2/src/libraries/Permit2Lib.sol";
 
 import {Permit2Bundler} from "src/Permit2Bundler.sol";
 import {WNativeBundler} from "src/WNativeBundler.sol";

@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {IUniversalRewardsDistributor} from "@universal-rewards-distributor/interfaces/IUniversalRewardsDistributor.sol";
+import {IUniversalRewardsDistributor} from
+    "@bundlers/universal-rewards-distributor/src/interfaces/IUniversalRewardsDistributor.sol";
 
 import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
-import {ErrorsLib as UrdErrorsLib} from "@universal-rewards-distributor/libraries/ErrorsLib.sol";
+import {ErrorsLib as UrdErrorsLib} from "@bundlers/universal-rewards-distributor/src/libraries/ErrorsLib.sol";
 
-import {Merkle} from "@murky/src/Merkle.sol";
-import {UrdFactory} from "@universal-rewards-distributor/UrdFactory.sol";
+import {Merkle} from "@bundlers/murky/src/Merkle.sol";
+import {UrdFactory} from "@bundlers/universal-rewards-distributor/src/UrdFactory.sol";
 
 import "src/mocks/bundlers/UrdBundlerMock.sol";
 

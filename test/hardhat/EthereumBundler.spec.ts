@@ -2,7 +2,7 @@ import { AbiCoder, MaxUint256, keccak256 } from "ethers";
 import hre from "hardhat";
 import _range from "lodash/range";
 import { ERC20Mock, EthereumBundler, MorphoMock, OracleMock, SpeedJumpIrmMock } from "types";
-import { MarketParamsStruct } from "types/@morpho-blue/Morpho";
+import { MarketParamsStruct } from "types/@bundlers/morpho-blue/src/Morpho";
 
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import {

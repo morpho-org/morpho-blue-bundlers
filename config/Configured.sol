@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {Config, ConfigMarket, ConfigLib} from "./ConfigLib.sol";
 
-import {StdChains, VmSafe} from "@forge-std/StdChains.sol";
+import {StdChains, VmSafe} from "@bundlers/forge-std/src/StdChains.sol";
 
 abstract contract Configured is StdChains {
     using ConfigLib for Config;

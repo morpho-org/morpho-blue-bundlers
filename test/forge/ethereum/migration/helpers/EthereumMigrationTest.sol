@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
+import {SafeTransferLib, ERC20} from "@bundlers/solmate/src/utils/SafeTransferLib.sol";
 import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
-import {MarketParamsLib} from "morpho-blue/libraries/MarketParamsLib.sol";
-import {MorphoLib} from "morpho-blue/libraries/periphery/MorphoLib.sol";
-import {MorphoBalancesLib} from "morpho-blue/libraries/periphery/MorphoBalancesLib.sol";
+import {MarketParamsLib} from "@bundlers/morpho-blue/src/libraries/MarketParamsLib.sol";
+import {MorphoLib} from "@bundlers/morpho-blue/src/libraries/periphery/MorphoLib.sol";
+import {MorphoBalancesLib} from "@bundlers/morpho-blue/src/libraries/periphery/MorphoBalancesLib.sol";
 
 import "../../helpers/EthereumTest.sol";
 import {BaseBundler} from "src/BaseBundler.sol";

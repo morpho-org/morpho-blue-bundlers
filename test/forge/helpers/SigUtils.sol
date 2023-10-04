@@ -2,13 +2,13 @@
 pragma solidity ^0.8.0;
 
 import {ICompoundV3} from "src/migration/interfaces/ICompoundV3.sol";
-import {Authorization} from "morpho-blue/interfaces/IMorpho.sol";
-import {ISignatureTransfer} from "@permit2/interfaces/ISignatureTransfer.sol";
+import {Authorization} from "@bundlers/morpho-blue/src/interfaces/IMorpho.sol";
+import {ISignatureTransfer} from "@bundlers/permit2/src/interfaces/ISignatureTransfer.sol";
 
-import {PermitHash} from "@permit2/libraries/PermitHash.sol";
-import {ECDSA} from "@openzeppelin/utils/cryptography/ECDSA.sol";
-import {AUTHORIZATION_TYPEHASH} from "morpho-blue/libraries/ConstantsLib.sol";
-import {Constants as AaveV3OptimizerConstants} from "@morpho-aave-v3/libraries/Constants.sol";
+import {PermitHash} from "@bundlers/permit2/src/libraries/PermitHash.sol";
+import {ECDSA} from "@bundlers/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
+import {AUTHORIZATION_TYPEHASH} from "@bundlers/morpho-blue/src/libraries/ConstantsLib.sol";
+import {Constants as AaveV3OptimizerConstants} from "@bundlers/morpho-aave-v3/src/libraries/Constants.sol";
 
 bytes32 constant PERMIT_TYPEHASH =
     keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
