@@ -35,6 +35,7 @@ library ConfigLib {
 
     function getAddressArray(Config storage config, string[] memory keys)
         internal
+        view
         returns (address[] memory addresses)
     {
         addresses = new address[](keys.length);
@@ -52,15 +53,15 @@ library ConfigLib {
         return config.json.readUint(FORK_BLOCK_NUMBER_PATH);
     }
 
-    function getWrappedNative(Config storage config) internal returns (address) {
+    function getWrappedNative(Config storage config) internal view returns (address) {
         return getAddress(config, config.json.readString(WRAPPED_NATIVE_PATH));
     }
 
-    function getLsdNatives(Config storage config) internal returns (address[] memory) {
+    function getLsdNatives(Config storage config) internal view returns (address[] memory) {
         return getAddressArray(config, config.json.readStringArray(LSD_NATIVES_PATH));
     }
 
-    function getMarkets(Config storage config) internal returns (ConfigMarket[] memory markets) {
+    function getMarkets(Config storage config) internal view returns (ConfigMarket[] memory markets) {
         bytes memory encodedMarkets = config.json.parseRaw(MARKETS_PATH);
         RawConfigMarket[] memory rawMarkets = abi.decode(encodedMarkets, (RawConfigMarket[]));
 

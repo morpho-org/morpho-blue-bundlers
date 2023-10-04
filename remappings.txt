@@ -3,6 +3,5 @@ src/=src/
 test/=test/
 
 solmate/=lib/morpho-aave-v3/lib/permit2/lib/solmate/
-@openzeppelin/=lib/universal-rewards-distributor/lib/openzeppelin-contracts/contracts/
 
 @bundlers/=lib/
