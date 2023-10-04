@@ -130,7 +130,7 @@ contract ERC4626BundlerLocalTest is LocalTest {
         uint256 shares = vault.previewDeposit(assets);
 
         bundle.push(_erc20TransferFrom(address(loanToken), assets));
-        bundle.push(_erc4626Mint(address(vault), assets, USER));
+        bundle.push(_erc4626Deposit(address(vault), assets, USER));
 
         loanToken.setBalance(USER, assets);
 
@@ -145,7 +145,7 @@ contract ERC4626BundlerLocalTest is LocalTest {
         assertEq(vault.balanceOf(USER), shares, "vault.balanceOf(USER)");
     }
 
-    function testErc4626Redeem(uint256 deposited, uint256 assets) public {
+    function testErc4626Withdraw(uint256 deposited, uint256 assets) public {
         deposited = bound(deposited, MIN_AMOUNT, MAX_AMOUNT);
 
         uint256 minted = _depositVault(deposited);
@@ -168,7 +168,7 @@ contract ERC4626BundlerLocalTest is LocalTest {
         assertEq(vault.balanceOf(RECEIVER), 0, "vault.balanceOf(RECEIVER)");
     }
 
-    function testErc4626Withdraw(uint256 deposited, uint256 shares) public {
+    function testErc4626Redeem(uint256 deposited, uint256 shares) public {
         deposited = bound(deposited, MIN_AMOUNT, MAX_AMOUNT);
 
         uint256 minted = _depositVault(deposited);
