@@ -1,7 +1,8 @@
-import { AbiCoder, MaxUint256, keccak256, toBigInt } from "ethers";
+import { AbiCoder, MaxUint256, keccak256 } from "ethers";
 import hre from "hardhat";
 import _range from "lodash/range";
 import { ERC20Mock, EthereumBundler, MorphoMock, OracleMock, SpeedJumpIrmMock } from "types";
+import { MarketParamsStruct } from "types/@morpho-blue/Morpho";
 
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import {
@@ -13,7 +14,6 @@ import {
 // Without the division it overflows.
 const initBalance = MaxUint256 / 10000000000000000n;
 const oraclePriceScale = 1000000000000000000000000000000000000n;
-const nbMarkets = 5;
 
 let seed = 42;
 const random = () => {
@@ -65,8 +65,13 @@ describe("EthereumBundler", () => {
   let bundler: EthereumBundler;
   let bundlerAddress: string;
 
-  let marketCap: bigint;
-  let allMarketParams: MarketParamsStruct[];
+  let marketParams: MarketParamsStruct;
+  let id: Buffer;
+
+  const updateMarket = (newMarket: Partial<MarketParamsStruct>) => {
+    marketParams = { ...marketParams, ...newMarket };
+    id = identifier(marketParams);
+  };
 
   beforeEach(async () => {
     const allSigners = await hre.ethers.getSigners();
@@ -103,24 +108,21 @@ describe("EthereumBundler", () => {
     const oracleAddress = await oracle.getAddress();
     const irmAddress = await irm.getAddress();
 
-    allMarketParams = _range(1, 1 + nbMarkets).map((i) => ({
+    updateMarket({
       loanToken: loanAddress,
       collateralToken: collateralAddress,
       oracle: oracleAddress,
       irm: irmAddress,
-      lltv: (BigInt.WAD * toBigInt(i)) / toBigInt(i + 1), // lltv >= 50%
-    }));
+      lltv: BigInt.WAD / 2n + 1n,
+    });
 
     await morpho.enableIrm(irmAddress);
-
-    for (const marketParams of allMarketParams) {
-      await morpho.enableLltv(marketParams.lltv);
-      await morpho.createMarket(marketParams);
-    }
+    await morpho.enableLltv(marketParams.lltv);
+    await morpho.createMarket(marketParams);
 
     const EthereumBundlerFactory = await hre.ethers.getContractFactory("EthereumBundler", admin);
 
-    bundler = await EthereumBundlerFactory.deploy();
+    bundler = await EthereumBundlerFactory.deploy(morphoAddress);
 
     bundlerAddress = await bundler.getAddress();
 
@@ -131,25 +133,7 @@ describe("EthereumBundler", () => {
       await collateral.connect(user).approve(morphoAddress, MaxUint256);
     }
 
-    await bundler.setRiskManager(riskManager.address);
-    await bundler.setIsAllocator(allocator.address, true);
-
-    await bundler.submitTimelock(0);
-
     await forwardTimestamp(1);
-
-    await bundler.acceptTimelock();
-
-    await bundler.setFeeRecipient(admin.address);
-    await bundler.submitFee(BigInt.WAD / 10n);
-
-    marketCap = (BigInt.WAD * 20n * toBigInt(suppliers.length)) / toBigInt(nbMarkets);
-    for (const marketParams of allMarketParams) {
-      await bundler.connect(riskManager).submitCap(marketParams, marketCap);
-    }
-
-    await bundler.connect(riskManager).setSupplyQueue(allMarketParams.map(identifier));
-    await bundler.connect(riskManager).sortWithdrawQueue(allMarketParams.map((_, i) => nbMarkets - 1 - i));
 
     hre.tracer.nameTags[morphoAddress] = "Morpho";
     hre.tracer.nameTags[collateralAddress] = "Collateral";

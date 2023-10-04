@@ -32,7 +32,7 @@
     "test:forge": "yarn build:blue && FOUNDRY_PROFILE=test forge test",
     "test:forge:local": "FOUNDRY_MATCH_CONTRACT=LocalTest yarn test:forge",
     "test:forge:ethereum": "FOUNDRY_MATCH_CONTRACT=EthereumTest yarn test:forge",
-    "test:hardhat": "yarn build:blue && yarn build:irm && npx hardhat test",
+    "test:hardhat": "npx hardhat test",
     "lint": "yarn lint:forge && yarn lint:ts",
     "lint:ts": "prettier --check pkg",
     "lint:forge": "forge fmt --check",
