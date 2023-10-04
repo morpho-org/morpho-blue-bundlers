@@ -44,7 +44,7 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
 
             require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-            ICEth(C_ETH).repayBorrowBehalf{value: amount}(initiator);
+            ICEth(C_ETH).repayBorrowBehalf{value: amount}(initiator());
         } else {
             address underlying = ICToken(cToken).underlying();
 
@@ -55,7 +55,7 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
             _approveMaxTo(underlying, cToken);
 
             // Doesn't revert in case of error.
-            uint256 err = ICToken(cToken).repayBorrowBehalf(initiator, amount);
+            uint256 err = ICToken(cToken).repayBorrowBehalf(initiator(), amount);
             require(err == 0, ErrorsLib.REPAY_ERROR);
         }
     }

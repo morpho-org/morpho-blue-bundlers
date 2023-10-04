@@ -24,6 +24,7 @@ abstract contract Permit2Bundler is BaseBundler {
         external
         payable
     {
+        address initiator = initiator();
         uint256 amount = Math.min(permit.permitted.amount, ERC20(permit.permitted.token).balanceOf(initiator));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);

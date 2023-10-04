@@ -67,6 +67,8 @@ abstract contract ERC4626Bundler is BaseBundler {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
 
+        address initiator = initiator();
+
         assets = Math.min(assets, IERC4626(vault).maxWithdraw(initiator));
 
         require(assets != 0, ErrorsLib.ZERO_AMOUNT);
@@ -81,6 +83,8 @@ abstract contract ERC4626Bundler is BaseBundler {
     function erc4626Redeem(address vault, uint256 shares, address receiver) external payable {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
+
+        address initiator = initiator();
 
         shares = Math.min(shares, IERC4626(vault).maxRedeem(initiator));
 
