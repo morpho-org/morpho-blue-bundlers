@@ -25,14 +25,6 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
         C_ETH = cEth;
     }
 
-    /* CALLBACKS */
-
-    /// @dev Only the wNative contract or CompoundV2 is allowed to transfer the native tokens to this contract, without
-    /// any calldata.
-    receive() external payable override {
-        require(msg.sender == WRAPPED_NATIVE || msg.sender == C_ETH, ErrorsLib.UNAUTHORIZED_SENDER);
-    }
-
     /* ACTIONS */
 
     /// @notice Repays `amount` of `cToken`'s underlying asset, on behalf of the initiator.
