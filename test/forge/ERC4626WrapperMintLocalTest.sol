@@ -5,7 +5,7 @@ import {ERC4626Mock} from "src/mocks/ERC4626Mock.sol";
 
 import "./helpers/LocalTest.sol";
 
-contract ERC4626WrapperLocalTest is LocalTest {
+contract ERC4626WrapperMintLocalTest is LocalTest {
     ERC4626Mock internal wrapper;
 
     function setUp() public override {
@@ -22,12 +22,5 @@ contract ERC4626WrapperLocalTest is LocalTest {
     function testMint() public {
         vm.prank(SUPPLIER);
         wrapper.mint(1 ether, SUPPLIER);
-    }
-
-    function testBurn() public {
-        vm.startPrank(SUPPLIER);
-        wrapper.mint(1 ether, SUPPLIER);
-        wrapper.redeem(0.5 ether, SUPPLIER, SUPPLIER);
-        vm.stopPrank();
     }
 }
