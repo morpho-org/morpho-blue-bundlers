@@ -1,8 +1,10 @@
-import { AbiCoder, MaxUint256, keccak256 } from "ethers";
+import { AbiCoder, MaxUint256, keccak256, toBigInt } from "ethers";
 import hre from "hardhat";
 import _range from "lodash/range";
 import { ERC20Mock, EthereumBundler, MorphoMock, OracleMock, SpeedJumpIrmMock } from "types";
 import { MarketParamsStruct } from "types/@bundlers/morpho-blue/src/Morpho";
+import {AuthorizationStruct} from "types/@morpho-blue/interfaces/IMorpho";
+import { SpeedJumpIrm } from "types/@bundlers/morpho-blue-irm/src/SpeedJumpIrm";
 
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import {
@@ -14,6 +16,11 @@ import {
 // Without the division it overflows.
 const initBalance = MaxUint256 / 10000000000000000n;
 const oraclePriceScale = 1000000000000000000000000000000000000n;
+
+const LN2 = 693147180560000000n;
+const TARGET_UTILIZATION = 800000000000000000n;
+const SPEED_FACTOR = 277777777777n;
+const INITIAL_RATE = 317097919n;
 
 let seed = 42;
 const random = () => {
@@ -60,7 +67,7 @@ describe("EthereumBundler", () => {
   let loan: ERC20Mock;
   let collateral: ERC20Mock;
   let oracle: OracleMock;
-  let irm: SpeedJumpIrmMock;
+  let irm: SpeedJumpIrm;
 
   let bundler: EthereumBundler;
   let bundlerAddress: string;
@@ -99,9 +106,9 @@ describe("EthereumBundler", () => {
 
     const morphoAddress = await morpho.getAddress();
 
-    const SpeedJumpIrmFactory = await hre.ethers.getContractFactory("SpeedJumpIrmMock", admin);
+    const SpeedJumpIrmFactory = await hre.ethers.getContractFactory("SpeedJumpIrm", admin);
 
-    irm = await SpeedJumpIrmFactory.deploy(morphoAddress);
+    irm = await SpeedJumpIrmFactory.deploy(morphoAddress, LN2, TARGET_UTILIZATION, SPEED_FACTOR, INITIAL_RATE);
 
     const loanAddress = await loan.getAddress();
     const collateralAddress = await collateral.getAddress();
@@ -129,8 +136,10 @@ describe("EthereumBundler", () => {
     for (const user of users) {
       await loan.setBalance(user.address, initBalance);
       await loan.connect(user).approve(bundlerAddress, MaxUint256);
+      await loan.connect(user).approve(morphoAddress, MaxUint256);
       await collateral.setBalance(user.address, initBalance);
       await collateral.connect(user).approve(morphoAddress, MaxUint256);
+      await collateral.connect(user).approve(bundlerAddress, MaxUint256);
     }
 
     await forwardTimestamp(1);
@@ -143,5 +152,29 @@ describe("EthereumBundler", () => {
     hre.tracer.nameTags[bundlerAddress] = "EthereumBundler";
   });
 
-  it("should simulate gas cost [main]", async () => {});
+  it("should simulate gas cost [supplyCollateral + Borrow]", async () => {
+    for (let i = 0; i < suppliers.length; ++i) {
+      logProgress("supplyCollateral + Borrow", i, suppliers.length);
+
+      const supplier = suppliers[i];
+
+      let assets = BigInt.WAD * toBigInt(1 + Math.floor(random() * 100));
+
+      await morpho.connect(supplier).supply(marketParams, assets, 0, supplier.address, "0x");
+
+      const borrower = borrowers[i];
+
+      await morpho.connect(borrower).setAuthorization(bundlerAddress, true);
+
+      let collateralAddress = await collateral.getAddress();
+
+      let transferFromCall = bundler.interface.encodeFunctionData('erc20TransferFrom', [collateralAddress, assets]);
+
+      let supplyCollateralCall = bundler.interface.encodeFunctionData('morphoSupplyCollateral', [marketParams, assets, borrower.address, "0x"]);
+
+      let borrowCall = bundler.interface.encodeFunctionData('morphoBorrow', [marketParams, assets / 2n, 0, borrower.address]);
+
+      bundler.connect(borrower).multicall([transferFromCall, supplyCollateralCall, borrowCall]);
+    }
+  });
 });
