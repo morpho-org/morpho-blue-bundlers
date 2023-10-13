@@ -24,6 +24,11 @@ const config: HardhatUserConfig = {
       accounts: {
         count: 153, // must be odd
       },
+      forking : {
+        url: "https://eth-mainnet.g.alchemy.com/v2/" + process.env.ALCHEMY_KEY,
+        blockNumber: 18340697,
+        enabled: true
+      }
     },
   },
   solidity: {
