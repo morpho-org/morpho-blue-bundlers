@@ -1,8 +1,7 @@
 import { AbiCoder, MaxUint256, Signature, keccak256, toBigInt, TypedDataDomain, TypedDataField } from "ethers";
 import hre from "hardhat";
-import _range from "lodash/range";
 import { BundlerAction } from "pkg";
-import { ERC20Mock, EthereumBundler, MorphoMock, OracleMock, SpeedJumpIrm } from "types";
+import { ERC20Mock, EthereumBundler, MorphoMock, OracleMock, SpeedJumpIrmMock } from "types";
 import { MarketParamsStruct } from "types/lib/morpho-blue/src/Morpho";
 
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
@@ -30,6 +29,10 @@ const permit2Config: TypedDataConfig = {
       {
         name: "permitted",
         type: "TokenPermissions",
+      },
+      {
+        name: "spender",
+        type: "address",
       },
       {
         name: "nonce",
@@ -82,11 +85,6 @@ const morphoAuthorizationTypes: TypedDataConfig["types"] = {
 const initBalance = MaxUint256 / 10000000000000000n;
 const oraclePriceScale = 1000000000000000000000000000000000000n;
 
-const LN2 = 693147180560000000n;
-const TARGET_UTILIZATION = 800000000000000000n;
-const SPEED_FACTOR = 277777777777n;
-const INITIAL_RATE = 317097919n;
-
 const MAX_UINT48 = 281474976710655n;
 
 let seed = 42;
@@ -132,7 +130,7 @@ describe("EthereumBundler", () => {
   let loan: ERC20Mock;
   let collateral: ERC20Mock;
   let oracle: OracleMock;
-  let irm: SpeedJumpIrm;
+  let irm: SpeedJumpIrmMock;
 
   let morphoAuthorizationConfig: TypedDataConfig;
 
@@ -173,9 +171,9 @@ describe("EthereumBundler", () => {
 
     const morphoAddress = await morpho.getAddress();
 
-    const SpeedJumpIrmFactory = await hre.ethers.getContractFactory("SpeedJumpIrm", admin);
+    const SpeedJumpIrmFactory = await hre.ethers.getContractFactory("SpeedJumpIrmMock", admin);
 
-    irm = await SpeedJumpIrmFactory.deploy(morphoAddress, LN2, TARGET_UTILIZATION, SPEED_FACTOR, INITIAL_RATE);
+    irm = await SpeedJumpIrmFactory.deploy(morphoAddress);
 
     morphoAuthorizationConfig = {
       domain: { chainId: "0x1", verifyingContract: morphoAddress },
@@ -228,7 +226,7 @@ describe("EthereumBundler", () => {
 
       const supplier = suppliers[i];
 
-      let assets = BigInt.WAD * toBigInt(1 + Math.floor(random() * 100));
+      const assets = BigInt.WAD * toBigInt(1 + Math.floor(random() * 100));
 
       await morpho.connect(supplier).supply(marketParams, assets, 0, supplier.address, "0x");
 
@@ -247,6 +245,7 @@ describe("EthereumBundler", () => {
           token: await collateral.getAddress(),
           amount: assets,
         },
+        spender: bundlerAddress,
         nonce: 0n,
         deadline: MAX_UINT48,
       };

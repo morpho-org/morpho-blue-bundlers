@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
     "target": "es2020",
-    "strict": true,
-    "esModuleInterop": true,
-    "baseUrl": ".",
-    "outDir": "dist",
     "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "declaration": true
+    "outDir": "dist",
+    "baseUrl": ".",
+    "strict": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true
   },
   "include": ["pkg", "test/hardhat", "types"],
   "files": ["hardhat.config.ts"]
