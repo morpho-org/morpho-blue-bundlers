@@ -3,7 +3,6 @@
     "target": "es2020",
     "strict": true,
     "esModuleInterop": true,
-    "rootDir": ".",
     "baseUrl": ".",
     "outDir": "dist",
     "moduleResolution": "node",
