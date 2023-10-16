@@ -1,12 +1,10 @@
-import { AbiCoder, MaxUint256, Signature, keccak256, toBigInt, AddressLike, Contract } from "ethers";
+import { AbiCoder, MaxUint256, Signature, keccak256, toBigInt, AddressLike, Contract, TypedDataEncoder } from "ethers";
 import hre from "hardhat";
 import _range from "lodash/range";
 import { ERC20Mock, EthereumBundler, MorphoMock, OracleMock } from "types";
-import { MarketParamsStruct } from "types/@bundlers/morpho-blue/src/Morpho";
 import { SpeedJumpIrm } from "types/@bundlers/morpho-blue-irm/src/SpeedJumpIrm";
+import { MarketParamsStruct } from "types/@bundlers/morpho-blue/src/Morpho";
 import { AuthorizationStruct } from "types/@bundlers/morpho-blue/src/interfaces/IMorpho";
-
-import {abi} from "./abi";
 
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import {
@@ -14,6 +12,8 @@ import {
   latest,
   setNextBlockTimestamp,
 } from "@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time";
+
+import { abi } from "./abi";
 
 export interface TokenPermissions {
   token: AddressLike;
@@ -101,7 +101,11 @@ describe("EthereumBundler", () => {
     authorization = { ...authorization, ...newAthorization };
   };
 
-  const Permit2Domain = {name: "Permit2", chainId: "0x1", verifyingContract: "0x000000000022D473030F116dDEE9F6B43aC78BA3",};
+  const Permit2Domain = {
+    name: "Permit2",
+    chainId: "0x1",
+    verifyingContract: "0x000000000022D473030F116dDEE9F6B43aC78BA3",
+  };
 
   const Permit2Types = {
     PermitTransferFrom: [
@@ -214,7 +218,7 @@ describe("EthereumBundler", () => {
       await loan.connect(user).approve(morphoAddress, MaxUint256);
       await collateral.setBalance(user.address, initBalance);
       await collateral.connect(user).approve(morphoAddress, MaxUint256);
-      await collateral.connect(user).approve(bundlerAddress, MaxUint256);
+      // await collateral.connect(user).approve(bundlerAddress, MaxUint256);
     }
 
     await forwardTimestamp(1);
@@ -251,30 +255,51 @@ describe("EthereumBundler", () => {
         deadline: MAX_UINT48,
       });
 
-      let MorphoAuthorizationDomain = {chainId: "0x1", verifyingContract: await morpho.getAddress(),};
+      let MorphoAuthorizationDomain = { chainId: "0x1", verifyingContract: await morpho.getAddress() };
 
-      let MorphoSignature = Signature.from(await borrower.signTypedData(MorphoAuthorizationDomain, MorphoAuthorizationTypes, authorization));
+      let MorphoSignature = Signature.from(
+        await borrower.signTypedData(MorphoAuthorizationDomain, MorphoAuthorizationTypes, authorization),
+      );
 
-      let morphoSetAuthorizationWithSigCall = bundler.interface.encodeFunctionData('morphoSetAuthorizationWithSig', [authorization, MorphoSignature, false]);
+      let morphoSetAuthorizationWithSigCall = bundler.interface.encodeFunctionData("morphoSetAuthorizationWithSig", [
+        authorization,
+        MorphoSignature,
+        false,
+      ]);
 
-      // let Permit2Message = {
-      //   permitted: {
-      //     token: collateralAddress,
-      //     amount: assets,
-      //   },
-      //   nonce: 0n,
-      //   deadline: MAX_UINT48,
-      // };
+      let Permit2Message = {
+        permitted: {
+          token: collateralAddress,
+          amount: assets,
+        },
+        nonce: 0n,
+        deadline: MAX_UINT48,
+      };
 
-      // let permit2Signature = await borrower.signTypedData(Permit2Domain, Permit2Types, Permit2Message);
+      let permit2Signature = Signature.from(await borrower.signTypedData(Permit2Domain, Permit2Types, Permit2Message));
 
-      // let permit2TransferFromCall = bundler.interface.encodeFunctionData("permit2TransferFrom", [Permit2Message, permit2Signature]);
+      console.log("message", TypedDataEncoder.getPayload(Permit2Domain, Permit2Types, Permit2Message));
 
-      let transferFromCall = bundler.interface.encodeFunctionData('erc20TransferFrom', [collateralAddress, assets]);
+      let permit2TransferFromCall = bundler.interface.encodeFunctionData("permit2TransferFrom", [
+        Permit2Message,
+        permit2Signature.serialized,
+      ]);
 
-      let supplyCollateralCall = bundler.interface.encodeFunctionData('morphoSupplyCollateral', [marketParams, assets, borrower.address, "0x"]);
+      let transferFromCall = bundler.interface.encodeFunctionData("erc20TransferFrom", [collateralAddress, assets]);
 
-      let borrowCall = bundler.interface.encodeFunctionData('morphoBorrow', [marketParams, assets / 2n, 0, borrower.address]);
+      let supplyCollateralCall = bundler.interface.encodeFunctionData("morphoSupplyCollateral", [
+        marketParams,
+        assets,
+        borrower.address,
+        "0x",
+      ]);
+
+      let borrowCall = bundler.interface.encodeFunctionData("morphoBorrow", [
+        marketParams,
+        assets / 2n,
+        0,
+        borrower.address,
+      ]);
 
       // const permit2 = new Contract("0x000000000022D473030F116dDEE9F6B43aC78BA3", abi, borrower);
 
@@ -282,7 +307,9 @@ describe("EthereumBundler", () => {
 
       // console.log(returnValues[2], "nonce");
 
-      bundler.connect(borrower).multicall([morphoSetAuthorizationWithSigCall, transferFromCall, supplyCollateralCall, borrowCall]);
+      await bundler
+        .connect(borrower)
+        .multicall([morphoSetAuthorizationWithSigCall, permit2TransferFromCall, supplyCollateralCall, borrowCall]);
     }
   });
 });
