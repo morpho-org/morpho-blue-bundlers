@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {ILendingPool} from "@bundlers/morpho-v1/src/aave-v2/interfaces/aave/ILendingPool.sol";
-import {IAToken} from "@bundlers/morpho-v1/src/aave-v2/interfaces/aave/IAToken.sol";
-import {IERC4626} from "@bundlers/openzeppelin-contracts/contracts/interfaces/IERC4626.sol";
-import {IStEth} from "src/interfaces/IStEth.sol";
+import {ILendingPool} from "../../../../lib/morpho-v1/src/aave-v2/interfaces/aave/ILendingPool.sol";
+import {IAToken} from "../../../../lib/morpho-v1/src/aave-v2/interfaces/aave/IAToken.sol";
+import {IERC4626} from "../../../../lib/openzeppelin-contracts/contracts/interfaces/IERC4626.sol";
+import {IStEth} from "../../../../src/interfaces/IStEth.sol";
 
-import "src/ethereum/migration/AaveV2EthereumMigrationBundler.sol";
+import "../../../../src/ethereum/migration/AaveV2EthereumMigrationBundler.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
 

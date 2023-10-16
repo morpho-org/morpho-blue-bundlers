@@ -1,7 +1,3 @@
-config/=config/
 src/=src/
-test/=test/
 
 solmate/=lib/morpho-aave-v3/lib/permit2/lib/solmate/
-
-@bundlers/=lib/

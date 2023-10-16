@@ -13,19 +13,6 @@ import {
   setNextBlockTimestamp,
 } from "@nomicfoundation/hardhat-network-helpers/dist/src/helpers/time";
 
-import { abi } from "./abi";
-
-export interface TokenPermissions {
-  token: AddressLike;
-  amount: bigint;
-}
-
-export interface PermitTransferFrom {
-  permitted: TokenPermissions;
-  nonce: bigint;
-  deadline: bigint;
-}
-
 // Without the division it overflows.
 const initBalance = MaxUint256 / 10000000000000000n;
 const oraclePriceScale = 1000000000000000000000000000000000000n;

@@ -6,7 +6,7 @@ import {
     IMorphoSupplyCallback,
     IMorphoSupplyCollateralCallback,
     IMorphoFlashLoanCallback
-} from "@bundlers/morpho-blue/src/interfaces/IMorphoCallbacks.sol";
+} from "../../lib/morpho-blue/src/interfaces/IMorphoCallbacks.sol";
 
 interface IMorphoBundler is
     IMorphoSupplyCallback,

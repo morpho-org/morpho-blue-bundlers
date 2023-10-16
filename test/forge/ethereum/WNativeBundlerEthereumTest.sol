@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
+import {ErrorsLib} from "../../../src/libraries/ErrorsLib.sol";
 
-import "src/mocks/bundlers/WNativeBundlerMock.sol";
+import "../../../src/mocks/bundlers/WNativeBundlerMock.sol";
 
 import "./helpers/EthereumTest.sol";
 

@@ -3,7 +3,7 @@ pragma solidity 0.8.21;
 
 import {ICompoundV3} from "./interfaces/ICompoundV3.sol";
 
-import {Math} from "@bundlers/morpho-utils/src/math/Math.sol";
+import {Math} from "../../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 
 import {MigrationBundler, ERC20} from "./MigrationBundler.sol";

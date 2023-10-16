@@ -32,3 +32,6 @@
 [submodule "lib/morpho-blue-irm"]
 	path = lib/morpho-blue-irm
 	url = https://github.com/morpho-labs/morpho-blue-irm
+[submodule "lib/aave-v3-core"]
+	path = lib/aave-v3-core
+	url = https://github.com/aave/aave-v3-core

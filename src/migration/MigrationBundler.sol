@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import {SafeTransferLib, ERC20} from "@bundlers/solmate/src/utils/SafeTransferLib.sol";
+import {SafeTransferLib, ERC20} from "../../lib/solmate/src/utils/SafeTransferLib.sol";
 
 import {TransferBundler} from "../TransferBundler.sol";
 import {PermitBundler} from "../PermitBundler.sol";

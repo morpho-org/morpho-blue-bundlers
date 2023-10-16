@@ -3,8 +3,8 @@ pragma solidity ^0.8.0;
 
 import {SigUtils, Permit} from "test/forge/helpers/SigUtils.sol";
 
-import "src/mocks/bundlers/PermitBundlerMock.sol";
-import {ERC20PermitMock} from "src/mocks/ERC20PermitMock.sol";
+import "../../src/mocks/bundlers/PermitBundlerMock.sol";
+import {ERC20PermitMock} from "../../src/mocks/ERC20PermitMock.sol";
 
 import "./helpers/LocalTest.sol";
 

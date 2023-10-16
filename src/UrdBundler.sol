@@ -2,7 +2,7 @@
 pragma solidity 0.8.21;
 
 import {IUniversalRewardsDistributor} from
-    "@bundlers/universal-rewards-distributor/src/interfaces/IUniversalRewardsDistributor.sol";
+    "../lib/universal-rewards-distributor/src/interfaces/IUniversalRewardsDistributor.sol";
 
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 
