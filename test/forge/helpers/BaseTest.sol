@@ -40,11 +40,11 @@ abstract contract BaseTest is Test {
     using SafeTransferLib for ERC20;
     using stdJson for string;
 
-    address internal USER;
-    address internal SUPPLIER;
-    address internal OWNER;
-    address internal RECEIVER;
-    address internal LIQUIDATOR;
+    address internal USER = makeAddr("User");
+    address internal SUPPLIER = makeAddr("Owner");
+    address internal OWNER = makeAddr("Supplier");
+    address internal RECEIVER = makeAddr("Receiver");
+    address internal LIQUIDATOR = makeAddr("Liquidator");
 
     IMorpho internal morpho;
     IrmMock internal irm;
@@ -56,12 +56,6 @@ abstract contract BaseTest is Test {
     bytes[] internal callbackBundle;
 
     function setUp() public virtual {
-        USER = makeAddr("User");
-        OWNER = makeAddr("Owner");
-        SUPPLIER = makeAddr("Supplier");
-        RECEIVER = makeAddr("Receiver");
-        LIQUIDATOR = makeAddr("Liquidator");
-
         morpho = IMorpho(_deploy("lib/morpho-blue/out/Morpho.sol/Morpho.json", abi.encode(OWNER)));
         vm.label(address(morpho), "Morpho");
 
