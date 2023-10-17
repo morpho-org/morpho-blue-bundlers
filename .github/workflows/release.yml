@@ -49,17 +49,18 @@ jobs:
         id: determine_version
         run: |
           if [ "${{ github.event.inputs.version_type }}" == "major" ]; then
-            echo "major"
+          version_type="major"
           elif [ "${{ github.event.inputs.version_type }}" == "minor" ]; then
-            echo "minor"
+          version_type="minor"
           else
-            echo "patch"
+          version_type="patch"
           fi
+          echo "version_type=$version_type" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Bump package.json version
         run: |
-          version_type=$(echo "${{ steps.determine_version.outputs.stdout }}")
+          version_type=$(echo "${{ steps.determine_version.outputs.version_type }}")
           yarn version --${version_type}
 
       - name: Configure Git User
@@ -83,12 +84,12 @@ jobs:
 
       - name: Push Git Tag
         run: |
-          git push origin "v${version}"
+          git push origin HEAD:$(basename ${{ github.ref }}) --tags
 
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
           version=$(node -e "console.log(require('./package.json').version)")
-          version_type=$(echo "${{ steps.determine_version.outputs.stdout }}")
+          version_type=$(echo "${{ steps.determine_version.outputs.version_type }}")
           curl -X POST -H "Authorization: token $GITHUB_TOKEN" -d "{\"tag_name\":\"v$version\",\"name\":\"Release $version_type $version\",\"body\":\"Release type: $version_type\n\nAdditional release notes can go here.\"}" "https://api.github.com/repos/${{ github.repository }}/releases"
