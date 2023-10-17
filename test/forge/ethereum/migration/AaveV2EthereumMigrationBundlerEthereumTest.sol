@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {ILendingPool} from "../../../../lib/morpho-v1/src/aave-v2/interfaces/aave/ILendingPool.sol";
-import {IAToken} from "../../../../lib/morpho-v1/src/aave-v2/interfaces/aave/IAToken.sol";
-import {IERC4626} from "../../../../lib/openzeppelin-contracts/contracts/interfaces/IERC4626.sol";
 import {IStEth} from "../../../../src/interfaces/IStEth.sol";
+import {IAaveV2} from "../../../../src/migration/interfaces/IAaveV2.sol";
+import {IERC4626} from "../../../../lib/openzeppelin-contracts/contracts/interfaces/IERC4626.sol";
 
 import "../../../../src/ethereum/migration/AaveV2EthereumMigrationBundler.sol";
 
@@ -48,12 +47,12 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.startPrank(user);
         ERC20(marketParams.collateralToken).safeApprove(AAVE_V2_POOL, collateralSupplied);
-        ILendingPool(AAVE_V2_POOL).deposit(marketParams.collateralToken, collateralSupplied, user, 0);
-        ILendingPool(AAVE_V2_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
+        IAaveV2(AAVE_V2_POOL).deposit(marketParams.collateralToken, collateralSupplied, user, 0);
+        IAaveV2(AAVE_V2_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
         vm.stopPrank();
 
         address aToken = _getATokenV2(marketParams.collateralToken);
-        uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
+        uint256 aTokenBalance = ERC20(aToken).balanceOf(user);
 
         vm.prank(user);
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
@@ -84,12 +83,12 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.startPrank(user);
         ERC20(DAI).safeApprove(AAVE_V2_POOL, collateralSupplied);
-        ILendingPool(AAVE_V2_POOL).deposit(DAI, collateralSupplied, user, 0);
-        ILendingPool(AAVE_V2_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
+        IAaveV2(AAVE_V2_POOL).deposit(DAI, collateralSupplied, user, 0);
+        IAaveV2(AAVE_V2_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
         vm.stopPrank();
 
         address aToken = _getATokenV2(DAI);
-        uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
+        uint256 aTokenBalance = ERC20(aToken).balanceOf(user);
 
         vm.prank(user);
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
@@ -125,15 +124,15 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.startPrank(user);
         ERC20(ST_ETH).safeApprove(AAVE_V2_POOL, collateralSupplied);
-        ILendingPool(AAVE_V2_POOL).deposit(ST_ETH, collateralSupplied, user, 0);
-        ILendingPool(AAVE_V2_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
+        IAaveV2(AAVE_V2_POOL).deposit(ST_ETH, collateralSupplied, user, 0);
+        IAaveV2(AAVE_V2_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
         vm.stopPrank();
 
         // The amount of stEth as collateral is decreased by 10 beceause of roundings.
         collateralSupplied -= 10;
 
         address aToken = _getATokenV2(ST_ETH);
-        uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
+        uint256 aTokenBalance = ERC20(aToken).balanceOf(user);
 
         uint256 wstEthAmount = IStEth(ST_ETH).getSharesByPooledEth(collateralSupplied);
 
@@ -165,11 +164,11 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.startPrank(user);
         ERC20(marketParams.loanToken).safeApprove(AAVE_V2_POOL, supplied + 1);
-        ILendingPool(AAVE_V2_POOL).deposit(marketParams.loanToken, supplied + 1, user, 0);
+        IAaveV2(AAVE_V2_POOL).deposit(marketParams.loanToken, supplied + 1, user, 0);
         vm.stopPrank();
 
         address aToken = _getATokenV2(marketParams.loanToken);
-        uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
+        uint256 aTokenBalance = ERC20(aToken).balanceOf(user);
 
         vm.prank(user);
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
@@ -193,11 +192,11 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.startPrank(user);
         ERC20(marketParams.loanToken).safeApprove(AAVE_V2_POOL, supplied + 1);
-        ILendingPool(AAVE_V2_POOL).deposit(marketParams.loanToken, supplied + 1, user, 0);
+        IAaveV2(AAVE_V2_POOL).deposit(marketParams.loanToken, supplied + 1, user, 0);
         vm.stopPrank();
 
         address aToken = _getATokenV2(marketParams.loanToken);
-        uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
+        uint256 aTokenBalance = ERC20(aToken).balanceOf(user);
 
         vm.prank(user);
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
@@ -213,7 +212,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
     }
 
     function _getATokenV2(address asset) internal view returns (address) {
-        return ILendingPool(AAVE_V2_POOL).getReserveData(asset).aTokenAddress;
+        return IAaveV2(AAVE_V2_POOL).getReserveData(asset).aTokenAddress;
     }
 
     /* ACTIONS */

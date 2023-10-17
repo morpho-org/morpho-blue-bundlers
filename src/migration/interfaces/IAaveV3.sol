@@ -1,11 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity >=0.5.0;
 
-/**
- * @title IAaveV3
- * @author Aave
- * @notice Defines the basic interface for an Aave Pool.
- */
 interface IAaveV3 {
     /**
      * @notice Mints an `amount` of aTokens to the `onBehalfOf`
