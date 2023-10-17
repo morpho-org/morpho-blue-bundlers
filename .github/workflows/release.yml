@@ -1,4 +1,4 @@
-name: Release on NPM
+name: Publish on NPM
 
 on:
   push:
@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   build-and-deploy:
-    name: Build and Deploy
+    name: Build and Publish
     runs-on: ubuntu-latest
     steps:
       - name: Generate a token
@@ -70,7 +70,7 @@ jobs:
 
       - name: Push to Correct Branch
         run: |
-          git push origin HEAD:$(basename ${{ github.ref }})
+          git push origin $(basename ${{ github.ref }})
 
       - name: Publish to npm
         run: |
@@ -84,7 +84,7 @@ jobs:
 
       - name: Push Git Tag
         run: |
-          git push origin HEAD:$(basename ${{ github.ref }}) --tags
+          git push origin $(basename ${{ github.ref }}) --tags
 
       - name: Create GitHub Release
         env:
