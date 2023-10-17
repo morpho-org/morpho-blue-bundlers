@@ -33,3 +33,5 @@ jobs:
 
       - name: Build contracts
         run: yarn test:hardhat
+        env:
+          ALCHEMY_KEY: ${{ secrets.ALCHEMY_KEY }}
