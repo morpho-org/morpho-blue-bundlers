@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {IPool} from "@aave/v3-core/interfaces/IPool.sol";
-import {IAToken} from "@aave/v3-core/interfaces/IAToken.sol";
+import {IPool} from "../../../../lib/aave-v3-core/contracts/interfaces/IPool.sol";
+import {IAToken} from "../../../../lib/aave-v3-core/contracts/interfaces/IAToken.sol";
 
 import {SigUtils, Permit} from "test/forge/helpers/SigUtils.sol";
-import "src/migration/AaveV3MigrationBundler.sol";
+import "../../../../src/migration/AaveV3MigrationBundler.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
 

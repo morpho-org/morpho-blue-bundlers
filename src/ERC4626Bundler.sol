@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import {IERC4626} from "@openzeppelin/interfaces/IERC4626.sol";
+import {IERC4626} from "../lib/openzeppelin-contracts/contracts/interfaces/IERC4626.sol";
 
-import {Math} from "@morpho-utils/math/Math.sol";
+import {Math} from "../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
-import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
+import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
 
@@ -67,13 +67,13 @@ abstract contract ERC4626Bundler is BaseBundler {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
 
-        address initiator = initiator();
+        address _initiator = initiator();
 
-        assets = Math.min(assets, IERC4626(vault).maxWithdraw(initiator));
+        assets = Math.min(assets, IERC4626(vault).maxWithdraw(_initiator));
 
         require(assets != 0, ErrorsLib.ZERO_AMOUNT);
 
-        IERC4626(vault).withdraw(assets, receiver, initiator);
+        IERC4626(vault).withdraw(assets, receiver, _initiator);
     }
 
     /// @notice Redeems the given amount of `shares` from the given ERC4626 `vault`, transferring assets to `receiver`.
@@ -84,12 +84,12 @@ abstract contract ERC4626Bundler is BaseBundler {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
 
-        address initiator = initiator();
+        address _initiator = initiator();
 
-        shares = Math.min(shares, IERC4626(vault).maxRedeem(initiator));
+        shares = Math.min(shares, IERC4626(vault).maxRedeem(_initiator));
 
         require(shares != 0, ErrorsLib.ZERO_SHARES);
 
-        IERC4626(vault).redeem(shares, receiver, initiator);
+        IERC4626(vault).redeem(shares, receiver, _initiator);
     }
 }
