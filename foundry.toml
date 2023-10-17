@@ -8,6 +8,7 @@ fs_permissions = [
     { access = "read", path = "./config/"},
     { access = "read", path = "./lib/morpho-blue/out/"}
 ]
+libs = ["lib"]
 
 [profile.default.fuzz]
 runs = 32

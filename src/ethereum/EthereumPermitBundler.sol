@@ -15,12 +15,12 @@ abstract contract EthereumPermitBundler is PermitBundler {
     /// @notice Permits DAI from sender to be spent by the bundler with the given `nonce`, `expiry` & EIP-712
     /// signature's `v`, `r` & `s`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
-    /// @dev Pass `skipRevert == true` to avoid reverting the whole bundle in case the signature expired.
+    /// @dev Pass `skipRevert = true` to avoid reverting the whole bundle in case the signature expired.
     function permitDai(uint256 nonce, uint256 expiry, bool allowed, uint8 v, bytes32 r, bytes32 s, bool skipRevert)
         external
         payable
     {
-        try IDaiPermit(MainnetLib.DAI).permit(initiator, address(this), nonce, expiry, allowed, v, r, s) {}
+        try IDaiPermit(MainnetLib.DAI).permit(initiator(), address(this), nonce, expiry, allowed, v, r, s) {}
         catch (bytes memory returnData) {
             if (!skipRevert) _revert(returnData);
         }

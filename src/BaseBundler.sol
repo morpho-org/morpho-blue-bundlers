@@ -4,12 +4,13 @@ pragma solidity 0.8.21;
 import {IMulticall} from "./interfaces/IMulticall.sol";
 
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
+import {UNSET_INITIATOR} from "./libraries/ConstantsLib.sol";
 
 /// @title BaseBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Enables calling multiple functions in a single call to the same contract (self).
-/// @dev Every Bundler must inherit from this contract.
+/// @dev Every bundler must inherit from this contract.
 /// @dev Every bundler inheriting from this contract must have their external functions payable as they will be
 /// delegate called by the `multicall` function (which is payable, and thus might pass a non-null ETH value). It is
 /// recommended not to rely on `msg.value` as the same value can be reused for multiple calls.
@@ -18,7 +19,15 @@ abstract contract BaseBundler is IMulticall {
 
     /// @notice Keeps track of the bundler's latest bundle initiator.
     /// @dev Also prevents interacting with the bundler outside of an initiated execution context.
-    address public initiator;
+    address private _initiator = UNSET_INITIATOR;
+
+    /* PUBLIC */
+
+    /// @notice Returns the address of the initiator of the multicall transaction.
+    /// @dev Specialized getter to prevent using `_initiator` directly.
+    function initiator() public view returns (address) {
+        return _initiator;
+    }
 
     /* EXTERNAL */
 
@@ -26,11 +35,11 @@ abstract contract BaseBundler is IMulticall {
     /// @dev Locks the initiator so that the sender can uniquely be identified in callbacks.
     /// @dev All functions delegatecalled must be `payable` if `msg.value` is non-zero.
     function multicall(bytes[] memory data) external payable {
-        initiator = msg.sender;
+        _initiator = msg.sender;
 
         _multicall(data);
 
-        delete initiator;
+        _initiator = UNSET_INITIATOR;
     }
 
     /* INTERNAL */
@@ -48,7 +57,7 @@ abstract contract BaseBundler is IMulticall {
 
     /// @dev Checks that the contract is in an initiated execution context.
     function _checkInitiated() internal view {
-        require(initiator != address(0), ErrorsLib.UNINITIATED);
+        require(_initiator != UNSET_INITIATOR, ErrorsLib.UNINITIATED);
     }
 
     /// @dev Bubbles up the revert reason / custom error encoded in `returnData`.

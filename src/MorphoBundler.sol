@@ -56,7 +56,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /* ACTIONS */
 
     /// @notice Approves this contract to manage the `authorization.authorizer`'s position via EIP712 `signature`.
-    /// @dev Pass `skipRevert == true` to avoid reverting the whole bundle in case the signature expired.
+    /// @dev Pass `skipRevert = true` to avoid reverting the whole bundle in case the signature expired.
     function morphoSetAuthorizationWithSig(
         Authorization calldata authorization,
         Signature calldata signature,
@@ -117,7 +117,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         external
         payable
     {
-        MORPHO.borrow(marketParams, amount, shares, initiator, receiver);
+        MORPHO.borrow(marketParams, amount, shares, initiator(), receiver);
     }
 
     /// @notice Repays `amount` of `asset` on behalf of `onBehalf`.
@@ -148,7 +148,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         external
         payable
     {
-        MORPHO.withdraw(marketParams, amount, shares, initiator, receiver);
+        MORPHO.withdraw(marketParams, amount, shares, initiator(), receiver);
     }
 
     /// @notice Withdraws `amount` of the collateral asset on behalf of sender.
@@ -158,7 +158,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         external
         payable
     {
-        MORPHO.withdrawCollateral(marketParams, amount, initiator, receiver);
+        MORPHO.withdrawCollateral(marketParams, amount, initiator(), receiver);
     }
 
     /// @notice Triggers a liquidation on Morpho.
