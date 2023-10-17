@@ -7,30 +7,30 @@ import {ICToken} from "./interfaces/ICToken.sol";
 import {Math} from "@morpho-utils/math/Math.sol";
 import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 
-import {WNativeBundler} from "../WNativeBundler.sol";
+import {WETHBundler} from "../WETHBundler.sol";
 import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 
 /// @title CompoundV2MigrationBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from Compound V2 to Morpho Blue easily.
-contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
+contract CompoundV2MigrationBundler is WETHBundler, MigrationBundler {
     /* IMMUTABLES */
 
     address public immutable C_ETH;
 
     /* CONSTRUCTOR */
 
-    constructor(address morpho, address wNative, address cEth) WNativeBundler(wNative) MigrationBundler(morpho) {
+    constructor(address morpho, address wEth, address cEth) WETHBundler(wEth) MigrationBundler(morpho) {
         C_ETH = cEth;
     }
 
     /* CALLBACKS */
 
-    /// @dev Only the wNative contract or CompoundV2 is allowed to transfer the native tokens to this contract, without
+    /// @dev Only the WETH contract or CompoundV2 is allowed to transfer the native tokens to this contract, without
     /// any calldata.
     receive() external payable override {
-        require(msg.sender == WRAPPED_NATIVE || msg.sender == C_ETH, ErrorsLib.UNAUTHORIZED_SENDER);
+        require(msg.sender == WETH_TOKEN || msg.sender == C_ETH, ErrorsLib.UNAUTHORIZED_SENDER);
     }
 
     /* ACTIONS */

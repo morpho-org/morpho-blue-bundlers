@@ -26,7 +26,7 @@ library ConfigLib {
     string internal constant CHAIN_ID_PATH = "$.chainId";
     string internal constant FORK_BLOCK_NUMBER_PATH = "$.forkBlockNumber";
     string internal constant MARKETS_PATH = "$.markets";
-    string internal constant WRAPPED_NATIVE_PATH = "$.wrappedNative";
+    string internal constant WETH_TOKEN_PATH = "$.wrappedNative";
     string internal constant LSD_NATIVES_PATH = "$.lsdNatives";
 
     function getAddress(Config storage config, string memory key) internal returns (address) {
@@ -53,7 +53,7 @@ library ConfigLib {
     }
 
     function getWrappedNative(Config storage config) internal returns (address) {
-        return getAddress(config, config.json.readString(WRAPPED_NATIVE_PATH));
+        return getAddress(config, config.json.readString(WETH_TOKEN_PATH));
     }
 
     function getLsdNatives(Config storage config) internal returns (address[] memory) {

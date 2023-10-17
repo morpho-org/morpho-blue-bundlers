@@ -96,7 +96,7 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         callbackBundle.push(_compoundV2Repay(C_DAI_V2, borrowed));
         callbackBundle.push(_permit2TransferFrom(privateKey, C_ETH_V2, cTokenBalance, 0));
         callbackBundle.push(_compoundV2Redeem(C_ETH_V2, cTokenBalance));
-        callbackBundle.push(_wrapNative(collateral));
+        callbackBundle.push(_wrapETH(collateral));
 
         bundle.push(_morphoSupplyCollateral(marketParams, collateral, user));
 

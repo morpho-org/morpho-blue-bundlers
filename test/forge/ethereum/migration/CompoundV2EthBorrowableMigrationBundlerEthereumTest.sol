@@ -60,7 +60,7 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));
         callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, false, 1, false));
-        callbackBundle.push(_unwrapNative(borrowed));
+        callbackBundle.push(_unwrapETH(borrowed));
         callbackBundle.push(_compoundV2Repay(C_ETH_V2, borrowed));
         callbackBundle.push(_permit2TransferFrom(privateKey, C_DAI_V2, cTokenBalance, 0));
         callbackBundle.push(_compoundV2Redeem(C_DAI_V2, cTokenBalance));
@@ -91,7 +91,7 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
 
         bundle.push(_permit2TransferFrom(privateKey, C_ETH_V2, cTokenBalance, 0));
         bundle.push(_compoundV2Redeem(C_ETH_V2, cTokenBalance));
-        bundle.push(_wrapNative(supplied));
+        bundle.push(_wrapETH(supplied));
         bundle.push(_morphoSupply(marketParams, supplied, 0, user));
 
         vm.prank(user);
@@ -118,7 +118,7 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
 
         bundle.push(_permit2TransferFrom(privateKey, C_ETH_V2, cTokenBalance, 0));
         bundle.push(_compoundV2Redeem(C_ETH_V2, cTokenBalance));
-        bundle.push(_wrapNative(supplied));
+        bundle.push(_wrapETH(supplied));
         bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
 
         vm.prank(user);

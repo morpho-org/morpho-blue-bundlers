@@ -7,7 +7,7 @@ import {
   ERC4626Bundler__factory,
   MorphoBundler__factory,
   UrdBundler__factory,
-  WNativeBundler__factory,
+  WETHBundler__factory,
   StEthBundler__factory,
   AaveV2MigrationBundler__factory,
   AaveV3MigrationBundler__factory,
@@ -28,7 +28,7 @@ export class BundlerAction {
   private static ERC4626_BUNDLER_IFC = ERC4626Bundler__factory.createInterface();
   private static MORPHO_BUNDLER_IFC = MorphoBundler__factory.createInterface();
   private static URD_BUNDLER_IFC = UrdBundler__factory.createInterface();
-  private static WNATIVE_BUNDLER_IFC = WNativeBundler__factory.createInterface();
+  private static WETH_BUNDLER_IFC = WETHBundler__factory.createInterface();
   private static ST_ETH_BUNDLER_IFC = StEthBundler__factory.createInterface();
   private static ETHEREUM_PERMIT_BUNDLER_IFC = EthereumPermitBundler__factory.createInterface();
 
@@ -242,12 +242,12 @@ export class BundlerAction {
 
   /* Wrapped Native */
 
-  static wrapNative(amount: BigNumberish): BundlerCall {
-    return BundlerAction.WNATIVE_BUNDLER_IFC.encodeFunctionData("wrapNative", [amount]);
+  static wrapETH(amount: BigNumberish): BundlerCall {
+    return BundlerAction.WETH_BUNDLER_IFC.encodeFunctionData("wrapETH", [amount]);
   }
 
-  static unwrapNative(amount: BigNumberish): BundlerCall {
-    return BundlerAction.WNATIVE_BUNDLER_IFC.encodeFunctionData("unwrapNative", [amount]);
+  static unwrapETH(amount: BigNumberish): BundlerCall {
+    return BundlerAction.WETH_BUNDLER_IFC.encodeFunctionData("unwrapETH", [amount]);
   }
 
   /* stETH */

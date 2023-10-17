@@ -8,7 +8,7 @@ import {ISignatureTransfer} from "@permit2/interfaces/ISignatureTransfer.sol";
 import {Permit2Lib} from "@permit2/libraries/Permit2Lib.sol";
 
 import {Permit2Bundler} from "src/Permit2Bundler.sol";
-import {WNativeBundler} from "src/WNativeBundler.sol";
+import {WETHBundler} from "src/WETHBundler.sol";
 import {StEthBundler} from "src/StEthBundler.sol";
 
 import "config/Configured.sol";
@@ -132,11 +132,11 @@ abstract contract ForkTest is BaseTest, Configured {
 
     /* WRAPPED NATIVE ACTIONS */
 
-    function _wrapNative(uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(WNativeBundler.wrapNative, (amount));
+    function _wrapETH(uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(WETHBundler.wrapETH, (amount));
     }
 
-    function _unwrapNative(uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(WNativeBundler.unwrapNative, (amount));
+    function _unwrapETH(uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(WETHBundler.unwrapETH, (amount));
     }
 }

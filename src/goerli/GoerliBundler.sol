@@ -6,7 +6,7 @@ import {GoerliLib} from "./libraries/GoerliLib.sol";
 import {PermitBundler} from "../PermitBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
 import {ERC4626Bundler} from "../ERC4626Bundler.sol";
-import {WNativeBundler} from "../WNativeBundler.sol";
+import {WETHBundler} from "../WETHBundler.sol";
 import {StEthBundler} from "../StEthBundler.sol";
 import {UrdBundler} from "../UrdBundler.sol";
 import {MorphoBundler} from "../MorphoBundler.sol";
@@ -19,7 +19,7 @@ contract GoerliBundler is
     PermitBundler,
     Permit2Bundler,
     ERC4626Bundler,
-    WNativeBundler,
+    WETHBundler,
     StEthBundler,
     UrdBundler,
     MorphoBundler
@@ -27,7 +27,7 @@ contract GoerliBundler is
     /* CONSTRUCTOR */
 
     constructor(address morpho)
-        WNativeBundler(GoerliLib.WETH)
+        WETHBundler(GoerliLib.WETH)
         StEthBundler(GoerliLib.ST_ETH, GoerliLib.WST_ETH)
         MorphoBundler(morpho)
     {}

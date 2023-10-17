@@ -7,7 +7,7 @@ import {TransferBundler} from "../TransferBundler.sol";
 import {EthereumPermitBundler} from "./EthereumPermitBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
 import {ERC4626Bundler} from "../ERC4626Bundler.sol";
-import {WNativeBundler} from "../WNativeBundler.sol";
+import {WETHBundler} from "../WETHBundler.sol";
 import {EthereumStEthBundler} from "./EthereumStEthBundler.sol";
 import {UrdBundler} from "../UrdBundler.sol";
 import {MorphoBundler} from "../MorphoBundler.sol";
@@ -21,12 +21,12 @@ contract EthereumBundler is
     EthereumPermitBundler,
     Permit2Bundler,
     ERC4626Bundler,
-    WNativeBundler,
+    WETHBundler,
     EthereumStEthBundler,
     UrdBundler,
     MorphoBundler
 {
     /* CONSTRUCTOR */
 
-    constructor(address morpho) WNativeBundler(MainnetLib.WETH) MorphoBundler(morpho) {}
+    constructor(address morpho) WETHBundler(MainnetLib.WETH) MorphoBundler(morpho) {}
 }
