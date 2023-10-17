@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.0;
 
-import {IStEth} from "src/interfaces/IStEth.sol";
-import {IWstEth} from "src/interfaces/IWstEth.sol";
-import {ISignatureTransfer} from "@permit2/interfaces/ISignatureTransfer.sol";
+import {IStEth} from "../../../src/interfaces/IStEth.sol";
+import {IWstEth} from "../../../src/interfaces/IWstEth.sol";
+import {ISignatureTransfer} from "../../../lib/permit2/src/interfaces/ISignatureTransfer.sol";
 
-import {Permit2Lib} from "@permit2/libraries/Permit2Lib.sol";
+import {Permit2Lib} from "../../../lib/permit2/src/libraries/Permit2Lib.sol";
 
-import {Permit2Bundler} from "src/Permit2Bundler.sol";
-import {WNativeBundler} from "src/WNativeBundler.sol";
-import {StEthBundler} from "src/StEthBundler.sol";
+import {Permit2Bundler} from "../../../src/Permit2Bundler.sol";
+import {WNativeBundler} from "../../../src/WNativeBundler.sol";
+import {StEthBundler} from "../../../src/StEthBundler.sol";
 
 import "config/Configured.sol";
 import "./BaseTest.sol";

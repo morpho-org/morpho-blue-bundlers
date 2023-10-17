@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {DaiPermit} from "../helpers/SigUtils.sol";
 
-import "src/mocks/bundlers/ethereum/EthereumPermitBundlerMock.sol";
+import "../../../src/mocks/bundlers/ethereum/EthereumPermitBundlerMock.sol";
 
 import "./helpers/EthereumTest.sol";
 
