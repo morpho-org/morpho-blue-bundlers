@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {IAaveV3Optimizer} from "../../../../src/migration/interfaces/IAaveV3Optimizer.sol";
-
-import {Types} from "../../../../lib/morpho-aave-v3/src/libraries/Types.sol";
-import {AaveV3OptimizerAuthorization} from "../../helpers/SigUtils.sol";
+import {Authorization as AaveV3OptimizerAuthorization} from "../../../../src/migration/interfaces/IAaveV3Optimizer.sol";
 
 import "../../../../src/migration/AaveV3OptimizerMigrationBundler.sol";
 
@@ -163,7 +160,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
             AaveV3OptimizerAuthorization(vm.addr(privateKey), manager, isAllowed, nonce, SIGNATURE_DEADLINE)
         );
 
-        Types.Signature memory sig;
+        Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
         return abi.encodeCall(

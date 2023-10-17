@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {SigUtils, Permit} from "test/forge/helpers/SigUtils.sol";
+import {SigUtils, Permit} from "./helpers/SigUtils.sol";
 
 import "../../src/mocks/bundlers/PermitBundlerMock.sol";
 import {ERC20PermitMock} from "../../src/mocks/ERC20PermitMock.sol";

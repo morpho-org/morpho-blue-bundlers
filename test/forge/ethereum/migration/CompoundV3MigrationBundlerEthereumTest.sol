@@ -182,7 +182,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
             instance, CompoundV3Authorization(vm.addr(privateKey), manager, isAllowed, nonce, SIGNATURE_DEADLINE)
         );
 
-        Signature memory sig;
+        MorphoBlueSignature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
         return abi.encodeCall(

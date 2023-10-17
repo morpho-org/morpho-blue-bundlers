@@ -1,11 +1,23 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity >=0.5.0;
 
+/// @dev The typehash for approveManagerWithSig Authorization used for the EIP-712 signature.
+bytes32 constant AUTHORIZATION_TYPEHASH =
+    keccak256("Authorization(address delegator,address manager,bool isAllowed,uint256 nonce,uint256 deadline)");
+
 /// @notice Contains the `v`, `r` and `s` parameters of an ECDSA signature.
 struct Signature {
     uint8 v;
     bytes32 r;
     bytes32 s;
+}
+
+struct Authorization {
+    address delegator;
+    address manager;
+    bool isAllowed;
+    uint256 nonce;
+    uint256 deadline;
 }
 
 interface IAaveV3Optimizer {
