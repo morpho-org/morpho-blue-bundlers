@@ -70,7 +70,6 @@ jobs:
       - name: Push to Correct Branch
         run: |
           git push origin HEAD:${{ github.event.inputs.branch }}
-        working-directory: ./path/to/your/package
 
       - name: Publish to npm
         run: |
@@ -79,7 +78,7 @@ jobs:
 
       - name: Create Git Tag
         run: |
-          version=$(node -e "console.log(require('./path/to/your/package/package.json').version)")
+          version=$(node -e "console.log(require('./package.json').version)")
           git tag -a "v${version}" -m "Release version ${version}"
 
       - name: Push Git Tag
@@ -90,6 +89,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
-          version=$(node -e "console.log(require('./path/to/your/package/package.json').version)")
+          version=$(node -e "console.log(require('./package.json').version)")
           version_type=$(echo "${{ steps.determine_version.outputs.stdout }}")
           curl -X POST -H "Authorization: token $GITHUB_TOKEN" -d "{\"tag_name\":\"v$version\",\"name\":\"Release $version_type $version\",\"body\":\"Release type: $version_type\n\nAdditional release notes can go here.\"}" "https://api.github.com/repos/${{ github.repository }}/releases"
