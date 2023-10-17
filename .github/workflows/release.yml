@@ -1,7 +1,7 @@
 name: Release on NPM
 
 on:
-  pull_request:
+  push:
   workflow_dispatch:
     inputs:
       version_type:
@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   build-and-deploy:
-    name: Build and deploy package
+    name: Build and Deploy
     runs-on: ubuntu-latest
     steps:
       - name: Generate a token
@@ -69,7 +69,7 @@ jobs:
 
       - name: Push to Correct Branch
         run: |
-          git push origin HEAD:${{ github.event.inputs.branch }}
+          git push origin HEAD:$(basename ${{ github.ref }})
 
       - name: Publish to npm
         run: |
