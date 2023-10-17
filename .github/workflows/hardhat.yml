@@ -11,8 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-contracts:
-    name: Compilation
+  test:
+    name: Test
     runs-on: ubuntu-latest
 
     steps:
@@ -32,7 +32,4 @@ jobs:
       - uses: ./.github/actions/install
 
       - name: Build contracts
-        run: yarn build:hardhat --force # don't use compilation cache
-
-      - name: Build package
-        run: yarn build:pkg
+        run: yarn test:hardhat
