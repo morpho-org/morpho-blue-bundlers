@@ -40,11 +40,11 @@ abstract contract BaseTest is Test {
     using SafeTransferLib for ERC20;
     using stdJson for string;
 
-    address internal USER;
-    address internal SUPPLIER;
-    address internal OWNER;
-    address internal RECEIVER;
-    address internal LIQUIDATOR;
+    address internal USER = makeAddr("User");
+    address internal SUPPLIER = makeAddr("Owner");
+    address internal OWNER = makeAddr("Supplier");
+    address internal RECEIVER = makeAddr("Receiver");
+    address internal LIQUIDATOR = makeAddr("Liquidator");
 
     IMorpho internal morpho;
     IrmMock internal irm;
@@ -56,12 +56,6 @@ abstract contract BaseTest is Test {
     bytes[] internal callbackBundle;
 
     function setUp() public virtual {
-        USER = _addrFromHashedString("User");
-        OWNER = _addrFromHashedString("Owner");
-        SUPPLIER = _addrFromHashedString("Supplier");
-        RECEIVER = _addrFromHashedString("Receiver");
-        LIQUIDATOR = _addrFromHashedString("Liquidator");
-
         morpho = IMorpho(_deploy("lib/morpho-blue/out/Morpho.sol/Morpho.json", abi.encode(OWNER)));
         vm.label(address(morpho), "Morpho");
 
@@ -76,11 +70,6 @@ abstract contract BaseTest is Test {
         vm.prank(USER);
         // So tests can borrow/withdraw on behalf of USER without pranking it.
         morpho.setAuthorization(address(this), true);
-    }
-
-    function _addrFromHashedString(string memory name) internal returns (address addr) {
-        addr = address(uint160(uint256(keccak256(bytes(name)))));
-        vm.label(addr, name);
     }
 
     function _deploy(string memory artifactPath, bytes memory constructorArgs) internal returns (address deployed) {
