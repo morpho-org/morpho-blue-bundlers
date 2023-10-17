@@ -70,7 +70,7 @@ jobs:
 
       - name: Push to Correct Branch
         run: |
-          git push origin $(basename ${{ github.ref }})
+          git push origin $(echo "${{ github.ref }}" | sed 's|refs/heads/||')
 
       - name: Publish to npm
         run: |
@@ -84,7 +84,7 @@ jobs:
 
       - name: Push Git Tag
         run: |
-          git push origin $(basename ${{ github.ref }}) --tags
+          git push origin  $(echo "${{ github.ref }}" | sed 's|refs/heads/||') --tags
 
       - name: Create GitHub Release
         env:
