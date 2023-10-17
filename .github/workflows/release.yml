@@ -2,8 +2,6 @@ name: Release on NPM
 
 on:
   pull_request:
-    branches:
-      - feat/publish-to-npm
   workflow_dispatch:
     inputs:
       version_type:
@@ -15,6 +13,11 @@ on:
           - patch
           - minor
           - major
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
 
 jobs:
   build-and-deploy:
