@@ -1,3 +1,5 @@
 src/=src/
+test/=test/
+config/=config/
 
 solmate/=lib/morpho-aave-v3/lib/permit2/lib/solmate/

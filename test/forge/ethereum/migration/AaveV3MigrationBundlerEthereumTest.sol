@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {IPool} from "../../../../lib/aave-v3-core/contracts/interfaces/IPool.sol";
 import {IAToken} from "../../../../lib/aave-v3-core/contracts/interfaces/IAToken.sol";
 
-import {SigUtils, Permit} from "test/forge/helpers/SigUtils.sol";
+import {SigUtils, Permit} from "../../helpers/SigUtils.sol";
 import "../../../../src/migration/AaveV3MigrationBundler.sol";
 
 import "./helpers/EthereumMigrationTest.sol";

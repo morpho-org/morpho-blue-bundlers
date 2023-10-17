@@ -11,7 +11,7 @@ import {Permit2Bundler} from "../../../src/Permit2Bundler.sol";
 import {WNativeBundler} from "../../../src/WNativeBundler.sol";
 import {StEthBundler} from "../../../src/StEthBundler.sol";
 
-import "config/Configured.sol";
+import "../../../config/Configured.sol";
 import "./BaseTest.sol";
 
 abstract contract ForkTest is BaseTest, Configured {
