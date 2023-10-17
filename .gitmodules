@@ -19,9 +19,6 @@
 [submodule "lib/solmate"]
 	path = lib/solmate
 	url = https://github.com/transmissions11/solmate
-[submodule "lib/morpho-aave-v3"]
-	path = lib/morpho-aave-v3
-	url = https://github.com/morpho-org/morpho-aave-v3
 [submodule "lib/murky"]
 	path = lib/murky
 	url = https://github.com/dmfxyz/murky

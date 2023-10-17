@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {IMorpho as IAaveV3Optimizer} from "../../../../lib/morpho-aave-v3/src/interfaces/IMorpho.sol";
+import {IAaveV3Optimizer} from "../../../../src/migration/interfaces/IAaveV3Optimizer.sol";
 
 import {Types} from "../../../../lib/morpho-aave-v3/src/libraries/Types.sol";
 import {AaveV3OptimizerAuthorization} from "../../helpers/SigUtils.sol";
