@@ -58,15 +58,15 @@ jobs:
           echo "version_type=$version_type" >> $GITHUB_OUTPUT
         shell: bash
 
-      - name: Bump package.json version
-        run: |
-          version_type=$(echo "${{ steps.determine_version.outputs.version_type }}")
-          yarn version --${version_type}
-
       - name: Configure Git User
         run: |
           git config user.name "Morpho Intern"
           git config user.email "intern@morpho.org"
+
+      - name: Bump package.json version
+        run: |
+          version_type=$(echo "${{ steps.determine_version.outputs.version_type }}")
+          yarn version --${version_type}
 
       - name: Push to Correct Branch
         run: |
