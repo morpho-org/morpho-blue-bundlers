@@ -1,7 +1,6 @@
 name: Publish on NPM
 
 on:
-  push:
   workflow_dispatch:
     inputs:
       version_type:
