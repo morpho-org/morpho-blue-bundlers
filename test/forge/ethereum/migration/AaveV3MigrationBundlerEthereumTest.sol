@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {IPool} from "../../../../lib/aave-v3-core/contracts/interfaces/IPool.sol";
-import {IAToken} from "../../../../lib/aave-v3-core/contracts/interfaces/IAToken.sol";
+import {IAToken} from "./interfaces/IAToken.sol";
+import {IAaveV3} from "../../../../src/migration/interfaces/IAaveV3.sol";
 
 import {SigUtils, Permit} from "test/forge/helpers/SigUtils.sol";
 import "../../../../src/migration/AaveV3MigrationBundler.sol";
@@ -48,12 +48,12 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.startPrank(user);
         ERC20(marketParams.collateralToken).safeApprove(AAVE_V3_POOL, collateralSupplied);
-        IPool(AAVE_V3_POOL).supply(marketParams.collateralToken, collateralSupplied, user, 0);
-        IPool(AAVE_V3_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
+        IAaveV3(AAVE_V3_POOL).supply(marketParams.collateralToken, collateralSupplied, user, 0);
+        IAaveV3(AAVE_V3_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
         vm.stopPrank();
 
         address aToken = _getATokenV3(marketParams.collateralToken);
-        uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
+        uint256 aTokenBalance = ERC20(aToken).balanceOf(user);
 
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));
         callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, address(bundler)));
@@ -81,12 +81,12 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.startPrank(user);
         ERC20(marketParams.collateralToken).safeApprove(AAVE_V3_POOL, collateralSupplied);
-        IPool(AAVE_V3_POOL).supply(marketParams.collateralToken, collateralSupplied, user, 0);
-        IPool(AAVE_V3_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
+        IAaveV3(AAVE_V3_POOL).supply(marketParams.collateralToken, collateralSupplied, user, 0);
+        IAaveV3(AAVE_V3_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
         vm.stopPrank();
 
         address aToken = _getATokenV3(marketParams.collateralToken);
-        uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
+        uint256 aTokenBalance = ERC20(aToken).balanceOf(user);
 
         vm.prank(user);
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
@@ -120,12 +120,12 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.startPrank(user);
         ERC20(USDT).safeApprove(AAVE_V3_POOL, amountUsdt);
-        IPool(AAVE_V3_POOL).supply(USDT, amountUsdt, user, 0);
-        IPool(AAVE_V3_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
+        IAaveV3(AAVE_V3_POOL).supply(USDT, amountUsdt, user, 0);
+        IAaveV3(AAVE_V3_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, user);
         vm.stopPrank();
 
         address aToken = _getATokenV3(USDT);
-        uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
+        uint256 aTokenBalance = ERC20(aToken).balanceOf(user);
 
         vm.prank(user);
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
@@ -154,11 +154,11 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.startPrank(user);
         ERC20(marketParams.loanToken).safeApprove(AAVE_V3_POOL, supplied + 1);
-        IPool(AAVE_V3_POOL).supply(marketParams.loanToken, supplied + 1, user, 0);
+        IAaveV3(AAVE_V3_POOL).supply(marketParams.loanToken, supplied + 1, user, 0);
         vm.stopPrank();
 
         address aToken = _getATokenV3(marketParams.loanToken);
-        uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
+        uint256 aTokenBalance = ERC20(aToken).balanceOf(user);
 
         bundle.push(_aaveV3PermitAToken(aToken, privateKey, aTokenBalance));
         bundle.push(_erc20TransferFrom(aToken, aTokenBalance));
@@ -180,11 +180,11 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.startPrank(user);
         ERC20(marketParams.loanToken).safeApprove(AAVE_V3_POOL, supplied + 1);
-        IPool(AAVE_V3_POOL).supply(marketParams.loanToken, supplied + 1, user, 0);
+        IAaveV3(AAVE_V3_POOL).supply(marketParams.loanToken, supplied + 1, user, 0);
         vm.stopPrank();
 
         address aToken = _getATokenV3(marketParams.loanToken);
-        uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
+        uint256 aTokenBalance = ERC20(aToken).balanceOf(user);
 
         vm.prank(user);
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
@@ -208,11 +208,11 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.startPrank(user);
         ERC20(marketParams.loanToken).safeApprove(AAVE_V3_POOL, supplied + 1);
-        IPool(AAVE_V3_POOL).supply(marketParams.loanToken, supplied + 1, user, 0);
+        IAaveV3(AAVE_V3_POOL).supply(marketParams.loanToken, supplied + 1, user, 0);
         vm.stopPrank();
 
         address aToken = _getATokenV3(marketParams.loanToken);
-        uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
+        uint256 aTokenBalance = ERC20(aToken).balanceOf(user);
 
         bundle.push(_aaveV3PermitAToken(aToken, privateKey, aTokenBalance));
         bundle.push(_erc20TransferFrom(aToken, aTokenBalance));
@@ -234,11 +234,11 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.startPrank(user);
         ERC20(marketParams.loanToken).safeApprove(AAVE_V3_POOL, supplied + 1);
-        IPool(AAVE_V3_POOL).supply(marketParams.loanToken, supplied + 1, user, 0);
+        IAaveV3(AAVE_V3_POOL).supply(marketParams.loanToken, supplied + 1, user, 0);
         vm.stopPrank();
 
         address aToken = _getATokenV3(marketParams.loanToken);
-        uint256 aTokenBalance = IAToken(aToken).balanceOf(user);
+        uint256 aTokenBalance = ERC20(aToken).balanceOf(user);
 
         vm.prank(user);
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
@@ -254,7 +254,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
     }
 
     function _getATokenV3(address asset) internal view returns (address) {
-        return IPool(AAVE_V3_POOL).getReserveData(asset).aTokenAddress;
+        return IAaveV3(AAVE_V3_POOL).getReserveData(asset).aTokenAddress;
     }
 
     /* ACTIONS */
