@@ -23,7 +23,8 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
 
     /// @dev Warning: assumes the aaveV3Optimizer address is non-zero (not expected to be deployment arguments).
     /// @param morpho The Morpho contract Address.
-    /// @param aaveV3Optimizer The AaveV3 optmizer contract address.
+    /// @param aaveV3Optimizer The AaveV3 optmizer contract address. Assumes it is non-zero (not expected to be an input
+    /// at deployment).
     constructor(address morpho, address aaveV3Optimizer) MigrationBundler(morpho) {
         AAVE_V3_OPTIMIZER = IAaveV3Optimizer(aaveV3Optimizer);
     }
