@@ -67,13 +67,13 @@ abstract contract ERC4626Bundler is BaseBundler {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
 
-        address initiator = initiator();
+        address _initiator = initiator();
 
-        assets = Math.min(assets, IERC4626(vault).maxWithdraw(initiator));
+        assets = Math.min(assets, IERC4626(vault).maxWithdraw(_initiator));
 
         require(assets != 0, ErrorsLib.ZERO_AMOUNT);
 
-        IERC4626(vault).withdraw(assets, receiver, initiator);
+        IERC4626(vault).withdraw(assets, receiver, _initiator);
     }
 
     /// @notice Redeems the given amount of `shares` from the given ERC4626 `vault`, transferring assets to `receiver`.
@@ -84,12 +84,12 @@ abstract contract ERC4626Bundler is BaseBundler {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
 
-        address initiator = initiator();
+        address _initiator = initiator();
 
-        shares = Math.min(shares, IERC4626(vault).maxRedeem(initiator));
+        shares = Math.min(shares, IERC4626(vault).maxRedeem(_initiator));
 
         require(shares != 0, ErrorsLib.ZERO_SHARES);
 
-        IERC4626(vault).redeem(shares, receiver, initiator);
+        IERC4626(vault).redeem(shares, receiver, _initiator);
     }
 }

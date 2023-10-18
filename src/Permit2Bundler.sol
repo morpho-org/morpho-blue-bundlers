@@ -24,14 +24,14 @@ abstract contract Permit2Bundler is BaseBundler {
         external
         payable
     {
-        address initiator = initiator();
-        uint256 amount = Math.min(permit.permitted.amount, ERC20(permit.permitted.token).balanceOf(initiator));
+        address _initiator = initiator();
+        uint256 amount = Math.min(permit.permitted.amount, ERC20(permit.permitted.token).balanceOf(_initiator));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
         ISignatureTransfer.SignatureTransferDetails memory transferDetails =
             ISignatureTransfer.SignatureTransferDetails({to: address(this), requestedAmount: amount});
 
-        ISignatureTransfer(PERMIT2).permitTransferFrom(permit, transferDetails, initiator, signature);
+        ISignatureTransfer(PERMIT2).permitTransferFrom(permit, transferDetails, _initiator, signature);
     }
 }
