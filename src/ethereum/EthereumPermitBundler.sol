@@ -19,9 +19,9 @@ abstract contract EthereumPermitBundler is PermitBundler {
     /// @param nonce The nonce of the signed message.
     /// @param expiry The expiry of the signed message.
     /// @param allowed Whether the initiator gives the bundler infinite Dai approval or not.
-    /// @param v signature.v
-    /// @param r signature.r
-    /// @param s signature.s
+    /// @param v The `v` component of a signature.
+    /// @param r The `r` component of a signature.
+    /// @param s The `s` component of a signature.
     function permitDai(uint256 nonce, uint256 expiry, bool allowed, uint8 v, bytes32 r, bytes32 s, bool skipRevert)
         external
         payable
