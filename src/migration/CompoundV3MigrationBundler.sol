@@ -69,9 +69,9 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// @param isAllowed Whether the bundler is allowed to manage the initiator's position or not.
     /// @param nonce The nonce of the signed message.
     /// @param expiry The expiry of the signed message.
-    /// @param v signature.v
-    /// @param r signature.r
-    /// @param s signature.s
+    /// @param v The `v` component of a signature.
+    /// @param r The `r` component of a signature.
+    /// @param s The `s` component of a signature.
     function compoundV3AllowBySig(
         address instance,
         bool isAllowed,
