@@ -21,9 +21,9 @@ contract AaveV2MigrationBundler is MigrationBundler {
 
     /* CONSTRUCTOR */
 
-    /// @dev Warning: assumes the aaveV2Pool address is non-zero (not expected to be deployment arguments).
     /// @param morpho The Morpho contract Address.
-    /// @param aaveV2Pool The AaveV2 contract address.
+    /// @param aaveV2Pool The AaveV2 contract address. Assumes it is non-zero (not expected to be an input at
+    /// deployment).
     constructor(address morpho, address aaveV2Pool) MigrationBundler(morpho) {
         AAVE_V2_POOL = IAaveV2(aaveV2Pool);
     }
