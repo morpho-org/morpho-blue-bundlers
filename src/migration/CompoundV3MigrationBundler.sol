@@ -15,7 +15,6 @@ import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 contract CompoundV3MigrationBundler is MigrationBundler {
     /* CONSTRUCTOR */
 
-    /// @dev Warning: assumes the given addresses are non-zero (they are not expected to be deployment arguments).
     /// @param morpho The Morpho contract Address.
     constructor(address morpho) MigrationBundler(morpho) {}
 
