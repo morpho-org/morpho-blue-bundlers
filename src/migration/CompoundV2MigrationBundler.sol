@@ -17,15 +17,15 @@ import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
     /* IMMUTABLES */
 
-    /// @dev The address of the C_ETH contract.
+    /// @dev The address of the cETH contract.
     address public immutable C_ETH;
 
     /* CONSTRUCTOR */
 
-    /// @dev Warning: assumes the given addresses are non-zero (they are not expected to be deployment arguments).
+    /// @dev Warning: assumes the wNative address is non-zero (not expected to be deployment arguments).
     /// @param morpho The Morpho contract Address.
     /// @param wNative The address of the wNative token contract.
-    /// @param cEth The address of the C_ETH contract.
+    /// @param cEth The address of the cETH contract.
     constructor(address morpho, address wNative, address cEth) WNativeBundler(wNative) MigrationBundler(morpho) {
         C_ETH = cEth;
     }
