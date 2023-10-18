@@ -4,7 +4,7 @@ pragma solidity 0.8.21;
 import {ICEth} from "./interfaces/ICEth.sol";
 import {ICToken} from "./interfaces/ICToken.sol";
 
-import {Math} from "@morpho-utils/math/Math.sol";
+import {Math} from "../../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 
 import {WNativeBundler} from "../WNativeBundler.sol";

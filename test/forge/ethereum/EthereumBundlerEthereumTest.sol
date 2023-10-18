@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {IAllowanceTransfer} from "@permit2/interfaces/IAllowanceTransfer.sol";
+import {IAllowanceTransfer} from "../../../lib/permit2/src/interfaces/IAllowanceTransfer.sol";
 
-import "src/ethereum/EthereumBundler.sol";
+import "../../../src/ethereum/EthereumBundler.sol";
 
 import "./helpers/EthereumTest.sol";
 
