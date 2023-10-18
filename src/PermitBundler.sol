@@ -17,9 +17,9 @@ abstract contract PermitBundler is BaseBundler {
     /// @param asset The address of the token to be permitted.
     /// @param amount The amount of `asset` to be permitted.
     /// @param deadline The deadline of the approval.
-    /// @param v signature.v
-    /// @param r signature.r
-    /// @param s signature.s
+    /// @param v The `v` component of a signature.
+    /// @param r The `r` component of a signature.
+    /// @param s The `s` component of a signature.
     function permit(address asset, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s, bool skipRevert)
         external
         payable
