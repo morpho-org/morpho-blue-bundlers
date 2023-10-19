@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import {ISignatureTransfer} from "@permit2/interfaces/ISignatureTransfer.sol";
+import {ISignatureTransfer} from "../lib/permit2/src/interfaces/ISignatureTransfer.sol";
 
 import "./libraries/ConstantsLib.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
-import {Math} from "@morpho-utils/math/Math.sol";
-import {ERC20} from "solmate/src/tokens/ERC20.sol";
+import {Math} from "../lib/morpho-utils/src/math/Math.sol";
+import {ERC20} from "../lib/solmate/src/tokens/ERC20.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
 
