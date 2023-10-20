@@ -23,7 +23,7 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
     /// @param shares The amount of shares to mint.
-    /// @param owner The address of the shares that will be minted.
+    /// @param owner The address to which shares will be minted.
     function erc4626Mint(address vault, uint256 shares, address owner) external payable {
         require(owner != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `owner != address(this)` to allow the bundler to receive the vault's shares.
@@ -46,7 +46,7 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
     /// @param assets The amount of assets to deposit.
-    /// @param owner The address of the shares that will be minted.
+    /// @param owner The address to which shares will be minted.
     function erc4626Deposit(address vault, uint256 assets, address owner) external payable {
         require(owner != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `owner != address(this)` to allow the bundler to receive the vault's shares.
