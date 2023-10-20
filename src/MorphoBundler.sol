@@ -213,7 +213,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     function morphoFlashLoan(address token, uint256 assets, bytes calldata data) external payable {
         _approveMaxMorpho(token);
 
-        MORPHO.flashLoan(token, asset, data);
+        MORPHO.flashLoan(token, assets, data);
     }
 
     /* INTERNAL */
