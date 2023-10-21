@@ -11,6 +11,7 @@ import {WNativeBundler} from "../WNativeBundler.sol";
 import {EthereumStEthBundler} from "./EthereumStEthBundler.sol";
 import {UrdBundler} from "../UrdBundler.sol";
 import {MorphoBundler} from "../MorphoBundler.sol";
+import {ERC20WrapperBundler} from "../ERC20WrapperBundler.sol";
 
 /// @title EthereumBundler
 /// @author Morpho Labs
@@ -24,7 +25,8 @@ contract EthereumBundler is
     WNativeBundler,
     EthereumStEthBundler,
     UrdBundler,
-    MorphoBundler
+    MorphoBundler,
+    ERC20WrapperBundler
 {
     /* CONSTRUCTOR */
 
