@@ -17,6 +17,11 @@ import {ERC20Wrapper} from "../lib/openzeppelin-contracts/contracts/token/ERC20/
 abstract contract ERC20WrapperBundler is BaseBundler {
     /* WRAPPER ACTIONS */
 
+    /// @notice Deposits underlying tokens and mints the corresponding number of wrapped tokens.
+    /// @param wrapper The address of the ERC20 wrapper contract.
+    /// @param account The address of the account to mint the wrapped tokens to.
+    /// @param amount The amount of underlying tokens to deposit.
+    /// @dev Assumes that underlying tokens are already on the bundler.
     function depositFor(address wrapper, address account, uint256 amount) external {
         require(wrapper != address(0), ErrorsLib.ZERO_ADDRESS);
         require(account != address(0), ErrorsLib.ZERO_ADDRESS);
@@ -33,6 +38,10 @@ abstract contract ERC20WrapperBundler is BaseBundler {
         ERC20Wrapper(wrapper).depositFor(account, amount);
     }
 
+    /// @notice Burns a number of wrapped tokens and withdraws the corresponding number of underlying tokens.
+    /// @param wrapper The address of the ERC20 wrapper contract.
+    /// @param account The address receiving the underlying tokens.
+    /// @param amount The amount of wrapped tokens to burn.
     function withdrawTo(address wrapper, address account, uint256 amount) external {
         require(wrapper != address(0), ErrorsLib.ZERO_ADDRESS);
         require(account != address(0), ErrorsLib.ZERO_ADDRESS);
