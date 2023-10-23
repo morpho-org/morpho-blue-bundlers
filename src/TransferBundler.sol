@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import {Math} from "@morpho-utils/math/Math.sol";
+import {Math} from "../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
-import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
+import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
 
@@ -56,6 +56,7 @@ abstract contract TransferBundler is BaseBundler {
     /// @param asset The address of the ERC20 token to transfer.
     /// @param amount The amount of `asset` to transfer from the initiator.
     function erc20TransferFrom(address asset, uint256 amount) external payable {
+        address initiator = initiator();
         amount = Math.min(amount, ERC20(asset).balanceOf(initiator));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);

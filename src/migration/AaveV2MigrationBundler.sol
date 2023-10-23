@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import {ILendingPool} from "@morpho-v1/aave-v2/interfaces/aave/ILendingPool.sol";
+import {ILendingPool} from "../../lib/morpho-v1/src/aave-v2/interfaces/aave/ILendingPool.sol";
 
-import {Math} from "@morpho-utils/math/Math.sol";
+import {Math} from "../../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 
 import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
@@ -43,7 +43,7 @@ contract AaveV2MigrationBundler is MigrationBundler {
 
         _approveMaxTo(asset, address(AAVE_V2_POOL));
 
-        AAVE_V2_POOL.repay(asset, amount, interestRateMode, initiator);
+        AAVE_V2_POOL.repay(asset, amount, interestRateMode, initiator());
     }
 
     /// @notice Withdraws `amount` of `asset` on AaveV2, on behalf of the initiator, transferring funds to `receiver`.

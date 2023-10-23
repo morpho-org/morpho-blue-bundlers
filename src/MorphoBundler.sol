@@ -2,12 +2,12 @@
 pragma solidity 0.8.21;
 
 import {IMorphoBundler} from "./interfaces/IMorphoBundler.sol";
-import {MarketParams, Signature, Authorization, IMorpho} from "@morpho-blue/interfaces/IMorpho.sol";
+import {MarketParams, Signature, Authorization, IMorpho} from "../lib/morpho-blue/src/interfaces/IMorpho.sol";
 
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 
-import {Math} from "@morpho-utils/math/Math.sol";
-import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
+import {Math} from "../lib/morpho-utils/src/math/Math.sol";
+import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
 
@@ -132,7 +132,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         external
         payable
     {
-        MORPHO.borrow(marketParams, amount, shares, initiator, receiver);
+        MORPHO.borrow(marketParams, amount, shares, initiator(), receiver);
     }
 
     /// @notice Repays `amount` of `asset` on behalf of `onBehalf`.
@@ -172,7 +172,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         external
         payable
     {
-        MORPHO.withdraw(marketParams, amount, shares, initiator, receiver);
+        MORPHO.withdraw(marketParams, amount, shares, initiator(), receiver);
     }
 
     /// @notice Withdraws `amount` of the collateral asset on behalf of sender.
@@ -185,7 +185,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         external
         payable
     {
-        MORPHO.withdrawCollateral(marketParams, amount, initiator, receiver);
+        MORPHO.withdrawCollateral(marketParams, amount, initiator(), receiver);
     }
 
     /// @notice Triggers a liquidation on Morpho.

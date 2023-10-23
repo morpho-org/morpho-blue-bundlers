@@ -4,9 +4,9 @@ pragma solidity 0.8.21;
 import {IWstEth} from "./interfaces/IWstEth.sol";
 import {IStEth} from "./interfaces/IStEth.sol";
 
-import {Math} from "@morpho-utils/math/Math.sol";
+import {Math} from "../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
-import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
+import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
 
@@ -40,7 +40,6 @@ abstract contract StEthBundler is BaseBundler {
     /* ACTIONS */
 
     /// @notice Stakes the given `amount` of ETH via Lido, using the `referral` id.
-    /// @dev Use `BaseBundler.erc20Transfer` to transfer the stEth to some `receiver`.
     /// @dev Pass `amount = type(uint256).max` to stake all.
     /// @param amount The amount of ETH to stake.
     /// @param referral The address of the referral regarding the Lido Rewards-Share Program.
@@ -52,7 +51,6 @@ abstract contract StEthBundler is BaseBundler {
     }
 
     /// @notice Wraps the given `amount` of stETH to wstETH.
-    /// @dev Use `BaseBundler.erc20Transfer` to transfer the wrapped stEth to some `receiver`.
     /// @dev Pass `amount = type(uint256).max` to wrap all.
     /// @param amount The amount of stEth to wrap.
     function wrapStEth(uint256 amount) external payable {
@@ -64,7 +62,6 @@ abstract contract StEthBundler is BaseBundler {
     }
 
     /// @notice Unwraps the given `amount` of wstETH to stETH.
-    /// @dev Use `BaseBundler.erc20Transfer` to transfer the unwrapped stEth to some `receiver`.
     /// @dev Pass `amount = type(uint256).max` to unwrap all.
     /// @param amount The amount of wstEth to unwrap.
     function unwrapStEth(uint256 amount) external payable {

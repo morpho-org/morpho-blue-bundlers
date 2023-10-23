@@ -3,9 +3,9 @@ pragma solidity 0.8.21;
 
 import {IWNative} from "./interfaces/IWNative.sol";
 
-import {Math} from "@morpho-utils/math/Math.sol";
+import {Math} from "../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
-import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
+import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
 
@@ -40,7 +40,6 @@ abstract contract WNativeBundler is BaseBundler {
 
     /// @notice Wraps the given `amount` of the native token to wNative.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
-    /// @dev Use `BaseBundler.erc20Transfer` to transfer the wrapped native tokens to some `receiver`.
     /// @dev Pass `amount = type(uint256).max` to wrap all.
     /// @param amount The amount of native token to wrap.
     function wrapNative(uint256 amount) external payable {
@@ -53,7 +52,6 @@ abstract contract WNativeBundler is BaseBundler {
 
     /// @notice Unwraps the given `amount` of wNative to the native token.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
-    /// @dev Use `BaseBundler.nativeTransfer` to transfer the unwrapped native tokens to some `receiver`.
     /// @dev Pass `amount = type(uint256).max` to unwrap all.
     /// @param amount The amount of wrapped native token to unwrap.
     function unwrapNative(uint256 amount) external payable {

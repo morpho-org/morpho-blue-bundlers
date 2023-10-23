@@ -3,7 +3,7 @@ pragma solidity 0.8.21;
 
 import {ICompoundV3} from "./interfaces/ICompoundV3.sol";
 
-import {Math} from "@morpho-utils/math/Math.sol";
+import {Math} from "../../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 
 import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
@@ -35,7 +35,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
         _approveMaxTo(asset, instance);
 
         // Compound V3 uses signed accounting: supplying to a negative balance actually repays the borrow position.
-        ICompoundV3(instance).supplyTo(initiator, asset, amount);
+        ICompoundV3(instance).supplyTo(initiator(), asset, amount);
     }
 
     /// @notice Withdraws `amount` of `asset` on the CompoundV3 `instance`.
@@ -58,7 +58,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// @param asset The address of the token to withdraw from the CompoundV3 `instance`.
     /// @param amount The amount of `asset` to withdraw the CompoundV3 `instance`.
     function compoundV3WithdrawFrom(address instance, address asset, uint256 amount) external payable {
-        ICompoundV3(instance).withdrawFrom(initiator, address(this), asset, amount);
+        ICompoundV3(instance).withdrawFrom(initiator(), address(this), asset, amount);
     }
 
     /// @notice Approves the bundler to act on behalf of the initiator on the CompoundV3 `instance`, given a signed
@@ -81,6 +81,6 @@ contract CompoundV3MigrationBundler is MigrationBundler {
         bytes32 r,
         bytes32 s
     ) external payable {
-        ICompoundV3(instance).allowBySig(initiator, address(this), isAllowed, nonce, expiry, v, r, s);
+        ICompoundV3(instance).allowBySig(initiator(), address(this), isAllowed, nonce, expiry, v, r, s);
     }
 }

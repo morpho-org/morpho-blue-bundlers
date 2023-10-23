@@ -26,7 +26,7 @@ abstract contract EthereumPermitBundler is PermitBundler {
         external
         payable
     {
-        try IDaiPermit(MainnetLib.DAI).permit(initiator, address(this), nonce, expiry, allowed, v, r, s) {}
+        try IDaiPermit(MainnetLib.DAI).permit(initiator(), address(this), nonce, expiry, allowed, v, r, s) {}
         catch (bytes memory returnData) {
             if (!skipRevert) _revert(returnData);
         }

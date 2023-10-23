@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import {IERC20Permit} from "@openzeppelin/token/ERC20/extensions/IERC20Permit.sol";
+import {IERC20Permit} from "../lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Permit.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
 
@@ -24,7 +24,7 @@ abstract contract PermitBundler is BaseBundler {
         external
         payable
     {
-        try IERC20Permit(asset).permit(initiator, address(this), amount, deadline, v, r, s) {}
+        try IERC20Permit(asset).permit(initiator(), address(this), amount, deadline, v, r, s) {}
         catch (bytes memory returnData) {
             if (!skipRevert) _revert(returnData);
         }
