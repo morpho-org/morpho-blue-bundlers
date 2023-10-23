@@ -60,10 +60,10 @@ abstract contract ERC4626Bundler is BaseBundler {
 
     /// @notice Withdraws the given amount of `assets` from the given ERC4626 `vault`, transferring assets to
     /// `receiver`.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Pass `type(uint256).max` as `assets` to withdraw max.
     /// @dev Assumes the given `vault` implements EIP-4626.
     function erc4626Withdraw(address vault, uint256 assets, address receiver) external payable {
+        _checkInitiated();
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
 
@@ -77,10 +77,10 @@ abstract contract ERC4626Bundler is BaseBundler {
     }
 
     /// @notice Redeems the given amount of `shares` from the given ERC4626 `vault`, transferring assets to `receiver`.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Pass `type(uint256).max` as `shares` to redeem max.
     /// @dev Assumes the given `vault` implements EIP-4626.
     function erc4626Redeem(address vault, uint256 shares, address receiver) external payable {
+        _checkInitiated();
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
 

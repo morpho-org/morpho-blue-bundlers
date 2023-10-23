@@ -20,10 +20,11 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /* ACTIONS */
 
     /// @notice Repays `amount` of `asset` on the CompoundV3 `instance`, on behalf of the initiator.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Assumes the given instance is a CompoundV3 instance.
     /// @dev Pass `amount = type(uint256).max` to repay all.
     function compoundV3Repay(address instance, address asset, uint256 amount) external payable {
+        _checkInitiated();
+
         amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
@@ -43,17 +44,17 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     }
 
     /// @notice Withdraws `amount` of `asset` from the CompoundV3 `instance`, on behalf of the initiator.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously approved the bundler to manage their CompoundV3 position.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
     /// @dev Pass `amount = type(uint256).max` to withdraw all.
     function compoundV3WithdrawFrom(address instance, address asset, uint256 amount) external payable {
+        _checkInitiated();
+
         ICompoundV3(instance).withdrawFrom(initiator(), address(this), asset, amount);
     }
 
     /// @notice Approves the bundler to act on behalf of the initiator on the CompoundV3 `instance`, given a signed
     /// EIP-712 approval message.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
     function compoundV3AllowBySig(
         address instance,
@@ -64,6 +65,8 @@ contract CompoundV3MigrationBundler is MigrationBundler {
         bytes32 r,
         bytes32 s
     ) external payable {
+        _checkInitiated();
+
         ICompoundV3(instance).allowBySig(initiator(), address(this), isAllowed, nonce, expiry, v, r, s);
     }
 }

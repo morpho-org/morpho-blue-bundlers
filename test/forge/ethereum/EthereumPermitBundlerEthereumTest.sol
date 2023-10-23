@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
+import {ErrorsLib} from "../../../src/libraries/ErrorsLib.sol";
+
 import {DaiPermit} from "../helpers/SigUtils.sol";
 
 import "../../../src/mocks/bundlers/ethereum/EthereumPermitBundlerMock.sol";
@@ -30,6 +32,15 @@ contract EthereumPermitBundlerEthereumTest is EthereumTest {
         bundler.multicall(bundle);
 
         assertEq(ERC20(DAI).allowance(user, address(bundler)), type(uint256).max, "allowance(user, bundler)");
+    }
+
+    function testPermitDaiUninitiated() public {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        EthereumPermitBundlerMock(address(bundler)).permitDai(0, SIGNATURE_DEADLINE, true, v, r, s, true);
     }
 
     function testPermitDaiRevert(uint256 privateKey, uint256 expiry) public {

@@ -111,12 +111,13 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     }
 
     /// @notice Borrows `amount` of `asset` on behalf of the sender.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously authorized the bundler to act on their behalf on Morpho.
     function morphoBorrow(MarketParams calldata marketParams, uint256 amount, uint256 shares, address receiver)
         external
         payable
     {
+        _checkInitiated();
+
         MORPHO.borrow(marketParams, amount, shares, initiator(), receiver);
     }
 
@@ -142,22 +143,24 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     }
 
     /// @notice Withdraws `amount` of the loan asset on behalf of `onBehalf`.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously authorized the bundler to act on their behalf on Morpho.
     function morphoWithdraw(MarketParams calldata marketParams, uint256 amount, uint256 shares, address receiver)
         external
         payable
     {
+        _checkInitiated();
+
         MORPHO.withdraw(marketParams, amount, shares, initiator(), receiver);
     }
 
     /// @notice Withdraws `amount` of the collateral asset on behalf of sender.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously authorized the bundler to act on their behalf on Morpho.
     function morphoWithdrawCollateral(MarketParams calldata marketParams, uint256 amount, address receiver)
         external
         payable
     {
+        _checkInitiated();
+
         MORPHO.withdrawCollateral(marketParams, amount, initiator(), receiver);
     }
 

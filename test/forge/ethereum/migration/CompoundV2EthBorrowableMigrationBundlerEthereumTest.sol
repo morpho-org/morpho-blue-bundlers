@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import {IComptroller} from "../../../../src/migration/interfaces/IComptroller.sol";
 
 import "../../../../src/migration/CompoundV2MigrationBundler.sol";
+import "../../../../src/interfaces/ICompoundV2MigrationBundler.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
 
@@ -24,6 +25,13 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         bundler = new CompoundV2MigrationBundler(address(morpho), WETH, C_ETH_V2);
 
         enteredMarkets.push(C_DAI_V2);
+    }
+
+    function testCompoundV2RepayUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        ICompoundV2MigrationBundler(address(bundler)).compoundV2Repay(C_DAI_V2, amount);
     }
 
     function testCompoundV2RepayCEthZeroAmount() public {

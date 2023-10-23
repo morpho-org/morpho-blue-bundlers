@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import {ErrorsLib} from "../../../src/libraries/ErrorsLib.sol";
 
 import "../../../src/mocks/bundlers/WNativeBundlerMock.sol";
+import "../../../src/interfaces/IWNativeBundler.sol";
 
 import "./helpers/EthereumTest.sol";
 
@@ -15,6 +16,13 @@ contract WNativeBundlerEthereumTest is EthereumTest {
 
         vm.prank(USER);
         ERC20(WETH).approve(address(bundler), type(uint256).max);
+    }
+
+    function testWrapUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        IWNativeBundler(address(bundler)).wrapNative(amount);
     }
 
     function testWrapZeroAmount() public {
@@ -43,6 +51,13 @@ contract WNativeBundlerEthereumTest is EthereumTest {
         assertEq(address(bundler).balance, 0, "Bundler's native token balance");
         assertEq(USER.balance, 0, "User's native token balance");
         assertEq(RECEIVER.balance, 0, "Receiver's native token balance");
+    }
+
+    function testUnwrapUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        IWNativeBundler(address(bundler)).unwrapNative(amount);
     }
 
     function testUnwrapZeroAmount() public {

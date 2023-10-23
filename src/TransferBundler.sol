@@ -46,9 +46,10 @@ abstract contract TransferBundler is BaseBundler {
     }
 
     /// @notice Transfers the given `amount` of `asset` from sender to this contract via ERC20 transferFrom.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Pass `amount = type(uint256).max` to transfer all.
     function erc20TransferFrom(address asset, uint256 amount) external payable {
+        _checkInitiated();
+
         address initiator = initiator();
         amount = Math.min(amount, ERC20(asset).balanceOf(initiator));
 
