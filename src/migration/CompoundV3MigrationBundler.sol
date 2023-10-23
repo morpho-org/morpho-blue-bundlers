@@ -19,12 +19,13 @@ contract CompoundV3MigrationBundler is MigrationBundler {
 
     /* ACTIONS */
 
-    /// @notice Repays `amount` of `asset` on the CompoundV3 `instance`, on behalf of the initiator.
+    /// @notice Repays `amount` on the CompoundV3 `instance`, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
-    /// @dev Assumes the given `asset` corresponds to the given instance's base token.
     /// @dev Pass `amount = type(uint256).max` to repay all.
-    function compoundV3Repay(address instance, address asset, uint256 amount) external payable {
+    function compoundV3Repay(address instance, uint256 amount) external payable {
+        address asset = ICompoundV3(instance).baseToken();
+
         amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
@@ -38,7 +39,6 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// @notice Withdraws `amount` of `asset` on the CompoundV3 `instance`.
     /// @dev Initiator must have previously transferred their CompoundV3 position to the bundler.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
-    /// @dev Assumes the given `asset` corresponds to the given instance's base token.
     /// @dev Pass `amount = type(uint256).max` to withdraw all.
     function compoundV3Withdraw(address instance, address asset, uint256 amount) external payable {
         ICompoundV3(instance).withdraw(asset, amount);
@@ -48,7 +48,6 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously approved the bundler to manage their CompoundV3 position.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
-    /// @dev Assumes the given `asset` corresponds to the given instance's base token.
     /// @dev Pass `amount = type(uint256).max` to withdraw all.
     function compoundV3WithdrawFrom(address instance, address asset, uint256 amount) external payable {
         ICompoundV3(instance).withdrawFrom(initiator(), address(this), asset, amount);
@@ -58,7 +57,6 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// EIP-712 approval message.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
-    /// @dev Assumes the given `asset` corresponds to the given instance's base token.
     function compoundV3AllowBySig(
         address instance,
         bool isAllowed,

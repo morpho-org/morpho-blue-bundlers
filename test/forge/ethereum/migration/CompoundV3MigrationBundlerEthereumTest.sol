@@ -25,7 +25,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
     }
 
     function testCompoundV3RepayZeroAmount() public {
-        bundle.push(_compoundV3Repay(C_WETH_V3, marketParams.loanToken, 0));
+        bundle.push(_compoundV3Repay(C_WETH_V3, 0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(bundle);
@@ -48,7 +48,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));
         callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, false, 1, false));
-        callbackBundle.push(_compoundV3Repay(C_WETH_V3, marketParams.loanToken, borrowed));
+        callbackBundle.push(_compoundV3Repay(C_WETH_V3, borrowed));
         callbackBundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0));
         callbackBundle.push(_compoundV3WithdrawFrom(C_WETH_V3, marketParams.collateralToken, collateralSupplied));
         callbackBundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1));
@@ -189,8 +189,8 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         );
     }
 
-    function _compoundV3Repay(address instance, address asset, uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(CompoundV3MigrationBundler.compoundV3Repay, (instance, asset, amount));
+    function _compoundV3Repay(address instance, uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(CompoundV3MigrationBundler.compoundV3Repay, (instance, amount));
     }
 
     function _compoundV3Withdraw(address instance, address asset, uint256 amount)
