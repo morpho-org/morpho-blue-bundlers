@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import {IERC4626} from "@openzeppelin/interfaces/IERC4626.sol";
+import {IERC4626} from "../lib/openzeppelin-contracts/contracts/interfaces/IERC4626.sol";
 
-import {Math} from "@morpho-utils/math/Math.sol";
+import {Math} from "../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
-import {SafeTransferLib, ERC20} from "solmate/src/utils/SafeTransferLib.sol";
+import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
 
@@ -70,6 +70,8 @@ abstract contract ERC4626Bundler is BaseBundler {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
 
+        address initiator = initiator();
+
         assets = Math.min(assets, IERC4626(vault).maxWithdraw(initiator));
 
         require(assets != 0, ErrorsLib.ZERO_AMOUNT);
@@ -85,6 +87,8 @@ abstract contract ERC4626Bundler is BaseBundler {
     function erc4626Redeem(address vault, uint256 shares, uint256 minAssets, address receiver) external payable {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
+
+        address initiator = initiator();
 
         shares = Math.min(shares, IERC4626(vault).maxRedeem(initiator));
 

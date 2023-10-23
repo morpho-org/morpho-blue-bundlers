@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
+import {ErrorsLib} from "../../src/libraries/ErrorsLib.sol";
 
-import {ERC4626Mock} from "src/mocks/ERC4626Mock.sol";
-import "src/mocks/bundlers/ERC4626BundlerMock.sol";
+import {ERC4626Mock} from "../../src/mocks/ERC4626Mock.sol";
+import "../../src/mocks/bundlers/ERC4626BundlerMock.sol";
 
 import "./helpers/LocalTest.sol";
 

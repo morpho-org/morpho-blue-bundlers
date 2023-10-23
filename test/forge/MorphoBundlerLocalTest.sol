@@ -2,10 +2,10 @@
 pragma solidity ^0.8.0;
 
 import {SigUtils} from "./helpers/SigUtils.sol";
-import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
-import {ErrorsLib as MorphoErrorsLib} from "@morpho-blue/libraries/ErrorsLib.sol";
+import {ErrorsLib} from "../../src/libraries/ErrorsLib.sol";
+import {ErrorsLib as MorphoErrorsLib} from "../../lib/morpho-blue/src/libraries/ErrorsLib.sol";
 
-import "src/mocks/bundlers/MorphoBundlerMock.sol";
+import "../../src/mocks/bundlers/MorphoBundlerMock.sol";
 
 import "./helpers/LocalTest.sol";
 
