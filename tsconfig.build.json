@@ -1,11 +1,5 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "target": "ES6",
-    "module": "NodeNext",
-    "moduleResolution": "nodenext",
-    "rootDir": ""
-  },
   "include": ["pkg", "types"],
   "files": []
 }
