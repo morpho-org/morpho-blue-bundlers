@@ -8,6 +8,8 @@ runs:
 
     - name: Build contracts
       run: yarn build:hardhat --force # don't use compilation cache
+      shell: bash
 
     - name: Build package
       run: yarn build:pkg
+      shell: bash
