@@ -18,11 +18,11 @@ abstract contract Permit2Bundler is BaseBundler {
     /* ACTIONS */
 
     /// @notice Permits and performs a transfer from the initiator to the recipient via Permit2.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Pass `permit.permitted.amount = type(uint256).max` to transfer all.
     function permit2TransferFrom(ISignatureTransfer.PermitTransferFrom memory permit, bytes memory signature)
         external
         payable
+        onlyInitiated
     {
         address initiator = initiator();
         uint256 amount = Math.min(permit.permitted.amount, ERC20(permit.permitted.token).balanceOf(initiator));

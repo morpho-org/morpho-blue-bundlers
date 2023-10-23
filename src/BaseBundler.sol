@@ -21,6 +21,14 @@ abstract contract BaseBundler is IMulticall {
     /// @dev Also prevents interacting with the bundler outside of an initiated execution context.
     address private _initiator = UNSET_INITIATOR;
 
+    /* MODIFIERS */
+
+    modifier onlyInitiated() {
+        require(_initiator != UNSET_INITIATOR, ErrorsLib.UNINITIATED);
+
+        _;
+    }
+
     /* PUBLIC */
 
     /// @notice Returns the address of the initiator of the multicall transaction.
@@ -53,11 +61,6 @@ abstract contract BaseBundler is IMulticall {
             // No need to check that `address(this)` has code in case of success.
             if (!success) _revert(returnData);
         }
-    }
-
-    /// @dev Checks that the contract is in an initiated execution context.
-    function _checkInitiated() internal view {
-        require(_initiator != UNSET_INITIATOR, ErrorsLib.UNINITIATED);
     }
 
     /// @dev Bubbles up the revert reason / custom error encoded in `returnData`.

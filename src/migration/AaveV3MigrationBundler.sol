@@ -26,9 +26,8 @@ contract AaveV3MigrationBundler is MigrationBundler {
     /* ACTIONS */
 
     /// @notice Repays `amount` of `asset` on AaveV3, on behalf of the initiator.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Pass `amount = type(uint256).max` to repay all.
-    function aaveV3Repay(address asset, uint256 amount, uint256 interestRateMode) external payable {
+    function aaveV3Repay(address asset, uint256 amount, uint256 interestRateMode) external payable onlyInitiated {
         amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
