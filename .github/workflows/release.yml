@@ -35,13 +35,8 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
           submodules: recursive
 
-      - uses: ./.github/actions/install
-
-      - name: Build contracts
-        run: yarn build:hardhat --force # don't use compilation cache
-
-      - name: Build package
-        run: yarn build:pkg
+      - name: Build contracts & package with hardhat
+        uses: ./.github/actions/build-hardhat
 
       - name: Determine version
         id: determine_version
