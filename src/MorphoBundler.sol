@@ -68,26 +68,30 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         }
     }
 
-    /// @notice Supplies `amount` of `asset` of `onBehalf` using permit2 in a single tx.
-    /// @notice The supplied amount cannot be used as collateral but is eligible to earn interest.
-    /// @dev Pass `amount = type(uint256).max` to supply the bundler's loan asset balance.
+    /// @notice Supplies `assets` of `asset` of `onBehalf` using permit2 in a single tx.
+    /// @notice The supplied assets cannot be used as collateral but is eligible to earn interest.
+    /// @dev Pass `assets = type(uint256).max` to supply the bundler's loan asset balance.
     function morphoSupply(
         MarketParams calldata marketParams,
-        uint256 amount,
+        uint256 assets,
         uint256 shares,
+        uint256 slippageAmount,
         address onBehalf,
         bytes calldata data
     ) external payable {
         // Do not check `onBehalf` against the zero address as it's done at Morpho's level.
         require(onBehalf != address(this), ErrorsLib.BUNDLER_ADDRESS);
 
-        // Don't always cap the amount to the bundler's balance because the liquidity can be transferred later
+        // Don't always cap the assets to the bundler's balance because the liquidity can be transferred later
         // (via the `onMorphoSupply` callback).
-        if (amount == type(uint256).max) amount = ERC20(marketParams.loanToken).balanceOf(address(this));
+        if (assets == type(uint256).max) assets = ERC20(marketParams.loanToken).balanceOf(address(this));
 
         _approveMaxMorpho(marketParams.loanToken);
 
-        MORPHO.supply(marketParams, amount, shares, onBehalf, data);
+        (uint256 suppliedAssets, uint256 suppliedShares) = MORPHO.supply(marketParams, assets, shares, onBehalf, data);
+
+        if (assets > 0) require(suppliedShares >= slippageAmount, ErrorsLib.SLIPPAGE_EXCEEDED);
+        else require(suppliedAssets <= slippageAmount, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
 
     /// @notice Supplies `amount` of `asset` collateral to the pool on behalf of `onBehalf`.
