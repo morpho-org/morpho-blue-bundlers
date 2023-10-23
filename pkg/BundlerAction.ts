@@ -97,20 +97,40 @@ export class BundlerAction {
 
   /* ERC4626 */
 
-  static erc4626Mint(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Mint", [erc4626, amount, receiver]);
+  static erc4626Mint(erc4626: string, shares: BigNumberish, maxAssets: BigNumberish, receiver: string): BundlerCall {
+    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Mint", [erc4626, shares, maxAssets, receiver]);
   }
 
-  static erc4626Deposit(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Deposit", [erc4626, amount, receiver]);
+  static erc4626Deposit(erc4626: string, assets: BigNumberish, minShares: BigNumberish, receiver: string): BundlerCall {
+    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Deposit", [
+      erc4626,
+      assets,
+      minShares,
+      receiver,
+    ]);
   }
 
-  static erc4626Withdraw(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Withdraw", [erc4626, amount, receiver]);
+  static erc4626Withdraw(
+    erc4626: string,
+    assets: BigNumberish,
+    maxShares: BigNumberish,
+    receiver: string,
+  ): BundlerCall {
+    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Withdraw", [
+      erc4626,
+      assets,
+      maxShares,
+      receiver,
+    ]);
   }
 
-  static erc4626Redeem(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Redeem", [erc4626, amount, receiver]);
+  static erc4626Redeem(erc4626: string, shares: BigNumberish, minAssets: BigNumberish, receiver: string): BundlerCall {
+    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Redeem", [
+      erc4626,
+      shares,
+      minAssets,
+      receiver,
+    ]);
   }
 
   /* Morpho */
