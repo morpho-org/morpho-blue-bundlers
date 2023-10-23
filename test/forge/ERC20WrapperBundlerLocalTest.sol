@@ -22,10 +22,11 @@ contract ERC20WrapperBundlerBundlerLocalTest is LocalTest {
     function testDepositFor(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(_erc20WrapperDepositFor(address(loanWrapper), RECEIVER, amount));
+        bundle.push(_erc20WrapperDepositFor(address(loanWrapper), amount));
 
         loanToken.setBalance(address(bundler), amount);
 
+        vm.prank(RECEIVER);
         bundler.multicall(bundle);
 
         assertEq(loanToken.balanceOf(address(bundler)), 0, "loan.balanceOf(bundler)");
@@ -35,23 +36,14 @@ contract ERC20WrapperBundlerBundlerLocalTest is LocalTest {
     function testDepositForAssetZeroAddress(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(_erc20WrapperDepositFor(address(0), RECEIVER, amount));
-
-        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
-        bundler.multicall(bundle);
-    }
-
-    function testDepositForAccountZeroAddress(uint256 amount) public {
-        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
-
-        bundle.push(_erc20WrapperDepositFor(address(loanWrapper), address(0), amount));
+        bundle.push(_erc20WrapperDepositFor(address(0), amount));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         bundler.multicall(bundle);
     }
 
     function testDepositForZeroAmount() public {
-        bundle.push(_erc20WrapperDepositFor(address(loanWrapper), RECEIVER, 0));
+        bundle.push(_erc20WrapperDepositFor(address(loanWrapper), 0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(bundle);
