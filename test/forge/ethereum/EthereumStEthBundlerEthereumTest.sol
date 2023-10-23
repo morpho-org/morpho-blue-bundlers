@@ -9,6 +9,8 @@ import "../../../src/mocks/bundlers/ethereum/EthereumStEthBundlerMock.sol";
 
 import "./helpers/EthereumTest.sol";
 
+bytes32 constant BEACON_BALANCE_POSITION = 0xa66d35f054e68143c18f32c990ed5cb972bb68a68f500cd2dd3a16bbf3686483; // keccak256("lido.Lido.beaconBalance");
+
 contract EthereumStEthBundlerEthereumTest is EthereumTest {
     using SafeTransferLib for ERC20;
 
@@ -21,10 +23,12 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
     function testStakeEth(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, 10_000 ether);
 
-        deal(USER, amount);
+        uint256 shares = IStEth(ST_ETH).getSharesByPooledEth(amount);
 
-        bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, address(0))));
+        bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, shares, address(0))));
         bundle.push(_erc20Transfer(ST_ETH, RECEIVER, type(uint256).max));
+
+        deal(USER, amount);
 
         vm.prank(USER);
         bundler.multicall{value: amount}(bundle);
@@ -35,6 +39,22 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         assertEq(ERC20(ST_ETH).balanceOf(USER), 0, "balanceOf(USER)");
         assertApproxEqAbs(ERC20(ST_ETH).balanceOf(address(bundler)), 0, 1, "balanceOf(bundler)");
         assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), amount, 3, "balanceOf(RECEIVER)");
+    }
+
+    function testStakeEthSlippageExceeded(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, 10_000 ether);
+
+        uint256 shares = IStEth(ST_ETH).getSharesByPooledEth(amount);
+
+        bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, shares, address(0))));
+
+        vm.store(ST_ETH, BEACON_BALANCE_POSITION, bytes32(uint256(vm.load(ST_ETH, BEACON_BALANCE_POSITION)) * 2));
+
+        deal(USER, amount);
+
+        vm.prank(USER);
+        vm.expectRevert(bytes(ErrorsLib.SLIPPAGE_EXCEEDED));
+        bundler.multicall{value: amount}(bundle);
     }
 
     function testWrapZeroAmount() public {

@@ -39,11 +39,12 @@ abstract contract StEthBundler is BaseBundler {
 
     /// @notice Stakes the given `amount` of ETH via Lido, using the `referral` id.
     /// @dev Pass `amount = type(uint256).max` to stake all.
-    function stakeEth(uint256 amount, address referral) external payable {
+    function stakeEth(uint256 amount, uint256 minShares, address referral) external payable {
         amount = Math.min(amount, address(this).balance);
 
         // Lido will revert with ZERO_DEPOSIT in case amount == 0.
-        IStEth(ST_ETH).submit{value: amount}(referral);
+        uint256 shares = IStEth(ST_ETH).submit{value: amount}(referral);
+        require(shares >= minShares, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
 
     /// @notice Wraps the given `amount` of stETH to wstETH.
