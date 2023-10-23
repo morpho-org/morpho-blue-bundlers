@@ -14,6 +14,7 @@ import {BaseBundler} from "./BaseBundler.sol";
 /// @notice Bundler that allows to claim token rewards on the Universal Rewards Distributor.
 abstract contract UrdBundler is BaseBundler {
     /// @notice Claims `amount` of `reward` on behalf of `account` on the given rewards distributor, using `proof`.
+    /// @dev Warning: `distributor` can re-enter the bundler flow.
     /// @dev Assumes the given distributor implements IUniversalRewardsDistributor.
     /// @dev Pass `skipRevert = true` to avoid reverting the whole bundle in case the proof expired.
     function urdClaim(
