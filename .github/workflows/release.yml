@@ -6,7 +6,6 @@ on:
       version_type:
         description: 'Version to release'
         required: true
-        default: 'patch'
         type: choice
         options:
           - patch
