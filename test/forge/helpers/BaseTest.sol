@@ -111,12 +111,8 @@ abstract contract BaseTest is Test {
 
     /* ERC20 WRAPPER ACTIONS */
 
-    function _erc20WrapperDepositFor(address asset, address account, uint256 amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return abi.encodeCall(ERC20WrapperBundler.depositFor, (asset, account, amount));
+    function _erc20WrapperDepositFor(address asset, uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(ERC20WrapperBundler.depositFor, (asset, amount));
     }
 
     function _erc20WrapperWithdrawTo(address asset, address account, uint256 amount)
