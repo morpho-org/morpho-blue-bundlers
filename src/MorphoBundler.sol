@@ -208,12 +208,12 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /// @notice Triggers a flash loan on Morpho.
     /// @param token The address of the token to flash loan.
-    /// @param amount The amount of assets to flash loan.
+    /// @param asset The amount of assets to flash loan.
     /// @param data Arbitrary data to pass to the `onMorphoFlashLoan` callback.
-    function morphoFlashLoan(address token, uint256 amount, bytes calldata data) external payable {
-        _approveMaxMorpho(asset);
+    function morphoFlashLoan(address token, uint256 asset, bytes calldata data) external payable {
+        _approveMaxMorpho(token);
 
-        MORPHO.flashLoan(asset, amount, data);
+        MORPHO.flashLoan(token, asset, data);
     }
 
     /* INTERNAL */
