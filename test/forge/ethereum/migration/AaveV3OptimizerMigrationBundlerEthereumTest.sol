@@ -28,6 +28,13 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         bundler = new AaveV3OptimizerMigrationBundler(address(morpho), address(AAVE_V3_OPTIMIZER));
     }
 
+    function testAaveV3OptimizerRepayUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        AaveV3OptimizerMigrationBundler(address(bundler)).aaveV3OptimizerRepay(marketParams.loanToken, amount);
+    }
+
     function testAaveV3Optimizer3RepayZeroAmount() public {
         bundle.push(_aaveV3OptimizerRepay(marketParams.loanToken, 0));
 
@@ -150,6 +157,17 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
 
     /* ACTIONS */
 
+    function testAaveV3OptimizerApproveManagerUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        Types.Signature memory sig;
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        AaveV3OptimizerMigrationBundler(address(bundler)).aaveV3OptimizerApproveManagerWithSig(
+            true, 0, SIGNATURE_DEADLINE, sig
+        );
+    }
+
     function _aaveV3OptimizerApproveManager(uint256 privateKey, address manager, bool isAllowed, uint256 nonce)
         internal
         view
@@ -173,6 +191,15 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         return abi.encodeCall(AaveV3OptimizerMigrationBundler.aaveV3OptimizerRepay, (underlying, amount));
     }
 
+    function testAaveV3OptimizerWithdrawUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        AaveV3OptimizerMigrationBundler(address(bundler)).aaveV3OptimizerWithdraw(
+            marketParams.loanToken, amount, RECEIVER, MAX_ITERATIONS
+        );
+    }
+
     function _aaveV3OptimizerWithdraw(address underlying, uint256 amount, address receiver)
         internal
         pure
@@ -180,6 +207,15 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
     {
         return abi.encodeCall(
             AaveV3OptimizerMigrationBundler.aaveV3OptimizerWithdraw, (underlying, amount, receiver, MAX_ITERATIONS)
+        );
+    }
+
+    function testAaveV3OptimizerWithdrawCollateralUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        AaveV3OptimizerMigrationBundler(address(bundler)).aaveV3OptimizerWithdrawCollateral(
+            marketParams.loanToken, amount, RECEIVER
         );
     }
 

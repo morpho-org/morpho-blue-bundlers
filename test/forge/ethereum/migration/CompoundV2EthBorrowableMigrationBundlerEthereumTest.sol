@@ -26,6 +26,13 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         enteredMarkets.push(C_DAI_V2);
     }
 
+    function testCompoundV2RepayUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        CompoundV2MigrationBundler(payable(address(bundler))).compoundV2Repay(C_DAI_V2, amount);
+    }
+
     function testCompoundV2RepayCEthZeroAmount() public {
         bundle.push(_compoundV2Repay(C_ETH_V2, 0));
 

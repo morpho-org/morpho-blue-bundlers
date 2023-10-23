@@ -17,6 +17,13 @@ contract WNativeBundlerEthereumTest is EthereumTest {
         ERC20(WETH).approve(address(bundler), type(uint256).max);
     }
 
+    function testWrapUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        WNativeBundlerMock(payable(address(bundler))).wrapNative(amount);
+    }
+
     function testWrapZeroAmount() public {
         bundle.push(abi.encodeCall(WNativeBundler.wrapNative, (0)));
 
@@ -43,6 +50,13 @@ contract WNativeBundlerEthereumTest is EthereumTest {
         assertEq(address(bundler).balance, 0, "Bundler's native token balance");
         assertEq(USER.balance, 0, "User's native token balance");
         assertEq(RECEIVER.balance, 0, "Receiver's native token balance");
+    }
+
+    function testUnwrapUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        WNativeBundlerMock(payable(address(bundler))).unwrapNative(amount);
     }
 
     function testUnwrapZeroAmount() public {
