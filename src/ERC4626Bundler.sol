@@ -59,12 +59,13 @@ abstract contract ERC4626Bundler is BaseBundler {
         assets = Math.min(assets, ERC20(asset).balanceOf(address(this)));
 
         require(assets != 0, ErrorsLib.ZERO_AMOUNT);
-        require(IERC4626(vault).previewDeposit(assets) >= minShares, ErrorsLib.SLIPPAGE_EXCEEDED);
 
         // Approve 0 first to comply with tokens that implement the anti frontrunning approval fix.
         ERC20(asset).safeApprove(vault, 0);
         ERC20(asset).safeApprove(vault, assets);
-        IERC4626(vault).deposit(assets, owner);
+
+        uint256 shares = IERC4626(vault).deposit(assets, owner);
+        require(shares >= minShares, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
 
     /// @notice Withdraws the given amount of `assets` from the given ERC4626 `vault`, transferring assets to
@@ -84,9 +85,9 @@ abstract contract ERC4626Bundler is BaseBundler {
         assets = Math.min(assets, IERC4626(vault).maxWithdraw(initiator));
 
         require(assets != 0, ErrorsLib.ZERO_AMOUNT);
-        require(IERC4626(vault).previewWithdraw(assets) <= maxShares, ErrorsLib.SLIPPAGE_EXCEEDED);
 
-        IERC4626(vault).withdraw(assets, receiver, initiator);
+        uint256 shares = IERC4626(vault).withdraw(assets, receiver, initiator);
+        require(shares <= maxShares, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
 
     /// @notice Redeems the given amount of `shares` from the given ERC4626 `vault`, transferring assets to `receiver`.
