@@ -13,7 +13,7 @@ import {BaseBundler} from "./BaseBundler.sol";
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Bundler contract managing interactions with network's wrapped native token.
-/// @notice `wrapped native` refers to forks of WETH.
+/// @notice "wrapped native" refers to forks of WETH.
 abstract contract WNativeBundler is BaseBundler {
     using SafeTransferLib for ERC20;
 
