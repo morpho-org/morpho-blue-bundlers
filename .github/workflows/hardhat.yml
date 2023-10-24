@@ -29,9 +29,5 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
           submodules: recursive
 
-      - uses: ./.github/actions/install
-
-      - name: Build contracts
-        run: yarn test:hardhat
-        env:
-          ALCHEMY_KEY: ${{ secrets.ALCHEMY_KEY }}
+      - name: Build contracts & package with hardhat
+        uses: ./.github/actions/build-hardhat
