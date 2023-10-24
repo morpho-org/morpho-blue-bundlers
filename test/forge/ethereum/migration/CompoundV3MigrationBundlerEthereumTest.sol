@@ -46,7 +46,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.stopPrank();
 
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));
-        callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, address(bundler)));
+        callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, type(uint256).max, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, false, 1, false));
         callbackBundle.push(_compoundV3Repay(C_WETH_V3, marketParams.loanToken, borrowed));
         callbackBundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0));
@@ -79,7 +79,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0));
         bundle.push(_compoundV3WithdrawFrom(C_WETH_V3, marketParams.loanToken, supplied));
         bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1));
-        bundle.push(_morphoSupply(marketParams, supplied, 0, user));
+        bundle.push(_morphoSupply(marketParams, supplied, 0, 0, user));
 
         vm.prank(user);
         bundler.multicall(bundle);
@@ -106,7 +106,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         bundle.push(_permit2TransferFrom(privateKey, C_WETH_V3, cTokenBalance, 0));
         bundle.push(_compoundV3Withdraw(C_WETH_V3, marketParams.loanToken, supplied));
-        bundle.push(_morphoSupply(marketParams, supplied, 0, user));
+        bundle.push(_morphoSupply(marketParams, supplied, 0, 0, user));
 
         vm.startPrank(user);
         ERC20(C_WETH_V3).safeApprove(address(Permit2Lib.PERMIT2), type(uint256).max);
