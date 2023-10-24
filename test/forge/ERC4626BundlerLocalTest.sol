@@ -154,6 +154,7 @@ contract ERC4626BundlerLocalTest is LocalTest {
 
         uint256 redeemed = vault.previewWithdraw(assets);
 
+        bundle.push(_erc20TransferFrom(address(vault), redeemed));
         bundle.push(_erc4626Withdraw(address(vault), assets, RECEIVER));
 
         vm.startPrank(USER);
@@ -177,6 +178,7 @@ contract ERC4626BundlerLocalTest is LocalTest {
 
         uint256 withdrawn = vault.previewRedeem(shares);
 
+        bundle.push(_erc20TransferFrom(address(vault), shares));
         bundle.push(_erc4626Redeem(address(vault), shares, RECEIVER));
 
         vm.startPrank(USER);

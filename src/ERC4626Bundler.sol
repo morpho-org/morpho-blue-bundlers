@@ -66,7 +66,6 @@ abstract contract ERC4626Bundler is BaseBundler {
 
     /// @notice Withdraws the given amount of `assets` from the given ERC4626 `vault`, transferring assets to
     /// `receiver`.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Pass `type(uint256).max` as `assets` to withdraw max.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
@@ -76,17 +75,14 @@ abstract contract ERC4626Bundler is BaseBundler {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
 
-        address initiator = initiator();
-
-        assets = Math.min(assets, IERC4626(vault).maxWithdraw(initiator));
+        assets = Math.min(assets, IERC4626(vault).maxWithdraw(address(this)));
 
         require(assets != 0, ErrorsLib.ZERO_AMOUNT);
 
-        IERC4626(vault).withdraw(assets, receiver, initiator);
+        IERC4626(vault).withdraw(assets, receiver, address(this));
     }
 
     /// @notice Redeems the given amount of `shares` from the given ERC4626 `vault`, transferring assets to `receiver`.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Pass `type(uint256).max` as `shares` to redeem max.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
@@ -96,12 +92,10 @@ abstract contract ERC4626Bundler is BaseBundler {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
 
-        address initiator = initiator();
-
-        shares = Math.min(shares, IERC4626(vault).maxRedeem(initiator));
+        shares = Math.min(shares, IERC4626(vault).maxRedeem(address(this)));
 
         require(shares != 0, ErrorsLib.ZERO_SHARES);
 
-        IERC4626(vault).redeem(shares, receiver, initiator);
+        IERC4626(vault).redeem(shares, receiver, address(this));
     }
 }
