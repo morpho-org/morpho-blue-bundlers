@@ -20,14 +20,13 @@ abstract contract ERC20WrapperBundler is BaseBundler {
     /* WRAPPER ACTIONS */
 
     /// @notice Deposits underlying tokens and mints the corresponding number of wrapped tokens to the initiator.
-    /// @param wrapper The address of the ERC20 wrapper contract.
-    /// @param amount The amount of underlying tokens to deposit.
-    /// @dev Assumes that underlying tokens are already on the bundler.
     /// @dev Deposits tokens "for" the `initiator` to conduct the permissionned check. Wrapped tokens must
     /// be sent back to the bundler contract to perform additional actions.
+    /// @dev Assumes that underlying tokens are already on the bundler.
+    /// @dev Assumes that `wrapper` is implements the `ERC20Wrapper` interface.
+    /// @param wrapper The address of the ERC20 wrapper contract.
+    /// @param amount The amount of underlying tokens to deposit.
     function depositFor(address wrapper, uint256 amount) external {
-        require(wrapper != address(0), ErrorsLib.ZERO_ADDRESS);
-
         ERC20 underlying = ERC20(address(ERC20Wrapper(wrapper).underlying()));
 
         amount = Math.min(amount, underlying.balanceOf(address(this)));
@@ -41,11 +40,12 @@ abstract contract ERC20WrapperBundler is BaseBundler {
     }
 
     /// @notice Burns a number of wrapped tokens and withdraws the corresponding number of underlying tokens.
+    /// @dev Assumes that wrapped tokens are already on the bundler.
+    /// @dev Assumes that `wrapper` is implements the `ERC20Wrapper` interface.
     /// @param wrapper The address of the ERC20 wrapper contract.
     /// @param account The address receiving the underlying tokens.
     /// @param amount The amount of wrapped tokens to burn.
     function withdrawTo(address wrapper, address account, uint256 amount) external {
-        require(wrapper != address(0), ErrorsLib.ZERO_ADDRESS);
         require(account != address(0), ErrorsLib.ZERO_ADDRESS);
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
