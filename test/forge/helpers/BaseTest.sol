@@ -1,7 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import "../../../lib/morpho-blue/src/interfaces/IMorpho.sol";
+import {
+    IMorpho,
+    Id,
+    MarketParams,
+    Authorization as MorphoBlueAuthorization,
+    Signature as MorphoBlueSignature
+} from "../../../lib/morpho-blue/src/interfaces/IMorpho.sol";
 
 import {SigUtils} from "./SigUtils.sol";
 import {MarketParamsLib} from "../../../lib/morpho-blue/src/libraries/MarketParamsLib.sol";
@@ -164,7 +170,7 @@ abstract contract BaseTest is Test {
     {
         address user = vm.addr(privateKey);
 
-        Authorization memory authorization = Authorization({
+        MorphoBlueAuthorization memory authorization = MorphoBlueAuthorization({
             authorizer: user,
             authorized: address(bundler),
             isAuthorized: isAuthorized,
@@ -174,7 +180,7 @@ abstract contract BaseTest is Test {
 
         bytes32 digest = SigUtils.toTypedDataHash(morpho.DOMAIN_SEPARATOR(), authorization);
 
-        Signature memory signature;
+        MorphoBlueSignature memory signature;
         (signature.v, signature.r, signature.s) = vm.sign(privateKey, digest);
 
         return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (authorization, signature, skipRevert));

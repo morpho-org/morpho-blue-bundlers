@@ -22,7 +22,6 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
 
     /* CONSTRUCTOR */
 
-    /// @dev Warning: assumes the wNative address is non-zero (not expected to be deployment arguments).
     /// @param morpho The Morpho contract Address.
     /// @param wNative The address of the wNative token contract.
     /// @param cEth The address of the cETH contract.

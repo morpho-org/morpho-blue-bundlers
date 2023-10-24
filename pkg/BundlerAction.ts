@@ -1,6 +1,5 @@
-import { BigNumberish, Signature } from "ethers";
+import { BigNumberish, BytesLike, Signature } from "ethers";
 import {
-  BaseBundler__factory,
   TransferBundler__factory,
   PermitBundler__factory,
   Permit2Bundler__factory,
@@ -267,7 +266,7 @@ export class BundlerAction {
     account: string,
     reward: string,
     amount: BigNumberish,
-    proof: string[],
+    proof: BytesLike[],
     skipRevert: boolean,
   ): BundlerCall {
     return BundlerAction.URD_BUNDLER_IFC.encodeFunctionData("urdClaim", [

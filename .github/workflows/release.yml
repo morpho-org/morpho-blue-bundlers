@@ -1,0 +1,88 @@
+name: Publish on NPM
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version to release'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+
+jobs:
+  build-and-deploy:
+    name: Build and Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate a token
+        id: generate-token
+        uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          submodules: recursive
+
+      - name: Build contracts & package with hardhat
+        uses: ./.github/actions/build-hardhat
+
+      - name: Determine version
+        id: determine_version
+        run: |
+          if [ "${{ github.event.inputs.version_type }}" == "major" ]; then
+          version_type="major"
+          elif [ "${{ github.event.inputs.version_type }}" == "minor" ]; then
+          version_type="minor"
+          else
+          version_type="patch"
+          fi
+          echo "version_type=$version_type" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Configure Git User
+        run: |
+          git config user.name "Morpho Intern"
+          git config user.email "intern@morpho.org"
+
+      - name: Bump package.json version
+        run: |
+          version_type=$(echo "${{ steps.determine_version.outputs.version_type }}")
+          yarn version --${version_type}
+
+      - name: Push to Correct Branch
+        run: |
+          git push origin $(echo "${{ github.ref }}" | sed 's|refs/heads/||')
+
+      - name: Publish to npm
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          yarn publish --access public
+
+      - name: Create Git Tag
+        run: |
+          version=$(node -e "console.log(require('./package.json').version)")
+          git tag -a "v${version}" -m "Release version ${version}"
+
+      - name: Push Git Tag
+        run: |
+          git push origin  $(echo "${{ github.ref }}" | sed 's|refs/heads/||') --tags
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: |
+          version=$(node -e "console.log(require('./package.json').version)")
+          version_type=$(echo "${{ steps.determine_version.outputs.version_type }}")
+          curl -X POST -H "Authorization: token $GITHUB_TOKEN" -d "{\"tag_name\":\"v$version\",\"name\":\"Release $version_type $version\",\"body\":\"Release type: $version_type\n\nAdditional release notes can go here.\"}" "https://api.github.com/repos/${{ github.repository }}/releases"

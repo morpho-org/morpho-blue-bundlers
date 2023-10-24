@@ -56,7 +56,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /* ACTIONS */
 
     /// @notice Approves this contract to manage the `authorization.authorizer`'s position via EIP712 `signature`.
-    /// @dev Pass `skipRevert == true` to avoid reverting the whole bundle in case the signature expired.
+    /// @dev Pass `skipRevert = true` to avoid reverting the whole bundle in case the signature expired.
     /// @param authorization The `Authorization` struct.
     /// @param signature The signature.
     function morphoSetAuthorizationWithSig(
@@ -70,7 +70,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         }
     }
 
-    /// @notice Supplies `assets` of the loan asset on behalf of `onBehalf` using permit2 in a single tx.
+    /// @notice Supplies `assets` of the loan asset on behalf of `onBehalf`.
     /// @notice The supplied assets cannot be used as collateral but is eligible to earn interest.
     /// @dev Either `assets` or `shares` should be zero. Most usecases should rely on `assets` as an input so the
     /// bundler is guaranteed to have `assets` tokens pulled from its balance, but the possibility to mint a specific
@@ -106,7 +106,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         else require(suppliedAssets <= slippageAmount, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
 
-    /// @notice Supplies `assets` of `marketParams.collateralToken` collateral to the pool on behalf of `onBehalf`.
+    /// @notice Supplies `assets` of collateral on behalf of `onBehalf`.
     /// @dev Pass `assets = type(uint256).max` to supply the bundler's collateral asset balance.
     /// @param marketParams The Morpho market to supply collateral to.
     /// @param assets The amount of collateral to supply.
@@ -130,7 +130,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         MORPHO.supplyCollateral(marketParams, assets, onBehalf, data);
     }
 
-    /// @notice Borrows `assets` of the loan asset on behalf of the sender.
+    /// @notice Borrows `assets` of the loan asset on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Either `assets` or `shares` should be zero. Most usecases should rely on `assets` as an input so the
     /// initiator is guaranteed to borrow `assets` tokens, but the possibility to mint a specific amount of shares is
@@ -217,7 +217,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         else require(withdrawnAssets >= slippageAmount, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
 
-    /// @notice Withdraws `assets` of the collateral asset on behalf of sender.
+    /// @notice Withdraws `assets` of the collateral asset on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously authorized the bundler to act on their behalf on Morpho.
     /// @param marketParams The Morpho market to withdraw collateral from.
@@ -255,12 +255,12 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /// @notice Triggers a flash loan on Morpho.
     /// @param token The address of the token to flash loan.
-    /// @param amount The amount of assets to flash loan.
+    /// @param assets The amount of assets to flash loan.
     /// @param data Arbitrary data to pass to the `onMorphoFlashLoan` callback.
-    function morphoFlashLoan(address token, uint256 amount, bytes calldata data) external payable {
+    function morphoFlashLoan(address token, uint256 assets, bytes calldata data) external payable {
         _approveMaxMorpho(token);
 
-        MORPHO.flashLoan(token, amount, data);
+        MORPHO.flashLoan(token, assets, data);
     }
 
     /* INTERNAL */
