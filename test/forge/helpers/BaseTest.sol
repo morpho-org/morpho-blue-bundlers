@@ -124,12 +124,20 @@ abstract contract BaseTest is Test {
         return abi.encodeCall(ERC4626Bundler.erc4626Deposit, (vault, assets, receiver));
     }
 
-    function _erc4626Withdraw(address vault, uint256 assets, address receiver) internal pure returns (bytes memory) {
-        return abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (vault, assets, receiver));
+    function _erc4626Withdraw(address vault, uint256 assets, address receiver, address owner)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (vault, assets, receiver, owner));
     }
 
-    function _erc4626Redeem(address vault, uint256 shares, address receiver) internal pure returns (bytes memory) {
-        return abi.encodeCall(ERC4626Bundler.erc4626Redeem, (vault, shares, receiver));
+    function _erc4626Redeem(address vault, uint256 shares, address receiver, address owner)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return abi.encodeCall(ERC4626Bundler.erc4626Redeem, (vault, shares, receiver, owner));
     }
 
     /* URD ACTIONS */

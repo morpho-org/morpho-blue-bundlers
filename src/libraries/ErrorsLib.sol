@@ -29,6 +29,9 @@ library ErrorsLib {
     /// @dev Thrown when a call reverted and wasn't allowed to revert.
     string internal constant CALL_FAILED = "call failed";
 
+    /// @dev Thrown when the given owner is unexpected.
+    string internal constant UNEXPECTED_OWNER = "unexpected owner";
+
     /* MIGRATION BUNDLERS */
 
     /// @dev Thrown when a redeem on Compound V2 failed.

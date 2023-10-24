@@ -48,28 +48,42 @@ contract ERC4626BundlerLocalTest is LocalTest {
     }
 
     function testErc4626WithdrawZeroAdressVault(uint256 assets) public {
-        bundle.push(_erc4626Withdraw(address(0), assets, RECEIVER));
+        bundle.push(_erc4626Withdraw(address(0), assets, RECEIVER, address(bundler)));
 
         vm.expectRevert();
         bundler.multicall(bundle);
     }
 
+    function testErc4626WithdrawUnexpectedOwner(uint256 assets) public {
+        bundle.push(_erc4626Withdraw(address(vault), assets, RECEIVER, address(0)));
+
+        vm.expectRevert(bytes(ErrorsLib.UNEXPECTED_OWNER));
+        bundler.multicall(bundle);
+    }
+
     function testErc4626WithdrawZeroAdress(uint256 assets) public {
-        bundle.push(_erc4626Withdraw(address(vault), assets, address(0)));
+        bundle.push(_erc4626Withdraw(address(vault), assets, address(0), address(bundler)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         bundler.multicall(bundle);
     }
 
     function testErc4626RedeemZeroAdressVault(uint256 assets) public {
-        bundle.push(_erc4626Redeem(address(0), assets, RECEIVER));
+        bundle.push(_erc4626Redeem(address(0), assets, RECEIVER, address(bundler)));
 
         vm.expectRevert();
         bundler.multicall(bundle);
     }
 
+    function testErc4626RedeemUnexpectedOwner(uint256 shares) public {
+        bundle.push(_erc4626Redeem(address(vault), shares, RECEIVER, address(0)));
+
+        vm.expectRevert(bytes(ErrorsLib.UNEXPECTED_OWNER));
+        bundler.multicall(bundle);
+    }
+
     function testErc4626RedeemZeroAdress(uint256 shares) public {
-        bundle.push(_erc4626Redeem(address(vault), shares, address(0)));
+        bundle.push(_erc4626Redeem(address(vault), shares, address(0), address(bundler)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         bundler.multicall(bundle);
@@ -90,14 +104,14 @@ contract ERC4626BundlerLocalTest is LocalTest {
     }
 
     function testErc4626WithdrawZero() public {
-        bundle.push(_erc4626Withdraw(address(vault), 0, RECEIVER));
+        bundle.push(_erc4626Withdraw(address(vault), 0, RECEIVER, address(bundler)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(bundle);
     }
 
     function testErc4626RedeemZero() public {
-        bundle.push(_erc4626Redeem(address(vault), 0, RECEIVER));
+        bundle.push(_erc4626Redeem(address(vault), 0, RECEIVER, address(bundler)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_SHARES));
         bundler.multicall(bundle);
@@ -155,7 +169,7 @@ contract ERC4626BundlerLocalTest is LocalTest {
         uint256 redeemed = vault.previewWithdraw(assets);
 
         bundle.push(_erc20TransferFrom(address(vault), redeemed));
-        bundle.push(_erc4626Withdraw(address(vault), assets, RECEIVER));
+        bundle.push(_erc4626Withdraw(address(vault), assets, RECEIVER, address(bundler)));
 
         vm.startPrank(USER);
         vault.approve(address(bundler), redeemed);
@@ -179,7 +193,7 @@ contract ERC4626BundlerLocalTest is LocalTest {
         uint256 withdrawn = vault.previewRedeem(shares);
 
         bundle.push(_erc20TransferFrom(address(vault), shares));
-        bundle.push(_erc4626Redeem(address(vault), shares, RECEIVER));
+        bundle.push(_erc4626Redeem(address(vault), shares, RECEIVER, address(bundler)));
 
         vm.startPrank(USER);
         vault.approve(address(bundler), shares);

@@ -105,12 +105,12 @@ export class BundlerAction {
     return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Deposit", [erc4626, amount, receiver]);
   }
 
-  static erc4626Withdraw(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Withdraw", [erc4626, amount, receiver]);
+  static erc4626Withdraw(erc4626: string, amount: BigNumberish, receiver: string, owner: string): BundlerCall {
+    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Withdraw", [erc4626, amount, receiver, owner]);
   }
 
-  static erc4626Redeem(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Redeem", [erc4626, amount, receiver]);
+  static erc4626Redeem(erc4626: string, amount: BigNumberish, receiver: string, owner: string): BundlerCall {
+    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Redeem", [erc4626, amount, receiver, owner]);
   }
 
   /* Morpho */

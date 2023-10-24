@@ -71,15 +71,16 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @param vault The address of the vault.
     /// @param assets The amount of assets to withdraw.
     /// @param receiver The address that will receive the withdrawn assets.
-    function erc4626Withdraw(address vault, uint256 assets, address receiver) external payable {
-        require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
+    function erc4626Withdraw(address vault, uint256 assets, address receiver, address owner) external payable {
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
+        require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
+        require(owner == address(this) || owner == initiator(), ErrorsLib.UNEXPECTED_OWNER);
 
-        assets = Math.min(assets, IERC4626(vault).maxWithdraw(address(this)));
+        assets = Math.min(assets, IERC4626(vault).maxWithdraw(owner));
 
         require(assets != 0, ErrorsLib.ZERO_AMOUNT);
 
-        IERC4626(vault).withdraw(assets, receiver, address(this));
+        IERC4626(vault).withdraw(assets, receiver, owner);
     }
 
     /// @notice Redeems the given amount of `shares` from the given ERC4626 `vault`, transferring assets to `receiver`.
@@ -88,14 +89,15 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @param vault The address of the vault.
     /// @param shares The amount of shares to burn.
     /// @param receiver The address that will receive the withdrawn assets.
-    function erc4626Redeem(address vault, uint256 shares, address receiver) external payable {
-        require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
+    function erc4626Redeem(address vault, uint256 shares, address receiver, address owner) external payable {
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
+        require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
+        require(owner == address(this) || owner == initiator(), ErrorsLib.UNEXPECTED_OWNER);
 
-        shares = Math.min(shares, IERC4626(vault).maxRedeem(address(this)));
+        shares = Math.min(shares, IERC4626(vault).maxRedeem(owner));
 
         require(shares != 0, ErrorsLib.ZERO_SHARES);
 
-        IERC4626(vault).redeem(shares, receiver, address(this));
+        IERC4626(vault).redeem(shares, receiver, owner);
     }
 }
