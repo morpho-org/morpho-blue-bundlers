@@ -28,7 +28,7 @@ abstract contract WNativeBundler is BaseBundler {
         WRAPPED_NATIVE = wNative;
     }
 
-    /* CALLBACKS */
+    /* FALLBACKS */
 
     /// @dev Allows the wrapped native contract to send native tokens to the bundler.
     receive() external payable {}
