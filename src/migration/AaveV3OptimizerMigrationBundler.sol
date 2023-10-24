@@ -63,12 +63,17 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     /// @notice Approves the bundler to act on behalf of the initiator on the AaveV3 Optimizer, given a signed EIP-712
     /// approval message.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @dev Pass `skipRevert = true` to avoid reverting the call in case the signature is frontrunned.
     function aaveV3OptimizerApproveManagerWithSig(
         bool isApproved,
         uint256 nonce,
         uint256 deadline,
-        Types.Signature calldata signature
+        Types.Signature calldata signature,
+        bool skipRevert
     ) external payable {
-        AAVE_V3_OPTIMIZER.approveManagerWithSig(initiator(), address(this), isApproved, nonce, deadline, signature);
+        try AAVE_V3_OPTIMIZER.approveManagerWithSig(initiator(), address(this), isApproved, nonce, deadline, signature)
+        {} catch (bytes memory returnData) {
+            if (!skipRevert) _revert(returnData);
+        }
     }
 }

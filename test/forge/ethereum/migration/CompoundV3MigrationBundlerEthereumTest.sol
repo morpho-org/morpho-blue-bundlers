@@ -31,6 +31,20 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         bundler.multicall(bundle);
     }
 
+    function testAaveV3OtimizerAuthorizationWithSigRevert() public {
+        Signature memory sig;
+
+        bundle.push(
+            abi.encodeCall(
+                CompoundV3MigrationBundler.compoundV3AllowBySig,
+                (C_WETH_V3, true, 0, SIGNATURE_DEADLINE, sig.v, sig.r, sig.s, false)
+            )
+        );
+
+        vm.expectRevert();
+        bundler.multicall(bundle);
+    }
+
     function testMigrateBorrowerWithCompoundAllowance(uint256 privateKey) public {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
@@ -49,9 +63,9 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, false, 1, false));
         callbackBundle.push(_compoundV3Repay(C_WETH_V3, marketParams.loanToken, borrowed));
-        callbackBundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0));
+        callbackBundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0, false));
         callbackBundle.push(_compoundV3WithdrawFrom(C_WETH_V3, marketParams.collateralToken, collateralSupplied));
-        callbackBundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1));
+        callbackBundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1, false));
 
         bundle.push(_morphoSupplyCollateral(marketParams, collateralSupplied, user));
 
@@ -76,9 +90,9 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         // Margin necessary due to CompoundV3 roundings.
         supplied -= 100;
 
-        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0));
+        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0, false));
         bundle.push(_compoundV3WithdrawFrom(C_WETH_V3, marketParams.loanToken, supplied));
-        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1));
+        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1, false));
         bundle.push(_morphoSupply(marketParams, supplied, 0, user));
 
         vm.prank(user);
@@ -131,9 +145,9 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         // Margin necessary due to CompoundV3 roundings.
         supplied -= 100;
 
-        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0));
+        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0, false));
         bundle.push(_compoundV3WithdrawFrom(C_WETH_V3, marketParams.loanToken, supplied));
-        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1));
+        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1, false));
         bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
 
         vm.prank(user);
@@ -173,11 +187,14 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     /* ACTIONS */
 
-    function _compoundV3Allow(uint256 privateKey, address instance, address manager, bool isAllowed, uint256 nonce)
-        internal
-        view
-        returns (bytes memory)
-    {
+    function _compoundV3Allow(
+        uint256 privateKey,
+        address instance,
+        address manager,
+        bool isAllowed,
+        uint256 nonce,
+        bool skipRevert
+    ) internal view returns (bytes memory) {
         bytes32 digest = SigUtils.toTypedDataHash(
             instance, CompoundV3Authorization(vm.addr(privateKey), manager, isAllowed, nonce, SIGNATURE_DEADLINE)
         );
@@ -187,7 +204,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         return abi.encodeCall(
             CompoundV3MigrationBundler.compoundV3AllowBySig,
-            (instance, isAllowed, nonce, SIGNATURE_DEADLINE, sig.v, sig.r, sig.s)
+            (instance, isAllowed, nonce, SIGNATURE_DEADLINE, sig.v, sig.r, sig.s, skipRevert)
         );
     }
 
