@@ -44,13 +44,16 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
     /// @dev Pass `amount = type(uint256).max` to withdraw all.
     function compoundV3WithdrawFrom(address instance, address asset, uint256 amount) external payable {
-        if (asset != ICompoundV3(instance).baseToken()) {
-            amount = Math.min(amount, ICompoundV3(instance).userCollateral(initiator(), asset));
-        }
+        address initiator = initiator();
+        uint256 balance = asset == ICompoundV3(instance).baseToken()
+            ? ICompoundV3(instance).balanceOf(initiator)
+            : ICompoundV3(instance).userCollateral(initiator, asset);
+
+        amount = Math.min(amount, balance);
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        ICompoundV3(instance).withdrawFrom(initiator(), address(this), asset, amount);
+        ICompoundV3(instance).withdrawFrom(initiator, address(this), asset, amount);
     }
 
     /// @notice Approves the bundler to act on behalf of the initiator on the CompoundV3 `instance`, given a signed
