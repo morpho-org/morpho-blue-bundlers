@@ -12,6 +12,7 @@ concurrency:
 
 jobs:
   lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - name: Generate a token
