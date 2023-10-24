@@ -160,7 +160,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
     function testAaveV3OptimizerApproveManagerUninitiated(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        Types.Signature memory sig;
+        Signature memory sig;
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
         AaveV3OptimizerMigrationBundler(address(bundler)).aaveV3OptimizerApproveManagerWithSig(
