@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "ES6",
     "strict": true,
     "esModuleInterop": true,
-    "rootDir": ".",
+    "rootDir": "",
     "baseUrl": ".",
     "outDir": "dist",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "resolveJsonModule": true,
     "declaration": true
   },
