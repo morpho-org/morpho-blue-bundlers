@@ -40,7 +40,7 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
     /// @dev Pass `amount = type(uint256).max` to repay all.
     function compoundV2Repay(address cToken, uint256 amount) external payable {
         if (cToken == C_ETH) {
-            amount = Math.min(amount, address(this).balance);
+            if (amount != type(uint256).max) amount = Math.min(amount, address(this).balance);
 
             require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
@@ -48,7 +48,7 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
         } else {
             address underlying = ICToken(cToken).underlying();
 
-            amount = Math.min(amount, ERC20(underlying).balanceOf(address(this)));
+            if (amount != type(uint256).max) amount = Math.min(amount, ERC20(underlying).balanceOf(address(this)));
 
             require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 

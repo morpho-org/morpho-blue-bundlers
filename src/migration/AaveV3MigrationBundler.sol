@@ -29,7 +29,7 @@ contract AaveV3MigrationBundler is MigrationBundler {
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Pass `amount = type(uint256).max` to repay all.
     function aaveV3Repay(address asset, uint256 amount, uint256 interestRateMode) external payable {
-        amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
+        if (amount != type(uint256).max) amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 

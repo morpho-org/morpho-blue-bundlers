@@ -24,24 +24,18 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
     /// @dev Pass `amount = type(uint256).max` to repay all.
     function compoundV3Repay(address instance, uint256 amount) external payable {
+        address initiator = initiator();
         address asset = ICompoundV3(instance).baseToken();
 
         amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
+        amount = Math.min(amount, ICompoundV3(instance).borrowBalanceOf(initiator));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
         _approveMaxTo(asset, instance);
 
         // Compound V3 uses signed accounting: supplying to a negative balance actually repays the borrow position.
-        ICompoundV3(instance).supplyTo(initiator(), asset, amount);
-    }
-
-    /// @notice Withdraws `amount` of `asset` on the CompoundV3 `instance`.
-    /// @dev Initiator must have previously transferred their CompoundV3 position to the bundler.
-    /// @dev Assumes the given `instance` is a CompoundV3 instance.
-    /// @dev Pass `amount = type(uint256).max` to withdraw all.
-    function compoundV3Withdraw(address instance, address asset, uint256 amount) external payable {
-        ICompoundV3(instance).withdraw(asset, amount);
+        ICompoundV3(instance).supplyTo(initiator, asset, amount);
     }
 
     /// @notice Withdraws `amount` of `asset` from the CompoundV3 `instance`, on behalf of the initiator.
@@ -50,6 +44,12 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
     /// @dev Pass `amount = type(uint256).max` to withdraw all.
     function compoundV3WithdrawFrom(address instance, address asset, uint256 amount) external payable {
+        if (asset != ICompoundV3(instance).baseToken()) {
+            amount = Math.min(amount, ICompoundV3(instance).userCollateral(initiator(), asset));
+        }
+
+        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
+
         ICompoundV3(instance).withdrawFrom(initiator(), address(this), asset, amount);
     }
 
