@@ -42,6 +42,7 @@ abstract contract StEthBundler is BaseBundler {
     /// @notice Stakes the given `amount` of ETH via Lido, using the `referral` id.
     /// @dev Pass `amount = type(uint256).max` to stake all.
     /// @param amount The amount of ETH to stake.
+    /// @param minShares The minimum amount of shares to mint in exchange for `amount`.
     /// @param referral The address of the referral regarding the Lido Rewards-Share Program.
     function stakeEth(uint256 amount, uint256 minShares, address referral) external payable {
         amount = Math.min(amount, address(this).balance);
