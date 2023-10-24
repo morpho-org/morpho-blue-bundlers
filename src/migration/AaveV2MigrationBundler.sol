@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import {ILendingPool} from "../../lib/morpho-v1/src/aave-v2/interfaces/aave/ILendingPool.sol";
+import {IAaveV2} from "./interfaces/IAaveV2.sol";
 
 import {Math} from "../../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "../libraries/ErrorsLib.sol";
@@ -16,12 +16,12 @@ import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 contract AaveV2MigrationBundler is MigrationBundler {
     /* IMMUTABLES */
 
-    ILendingPool public immutable AAVE_V2_POOL;
+    IAaveV2 public immutable AAVE_V2_POOL;
 
     /* CONSTRUCTOR */
 
     constructor(address morpho, address aaveV2Pool) MigrationBundler(morpho) {
-        AAVE_V2_POOL = ILendingPool(aaveV2Pool);
+        AAVE_V2_POOL = IAaveV2(aaveV2Pool);
     }
 
     /* ACTIONS */

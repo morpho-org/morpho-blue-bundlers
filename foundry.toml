@@ -4,7 +4,6 @@ sizes = true
 via-ir = true
 src = "src"
 test = "test/forge"
-evm_version = "paris"
 fs_permissions = [
     { access = "read", path = "./config/"},
     { access = "read", path = "./lib/morpho-blue/out/"}

@@ -11,8 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-contracts:
-    name: Compilation
+  test:
+    name: Test
     runs-on: ubuntu-latest
 
     steps:
