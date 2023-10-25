@@ -66,11 +66,13 @@ abstract contract ERC4626Bundler is BaseBundler {
 
     /// @notice Withdraws the given amount of `assets` from the given ERC4626 `vault`, transferring assets to
     /// `receiver`.
+    /// @dev Initiator must have previously approve the bundler to spend their vault shares.
     /// @dev Pass `type(uint256).max` as `assets` to withdraw max.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
     /// @param assets The amount of assets to withdraw.
     /// @param receiver The address that will receive the withdrawn assets.
+    /// @param owner The address on behalf of which the assets are withdrawn. Can only be the bundler or the initiator.
     function erc4626Withdraw(address vault, uint256 assets, address receiver, address owner) external payable {
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
@@ -84,11 +86,13 @@ abstract contract ERC4626Bundler is BaseBundler {
     }
 
     /// @notice Redeems the given amount of `shares` from the given ERC4626 `vault`, transferring assets to `receiver`.
+    /// @dev Initiator must have previously approve the bundler to spend their vault shares.
     /// @dev Pass `type(uint256).max` as `shares` to redeem max.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
     /// @param shares The amount of shares to burn.
     /// @param receiver The address that will receive the withdrawn assets.
+    /// @param owner The address on behalf of which the shares are redeemed. Can only be the bundler or the initiator.
     function erc4626Redeem(address vault, uint256 shares, address receiver, address owner) external payable {
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
