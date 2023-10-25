@@ -22,6 +22,8 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
     /* CONSTRUCTOR */
 
     constructor(address morpho, address wNative, address cEth) WNativeBundler(wNative) MigrationBundler(morpho) {
+        require(cEth != address(0), ErrorsLib.ZERO_ADDRESS);
+
         C_ETH = cEth;
     }
 

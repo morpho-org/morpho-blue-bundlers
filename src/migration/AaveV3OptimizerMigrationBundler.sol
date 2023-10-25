@@ -20,6 +20,8 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     /* CONSTRUCTOR */
 
     constructor(address morpho, address aaveV3Optimizer) MigrationBundler(morpho) {
+        require(aaveV3Optimizer != address(0), ErrorsLib.ZERO_ADDRESS);
+
         AAVE_V3_OPTIMIZER = IAaveV3Optimizer(aaveV3Optimizer);
     }
 

@@ -20,6 +20,8 @@ contract AaveV3MigrationBundler is MigrationBundler {
     /* CONSTRUCTOR */
 
     constructor(address morpho, address aaveV3Pool) MigrationBundler(morpho) {
+        require(aaveV3Pool != address(0), ErrorsLib.ZERO_ADDRESS);
+
         AAVE_V3_POOL = IAaveV3(aaveV3Pool);
     }
 
