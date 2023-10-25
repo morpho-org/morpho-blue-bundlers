@@ -65,7 +65,7 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @notice Withdraws the given amount of `assets` from the given ERC4626 `vault`, transferring assets to
     /// `receiver`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
-    /// @dev Initiator must have previously approve the bundler to spend their vault shares.
+    /// @dev Initiator must have previously approved the bundler to spend their vault shares.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
     /// @param assets The amount of assets to withdraw. Pass `type(uint256).max` to withdraw max.
@@ -85,7 +85,7 @@ abstract contract ERC4626Bundler is BaseBundler {
 
     /// @notice Redeems the given amount of `shares` from the given ERC4626 `vault`, transferring assets to `receiver`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
-    /// @dev Initiator must have previously approve the bundler to spend their vault shares.
+    /// @dev Initiator must have previously approved the bundler to spend their vault shares.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
     /// @param shares The amount of shares to burn. Pass `type(uint256).max` to redeem max.
