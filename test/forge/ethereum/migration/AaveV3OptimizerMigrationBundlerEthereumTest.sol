@@ -35,6 +35,20 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         bundler.multicall(bundle);
     }
 
+    function testAaveV3OptimizerWithdrawZeroAddress(uint256 amount) public {
+        bundle.push(_aaveV3OptimizerWithdraw(marketParams.loanToken, amount, address(0)));
+
+        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
+        bundler.multicall(bundle);
+    }
+
+    function testAaveV3OptimizerWithdrawCollateralZeroAddress(uint256 amount) public {
+        bundle.push(_aaveV3OptimizerWithdrawCollateral(marketParams.loanToken, amount, address(0)));
+
+        vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
+        bundler.multicall(bundle);
+    }
+
     function testMigrateBorrowerWithOptimizerPermit(uint256 privateKey) public {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);

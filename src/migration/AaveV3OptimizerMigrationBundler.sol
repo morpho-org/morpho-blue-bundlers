@@ -47,6 +47,8 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
         external
         payable
     {
+        require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
+
         AAVE_V3_OPTIMIZER.withdraw(underlying, amount, initiator(), receiver, maxIterations);
     }
 
@@ -56,6 +58,8 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     /// @dev Initiator must have previously approved the bundler to manage their AaveV3 Optimizer position.
     /// @dev Pass `amount = type(uint256).max` to withdraw all.
     function aaveV3OptimizerWithdrawCollateral(address underlying, uint256 amount, address receiver) external payable {
+        require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
+
         AAVE_V3_OPTIMIZER.withdrawCollateral(underlying, amount, initiator(), receiver);
     }
 
