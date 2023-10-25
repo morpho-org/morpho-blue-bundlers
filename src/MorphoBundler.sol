@@ -56,9 +56,9 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /* ACTIONS */
 
     /// @notice Approves this contract to manage the `authorization.authorizer`'s position via EIP712 `signature`.
-    /// @dev Pass `skipRevert = true` to avoid reverting the whole bundle in case the signature expired.
     /// @param authorization The `Authorization` struct.
     /// @param signature The signature.
+    /// @param skipRevert Whether to avoid reverting the call in case the signature is frontrunned.
     function morphoSetAuthorizationWithSig(
         Authorization calldata authorization,
         Signature calldata signature,
@@ -70,7 +70,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         }
     }
 
-    /// @notice Supplies `amount` of `asset` of `onBehalf` using permit2 in a single tx.
+    /// @notice Supplies `amount` of the loan asset on behalf of `onBehalf`.
     /// @notice The supplied amount cannot be used as collateral but is eligible to earn interest.
     /// @dev Pass `amount = type(uint256).max` to supply the bundler's loan asset balance.
     /// @param marketParams The Morpho market to supply assets to.
@@ -97,7 +97,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         MORPHO.supply(marketParams, amount, shares, onBehalf, data);
     }
 
-    /// @notice Supplies `amount` of `asset` collateral to the pool on behalf of `onBehalf`.
+    /// @notice Supplies `amount` of the collateral asset on behalf of `onBehalf`.
     /// @dev Pass `amount = type(uint256).max` to supply the bundler's collateral asset balance.
     /// @param marketParams The Morpho market to supply collateral to.
     /// @param amount The amount of collateral to supply.
@@ -121,7 +121,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         MORPHO.supplyCollateral(marketParams, amount, onBehalf, data);
     }
 
-    /// @notice Borrows `amount` of `asset` on behalf of the sender.
+    /// @notice Borrows `amount` of the loan asset on behalf of the sender.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously authorized the bundler to act on their behalf on Morpho.
     /// @param marketParams The Morpho market to borrow assets from.
@@ -135,7 +135,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         MORPHO.borrow(marketParams, amount, shares, initiator(), receiver);
     }
 
-    /// @notice Repays `amount` of `asset` on behalf of `onBehalf`.
+    /// @notice Repays `amount` of the loan asset on behalf of `onBehalf`.
     /// @dev Pass `amount = type(uint256).max` to repay the bundler's loan asset balance.
     /// @param marketParams The Morpho market to repay assets to.
     /// @param amount The amount of assets to repay.
