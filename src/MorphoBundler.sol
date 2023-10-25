@@ -72,7 +72,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /// @notice Supplies `amount` of the loan asset on behalf of `onBehalf`.
     /// @notice The supplied amount cannot be used as collateral but is eligible to earn interest.
-    /// @notice User must have transferred the needed amount of tokens before the execution.
+    /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @dev Pass `amount = type(uint256).max` to supply the bundler's loan asset balance.
     /// @param marketParams The Morpho market to supply assets to.
     /// @param amount The amount of assets to supply.
@@ -99,7 +99,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     }
 
     /// @notice Supplies `amount` of the collateral asset on behalf of `onBehalf`.
-    /// @notice User must have transferred the needed amount of tokens before the execution.
+    /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @dev Pass `amount = type(uint256).max` to supply the bundler's collateral asset balance.
     /// @param marketParams The Morpho market to supply collateral to.
     /// @param amount The amount of collateral to supply.
@@ -138,7 +138,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     }
 
     /// @notice Repays `amount` of the loan asset on behalf of `onBehalf`.
-    /// @notice User must have transferred the needed amount of tokens before the execution.
+    /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @dev Pass `amount = type(uint256).max` to repay the bundler's loan asset balance.
     /// @param marketParams The Morpho market to repay assets to.
     /// @param amount The amount of assets to repay.
@@ -192,10 +192,8 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     }
 
     /// @notice Triggers a liquidation on Morpho.
-    /// @notice Seized collateral must be transferred from the Bundler to a receiver (via a proper action inside the
-    /// multicall).
-    /// @notice Warning: Funds that are not "skimed" at the end of the multicall can be "stolen"/used by the next
-    /// multicall's user.
+    /// @notice Seized collateral must be transferred from the bundler to a receiver afterwards (via
+    /// `TransferBundler.erc20Transfer`).
     /// @param marketParams The Morpho market of the position.
     /// @param borrower The owner of the position.
     /// @param seizedCollateral The amount of collateral to seize.

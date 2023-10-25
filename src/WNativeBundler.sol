@@ -41,10 +41,8 @@ abstract contract WNativeBundler is BaseBundler {
     /// @notice Wraps the given `amount` of the native token to wNative.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @notice User must have transferred the needed amount of native tokens before the execution.
-    /// @notice Wrapped wNatve must be transferred from the Bundler to a receiver (via a proper action inside the
-    /// multicall).
-    /// @notice Warning: Funds that are not "skimed" at the end of the multicall can be "stolen"/used by the next
-    /// multicall's user.
+    /// @notice Wrapped wNatve must be transferred from the Bundler to a receiver afterwards (via
+    /// `TransferBundler.erc20Transfer`).
     /// @dev Pass `amount = type(uint256).max` to wrap all.
     /// @param amount The amount of native token to wrap.
     function wrapNative(uint256 amount) external payable {
@@ -60,8 +58,6 @@ abstract contract WNativeBundler is BaseBundler {
     /// @notice User must have transferred the needed amount of wNative tokens before the execution.
     /// @notice Unwrapped native tokens must be transferred from the Bundler to a receiver (via a proper action inside
     /// the multicall).
-    /// @notice Warning: Funds that are not "skimed" at the end of the multicall can be "stolen"/used by the next
-    /// multicall's user.
     /// @dev Pass `amount = type(uint256).max` to unwrap all.
     /// @param amount The amount of wrapped native token to unwrap.
     function unwrapNative(uint256 amount) external payable {

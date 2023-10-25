@@ -22,7 +22,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
 
     /// @notice Repays `amount` of `asset` on the CompoundV3 `instance`, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
-    /// @notice User must have transferred the needed amount of tokens before the execution.
+    /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @dev Assumes the given instance is a CompoundV3 instance.
     /// @dev Pass `amount = type(uint256).max` to repay all.
     /// @param instance The address of the CompoundV3 instance to call.

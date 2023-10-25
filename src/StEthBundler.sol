@@ -41,10 +41,8 @@ abstract contract StEthBundler is BaseBundler {
 
     /// @notice Stakes the given `amount` of ETH via Lido, using the `referral` id.
     /// @notice User must have transferred the needed amount of native tokens before the execution.
-    /// @notice Staked stEth must be transferred from the Bundler to a receiver (via a proper action inside the
-    /// multicall).
-    /// @notice Warning: Funds that are not "skimed" at the end of the multicall can be "stolen"/used by the next
-    /// multicall's user.
+    /// @notice Staked stEth must be transferred from the Bundler to a receiver afterwards (via
+    /// `TransferBundler.erc20Transfer`).
     /// @dev Pass `amount = type(uint256).max` to stake all.
     /// @param amount The amount of ETH to stake.
     /// @param referral The address of the referral regarding the Lido Rewards-Share Program.
@@ -57,10 +55,8 @@ abstract contract StEthBundler is BaseBundler {
 
     /// @notice Wraps the given `amount` of stETH to wstETH.
     /// @notice User must have transferred the needed amount of stETH before the execution.
-    /// @notice Wrapped wstEth must be transferred from the Bundler to a receiver (via a proper action inside the
-    /// multicall).
-    /// @notice Warning: Funds that are not "skimed" at the end of the multicall can be "stolen"/used by the next
-    /// multicall's user.
+    /// @notice Wrapped wstEth must be transferred from the Bundler to a receiver afterwards (via
+    /// `TransferBundler.erc20Transfer`).
     /// @dev Pass `amount = type(uint256).max` to wrap all.
     /// @param amount The amount of stEth to wrap.
     function wrapStEth(uint256 amount) external payable {
@@ -73,10 +69,8 @@ abstract contract StEthBundler is BaseBundler {
 
     /// @notice Unwraps the given `amount` of wstETH to stETH.
     /// @notice User must have transferred the needed amount of wstETH before the execution.
-    /// @notice Unwrapped stEth must be transferred from the Bundler to a receiver (via a proper action inside the
-    /// multicall).
-    /// @notice Warning: Funds that are not "skimed" at the end of the multicall can be "stolen"/used by the next
-    /// multicall's user.
+    /// @notice Unwrapped stEth must be transferred from the Bundler to a receiver afterwards (via
+    /// `TransferBundler.erc20Transfer`).
     /// @dev Pass `amount = type(uint256).max` to unwrap all.
     /// @param amount The amount of wstEth to unwrap.
     function unwrapStEth(uint256 amount) external payable {

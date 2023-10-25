@@ -41,7 +41,7 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
 
     /// @notice Repays `amount` of `cToken`'s underlying asset, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
-    /// @notice User must have transferred the needed amount of tokens before the execution.
+    /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @dev Pass `amount = type(uint256).max` to repay all.
     /// @param cToken The address of the cToken contract
     /// @param amount The amount of `cToken` to repay.
