@@ -23,7 +23,9 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @param vault The address of the vault.
     /// @param shares The amount of shares to mint. Pass `type(uint256).max` to mint max.
     /// @param receiver The address to which shares will be minted.
-    function erc4626Mint(address vault, uint256 shares, address receiver) external payable {
+    /// @param resetAllowance Whether to reset the vault's allowance on the bundler's assets before approving the
+    /// required amount. Useful for tokens that implement the anti-frontrunning approval mechanism (such as USDT).
+    function erc4626Mint(address vault, uint256 shares, address receiver, bool resetAllowance) external payable {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the vault's shares.
 
@@ -35,7 +37,7 @@ abstract contract ERC4626Bundler is BaseBundler {
         require(assets != 0, ErrorsLib.ZERO_AMOUNT);
 
         // Approve 0 first to comply with tokens that implement the anti frontrunning approval fix.
-        ERC20(asset).safeApprove(vault, 0);
+        if (resetAllowance) ERC20(asset).safeApprove(vault, 0);
         ERC20(asset).safeApprove(vault, assets);
         IERC4626(vault).mint(shares, receiver);
     }
@@ -45,7 +47,9 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @param vault The address of the vault.
     /// @param assets The amount of assets to deposit. Pass `type(uint256).max` to deposit max.
     /// @param receiver The address to which shares will be minted.
-    function erc4626Deposit(address vault, uint256 assets, address receiver) external payable {
+    /// @param resetAllowance Whether to reset the vault's allowance on the bundler's assets before approving the
+    /// required amount. Useful for tokens that implement the anti-frontrunning approval mechanism (such as USDT).
+    function erc4626Deposit(address vault, uint256 assets, address receiver, bool resetAllowance) external payable {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the vault's shares.
 
@@ -57,7 +61,7 @@ abstract contract ERC4626Bundler is BaseBundler {
         require(assets != 0, ErrorsLib.ZERO_AMOUNT);
 
         // Approve 0 first to comply with tokens that implement the anti frontrunning approval fix.
-        ERC20(asset).safeApprove(vault, 0);
+        if (resetAllowance) ERC20(asset).safeApprove(vault, 0);
         ERC20(asset).safeApprove(vault, assets);
         IERC4626(vault).deposit(assets, receiver);
     }

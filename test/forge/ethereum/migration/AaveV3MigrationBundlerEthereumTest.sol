@@ -217,7 +217,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         bundle.push(_aaveV3PermitAToken(aToken, privateKey, aTokenBalance));
         bundle.push(_erc20TransferFrom(aToken, aTokenBalance));
         bundle.push(_aaveV3Withdraw(marketParams.loanToken, supplied, address(bundler)));
-        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
+        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user, false));
 
         vm.prank(user);
         bundler.multicall(bundle);
@@ -245,7 +245,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         bundle.push(_permit2TransferFrom(privateKey, aToken, aTokenBalance, 0));
         bundle.push(_aaveV3Withdraw(marketParams.loanToken, supplied, address(bundler)));
-        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
+        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user, false));
 
         vm.prank(user);
         bundler.multicall(bundle);

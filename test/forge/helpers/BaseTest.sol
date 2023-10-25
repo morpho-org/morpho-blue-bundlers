@@ -116,12 +116,20 @@ abstract contract BaseTest is Test {
 
     /* ERC4626 ACTIONS */
 
-    function _erc4626Mint(address vault, uint256 shares, address receiver) internal pure returns (bytes memory) {
-        return abi.encodeCall(ERC4626Bundler.erc4626Mint, (vault, shares, receiver));
+    function _erc4626Mint(address vault, uint256 shares, address receiver, bool resetAllowance)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return abi.encodeCall(ERC4626Bundler.erc4626Mint, (vault, shares, receiver, resetAllowance));
     }
 
-    function _erc4626Deposit(address vault, uint256 assets, address receiver) internal pure returns (bytes memory) {
-        return abi.encodeCall(ERC4626Bundler.erc4626Deposit, (vault, assets, receiver));
+    function _erc4626Deposit(address vault, uint256 assets, address receiver, bool resetAllowance)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return abi.encodeCall(ERC4626Bundler.erc4626Deposit, (vault, assets, receiver, resetAllowance));
     }
 
     function _erc4626Withdraw(address vault, uint256 assets, address receiver) internal pure returns (bytes memory) {

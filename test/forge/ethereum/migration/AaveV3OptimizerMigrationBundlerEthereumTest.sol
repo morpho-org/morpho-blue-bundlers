@@ -140,7 +140,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         bundle.push(_aaveV3OptimizerApproveManager(privateKey, address(bundler), true, 0));
         bundle.push(_aaveV3OptimizerWithdraw(marketParams.loanToken, supplied, address(bundler)));
         bundle.push(_aaveV3OptimizerApproveManager(privateKey, address(bundler), false, 1));
-        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
+        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user, false));
 
         vm.prank(user);
         bundler.multicall(bundle);

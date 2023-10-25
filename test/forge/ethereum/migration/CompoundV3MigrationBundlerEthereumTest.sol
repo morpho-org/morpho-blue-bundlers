@@ -134,7 +134,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0));
         bundle.push(_compoundV3WithdrawFrom(C_WETH_V3, marketParams.loanToken, supplied));
         bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1));
-        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
+        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user, false));
 
         vm.prank(user);
         bundler.multicall(bundle);
@@ -161,7 +161,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         bundle.push(_permit2TransferFrom(privateKey, C_WETH_V3, cTokenBalance, 0));
         bundle.push(_compoundV3Withdraw(C_WETH_V3, marketParams.loanToken, supplied));
-        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
+        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user, false));
 
         vm.startPrank(user);
         ERC20(C_WETH_V3).safeApprove(address(Permit2Lib.PERMIT2), type(uint256).max);

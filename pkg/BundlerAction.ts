@@ -97,12 +97,22 @@ export class BundlerAction {
 
   /* ERC4626 */
 
-  static erc4626Mint(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Mint", [erc4626, amount, receiver]);
+  static erc4626Mint(erc4626: string, amount: BigNumberish, receiver: string, resetAllowance: boolean): BundlerCall {
+    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Mint", [
+      erc4626,
+      amount,
+      receiver,
+      resetAllowance,
+    ]);
   }
 
-  static erc4626Deposit(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Deposit", [erc4626, amount, receiver]);
+  static erc4626Deposit(erc4626: string, amount: BigNumberish, receiver: string, resetAllowance: boolean): BundlerCall {
+    return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Deposit", [
+      erc4626,
+      amount,
+      receiver,
+      resetAllowance,
+    ]);
   }
 
   static erc4626Withdraw(erc4626: string, amount: BigNumberish, receiver: string): BundlerCall {

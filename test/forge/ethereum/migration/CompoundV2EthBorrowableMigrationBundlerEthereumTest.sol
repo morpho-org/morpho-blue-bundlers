@@ -119,7 +119,7 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         bundle.push(_permit2TransferFrom(privateKey, C_ETH_V2, cTokenBalance, 0));
         bundle.push(_compoundV2Redeem(C_ETH_V2, cTokenBalance));
         bundle.push(_wrapNative(supplied));
-        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
+        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user, false));
 
         vm.prank(user);
         bundler.multicall(bundle);
