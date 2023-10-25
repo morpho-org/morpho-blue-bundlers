@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {IMorpho as IAaveV3Optimizer} from "../../../../lib/morpho-aave-v3/src/interfaces/IMorpho.sol";
+import {Authorization as AaveV3OptimizerAuthorization} from "../../../../src/migration/interfaces/IAaveV3Optimizer.sol";
 
-import {Types} from "../../../../lib/morpho-aave-v3/src/libraries/Types.sol";
-import {AaveV3OptimizerAuthorization} from "../../helpers/SigUtils.sol";
-
-import "../../../../src/migration/AaveV3OptimizerMigrationBundler.sol";
+import {
+    AaveV3OptimizerMigrationBundler,
+    IAaveV3Optimizer,
+    Signature as MA3Signature
+} from "../../../../src/migration/AaveV3OptimizerMigrationBundler.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
 
@@ -39,7 +40,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
     }
 
     function testAaveV3OtimizerAuthorizationWithSigRevert() public {
-        Types.Signature memory sig;
+        MA3Signature memory sig;
 
         bundle.push(
             abi.encodeCall(
@@ -179,7 +180,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
             AaveV3OptimizerAuthorization(vm.addr(privateKey), manager, isAllowed, nonce, SIGNATURE_DEADLINE)
         );
 
-        Types.Signature memory sig;
+        MA3Signature memory sig;
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
         return abi.encodeCall(
