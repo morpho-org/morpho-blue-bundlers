@@ -43,6 +43,8 @@ contract AaveV2MigrationBundler is MigrationBundler {
     /// @dev Initiator must have previously transferred their aTokens to the bundler.
     /// @dev Pass `amount = type(uint256).max` to withdraw all.
     function aaveV2Withdraw(address asset, uint256 amount, address receiver) external payable {
+        require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
+
         AAVE_V2_POOL.withdraw(asset, amount, receiver);
     }
 }
