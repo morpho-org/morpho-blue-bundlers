@@ -15,9 +15,9 @@ struct Authorization {
     uint256 expiry;
 }
 
-error BadSignatory();
-
 interface ICompoundV3 {
+    error BadSignatory();
+
     function name() external view returns (string memory);
 
     function version() external view returns (string memory);

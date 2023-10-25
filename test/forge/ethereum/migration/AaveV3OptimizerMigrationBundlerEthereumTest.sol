@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {
-    Authorization as AaveV3OptimizerAuthorization,
-    InvalidSignatory
-} from "../../../../src/migration/interfaces/IAaveV3Optimizer.sol";
+import {Authorization as AaveV3OptimizerAuthorization} from "../../../../src/migration/interfaces/IAaveV3Optimizer.sol";
 
 import {
     AaveV3OptimizerMigrationBundler,
@@ -64,7 +61,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         );
 
         vm.prank(user);
-        vm.expectRevert(InvalidSignatory.selector);
+        vm.expectRevert(IAaveV3Optimizer.InvalidSignatory.selector);
         bundler.multicall(bundle);
     }
 

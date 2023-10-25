@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import {CompoundV3Authorization} from "../../helpers/SigUtils.sol";
-import {BadSignatory} from "../../../../src/migration/interfaces/ICompoundV3.sol";
 
 import "../../../../src/migration/CompoundV3MigrationBundler.sol";
 
@@ -52,7 +51,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         );
 
         vm.prank(user);
-        vm.expectRevert(BadSignatory.selector);
+        vm.expectRevert(ICompoundV3.BadSignatory.selector);
         bundler.multicall(bundle);
     }
 
