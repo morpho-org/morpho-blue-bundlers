@@ -5,7 +5,7 @@ import {IERC4626} from "../lib/openzeppelin-contracts/contracts/interfaces/IERC4
 
 import {Math} from "../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
-import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
+import {SafeERC20, IERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
 
@@ -14,7 +14,7 @@ import {BaseBundler} from "./BaseBundler.sol";
 /// @custom:contact security@morpho.org
 /// @notice Bundler contract managing interactions with ERC4626 compliant tokens.
 abstract contract ERC4626Bundler is BaseBundler {
-    using SafeTransferLib for ERC20;
+    using SafeERC20 for IERC20;
 
     /* ACTIONS */
 
@@ -28,13 +28,11 @@ abstract contract ERC4626Bundler is BaseBundler {
         shares = Math.min(shares, IERC4626(vault).maxMint(owner));
 
         address asset = IERC4626(vault).asset();
-        uint256 assets = Math.min(IERC4626(vault).previewMint(shares), ERC20(asset).balanceOf(address(this)));
+        uint256 assets = Math.min(IERC4626(vault).previewMint(shares), IERC20(asset).balanceOf(address(this)));
 
         require(assets != 0, ErrorsLib.ZERO_AMOUNT);
 
-        // Approve 0 first to comply with tokens that implement the anti frontrunning approval fix.
-        ERC20(asset).safeApprove(vault, 0);
-        ERC20(asset).safeApprove(vault, assets);
+        IERC20(asset).forceApprove(vault, assets);
         IERC4626(vault).mint(shares, owner);
     }
 
@@ -48,13 +46,11 @@ abstract contract ERC4626Bundler is BaseBundler {
         address asset = IERC4626(vault).asset();
 
         assets = Math.min(assets, IERC4626(vault).maxDeposit(owner));
-        assets = Math.min(assets, ERC20(asset).balanceOf(address(this)));
+        assets = Math.min(assets, IERC20(asset).balanceOf(address(this)));
 
         require(assets != 0, ErrorsLib.ZERO_AMOUNT);
 
-        // Approve 0 first to comply with tokens that implement the anti frontrunning approval fix.
-        ERC20(asset).safeApprove(vault, 0);
-        ERC20(asset).safeApprove(vault, assets);
+        IERC20(asset).forceApprove(vault, assets);
         IERC4626(vault).deposit(assets, owner);
     }
 

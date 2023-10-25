@@ -3,7 +3,7 @@ pragma solidity 0.8.21;
 
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {Math} from "../lib/morpho-utils/src/math/Math.sol";
-import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
+import {SafeERC20, IERC20} from "../lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
 import {ERC20Wrapper} from "../lib/openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Wrapper.sol";
@@ -13,7 +13,7 @@ import {ERC20Wrapper} from "../lib/openzeppelin-contracts/contracts/token/ERC20/
 /// @custom:contact security@morpho.org
 /// @notice Enables the wrapping and unwrapping of ERC20 tokens.
 abstract contract ERC20WrapperBundler is BaseBundler {
-    using SafeTransferLib for ERC20;
+    using SafeERC20 for IERC20;
 
     /* WRAPPER ACTIONS */
 
@@ -25,15 +25,13 @@ abstract contract ERC20WrapperBundler is BaseBundler {
     /// @param wrapper The address of the ERC20 wrapper contract.
     /// @param amount The amount of underlying tokens to deposit.
     function erc20WrapperDepositFor(address wrapper, uint256 amount) external {
-        ERC20 underlying = ERC20(address(ERC20Wrapper(wrapper).underlying()));
+        IERC20 underlying = ERC20Wrapper(wrapper).underlying();
 
         amount = Math.min(amount, underlying.balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        // Approve 0 first to comply with tokens that implement the anti frontrunning approval fix.
-        underlying.safeApprove(wrapper, 0);
-        underlying.safeApprove(wrapper, amount);
+        underlying.forceApprove(wrapper, amount);
         ERC20Wrapper(wrapper).depositFor(initiator(), amount);
     }
 
