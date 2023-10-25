@@ -54,8 +54,10 @@ contract ERC4626BundlerLocalTest is LocalTest {
         bundler.multicall(bundle);
     }
 
-    function testErc4626WithdrawUnexpectedOwner(uint256 assets) public {
-        bundle.push(_erc4626Withdraw(address(vault), assets, RECEIVER, address(0)));
+    function testErc4626WithdrawUnexpectedOwner(uint256 assets, address owner) public {
+        vm.assume(owner != address(this) && owner != address(bundler));
+
+        bundle.push(_erc4626Withdraw(address(vault), assets, RECEIVER, owner));
 
         vm.expectRevert(bytes(ErrorsLib.UNEXPECTED_OWNER));
         bundler.multicall(bundle);
@@ -75,8 +77,10 @@ contract ERC4626BundlerLocalTest is LocalTest {
         bundler.multicall(bundle);
     }
 
-    function testErc4626RedeemUnexpectedOwner(uint256 shares) public {
-        bundle.push(_erc4626Redeem(address(vault), shares, RECEIVER, address(0)));
+    function testErc4626RedeemUnexpectedOwner(uint256 shares, address owner) public {
+        vm.assume(owner != address(this) && owner != address(bundler));
+
+        bundle.push(_erc4626Redeem(address(vault), shares, RECEIVER, owner));
 
         vm.expectRevert(bytes(ErrorsLib.UNEXPECTED_OWNER));
         bundler.multicall(bundle);
