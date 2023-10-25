@@ -20,6 +20,8 @@ struct Authorization {
     uint256 deadline;
 }
 
+error InvalidSignatory();
+
 interface IAaveV3Optimizer {
     function DOMAIN_SEPARATOR() external view returns (bytes32);
 

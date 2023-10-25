@@ -72,6 +72,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// @param v The `v` component of a signature.
     /// @param r The `r` component of a signature.
     /// @param s The `s` component of a signature.
+    /// @param skipRevert Whether to avoid reverting the call in case the signature is frontrunned.
     function compoundV3AllowBySig(
         address instance,
         bool isAllowed,

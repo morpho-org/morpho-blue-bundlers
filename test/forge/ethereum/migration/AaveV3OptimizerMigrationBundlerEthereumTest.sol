@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {Authorization as AaveV3OptimizerAuthorization} from "../../../../src/migration/interfaces/IAaveV3Optimizer.sol";
+import {
+    Authorization as AaveV3OptimizerAuthorization,
+    InvalidSignatory
+} from "../../../../src/migration/interfaces/IAaveV3Optimizer.sol";
 
 import {
     AaveV3OptimizerMigrationBundler,
@@ -39,8 +42,19 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         bundler.multicall(bundle);
     }
 
-    function testAaveV3OtimizerAuthorizationWithSigRevert() public {
+    function testAaveV3OtimizerAuthorizationWithSigRevert(uint256 privateKey, address owner) public {
+        address user;
+        (privateKey, user) = _boundPrivateKey(privateKey);
+
+        vm.assume(owner != user);
+
+        bytes32 digest = SigUtils.toTypedDataHash(
+            IAaveV3Optimizer(AAVE_V3_OPTIMIZER).DOMAIN_SEPARATOR(),
+            AaveV3OptimizerAuthorization(owner, address(this), true, 0, SIGNATURE_DEADLINE)
+        );
+
         MA3Signature memory sig;
+        (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
         bundle.push(
             abi.encodeCall(
@@ -49,7 +63,8 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
             )
         );
 
-        vm.expectRevert();
+        vm.prank(user);
+        vm.expectRevert(InvalidSignatory.selector);
         bundler.multicall(bundle);
     }
 

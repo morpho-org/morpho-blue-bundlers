@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {CompoundV3Authorization} from "../../helpers/SigUtils.sol";
+import {BadSignatory} from "../../../../src/migration/interfaces/ICompoundV3.sol";
 
 import "../../../../src/migration/CompoundV3MigrationBundler.sol";
 
@@ -31,10 +32,17 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         bundler.multicall(bundle);
     }
 
-    function testAaveV3OtimizerAuthorizationWithSigRevert() public {
-        uint8 v;
-        bytes32 r;
-        bytes32 s;
+    function testCompoundVAuthorizationWithSigRevert(uint256 privateKey, address owner) public {
+        address user;
+        (privateKey, user) = _boundPrivateKey(privateKey);
+
+        vm.assume(owner != user);
+
+        bytes32 digest = SigUtils.toTypedDataHash(
+            C_WETH_V3, CompoundV3Authorization(owner, address(bundler), true, 0, SIGNATURE_DEADLINE)
+        );
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, digest);
 
         bundle.push(
             abi.encodeCall(
@@ -43,7 +51,8 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
             )
         );
 
-        vm.expectRevert();
+        vm.prank(user);
+        vm.expectRevert(BadSignatory.selector);
         bundler.multicall(bundle);
     }
 
