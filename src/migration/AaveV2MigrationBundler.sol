@@ -32,6 +32,7 @@ contract AaveV2MigrationBundler is MigrationBundler {
 
     /// @notice Repays `amount` of `asset` on AaveV2, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @notice User must have transferred the needed amount of tokens before the execution.
     /// @dev Pass `amount = type(uint256).max` to repay all.
     /// @param asset The address of the token to repay.
     /// @param amount The amount of `asset` to repay.

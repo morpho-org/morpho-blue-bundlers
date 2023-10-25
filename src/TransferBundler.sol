@@ -51,7 +51,10 @@ abstract contract TransferBundler is BaseBundler {
     }
 
     /// @notice Transfers the given `amount` of `asset` from sender to this contract via ERC20 transferFrom.
+    /// @notice User must have given sufficient allowance to the Bundler to manage his tokens.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @notice Warning: Funds that are not "skimed" at the end of the multicall can be "stolen"/used by the next
+    /// multicall's user.
     /// @dev Pass `amount = type(uint256).max` to transfer all.
     /// @param asset The address of the ERC20 token to transfer.
     /// @param amount The amount of `asset` to transfer from the initiator.
