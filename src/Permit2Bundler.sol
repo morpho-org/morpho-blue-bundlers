@@ -23,7 +23,6 @@ abstract contract Permit2Bundler is BaseBundler {
     /// @notice Approves the given `amount` of `asset` from the initiator to be spent by the bundler via Permit2 with
     /// the given `deadline` & EIP-712 `signature`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
-    /// @dev Pass `permit.permitted.amount = type(uint256).max` to transfer all.
     /// @param permitSingle The `PermitSingle` struct.
     /// @param signature The signature, serialized.
     /// @param skipRevert Whether to avoid reverting the call in case the signature is frontrunned.
