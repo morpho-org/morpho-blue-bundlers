@@ -23,6 +23,7 @@ abstract contract BaseBundler is IMulticall {
 
     /* MODIFIERS */
 
+    /// @dev Prevents a function to be called outside a `multicall` context.
     modifier onlyInitiated() {
         require(_initiator != UNSET_INITIATOR, ErrorsLib.UNINITIATED);
 
