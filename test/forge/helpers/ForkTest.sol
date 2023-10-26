@@ -135,6 +135,10 @@ abstract contract ForkTest is BaseTest, Configured {
         return abi.encodeCall(StEthBundler.wrapStEth, (amount));
     }
 
+    function _unwrapStEth(uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(StEthBundler.unwrapStEth, (amount));
+    }
+
     /* WRAPPED NATIVE ACTIONS */
 
     function _wrapNative(uint256 amount) internal pure returns (bytes memory) {
