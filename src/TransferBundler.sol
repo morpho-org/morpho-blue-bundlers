@@ -26,6 +26,8 @@ abstract contract TransferBundler is BaseBundler {
 
         amount = Math.min(amount, address(this).balance);
 
+        if (amount == 0) return;
+
         SafeTransferLib.safeTransferETH(recipient, amount);
     }
 
@@ -37,6 +39,8 @@ abstract contract TransferBundler is BaseBundler {
         require(recipient != address(this), ErrorsLib.BUNDLER_ADDRESS);
 
         amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
+
+        if (amount == 0) return;
 
         ERC20(asset).safeTransfer(recipient, amount);
     }
