@@ -40,6 +40,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     }
 
     /// @notice Withdraws `amount` of `asset` on the CompoundV3 `instance`.
+    /// @notice Withdrawn assets are received by the bundler and should be used afterwards.
     /// @dev Initiator must have previously transferred their CompoundV3 position to the bundler.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
     /// @dev Pass `amount = type(uint256).max` to withdraw all.
@@ -52,6 +53,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
 
     /// @notice Withdraws `amount` of `asset` from the CompoundV3 `instance`, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @notice Withdrawn assets are received by the bundler and should be used afterwards.
     /// @dev Initiator must have previously approved the bundler to manage their CompoundV3 position.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
     /// @dev Pass `amount = type(uint256).max` to withdraw all.
