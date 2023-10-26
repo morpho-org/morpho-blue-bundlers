@@ -44,8 +44,7 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
         AAVE_V3_OPTIMIZER.repay(underlying, amount, initiator());
     }
 
-    /// @notice Withdraws `amount` of `underlying` on the AaveV3 Optimizer, on behalf of the initiator, transferring
-    /// funds to `receiver`.
+    /// @notice Withdraws `amount` of `underlying` on the AaveV3 Optimizer, on behalf of the initiator`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously approved the bundler to manage their AaveV3 Optimizer position.
     /// @dev Pass `amount = type(uint256).max` to withdraw all.
@@ -58,7 +57,7 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     }
 
     /// @notice Withdraws `amount` of `underlying` used as collateral on the AaveV3 Optimizer, on behalf of the
-    /// initiator, transferring funds to `receiver`.
+    /// initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously approved the bundler to manage their AaveV3 Optimizer position.
     /// @dev Pass `amount = type(uint256).max` to withdraw all.

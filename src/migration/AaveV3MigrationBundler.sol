@@ -45,7 +45,7 @@ contract AaveV3MigrationBundler is MigrationBundler {
         AAVE_V3_POOL.repay(asset, amount, interestRateMode, initiator());
     }
 
-    /// @notice Withdraws `amount` of `asset` on AaveV3, on behalf of the initiator, transferring funds to `receiver`.
+    /// @notice Withdraws `amount` of `asset` on AaveV3, on behalf of the initiator.
     /// @dev Initiator must have previously transferred their aTokens to the bundler.
     /// @dev Pass `amount = type(uint256).max` to withdraw all.
     /// @param asset The address of the token to withdraw.
