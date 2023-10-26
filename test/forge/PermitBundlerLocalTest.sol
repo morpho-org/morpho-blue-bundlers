@@ -26,8 +26,8 @@ contract PermitBundlerLocalTest is LocalTest {
 
         address user = vm.addr(privateKey);
 
-        bundle.push(_permitCall(permitToken, privateKey, amount, deadline, false));
-        bundle.push(_permitCall(permitToken, privateKey, amount, deadline, true));
+        bundle.push(_permit(permitToken, privateKey, amount, deadline, false));
+        bundle.push(_permit(permitToken, privateKey, amount, deadline, true));
 
         vm.prank(user);
         bundler.multicall(bundle);
@@ -42,8 +42,8 @@ contract PermitBundlerLocalTest is LocalTest {
 
         address user = vm.addr(privateKey);
 
-        bundle.push(_permitCall(permitToken, privateKey, amount, deadline, false));
-        bundle.push(_permitCall(permitToken, privateKey, amount, deadline, false));
+        bundle.push(_permit(permitToken, privateKey, amount, deadline, false));
+        bundle.push(_permit(permitToken, privateKey, amount, deadline, false));
 
         vm.prank(user);
         vm.expectRevert("ERC20Permit: invalid signature");
@@ -57,7 +57,7 @@ contract PermitBundlerLocalTest is LocalTest {
 
         address user = vm.addr(privateKey);
 
-        bundle.push(_permitCall(permitToken, privateKey, amount, deadline, false));
+        bundle.push(_permit(permitToken, privateKey, amount, deadline, false));
         bundle.push(_erc20TransferFrom(address(permitToken), amount));
 
         permitToken.setBalance(user, amount);
@@ -69,7 +69,7 @@ contract PermitBundlerLocalTest is LocalTest {
         assertEq(permitToken.balanceOf(user), 0, "balanceOf(user)");
     }
 
-    function _permitCall(IERC20Permit token, uint256 privateKey, uint256 amount, uint256 deadline, bool skipRevert)
+    function _permit(IERC20Permit token, uint256 privateKey, uint256 amount, uint256 deadline, bool skipRevert)
         internal
         view
         returns (bytes memory)

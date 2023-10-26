@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {IStEth} from "../../../src/interfaces/IStEth.sol";
 import {IWstEth} from "../../../src/interfaces/IWstEth.sol";
-import {ISignatureTransfer} from "../../../lib/permit2/src/interfaces/ISignatureTransfer.sol";
+import {IAllowanceTransfer} from "../../../lib/permit2/src/interfaces/IAllowanceTransfer.sol";
 
 import {Permit2Lib} from "../../../lib/permit2/src/libraries/Permit2Lib.sol";
 
@@ -102,32 +102,37 @@ abstract contract ForkTest is BaseTest, Configured {
 
     /* PERMIT2 ACTIONS */
 
-    function _permit2TransferFrom(uint256 privateKey, address asset, uint256 amount, uint256 nonce)
+    function _approve2(uint256 privateKey, address asset, uint256 amount, uint256 nonce, bool skipRevert)
         internal
         view
         returns (bytes memory)
     {
-        ISignatureTransfer.PermitTransferFrom memory permit = ISignatureTransfer.PermitTransferFrom({
-            permitted: ISignatureTransfer.TokenPermissions({token: asset, amount: amount}),
-            nonce: nonce,
-            deadline: SIGNATURE_DEADLINE
+        IAllowanceTransfer.PermitSingle memory permitSingle = IAllowanceTransfer.PermitSingle({
+            details: IAllowanceTransfer.PermitDetails({
+                token: asset,
+                amount: uint160(amount),
+                expiration: type(uint48).max,
+                nonce: uint48(nonce)
+            }),
+            spender: address(bundler),
+            sigDeadline: SIGNATURE_DEADLINE
         });
 
-        bytes32 digest = SigUtils.toTypedDataHash(Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(), permit, address(bundler));
+        bytes32 digest = SigUtils.toTypedDataHash(Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(), permitSingle);
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(Permit2Bundler.permit2TransferFrom, (permit, abi.encodePacked(r, s, v)));
+        return abi.encodeCall(Permit2Bundler.approve2, (permitSingle, abi.encodePacked(r, s, v), skipRevert));
+    }
+
+    function _transferFrom2(address asset, uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(Permit2Bundler.transferFrom2, (asset, amount));
     }
 
     /* wstETH ACTIONS */
 
     function _wrapStEth(uint256 amount) internal pure returns (bytes memory) {
         return abi.encodeCall(StEthBundler.wrapStEth, (amount));
-    }
-
-    function _unwrapStEth(uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(StEthBundler.unwrapStEth, (amount));
     }
 
     /* WRAPPED NATIVE ACTIONS */

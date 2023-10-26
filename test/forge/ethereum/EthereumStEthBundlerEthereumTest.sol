@@ -54,8 +54,9 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
 
         amount = ERC20(ST_ETH).balanceOf(user);
 
-        bundle.push(_permit2TransferFrom(privateKey, ST_ETH, amount, 0));
-        bundle.push(_wrapStEth(amount));
+        bundle.push(_approve2(privateKey, ST_ETH, amount, 0, false));
+        bundle.push(_transferFrom2(ST_ETH, amount));
+        bundle.push(abi.encodeCall(StEthBundler.wrapStEth, (amount)));
         bundle.push(_erc20Transfer(WST_ETH, RECEIVER, type(uint256).max));
 
         uint256 wstEthExpectedAmount = IStEth(ST_ETH).getSharesByPooledEth(ERC20(ST_ETH).balanceOf(user));
@@ -88,8 +89,9 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         (privateKey, user) = _boundPrivateKey(privateKey);
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(_permit2TransferFrom(privateKey, WST_ETH, amount, 0));
-        bundle.push(_unwrapStEth(amount));
+        bundle.push(_approve2(privateKey, WST_ETH, amount, 0, false));
+        bundle.push(_transferFrom2(WST_ETH, amount));
+        bundle.push(abi.encodeCall(StEthBundler.unwrapStEth, (amount)));
         bundle.push(_erc20Transfer(ST_ETH, RECEIVER, type(uint256).max));
 
         deal(WST_ETH, user, amount);

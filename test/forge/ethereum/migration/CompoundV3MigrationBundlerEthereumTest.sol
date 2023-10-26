@@ -104,7 +104,8 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         uint256 cTokenBalance = ICompoundV3(C_WETH_V3).balanceOf(user);
 
-        bundle.push(_permit2TransferFrom(privateKey, C_WETH_V3, cTokenBalance, 0));
+        bundle.push(_approve2(privateKey, C_WETH_V3, uint160(cTokenBalance), 0, false));
+        bundle.push(_transferFrom2(C_WETH_V3, cTokenBalance));
         bundle.push(_compoundV3Withdraw(C_WETH_V3, marketParams.loanToken, supplied));
         bundle.push(_morphoSupply(marketParams, supplied, 0, user));
 
@@ -159,7 +160,8 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         uint256 cTokenBalance = ICompoundV3(C_WETH_V3).balanceOf(user);
 
-        bundle.push(_permit2TransferFrom(privateKey, C_WETH_V3, cTokenBalance, 0));
+        bundle.push(_approve2(privateKey, C_WETH_V3, uint160(cTokenBalance), 0, false));
+        bundle.push(_transferFrom2(C_WETH_V3, cTokenBalance));
         bundle.push(_compoundV3Withdraw(C_WETH_V3, marketParams.loanToken, supplied));
         bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
 
