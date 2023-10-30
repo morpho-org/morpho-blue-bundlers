@@ -13,13 +13,13 @@ abstract contract PermitBundler is BaseBundler {
     /// @notice Permits the given `amount` of `asset` from sender to be spent by the bundler via EIP-2612 Permit with
     /// the given `deadline` & EIP-712 signature's `v`, `r` & `s`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
-    /// @dev Pass `skipRevert = true` to avoid reverting the whole bundle in case the signature expired.
     /// @param asset The address of the token to be permitted.
     /// @param amount The amount of `asset` to be permitted.
     /// @param deadline The deadline of the approval.
     /// @param v The `v` component of a signature.
     /// @param r The `r` component of a signature.
     /// @param s The `s` component of a signature.
+    /// @param skipRevert Whether to avoid reverting the call in case the signature is frontrunned.
     function permit(address asset, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s, bool skipRevert)
         external
         payable
