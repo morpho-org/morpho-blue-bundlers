@@ -20,6 +20,14 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         bundler = new EthereumStEthBundlerMock();
     }
 
+    function testStakeEthZeroAmount() public {
+        bundle.push(abi.encodeCall(StEthBundler.stakeEth, (0, 0, address(0))));
+
+        vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
+        vm.prank(USER);
+        bundler.multicall(bundle);
+    }
+
     function testStakeEth(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, 10_000 ether);
 
