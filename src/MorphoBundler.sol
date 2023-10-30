@@ -70,7 +70,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         }
     }
 
-    /// @notice Supplies `assets` or `shares` on behalf of `onBehalf` using permit2 in a single tx.
+    /// @notice Supplies `assets` or `shares` on behalf of `onBehalf`.
     /// @notice The supplied amount cannot be used as collateral but is eligible to earn interest.
     /// @dev Pass `amount = type(uint256).max` to supply the bundler's loan asset balance.
     /// @param marketParams The Morpho market to supply assets to.
@@ -121,7 +121,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         MORPHO.supplyCollateral(marketParams, amount, onBehalf, data);
     }
 
-    /// @notice Borrows `assets` or `shares` on behalf of the sender.
+    /// @notice Borrows `assets` or `shares` on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously authorized the bundler to act on their behalf on Morpho.
     /// @param marketParams The Morpho market to borrow assets from.
@@ -161,7 +161,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         MORPHO.repay(marketParams, assets, shares, onBehalf, data);
     }
 
-    /// @notice Withdraws `assets` or `shares` on behalf of `onBehalf`.
+    /// @notice Withdraws `assets` or `shares` on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously authorized the bundler to act on their behalf on Morpho.
     /// @param marketParams The Morpho market to withdraw assets from.
@@ -175,7 +175,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         MORPHO.withdraw(marketParams, assets, shares, initiator(), receiver);
     }
 
-    /// @notice Withdraws `amount` of the collateral asset on behalf of sender.
+    /// @notice Withdraws `amount` of the collateral asset on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously authorized the bundler to act on their behalf on Morpho.
     /// @param marketParams The Morpho market to withdraw collateral from.
