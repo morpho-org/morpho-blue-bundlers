@@ -35,6 +35,8 @@ abstract contract BaseBundler is IMulticall {
     /// @dev Locks the initiator so that the sender can uniquely be identified in callbacks.
     /// @dev All functions delegatecalled must be `payable` if `msg.value` is non-zero.
     function multicall(bytes[] memory data) external payable {
+        require(_initiator == UNSET_INITIATOR, ErrorsLib.ALREADY_INITIATED);
+
         _initiator = msg.sender;
 
         _multicall(data);
