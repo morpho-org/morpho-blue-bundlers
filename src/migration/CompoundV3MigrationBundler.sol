@@ -29,6 +29,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     function compoundV3Repay(address instance, uint256 amount) external payable {
         address initiator = initiator();
         address asset = ICompoundV3(instance).baseToken();
+
         amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
         amount = Math.min(amount, ICompoundV3(instance).borrowBalanceOf(initiator));
 
