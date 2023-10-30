@@ -271,8 +271,8 @@ export class BundlerAction {
     return BundlerAction.AAVE_V2_BUNDLER_IFC.encodeFunctionData("aaveV2Repay", [asset, amount, rateMode]);
   }
 
-  static aaveV2Withdraw(asset: string, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.AAVE_V2_BUNDLER_IFC.encodeFunctionData("aaveV2Withdraw", [asset, amount, receiver]);
+  static aaveV2Withdraw(asset: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.AAVE_V2_BUNDLER_IFC.encodeFunctionData("aaveV2Withdraw", [asset, amount]);
   }
 
   /* AaveV3 */
@@ -281,8 +281,8 @@ export class BundlerAction {
     return BundlerAction.AAVE_V3_BUNDLER_IFC.encodeFunctionData("aaveV3Repay", [asset, amount, rateMode]);
   }
 
-  static aaveV3Withdraw(asset: string, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.AAVE_V3_BUNDLER_IFC.encodeFunctionData("aaveV3Withdraw", [asset, amount, receiver]);
+  static aaveV3Withdraw(asset: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.AAVE_V3_BUNDLER_IFC.encodeFunctionData("aaveV3Withdraw", [asset, amount]);
   }
 
   /* AaveV3 Optimizer */
@@ -291,25 +291,18 @@ export class BundlerAction {
     return BundlerAction.AAVE_V3_OPTIMIZER_BUNDLER_IFC.encodeFunctionData("aaveV3OptimizerRepay", [underlying, amount]);
   }
 
-  static aaveV3OptimizerWithdraw(
-    underlying: string,
-    amount: BigNumberish,
-    receiver: string,
-    maxIterations: BigNumberish,
-  ): BundlerCall {
+  static aaveV3OptimizerWithdraw(underlying: string, amount: BigNumberish, maxIterations: BigNumberish): BundlerCall {
     return BundlerAction.AAVE_V3_OPTIMIZER_BUNDLER_IFC.encodeFunctionData("aaveV3OptimizerWithdraw", [
       underlying,
       amount,
-      receiver,
       maxIterations,
     ]);
   }
 
-  static aaveV3OptimizerWithdrawCollateral(underlying: string, amount: BigNumberish, receiver: string): BundlerCall {
+  static aaveV3OptimizerWithdrawCollateral(underlying: string, amount: BigNumberish): BundlerCall {
     return BundlerAction.AAVE_V3_OPTIMIZER_BUNDLER_IFC.encodeFunctionData("aaveV3OptimizerWithdrawCollateral", [
       underlying,
       amount,
-      receiver,
     ]);
   }
 
