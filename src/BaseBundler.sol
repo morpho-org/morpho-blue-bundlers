@@ -5,6 +5,7 @@ import {IMulticall} from "./interfaces/IMulticall.sol";
 
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {UNSET_INITIATOR} from "./libraries/ConstantsLib.sol";
+import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
 
 /// @title BaseBundler
 /// @author Morpho Labs
@@ -15,6 +16,8 @@ import {UNSET_INITIATOR} from "./libraries/ConstantsLib.sol";
 /// delegate called by the `multicall` function (which is payable, and thus might pass a non-null ETH value). It is
 /// recommended not to rely on `msg.value` as the same value can be reused for multiple calls.
 abstract contract BaseBundler is IMulticall {
+    using SafeTransferLib for ERC20;
+
     /* STORAGE */
 
     /// @notice Keeps track of the bundler's latest bundle initiator.
@@ -68,6 +71,14 @@ abstract contract BaseBundler is IMulticall {
 
         assembly ("memory-safe") {
             revert(add(32, returnData), length)
+        }
+    }
+
+    /// @dev Gives the max approval to `spender` to spend the given `asset` if not already approved.
+    /// @dev Assumes that `type(uint256).max` is large enough to never have to increase the allowance again.
+    function _approveMaxTo(address asset, address spender) internal {
+        if (ERC20(asset).allowance(address(this), spender) == 0) {
+            ERC20(asset).safeApprove(spender, type(uint256).max);
         }
     }
 }
