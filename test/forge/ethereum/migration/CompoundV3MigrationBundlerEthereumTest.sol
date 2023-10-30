@@ -28,7 +28,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        CompoundV3MigrationBundler(address(bundler)).compoundV3Repay(C_WETH_V3, marketParams.loanToken, amount);
+        CompoundV3MigrationBundler(address(bundler)).compoundV3Repay(C_WETH_V3, amount);
     }
 
     function testCompoundV3RepayZeroAmount() public {
