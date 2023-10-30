@@ -56,9 +56,9 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /* ACTIONS */
 
     /// @notice Approves this contract to manage the `authorization.authorizer`'s position via EIP712 `signature`.
-    /// @dev Pass `skipRevert = true` to avoid reverting the whole bundle in case the signature expired.
     /// @param authorization The `Authorization` struct.
     /// @param signature The signature.
+    /// @param skipRevert Whether to avoid reverting the call in case the signature is frontrunned.
     function morphoSetAuthorizationWithSig(
         Authorization calldata authorization,
         Signature calldata signature,

@@ -12,5 +12,5 @@ import {StEthBundler} from "../StEthBundler.sol";
 abstract contract EthereumStEthBundler is StEthBundler {
     /* CONSTRUCTOR */
 
-    constructor() StEthBundler(MainnetLib.ST_ETH, MainnetLib.WST_ETH) {}
+    constructor() StEthBundler(MainnetLib.WST_ETH) {}
 }

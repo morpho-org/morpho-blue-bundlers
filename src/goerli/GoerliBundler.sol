@@ -26,9 +26,5 @@ contract GoerliBundler is
 {
     /* CONSTRUCTOR */
 
-    constructor(address morpho)
-        WNativeBundler(GoerliLib.WETH)
-        StEthBundler(GoerliLib.ST_ETH, GoerliLib.WST_ETH)
-        MorphoBundler(morpho)
-    {}
+    constructor(address morpho) WNativeBundler(GoerliLib.WETH) StEthBundler(GoerliLib.WST_ETH) MorphoBundler(morpho) {}
 }

@@ -28,10 +28,9 @@ abstract contract StEthBundler is BaseBundler {
     /* CONSTRUCTOR */
 
     /// @dev Warning: assumes the given addresses are non-zero (they are not expected to be deployment arguments).
-    /// @param stEth The address of the stEth contract.
     /// @param wstEth The address of the wstEth contract.
-    constructor(address stEth, address wstEth) {
-        ST_ETH = stEth;
+    constructor(address wstEth) {
+        ST_ETH = IWstEth(wstEth).stETH();
         WST_ETH = wstEth;
 
         ERC20(ST_ETH).safeApprove(WST_ETH, type(uint256).max);
@@ -46,6 +45,8 @@ abstract contract StEthBundler is BaseBundler {
     /// @param referral The address of the referral regarding the Lido Rewards-Share Program.
     function stakeEth(uint256 amount, uint256 minShares, address referral) external payable {
         amount = Math.min(amount, address(this).balance);
+
+        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
         // Lido will revert with ZERO_DEPOSIT in case amount == 0.
         uint256 shares = IStEth(ST_ETH).submit{value: amount}(referral);

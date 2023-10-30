@@ -54,15 +54,13 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
         } else {
             address underlying = ICToken(cToken).underlying();
 
-            amount = Math.min(amount, ERC20(underlying).balanceOf(address(this)));
+            if (amount != type(uint256).max) amount = Math.min(amount, ERC20(underlying).balanceOf(address(this)));
 
             require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
             _approveMaxTo(underlying, cToken);
 
-            // Doesn't revert in case of error.
-            uint256 err = ICToken(cToken).repayBorrowBehalf(initiator(), amount);
-            require(err == 0, ErrorsLib.REPAY_ERROR);
+            ICToken(cToken).repayBorrowBehalf(initiator(), amount);
         }
     }
 
@@ -76,8 +74,6 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        // Doesn't revert in case of error.
-        uint256 err = ICToken(cToken).redeem(amount);
-        require(err == 0, ErrorsLib.REDEEM_ERROR);
+        ICToken(cToken).redeem(amount);
     }
 }
