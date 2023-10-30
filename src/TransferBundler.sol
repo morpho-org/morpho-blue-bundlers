@@ -21,6 +21,8 @@ abstract contract TransferBundler is BaseBundler {
     /// bundler to `recipient`.
     /// @dev Warning: `recipient` can re-enter the bundler flow.
     /// @dev Pass `amount = type(uint256).max` to transfer all.
+    /// @param recipient The address that will receive the native tokens.
+    /// @param amount The amount of native tokens to transfer.
     function nativeTransfer(address recipient, uint256 amount) external payable {
         require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
         require(recipient != address(this), ErrorsLib.BUNDLER_ADDRESS);
@@ -36,6 +38,9 @@ abstract contract TransferBundler is BaseBundler {
     /// to `recipient`.
     /// @dev Warning: `asset` can re-enter the bundler flow.
     /// @dev Pass `amount = type(uint256).max` to transfer all.
+    /// @param asset The address of the ERC20 token to transfer.
+    /// @param recipient The address that will receive the tokens.
+    /// @param amount The amount of `asset` to transfer.
     function erc20Transfer(address asset, address recipient, uint256 amount) external payable {
         require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
         require(recipient != address(this), ErrorsLib.BUNDLER_ADDRESS);
@@ -51,6 +56,8 @@ abstract contract TransferBundler is BaseBundler {
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Warning: `asset` can re-enter the bundler flow.
     /// @dev Pass `amount = type(uint256).max` to transfer all.
+    /// @param asset The address of the ERC20 token to transfer.
+    /// @param amount The amount of `asset` to transfer from the initiator.
     function erc20TransferFrom(address asset, uint256 amount) external payable {
         address initiator = initiator();
         amount = Math.min(amount, ERC20(asset).balanceOf(initiator));

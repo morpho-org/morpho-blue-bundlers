@@ -16,7 +16,12 @@ abstract contract UrdBundler is BaseBundler {
     /// @notice Claims `amount` of `reward` on behalf of `account` on the given rewards distributor, using `proof`.
     /// @dev Warning: `distributor` can re-enter the bundler flow.
     /// @dev Assumes the given distributor implements IUniversalRewardsDistributor.
-    /// @dev Pass `skipRevert = true` to avoid reverting the whole bundle in case the proof expired.
+    /// @param distributor The address of the reward distributor contract.
+    /// @param account The address of the owner of the rewards (also the address that will receive the rewards).
+    /// @param reward The address of the token reward.
+    /// @param amount The amount of the reward token to claim.
+    /// @param proof The proof.
+    /// @param skipRevert Whether to avoid reverting the call in case the proof is frontrunned.
     function urdClaim(
         address distributor,
         address account,
