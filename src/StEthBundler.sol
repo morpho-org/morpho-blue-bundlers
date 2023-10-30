@@ -48,7 +48,6 @@ abstract contract StEthBundler is BaseBundler {
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        // Lido will revert with ZERO_DEPOSIT in case amount == 0.
         uint256 shares = IStEth(ST_ETH).submit{value: amount}(referral);
         require(shares >= minShares, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
