@@ -63,7 +63,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackBundle.push(_aaveV2Repay(marketParams.loanToken, borrowed));
         callbackBundle.push(_approve2(privateKey, aToken, uint160(aTokenBalance), 0, false));
         callbackBundle.push(_transferFrom2(aToken, aTokenBalance));
-        callbackBundle.push(_aaveV2Withdraw(marketParams.collateralToken, collateralSupplied, address(bundler)));
+        callbackBundle.push(_aaveV2Withdraw(marketParams.collateralToken, collateralSupplied));
 
         bundle.push(_morphoSupplyCollateral(marketParams, collateralSupplied, user));
 
@@ -102,7 +102,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackBundle.push(_aaveV2Repay(marketParams.loanToken, borrowed));
         callbackBundle.push(_approve2(privateKey, aToken, uint160(aTokenBalance), 0, false));
         callbackBundle.push(_transferFrom2(aToken, aTokenBalance));
-        callbackBundle.push(_aaveV2Withdraw(DAI, collateralSupplied, address(bundler)));
+        callbackBundle.push(_aaveV2Withdraw(DAI, collateralSupplied));
         callbackBundle.push(_erc4626Deposit(S_DAI, collateralSupplied, address(bundler)));
 
         bundle.push(_morphoSupplyCollateral(marketParams, sDaiAmount, user));
@@ -147,7 +147,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackBundle.push(_aaveV2Repay(marketParams.loanToken, borrowed));
         callbackBundle.push(_approve2(privateKey, aToken, type(uint160).max, 0, false));
         callbackBundle.push(_transferFrom2(aToken, aTokenBalance));
-        callbackBundle.push(_aaveV2Withdraw(ST_ETH, type(uint256).max, address(bundler)));
+        callbackBundle.push(_aaveV2Withdraw(ST_ETH, type(uint256).max));
         callbackBundle.push(_wrapStEth(type(uint256).max));
 
         bundle.push(_morphoSupplyCollateral(marketParams, wstEthAmount, user));
@@ -178,7 +178,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
         bundle.push(_approve2(privateKey, aToken, uint160(aTokenBalance), 0, false));
         bundle.push(_transferFrom2(aToken, aTokenBalance));
-        bundle.push(_aaveV2Withdraw(marketParams.loanToken, supplied, address(bundler)));
+        bundle.push(_aaveV2Withdraw(marketParams.loanToken, supplied));
         bundle.push(_morphoSupply(marketParams, supplied, 0, user));
 
         vm.prank(user);
@@ -207,7 +207,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
         bundle.push(_approve2(privateKey, aToken, uint160(aTokenBalance), 0, false));
         bundle.push(_transferFrom2(aToken, aTokenBalance));
-        bundle.push(_aaveV2Withdraw(marketParams.loanToken, supplied, address(bundler)));
+        bundle.push(_aaveV2Withdraw(marketParams.loanToken, supplied));
         bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
 
         vm.prank(user);
@@ -226,7 +226,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
         return abi.encodeCall(AaveV2MigrationBundler.aaveV2Repay, (asset, amount, RATE_MODE));
     }
 
-    function _aaveV2Withdraw(address asset, uint256 amount, address to) internal pure returns (bytes memory) {
-        return abi.encodeCall(AaveV2MigrationBundler.aaveV2Withdraw, (asset, amount, to));
+    function _aaveV2Withdraw(address asset, uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(AaveV2MigrationBundler.aaveV2Withdraw, (asset, amount));
     }
 }
