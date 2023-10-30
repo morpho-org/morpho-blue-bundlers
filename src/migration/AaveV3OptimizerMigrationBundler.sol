@@ -35,7 +35,7 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     /// @param underlying The address of the underlying asset to repay.
     /// @param amount The amount of `underlying` to repay.
     function aaveV3OptimizerRepay(address underlying, uint256 amount) external payable {
-        amount = Math.min(amount, ERC20(underlying).balanceOf(address(this)));
+        if (amount != type(uint256).max) amount = Math.min(amount, ERC20(underlying).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
