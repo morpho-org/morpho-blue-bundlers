@@ -341,12 +341,8 @@ export class BundlerAction {
 
   /* CompoundV3 */
 
-  static compoundV3Repay(instance: string, asset: string, amount: BigNumberish): BundlerCall {
-    return BundlerAction.COMPOUND_V3_BUNDLER_IFC.encodeFunctionData("compoundV3Repay", [instance, asset, amount]);
-  }
-
-  static compoundV3Withdraw(instance: string, asset: string, amount: BigNumberish): BundlerCall {
-    return BundlerAction.COMPOUND_V3_BUNDLER_IFC.encodeFunctionData("compoundV3Withdraw", [instance, asset, amount]);
+  static compoundV3Repay(instance: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.COMPOUND_V3_BUNDLER_IFC.encodeFunctionData("compoundV3Repay", [instance, amount]);
   }
 
   static compoundV3WithdrawFrom(instance: string, asset: string, amount: BigNumberish): BundlerCall {

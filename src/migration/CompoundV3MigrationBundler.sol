@@ -20,33 +20,25 @@ contract CompoundV3MigrationBundler is MigrationBundler {
 
     /* ACTIONS */
 
-    /// @notice Repays `amount` of `asset` on the CompoundV3 `instance`, on behalf of the initiator.
+    /// @notice Repays `amount` on the CompoundV3 `instance`, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
-    /// @dev Assumes the given instance is a CompoundV3 instance.
+    /// @dev Assumes the given `instance` is a CompoundV3 instance.
     /// @dev Pass `amount = type(uint256).max` to repay all.
     /// @param instance The address of the CompoundV3 instance to call.
-    /// @param asset The address of the token to repay.
     /// @param amount The amount of `asset` to repay.
-    function compoundV3Repay(address instance, address asset, uint256 amount) external payable {
+    function compoundV3Repay(address instance, uint256 amount) external payable {
+        address initiator = initiator();
+        address asset = ICompoundV3(instance).baseToken();
+
         amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
+        amount = Math.min(amount, ICompoundV3(instance).borrowBalanceOf(initiator));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
         _approveMaxTo(asset, instance);
 
         // Compound V3 uses signed accounting: supplying to a negative balance actually repays the borrow position.
-        ICompoundV3(instance).supplyTo(initiator(), asset, amount);
-    }
-
-    /// @notice Withdraws `amount` of `asset` on the CompoundV3 `instance`.
-    /// @dev Initiator must have previously transferred their CompoundV3 position to the bundler.
-    /// @dev Assumes the given `instance` is a CompoundV3 instance.
-    /// @dev Pass `amount = type(uint256).max` to withdraw all.
-    /// @param instance The address of the CompoundV3 instance to call.
-    /// @param asset The address of the token to withdraw.
-    /// @param amount The amount of `asset` to withdraw.
-    function compoundV3Withdraw(address instance, address asset, uint256 amount) external payable {
-        ICompoundV3(instance).withdraw(asset, amount);
+        ICompoundV3(instance).supplyTo(initiator, asset, amount);
     }
 
     /// @notice Withdraws `amount` of `asset` from the CompoundV3 `instance`, on behalf of the initiator.
@@ -58,7 +50,16 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// @param asset The address of the token to withdraw from the CompoundV3 `instance`.
     /// @param amount The amount of `asset` to withdraw the CompoundV3 `instance`.
     function compoundV3WithdrawFrom(address instance, address asset, uint256 amount) external payable {
-        ICompoundV3(instance).withdrawFrom(initiator(), address(this), asset, amount);
+        address initiator = initiator();
+        uint256 balance = asset == ICompoundV3(instance).baseToken()
+            ? ICompoundV3(instance).balanceOf(initiator)
+            : ICompoundV3(instance).userCollateral(initiator, asset);
+
+        amount = Math.min(amount, balance);
+
+        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
+
+        ICompoundV3(instance).withdrawFrom(initiator, address(this), asset, amount);
     }
 
     /// @notice Approves the bundler to act on behalf of the initiator on the CompoundV3 `instance`, given a signed
