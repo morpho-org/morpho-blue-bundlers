@@ -22,6 +22,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
 
     /// @notice Repays `amount` on the CompoundV3 `instance`, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @dev Warning: `instance` can re-enter the bundler flow.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
     /// @dev Pass `amount = type(uint256).max` to repay all.
     /// @param instance The address of the CompoundV3 instance to call.
@@ -44,6 +45,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// @notice Withdraws `amount` of `asset` from the CompoundV3 `instance`, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously approved the bundler to manage their CompoundV3 position.
+    /// @dev Warning: `instance` can re-enter the bundler flow.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
     /// @dev Pass `amount = type(uint256).max` to withdraw all.
     /// @param instance The address of the CompoundV3 instance to call.
@@ -65,6 +67,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// @notice Approves the bundler to act on behalf of the initiator on the CompoundV3 `instance`, given a signed
     /// EIP-712 approval message.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @dev Warning: `instance` can re-enter the bundler flow.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
     /// @param instance The address of the CompoundV3 instance to call.
     /// @param isAllowed Whether the bundler is allowed to manage the initiator's position or not.
