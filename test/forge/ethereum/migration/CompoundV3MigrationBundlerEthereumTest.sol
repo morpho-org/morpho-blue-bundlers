@@ -105,7 +105,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0));
         bundle.push(_compoundV3WithdrawFrom(C_WETH_V3, marketParams.loanToken, supplied));
         bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1));
-        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
+        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, 0, user));
 
         vm.prank(user);
         bundler.multicall(bundle);
