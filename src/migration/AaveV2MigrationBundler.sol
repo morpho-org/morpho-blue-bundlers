@@ -16,10 +16,14 @@ import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 contract AaveV2MigrationBundler is MigrationBundler {
     /* IMMUTABLES */
 
+    /// @dev The AaveV2 contract address.
     IAaveV2 public immutable AAVE_V2_POOL;
 
     /* CONSTRUCTOR */
 
+    /// @param morpho The Morpho contract Address.
+    /// @param aaveV2Pool The AaveV2 contract address. Assumes it is non-zero (not expected to be an input at
+    /// deployment).
     constructor(address morpho, address aaveV2Pool) MigrationBundler(morpho) {
         require(aaveV2Pool != address(0), ErrorsLib.ZERO_ADDRESS);
 
@@ -31,8 +35,11 @@ contract AaveV2MigrationBundler is MigrationBundler {
     /// @notice Repays `amount` of `asset` on AaveV2, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Pass `amount = type(uint256).max` to repay all.
+    /// @param asset The address of the token to repay.
+    /// @param amount The amount of `asset` to repay.
+    /// @param interestRateMode The interest rate mode of the position.
     function aaveV2Repay(address asset, uint256 amount, uint256 interestRateMode) external payable {
-        amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
+        if (amount != type(uint256).max) amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
@@ -41,10 +48,12 @@ contract AaveV2MigrationBundler is MigrationBundler {
         AAVE_V2_POOL.repay(asset, amount, interestRateMode, initiator());
     }
 
-    /// @notice Withdraws `amount` of `asset` on AaveV2, on behalf of the initiator, transferring funds to `receiver`.
+    /// @notice Withdraws `amount` of `asset` on AaveV2, on behalf of the initiator.
     /// @dev Initiator must have previously transferred their aTokens to the bundler.
     /// @dev Pass `amount = type(uint256).max` to withdraw all.
-    function aaveV2Withdraw(address asset, uint256 amount, address receiver) external payable {
-        AAVE_V2_POOL.withdraw(asset, amount, receiver);
+    /// @param asset The address of the token to withdraw.
+    /// @param amount The amount of `asset` to withdraw.
+    function aaveV2Withdraw(address asset, uint256 amount) external payable {
+        AAVE_V2_POOL.withdraw(asset, amount, address(this));
     }
 }

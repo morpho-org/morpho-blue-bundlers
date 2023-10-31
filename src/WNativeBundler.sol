@@ -13,6 +13,7 @@ import {BaseBundler} from "./BaseBundler.sol";
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Bundler contract managing interactions with network's wrapped native token.
+/// @notice "wrapped native" refers to forks of WETH.
 abstract contract WNativeBundler is BaseBundler {
     using SafeTransferLib for ERC20;
 
@@ -24,6 +25,7 @@ abstract contract WNativeBundler is BaseBundler {
     /* CONSTRUCTOR */
 
     /// @dev Warning: assumes the given addresses are non-zero (they are not expected to be deployment arguments).
+    /// @param wNative The address of the wNative token contract.
     constructor(address wNative) {
         require(wNative != address(0), ErrorsLib.ZERO_ADDRESS);
 
@@ -42,6 +44,7 @@ abstract contract WNativeBundler is BaseBundler {
     /// @notice Wraps the given `amount` of the native token to wNative.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Pass `amount = type(uint256).max` to wrap all.
+    /// @param amount The amount of native token to wrap.
     function wrapNative(uint256 amount) external payable {
         amount = Math.min(amount, address(this).balance);
 
@@ -53,6 +56,7 @@ abstract contract WNativeBundler is BaseBundler {
     /// @notice Unwraps the given `amount` of wNative to the native token.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Pass `amount = type(uint256).max` to unwrap all.
+    /// @param amount The amount of wrapped native token to unwrap.
     function unwrapNative(uint256 amount) external payable {
         amount = Math.min(amount, ERC20(WRAPPED_NATIVE).balanceOf(address(this)));
 

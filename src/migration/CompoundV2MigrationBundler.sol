@@ -17,10 +17,14 @@ import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
     /* IMMUTABLES */
 
+    /// @dev The address of the cETH contract.
     address public immutable C_ETH;
 
     /* CONSTRUCTOR */
 
+    /// @param morpho The Morpho contract Address.
+    /// @param wNative The address of the wNative token contract.
+    /// @param cEth The address of the cETH contract.
     constructor(address morpho, address wNative, address cEth) WNativeBundler(wNative) MigrationBundler(morpho) {
         require(cEth != address(0), ErrorsLib.ZERO_ADDRESS);
 
@@ -40,6 +44,8 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
     /// @notice Repays `amount` of `cToken`'s underlying asset, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Pass `amount = type(uint256).max` to repay all.
+    /// @param cToken The address of the cToken contract
+    /// @param amount The amount of `cToken` to repay.
     function compoundV2Repay(address cToken, uint256 amount) external payable {
         if (cToken == C_ETH) {
             amount = Math.min(amount, address(this).balance);
@@ -50,28 +56,26 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
         } else {
             address underlying = ICToken(cToken).underlying();
 
-            amount = Math.min(amount, ERC20(underlying).balanceOf(address(this)));
+            if (amount != type(uint256).max) amount = Math.min(amount, ERC20(underlying).balanceOf(address(this)));
 
             require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
             _approveMaxTo(underlying, cToken);
 
-            // Doesn't revert in case of error.
-            uint256 err = ICToken(cToken).repayBorrowBehalf(initiator(), amount);
-            require(err == 0, ErrorsLib.REPAY_ERROR);
+            ICToken(cToken).repayBorrowBehalf(initiator(), amount);
         }
     }
 
     /// @notice Redeems `amount` of `cToken` from CompoundV2.
     /// @dev Initiator must have previously transferred their cTokens to the bundler.
     /// @dev Pass `amount = type(uint256).max` to redeem all.
+    /// @param cToken The address of the cToken contract
+    /// @param amount The amount of `cToken` to redeem.
     function compoundV2Redeem(address cToken, uint256 amount) external payable {
         amount = Math.min(amount, ERC20(cToken).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        // Doesn't revert in case of error.
-        uint256 err = ICToken(cToken).redeem(amount);
-        require(err == 0, ErrorsLib.REDEEM_ERROR);
+        ICToken(cToken).redeem(amount);
     }
 }
