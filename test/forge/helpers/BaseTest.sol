@@ -116,28 +116,36 @@ abstract contract BaseTest is Test {
 
     /* ERC4626 ACTIONS */
 
-    function _erc4626Mint(address vault, uint256 shares, address receiver) internal pure returns (bytes memory) {
-        return abi.encodeCall(ERC4626Bundler.erc4626Mint, (vault, shares, receiver));
-    }
-
-    function _erc4626Deposit(address vault, uint256 assets, address receiver) internal pure returns (bytes memory) {
-        return abi.encodeCall(ERC4626Bundler.erc4626Deposit, (vault, assets, receiver));
-    }
-
-    function _erc4626Withdraw(address vault, uint256 assets, address receiver, address owner)
+    function _erc4626Mint(address vault, uint256 shares, uint256 maxAssets, address receiver)
         internal
         pure
         returns (bytes memory)
     {
-        return abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (vault, assets, receiver, owner));
+        return abi.encodeCall(ERC4626Bundler.erc4626Mint, (vault, shares, maxAssets, receiver));
     }
 
-    function _erc4626Redeem(address vault, uint256 shares, address receiver, address owner)
+    function _erc4626Deposit(address vault, uint256 assets, uint256 minShares, address receiver)
         internal
         pure
         returns (bytes memory)
     {
-        return abi.encodeCall(ERC4626Bundler.erc4626Redeem, (vault, shares, receiver, owner));
+        return abi.encodeCall(ERC4626Bundler.erc4626Deposit, (vault, assets, minShares, receiver));
+    }
+
+    function _erc4626Withdraw(address vault, uint256 assets, uint256 maxShares, address receiver, address owner)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (vault, assets, maxShares, receiver, owner));
+    }
+
+    function _erc4626Redeem(address vault, uint256 shares, uint256 minAssets, address receiver, address owner)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return abi.encodeCall(ERC4626Bundler.erc4626Redeem, (vault, shares, minAssets, receiver, owner));
     }
 
     /* URD ACTIONS */

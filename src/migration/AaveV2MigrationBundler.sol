@@ -37,7 +37,7 @@ contract AaveV2MigrationBundler is MigrationBundler {
     /// @param amount The amount of `asset` to repay.
     /// @param interestRateMode The interest rate mode of the position.
     function aaveV2Repay(address asset, uint256 amount, uint256 interestRateMode) external payable {
-        amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
+        if (amount != type(uint256).max) amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
@@ -46,13 +46,12 @@ contract AaveV2MigrationBundler is MigrationBundler {
         AAVE_V2_POOL.repay(asset, amount, interestRateMode, initiator());
     }
 
-    /// @notice Withdraws `amount` of `asset` on AaveV2, on behalf of the initiator, transferring funds to `receiver`.
+    /// @notice Withdraws `amount` of `asset` on AaveV2, on behalf of the initiator.
     /// @dev Initiator must have previously transferred their aTokens to the bundler.
     /// @dev Pass `amount = type(uint256).max` to withdraw all.
     /// @param asset The address of the token to withdraw.
     /// @param amount The amount of `asset` to withdraw.
-    /// @param receiver The address that will receive the withdrawn assets.
-    function aaveV2Withdraw(address asset, uint256 amount, address receiver) external payable {
-        AAVE_V2_POOL.withdraw(asset, amount, receiver);
+    function aaveV2Withdraw(address asset, uint256 amount) external payable {
+        AAVE_V2_POOL.withdraw(asset, amount, address(this));
     }
 }
