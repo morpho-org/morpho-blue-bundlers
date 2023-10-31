@@ -14,7 +14,6 @@ abstract contract PermitBundler is BaseBundler {
     /// the given `deadline` & EIP-712 signature's `v`, `r` & `s`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Warning: `asset` can re-enter the bundler flow.
-    /// @dev Pass `skipRevert = true` to avoid reverting the whole bundle in case the signature expired.
     /// @param asset The address of the token to be permitted.
     /// @param amount The amount of `asset` to be permitted.
     /// @param deadline The deadline of the approval.
