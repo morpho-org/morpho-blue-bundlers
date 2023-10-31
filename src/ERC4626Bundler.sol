@@ -21,7 +21,6 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @notice Mints the given amount of `shares` on the given ERC4626 `vault`, on behalf of `receiver`.
     /// @dev Warning: `vault` can re-enter the bundler flow.
     /// @dev Assumes the given `vault` implements EIP-4626.
-    /// @dev Pass `type(uint256).max` as `shares` to mint max.
     /// @param vault The address of the vault.
     /// @param shares The amount of shares to mint. Pass `type(uint256).max` to mint max.
     /// @param receiver The address to which shares will be minted.
@@ -45,7 +44,6 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @notice Deposits the given amount of `assets` on the given ERC4626 `vault`, on behalf of `receiver`.
     /// @dev Warning: `vault` can re-enter the bundler flow.
     /// @dev Assumes the given `vault` implements EIP-4626.
-    /// @dev Pass `type(uint256).max` as `assets` to deposit max.
     /// @param vault The address of the vault.
     /// @param assets The amount of assets to deposit. Pass `type(uint256).max` to deposit max.
     /// @param receiver The address to which shares will be minted.
@@ -71,7 +69,6 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Warning: `vault` can re-enter the bundler flow.
     /// @dev Assumes the given `vault` implements EIP-4626.
-    /// @dev Pass `type(uint256).max` as `assets` to withdraw max.
     /// @param vault The address of the vault.
     /// @param assets The amount of assets to withdraw. Pass `type(uint256).max` to withdraw max.
     /// @param receiver The address that will receive the withdrawn assets.
@@ -92,7 +89,6 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Warning: `vault` can re-enter the bundler flow.
     /// @dev Assumes the given `vault` implements EIP-4626.
-    /// @dev Pass `type(uint256).max` as `shares` to redeem max.
     /// @param vault The address of the vault.
     /// @param shares The amount of shares to burn. Pass `type(uint256).max` to redeem max.
     /// @param receiver The address that will receive the withdrawn assets.
