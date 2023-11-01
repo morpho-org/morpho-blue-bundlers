@@ -331,12 +331,14 @@ export class BundlerAction {
     nonce: BigNumberish,
     deadline: BigNumberish,
     signature: Signature,
+    skipRevert: boolean,
   ): BundlerCall {
     return BundlerAction.AAVE_V3_OPTIMIZER_BUNDLER_IFC.encodeFunctionData("aaveV3OptimizerApproveManagerWithSig", [
       isApproved,
       nonce,
       deadline,
       { v: signature.v, r: signature.r, s: signature.s },
+      skipRevert,
     ]);
   }
 
@@ -370,6 +372,7 @@ export class BundlerAction {
     nonce: BigNumberish,
     expiry: BigNumberish,
     signature: Signature,
+    skipRevert: boolean,
   ): BundlerCall {
     return BundlerAction.COMPOUND_V3_BUNDLER_IFC.encodeFunctionData("compoundV3AllowBySig", [
       instance,
@@ -379,6 +382,7 @@ export class BundlerAction {
       signature.v,
       signature.r,
       signature.s,
+      skipRevert,
     ]);
   }
 }

@@ -75,12 +75,17 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     /// @param nonce The nonce of the signed message.
     /// @param deadline The deadline of the signed message.
     /// @param signature The signature of the message.
+    /// @param skipRevert Whether to avoid reverting the call in case the signature is frontrunned.
     function aaveV3OptimizerApproveManagerWithSig(
         bool isApproved,
         uint256 nonce,
         uint256 deadline,
-        Signature calldata signature
+        Signature calldata signature,
+        bool skipRevert
     ) external payable {
-        AAVE_V3_OPTIMIZER.approveManagerWithSig(initiator(), address(this), isApproved, nonce, deadline, signature);
+        try AAVE_V3_OPTIMIZER.approveManagerWithSig(initiator(), address(this), isApproved, nonce, deadline, signature)
+        {} catch (bytes memory returnData) {
+            if (!skipRevert) _revert(returnData);
+        }
     }
 }

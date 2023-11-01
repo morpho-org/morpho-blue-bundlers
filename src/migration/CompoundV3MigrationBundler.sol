@@ -76,6 +76,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// @param v The `v` component of a signature.
     /// @param r The `r` component of a signature.
     /// @param s The `s` component of a signature.
+    /// @param skipRevert Whether to avoid reverting the call in case the signature is frontrunned.
     function compoundV3AllowBySig(
         address instance,
         bool isAllowed,
@@ -83,8 +84,12 @@ contract CompoundV3MigrationBundler is MigrationBundler {
         uint256 expiry,
         uint8 v,
         bytes32 r,
-        bytes32 s
+        bytes32 s,
+        bool skipRevert
     ) external payable {
-        ICompoundV3(instance).allowBySig(initiator(), address(this), isAllowed, nonce, expiry, v, r, s);
+        try ICompoundV3(instance).allowBySig(initiator(), address(this), isAllowed, nonce, expiry, v, r, s) {}
+        catch (bytes memory returnData) {
+            if (!skipRevert) _revert(returnData);
+        }
     }
 }
