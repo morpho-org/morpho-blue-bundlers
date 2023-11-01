@@ -22,6 +22,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
 
     /// @notice Repays `amount` on the CompoundV3 `instance`, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @dev Warning: `instance` can re-enter the bundler flow.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
     /// @dev Pass `amount = type(uint256).max` to repay all.
     /// @param instance The address of the CompoundV3 instance to call.
@@ -44,6 +45,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// @notice Withdraws `amount` of `asset` from the CompoundV3 `instance`, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously approved the bundler to manage their CompoundV3 position.
+    /// @dev Warning: `instance` can re-enter the bundler flow.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
     /// @dev Pass `amount = type(uint256).max` to withdraw all.
     /// @param instance The address of the CompoundV3 instance to call.
@@ -65,6 +67,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// @notice Approves the bundler to act on behalf of the initiator on the CompoundV3 `instance`, given a signed
     /// EIP-712 approval message.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @dev Warning: `instance` can re-enter the bundler flow.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
     /// @param instance The address of the CompoundV3 instance to call.
     /// @param isAllowed Whether the bundler is allowed to manage the initiator's position or not.
@@ -73,6 +76,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// @param v The `v` component of a signature.
     /// @param r The `r` component of a signature.
     /// @param s The `s` component of a signature.
+    /// @param skipRevert Whether to avoid reverting the call in case the signature is frontrunned.
     function compoundV3AllowBySig(
         address instance,
         bool isAllowed,
@@ -80,8 +84,12 @@ contract CompoundV3MigrationBundler is MigrationBundler {
         uint256 expiry,
         uint8 v,
         bytes32 r,
-        bytes32 s
+        bytes32 s,
+        bool skipRevert
     ) external payable {
-        ICompoundV3(instance).allowBySig(initiator(), address(this), isAllowed, nonce, expiry, v, r, s);
+        try ICompoundV3(instance).allowBySig(initiator(), address(this), isAllowed, nonce, expiry, v, r, s) {}
+        catch (bytes memory returnData) {
+            if (!skipRevert) _revert(returnData);
+        }
     }
 }
