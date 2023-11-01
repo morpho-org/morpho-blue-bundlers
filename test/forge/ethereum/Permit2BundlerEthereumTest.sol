@@ -7,6 +7,8 @@ import "../../../src/mocks/bundlers/Permit2BundlerMock.sol";
 
 import "./helpers/EthereumTest.sol";
 
+error InvalidNonce();
+
 contract Permit2BundlerEthereumTest is EthereumTest {
     using SafeTransferLib for ERC20;
 
@@ -16,16 +18,16 @@ contract Permit2BundlerEthereumTest is EthereumTest {
         bundler = new Permit2BundlerMock();
     }
 
-    function testPermit2TransferFrom(uint256 seed, uint256 privateKey, uint256 amount) public {
+    function testApprove2(uint256 seed, uint256 privateKey, uint256 deadline, uint256 amount) public {
         privateKey = bound(privateKey, 1, type(uint160).max);
+        deadline = bound(deadline, block.timestamp, type(uint48).max);
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         address user = vm.addr(privateKey);
         MarketParams memory marketParams = _randomMarketParams(seed);
 
-        deal(marketParams.loanToken, user, amount);
-
-        bundle.push(_permit2TransferFrom(privateKey, marketParams.loanToken, amount, 0));
+        bundle.push(_approve2(privateKey, marketParams.loanToken, amount, 0, false));
+        bundle.push(_approve2(privateKey, marketParams.loanToken, amount, 0, true));
 
         vm.startPrank(user);
         ERC20(marketParams.loanToken).safeApprove(address(Permit2Lib.PERMIT2), type(uint256).max);
@@ -35,29 +37,29 @@ contract Permit2BundlerEthereumTest is EthereumTest {
 
         (uint160 permit2Allowance,,) = Permit2Lib.PERMIT2.allowance(user, marketParams.loanToken, address(bundler));
 
-        assertEq(permit2Allowance, 0, "PERMIT2.allowance(user, bundler)");
+        assertEq(permit2Allowance, amount, "PERMIT2.allowance(user, bundler)");
         assertEq(ERC20(marketParams.loanToken).allowance(user, address(bundler)), 0, "loan.allowance(user, bundler)");
-        assertEq(ERC20(marketParams.loanToken).balanceOf(address(bundler)), amount, "loan.balanceOf(bundler)");
     }
 
-    function testPermtestPermit2TransferFromUninitiated() public {
-        ISignatureTransfer.PermitTransferFrom memory permit;
-        bytes memory signature;
-
-        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        Permit2BundlerMock(address(bundler)).permit2TransferFrom(permit, signature);
-    }
-
-    function testPermit2TransferFromZeroAmount(uint256 seed, uint256 privateKey, uint256 amount) public {
+    function testApprove2Revert(uint256 seed, uint256 privateKey, uint256 deadline, uint256 amount) public {
         privateKey = bound(privateKey, 1, type(uint160).max);
+        deadline = bound(deadline, block.timestamp, type(uint48).max);
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         address user = vm.addr(privateKey);
         MarketParams memory marketParams = _randomMarketParams(seed);
 
-        bundle.push(_permit2TransferFrom(privateKey, marketParams.loanToken, amount, 0));
+        bundle.push(_approve2(privateKey, marketParams.loanToken, amount, 0, false));
+        bundle.push(_approve2(privateKey, marketParams.loanToken, amount, 0, false));
 
         vm.prank(user);
+        vm.expectRevert(InvalidNonce.selector);
+        bundler.multicall(bundle);
+    }
+
+    function testTransferFrom2ZeroAmount() public {
+        bundle.push(_transferFrom2(DAI, 0));
+
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(bundle);
     }

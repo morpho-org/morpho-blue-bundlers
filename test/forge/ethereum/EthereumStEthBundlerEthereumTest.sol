@@ -82,7 +82,8 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
 
         amount = ERC20(ST_ETH).balanceOf(user);
 
-        bundle.push(_permit2TransferFrom(privateKey, ST_ETH, amount, 0));
+        bundle.push(_approve2(privateKey, ST_ETH, amount, 0, false));
+        bundle.push(_transferFrom2(ST_ETH, amount));
         bundle.push(_wrapStEth(amount));
         bundle.push(_erc20Transfer(WST_ETH, RECEIVER, type(uint256).max));
 
@@ -104,7 +105,7 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
     }
 
     function testUnwrapZeroAmount() public {
-        bundle.push(abi.encodeCall(StEthBundler.unwrapStEth, (0)));
+        bundle.push(_unwrapStEth(0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
@@ -116,7 +117,8 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         (privateKey, user) = _boundPrivateKey(privateKey);
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        bundle.push(_permit2TransferFrom(privateKey, WST_ETH, amount, 0));
+        bundle.push(_approve2(privateKey, WST_ETH, amount, 0, false));
+        bundle.push(_transferFrom2(WST_ETH, amount));
         bundle.push(_unwrapStEth(amount));
         bundle.push(_erc20Transfer(ST_ETH, RECEIVER, type(uint256).max));
 
