@@ -58,11 +58,11 @@ abstract contract TransferBundler is BaseBundler {
     /// @param asset The address of the ERC20 token to transfer.
     /// @param amount The amount of `asset` to transfer from the initiator.
     function erc20TransferFrom(address asset, uint256 amount) external payable onlyInitiated {
-        address initiator = initiator();
-        amount = Math.min(amount, ERC20(asset).balanceOf(initiator));
+        address _initiator = initiator();
+        amount = Math.min(amount, ERC20(asset).balanceOf(_initiator));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        ERC20(asset).safeTransferFrom(initiator, address(this), amount);
+        ERC20(asset).safeTransferFrom(_initiator, address(this), amount);
     }
 }
