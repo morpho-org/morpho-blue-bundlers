@@ -98,7 +98,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         // (via the `onMorphoSupply` callback).
         if (assets == type(uint256).max) assets = ERC20(marketParams.loanToken).balanceOf(address(this));
 
-        _approveMaxMorpho(marketParams.loanToken);
+        _approveMaxTo(marketParams.loanToken, address(MORPHO));
 
         (uint256 suppliedAssets, uint256 suppliedShares) = MORPHO.supply(marketParams, assets, shares, onBehalf, data);
 
@@ -125,7 +125,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         // (via the `onMorphoSupplyCollateral` callback).
         if (assets == type(uint256).max) assets = ERC20(marketParams.collateralToken).balanceOf(address(this));
 
-        _approveMaxMorpho(marketParams.collateralToken);
+        _approveMaxTo(marketParams.collateralToken, address(MORPHO));
 
         MORPHO.supplyCollateral(marketParams, assets, onBehalf, data);
     }
@@ -183,7 +183,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         // (via the `onMorphoRepay` callback).
         if (assets == type(uint256).max) assets = ERC20(marketParams.loanToken).balanceOf(address(this));
 
-        _approveMaxMorpho(marketParams.loanToken);
+        _approveMaxTo(marketParams.loanToken, address(MORPHO));
 
         (uint256 repaidAssets, uint256 repaidShares) = MORPHO.repay(marketParams, assets, shares, onBehalf, data);
 
@@ -247,7 +247,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         uint256 maxRepaidAssets,
         bytes memory data
     ) external payable {
-        _approveMaxMorpho(marketParams.loanToken);
+        _approveMaxTo(marketParams.loanToken, address(MORPHO));
 
         (, uint256 repaidAssets) = MORPHO.liquidate(marketParams, borrower, seizedAssets, repaidShares, data);
 
@@ -259,7 +259,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /// @param assets The amount of assets to flash loan.
     /// @param data Arbitrary data to pass to the `onMorphoFlashLoan` callback.
     function morphoFlashLoan(address token, uint256 assets, bytes calldata data) external payable {
-        _approveMaxMorpho(token);
+        _approveMaxTo(token, address(MORPHO));
 
         MORPHO.flashLoan(token, assets, data);
     }
@@ -269,12 +269,5 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /// @dev Triggers `_multicall` logic during a callback.
     function _callback(bytes calldata data) internal onlyInitiated {
         _multicall(abi.decode(data, (bytes[])));
-    }
-
-    /// @dev Gives the max approval to the Morpho contract to spend the given `asset` if not already approved.
-    function _approveMaxMorpho(address asset) internal {
-        if (ERC20(asset).allowance(address(this), address(MORPHO)) == 0) {
-            ERC20(asset).safeApprove(address(MORPHO), type(uint256).max);
-        }
     }
 }
