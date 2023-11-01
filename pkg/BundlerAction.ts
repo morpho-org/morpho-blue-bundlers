@@ -115,21 +115,30 @@ export class BundlerAction {
     assets: BigNumberish,
     maxShares: BigNumberish,
     receiver: string,
+    owner: string,
   ): BundlerCall {
     return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Withdraw", [
       erc4626,
       assets,
       maxShares,
       receiver,
+      owner,
     ]);
   }
 
-  static erc4626Redeem(erc4626: string, shares: BigNumberish, minAssets: BigNumberish, receiver: string): BundlerCall {
+  static erc4626Redeem(
+    erc4626: string,
+    shares: BigNumberish,
+    minAssets: BigNumberish,
+    receiver: string,
+    owner: string,
+  ): BundlerCall {
     return BundlerAction.ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Redeem", [
       erc4626,
       shares,
       minAssets,
       receiver,
+      owner,
     ]);
   }
 

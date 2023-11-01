@@ -78,21 +78,23 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @param assets The amount of assets to withdraw. Pass `type(uint256).max` to withdraw max.
     /// @param maxShares The maximum amount of shares to redeem in exchange for `assets`.
     /// @param receiver The address that will receive the withdrawn assets.
-    function erc4626Withdraw(address vault, uint256 assets, uint256 maxShares, address receiver)
+    /// @param owner The address on behalf of which the assets are withdrawn. Can only be the bundler or the initiator.
+    /// If `owner` is the initiator, they must have previously approved the bundler to spend their vault shares.
+    /// Otherwise, they must have previously transferred their vault shares to the bundler.
+    function erc4626Withdraw(address vault, uint256 assets, uint256 maxShares, address receiver, address owner)
         external
         payable
         onlyInitiated
     {
-        require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
+        require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
+        require(owner == address(this) || owner == initiator(), ErrorsLib.UNEXPECTED_OWNER);
 
-        address _initiator = initiator();
-
-        assets = Math.min(assets, IERC4626(vault).maxWithdraw(_initiator));
+        assets = Math.min(assets, IERC4626(vault).maxWithdraw(owner));
 
         require(assets != 0, ErrorsLib.ZERO_AMOUNT);
 
-        uint256 shares = IERC4626(vault).withdraw(assets, receiver, _initiator);
+        uint256 shares = IERC4626(vault).withdraw(assets, receiver, owner);
         require(shares <= maxShares, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
 
@@ -103,21 +105,23 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @param shares The amount of shares to burn. Pass `type(uint256).max` to redeem max.
     /// @param minAssets The minimum amount of assets to withdraw in exchange for `shares`.
     /// @param receiver The address that will receive the withdrawn assets.
-    function erc4626Redeem(address vault, uint256 shares, uint256 minAssets, address receiver)
+    /// @param owner The address on behalf of which the shares are redeemed. Can only be the bundler or the initiator.
+    /// If `owner` is the initiator, they must have previously approved the bundler to spend their vault shares.
+    /// Otherwise, they must have previously transferred their vault shares to the bundler.
+    function erc4626Redeem(address vault, uint256 shares, uint256 minAssets, address receiver, address owner)
         external
         payable
         onlyInitiated
     {
-        require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
+        require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
+        require(owner == address(this) || owner == initiator(), ErrorsLib.UNEXPECTED_OWNER);
 
-        address _initiator = initiator();
-
-        shares = Math.min(shares, IERC4626(vault).maxRedeem(_initiator));
+        shares = Math.min(shares, IERC4626(vault).maxRedeem(owner));
 
         require(shares != 0, ErrorsLib.ZERO_SHARES);
 
-        uint256 assets = IERC4626(vault).redeem(shares, receiver, _initiator);
+        uint256 assets = IERC4626(vault).redeem(shares, receiver, owner);
         require(assets >= minAssets, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
 }
