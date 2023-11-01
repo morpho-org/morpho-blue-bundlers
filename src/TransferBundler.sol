@@ -19,6 +19,7 @@ abstract contract TransferBundler is BaseBundler {
 
     /// @notice Transfers the minimum between the given `amount` and the bundler's balance of native asset from the
     /// bundler to `recipient`.
+    /// @dev Warning: `recipient` can re-enter the bundler flow.
     /// @param recipient The address that will receive the native tokens.
     /// @param amount The amount of native tokens to transfer from the initiator. Pass `type(uint256).max` to transfer
     /// the initiator's balance.
@@ -35,6 +36,7 @@ abstract contract TransferBundler is BaseBundler {
 
     /// @notice Transfers the minimum between the given `amount` and the bundler's balance of `asset` from the bundler
     /// to `recipient`.
+    /// @dev Warning: `asset` can re-enter the bundler flow.
     /// @param asset The address of the ERC20 token to transfer.
     /// @param recipient The address that will receive the tokens.
     /// @param amount The amount of `asset` to transfer. Pass `type(uint256).max` to transfer the bundler's balance.
@@ -52,6 +54,7 @@ abstract contract TransferBundler is BaseBundler {
     /// @notice Transfers the given `amount` of `asset` from sender to this contract via ERC20 transferFrom.
     /// @notice User must have given sufficient allowance to the Bundler to manage his tokens.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @dev Warning: `asset` can re-enter the bundler flow.
     /// @param asset The address of the ERC20 token to transfer.
     /// @param amount The amount of `asset` to transfer from the initiator. Pass `type(uint256).max` to transfer the
     /// initiator's balance.

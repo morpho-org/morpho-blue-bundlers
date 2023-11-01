@@ -32,6 +32,7 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     /// @notice Repays `amount` of `underlying` on the AaveV3 Optimizer, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously transferred their assets to the bundler.
+    /// @dev Warning: `underlying` can re-enter the bundler flow.
     /// @param underlying The address of the underlying asset to repay.
     /// @param amount The amount of `underlying` to repay. Pass `type(uint256).max` to repay the bundler's `underlying`
     /// balance.
