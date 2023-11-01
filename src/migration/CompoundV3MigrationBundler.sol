@@ -49,9 +49,8 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// @dev Warning: `instance` can re-enter the bundler flow.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
     /// @param instance The address of the CompoundV3 instance to call.
-    /// @param asset The address of the token to withdraw from the CompoundV3 `instance`.
-    /// @param amount The amount of `asset` to withdraw the CompoundV3 `instance`. Pass `type(uint256).max` to withdraw
-    /// all.
+    /// @param asset The address of the token to withdraw.
+    /// @param amount The amount of `asset` to withdraw. Pass `type(uint256).max` to withdraw all.
     function compoundV3WithdrawFrom(address instance, address asset, uint256 amount) external payable {
         address initiator = initiator();
         uint256 balance = asset == ICompoundV3(instance).baseToken()
