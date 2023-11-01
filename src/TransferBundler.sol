@@ -20,15 +20,14 @@ abstract contract TransferBundler is BaseBundler {
     /// @notice Transfers the minimum between the given `amount` and the bundler's balance of native asset from the
     /// bundler to `recipient`.
     /// @param recipient The address that will receive the native tokens.
-    /// @param amount The amount of native tokens to transfer. Pass `type(uint256).max` to transfer the initiator's
-    /// balance.
+    /// @param amount The amount of native tokens to transfer. Passing zero will skip the transfer.
     function nativeTransfer(address recipient, uint256 amount) external payable {
         require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
         require(recipient != address(this), ErrorsLib.BUNDLER_ADDRESS);
 
         amount = Math.min(amount, address(this).balance);
 
-        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
+        if (amount == 0) return;
 
         SafeTransferLib.safeTransferETH(recipient, amount);
     }
@@ -37,14 +36,14 @@ abstract contract TransferBundler is BaseBundler {
     /// to `recipient`.
     /// @param asset The address of the ERC20 token to transfer.
     /// @param recipient The address that will receive the tokens.
-    /// @param amount The amount of `asset` to transfer. Pass `type(uint256).max` to transfer the bundler's balance.
+    /// @param amount The amount of `asset` to transfer. Passing zero will skip the transfer.
     function erc20Transfer(address asset, address recipient, uint256 amount) external payable {
         require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
         require(recipient != address(this), ErrorsLib.BUNDLER_ADDRESS);
 
         amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
 
-        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
+        if (amount == 0) return;
 
         ERC20(asset).safeTransfer(recipient, amount);
     }
