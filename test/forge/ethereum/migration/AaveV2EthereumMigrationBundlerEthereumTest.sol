@@ -5,11 +5,11 @@ import {IStEth} from "../../../../src/interfaces/IStEth.sol";
 import {IAaveV2} from "../../../../src/migration/interfaces/IAaveV2.sol";
 import {IERC4626} from "../../../../lib/openzeppelin-contracts/contracts/interfaces/IERC4626.sol";
 
-import "../../../../src/ethereum/migration/AaveV2EthereumMigrationBundler.sol";
+import "../../../../src/migration/AaveV2MigrationBundler.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
 
-contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
+contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;
@@ -27,7 +27,7 @@ contract AaveV2EthereumMigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.label(AAVE_V2_POOL, "Aave V2 Pool");
 
-        bundler = new AaveV2EthereumMigrationBundler(address(morpho));
+        bundler = new AaveV2MigrationBundler(address(morpho), AAVE_V2_POOL, WST_ETH);
     }
 
     function testAaveV2RepayUninitiated(uint256 amount) public {
