@@ -57,7 +57,7 @@ abstract contract TransferBundler is BaseBundler {
     /// @dev Pass `amount = type(uint256).max` to transfer all.
     /// @param asset The address of the ERC20 token to transfer.
     /// @param amount The amount of `asset` to transfer from the initiator.
-    function erc20TransferFrom(address asset, uint256 amount) external payable {
+    function erc20TransferFrom(address asset, uint256 amount) external payable onlyInitiated {
         address initiator = initiator();
         amount = Math.min(amount, ERC20(asset).balanceOf(initiator));
 

@@ -36,7 +36,7 @@ contract AaveV2MigrationBundler is MigrationBundler {
     /// @param asset The address of the token to repay.
     /// @param amount The amount of `asset` to repay.
     /// @param interestRateMode The interest rate mode of the position.
-    function aaveV2Repay(address asset, uint256 amount, uint256 interestRateMode) external payable {
+    function aaveV2Repay(address asset, uint256 amount, uint256 interestRateMode) external payable onlyInitiated {
         if (amount != type(uint256).max) amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
