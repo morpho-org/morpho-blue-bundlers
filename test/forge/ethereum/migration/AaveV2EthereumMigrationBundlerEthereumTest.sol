@@ -34,7 +34,7 @@ contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        AaveV2EthereumMigrationBundler(address(bundler)).aaveV2Repay(marketParams.loanToken, amount, 1);
+        AaveV2MigrationBundler(address(bundler)).aaveV2Repay(marketParams.loanToken, amount, 1);
     }
 
     function testAaveV2RepayZeroAmount() public {

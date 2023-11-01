@@ -217,7 +217,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
     function testWithdrawUninitiated(uint256 withdrawnShares) public {
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        MorphoBundlerMock(address(bundler)).morphoWithdraw(marketParams, 0, withdrawnShares, RECEIVER);
+        MorphoBundlerMock(address(bundler)).morphoWithdraw(marketParams, 0, withdrawnShares, 0, RECEIVER);
     }
 
     function testWithdraw(uint256 privateKey, uint256 amount, uint256 withdrawnShares) public {
@@ -254,7 +254,7 @@ contract MorphoBundlerLocalTest is LocalTest {
 
     function testBorrowUnititiated(uint256 borrowedAssets) public {
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        MorphoBundlerMock(address(bundler)).morphoBorrow(marketParams, borrowedAssets, 0, RECEIVER);
+        MorphoBundlerMock(address(bundler)).morphoBorrow(marketParams, borrowedAssets, 0, 0, RECEIVER);
     }
 
     function _testSupplyCollateralBorrow(address user, uint256 amount, uint256 collateralAmount) internal {
