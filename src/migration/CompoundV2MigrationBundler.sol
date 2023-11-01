@@ -17,10 +17,14 @@ import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
     /* IMMUTABLES */
 
+    /// @dev The address of the cETH contract.
     address public immutable C_ETH;
 
     /* CONSTRUCTOR */
 
+    /// @param morpho The Morpho contract Address.
+    /// @param wNative The address of the wNative token contract.
+    /// @param cEth The address of the cETH contract.
     constructor(address morpho, address wNative, address cEth) WNativeBundler(wNative) MigrationBundler(morpho) {
         C_ETH = cEth;
     }
@@ -36,7 +40,10 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
     /* ACTIONS */
 
     /// @notice Repays `amount` of `cToken`'s underlying asset, on behalf of the initiator.
+    /// @dev Warning: `cToken` can re-enter the bundler flow.
     /// @dev Pass `amount = type(uint256).max` to repay all.
+    /// @param cToken The address of the cToken contract
+    /// @param amount The amount of `cToken` to repay.
     function compoundV2Repay(address cToken, uint256 amount) external payable onlyInitiated {
         if (cToken == C_ETH) {
             amount = Math.min(amount, address(this).balance);
@@ -59,7 +66,10 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
 
     /// @notice Redeems `amount` of `cToken` from CompoundV2.
     /// @dev Initiator must have previously transferred their cTokens to the bundler.
+    /// @dev Warning: `cToken` can re-enter the bundler flow.
     /// @dev Pass `amount = type(uint256).max` to redeem all.
+    /// @param cToken The address of the cToken contract
+    /// @param amount The amount of `cToken` to redeem.
     function compoundV2Redeem(address cToken, uint256 amount) external payable {
         amount = Math.min(amount, ERC20(cToken).balanceOf(address(this)));
 

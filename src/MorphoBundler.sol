@@ -56,7 +56,9 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /* ACTIONS */
 
     /// @notice Approves this contract to manage the `authorization.authorizer`'s position via EIP712 `signature`.
-    /// @dev Pass `skipRevert = true` to avoid reverting the whole bundle in case the signature expired.
+    /// @param authorization The `Authorization` struct.
+    /// @param signature The signature.
+    /// @param skipRevert Whether to avoid reverting the call in case the signature is frontrunned.
     function morphoSetAuthorizationWithSig(
         Authorization calldata authorization,
         Signature calldata signature,
@@ -68,9 +70,14 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         }
     }
 
-    /// @notice Supplies `amount` of `asset` of `onBehalf` using permit2 in a single tx.
+    /// @notice Supplies `amount` of the loan asset on behalf of `onBehalf`.
     /// @notice The supplied amount cannot be used as collateral but is eligible to earn interest.
     /// @dev Pass `amount = type(uint256).max` to supply the bundler's loan asset balance.
+    /// @param marketParams The Morpho market to supply assets to.
+    /// @param amount The amount of assets to supply.
+    /// @param shares The amount of shares to mint.
+    /// @param onBehalf The address that will own the increased supply position.
+    /// @param data Arbitrary data to pass to the `onMorphoSupply` callback. Pass empty data if not needed.
     function morphoSupply(
         MarketParams calldata marketParams,
         uint256 amount,
@@ -90,8 +97,12 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         MORPHO.supply(marketParams, amount, shares, onBehalf, data);
     }
 
-    /// @notice Supplies `amount` of `asset` collateral to the pool on behalf of `onBehalf`.
+    /// @notice Supplies `amount` of the collateral asset on behalf of `onBehalf`.
     /// @dev Pass `amount = type(uint256).max` to supply the bundler's collateral asset balance.
+    /// @param marketParams The Morpho market to supply collateral to.
+    /// @param amount The amount of collateral to supply.
+    /// @param onBehalf The address that will own the increased collateral position.
+    /// @param data Arbitrary data to pass to the `onMorphoSupplyCollateral` callback. Pass empty data if not needed.
     function morphoSupplyCollateral(
         MarketParams calldata marketParams,
         uint256 amount,
@@ -112,6 +123,10 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /// @notice Borrows `amount` of `asset` on behalf of the sender.
     /// @dev Initiator must have previously authorized the bundler to act on their behalf on Morpho.
+    /// @param marketParams The Morpho market to borrow assets from.
+    /// @param amount The amount of assets to borrow.
+    /// @param shares The amount of shares to mint.
+    /// @param receiver The address that will receive the borrowed assets.
     function morphoBorrow(MarketParams calldata marketParams, uint256 amount, uint256 shares, address receiver)
         external
         payable
@@ -120,8 +135,13 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         MORPHO.borrow(marketParams, amount, shares, initiator(), receiver);
     }
 
-    /// @notice Repays `amount` of `asset` on behalf of `onBehalf`.
+    /// @notice Repays `amount` of the loan asset on behalf of `onBehalf`.
     /// @dev Pass `amount = type(uint256).max` to repay the bundler's loan asset balance.
+    /// @param marketParams The Morpho market to repay assets to.
+    /// @param amount The amount of assets to repay.
+    /// @param shares The amount of shares to burn.
+    /// @param onBehalf The address of the owner of the debt position.
+    /// @param data Arbitrary data to pass to the `onMorphoRepay` callback. Pass empty data if not needed.
     function morphoRepay(
         MarketParams calldata marketParams,
         uint256 amount,
@@ -143,6 +163,10 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /// @notice Withdraws `amount` of the loan asset on behalf of `onBehalf`.
     /// @dev Initiator must have previously authorized the bundler to act on their behalf on Morpho.
+    /// @param marketParams The Morpho market to withdraw assets from.
+    /// @param amount The amount of assets to withdraw.
+    /// @param shares The amount of shares to burn.
+    /// @param receiver The address that will receive the withdrawn assets.
     function morphoWithdraw(MarketParams calldata marketParams, uint256 amount, uint256 shares, address receiver)
         external
         payable
@@ -153,6 +177,9 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /// @notice Withdraws `amount` of the collateral asset on behalf of sender.
     /// @dev Initiator must have previously authorized the bundler to act on their behalf on Morpho.
+    /// @param marketParams The Morpho market to withdraw collateral from.
+    /// @param amount The amount of collateral to withdraw.
+    /// @param receiver The address that will receive the collateral assets.
     function morphoWithdrawCollateral(MarketParams calldata marketParams, uint256 amount, address receiver)
         external
         payable
@@ -162,6 +189,11 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     }
 
     /// @notice Triggers a liquidation on Morpho.
+    /// @param marketParams The Morpho market of the position.
+    /// @param borrower The owner of the position.
+    /// @param seizedCollateral The amount of collateral to seize.
+    /// @param repaidShares The amount of shares to repay.
+    /// @param data Arbitrary data to pass to the `onMorphoLiquidate` callback. Pass empty data if not needed.
     function morphoLiquidate(
         MarketParams calldata marketParams,
         address borrower,
@@ -175,10 +207,13 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     }
 
     /// @notice Triggers a flash loan on Morpho.
-    function morphoFlashLoan(address asset, uint256 amount, bytes calldata data) external payable {
-        _approveMaxMorpho(asset);
+    /// @param token The address of the token to flash loan.
+    /// @param assets The amount of assets to flash loan.
+    /// @param data Arbitrary data to pass to the `onMorphoFlashLoan` callback.
+    function morphoFlashLoan(address token, uint256 assets, bytes calldata data) external payable {
+        _approveMaxMorpho(token);
 
-        MORPHO.flashLoan(asset, amount, data);
+        MORPHO.flashLoan(token, assets, data);
     }
 
     /* INTERNAL */
