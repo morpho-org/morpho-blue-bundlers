@@ -19,6 +19,7 @@ abstract contract ERC4626Bundler is BaseBundler {
     /* ACTIONS */
 
     /// @notice Mints the given amount of `shares` on the given ERC4626 `vault`, on behalf of `receiver`.
+    /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @dev Warning: `vault` can re-enter the bundler flow.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
@@ -45,6 +46,7 @@ abstract contract ERC4626Bundler is BaseBundler {
     }
 
     /// @notice Deposits the given amount of `assets` on the given ERC4626 `vault`, on behalf of `receiver`.
+    /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @dev Warning: `vault` can re-enter the bundler flow.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.

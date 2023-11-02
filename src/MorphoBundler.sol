@@ -75,9 +75,10 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /// @dev Either `assets` or `shares` should be zero. Most usecases should rely on `assets` as an input so the
     /// bundler is guaranteed to have `assets` tokens pulled from its balance, but the possibility to mint a specific
     /// amount of shares is given for full compatibility and precision.
-    /// @dev Pass `assets = type(uint256).max` to supply the bundler's loan asset balance.
+    /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @param marketParams The Morpho market to supply assets to.
-    /// @param assets The amount of assets to supply.
+    /// @param assets The amount of assets to supply. Pass `type(uint256).max` to supply the bundler's loan asset
+    /// balance.
     /// @param shares The amount of shares to mint.
     /// @param slippageAmount The minimum amount of shares to mint in exchange for `assets` when it is used.
     /// The maximum amount of assets to deposit in exchange for `shares` otherwise.
@@ -107,9 +108,10 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     }
 
     /// @notice Supplies `assets` of collateral on behalf of `onBehalf`.
-    /// @dev Pass `assets = type(uint256).max` to supply the bundler's collateral asset balance.
+    /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @param marketParams The Morpho market to supply collateral to.
-    /// @param assets The amount of collateral to supply.
+    /// @param assets The amount of collateral to supply. Pass `type(uint256).max` to supply the bundler's loan asset
+    /// balance.
     /// @param onBehalf The address that will own the increased collateral position.
     /// @param data Arbitrary data to pass to the `onMorphoSupplyCollateral` callback. Pass empty data if not needed.
     function morphoSupplyCollateral(
@@ -160,9 +162,8 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /// @dev Either `assets` or `shares` should be zero. Most usecases should rely on `assets` as an input so the
     /// bundler is guaranteed to have `assets` tokens pulled from its balance, but the possibility to mint a specific
     /// amount of shares is given for full compatibility and precision.
-    /// @dev Pass `assets = type(uint256).max` to repay the bundler's loan asset balance.
     /// @param marketParams The Morpho market to repay assets to.
-    /// @param assets The amount of assets to repay.
+    /// @param assets The amount of assets to repay. Pass `type(uint256).max` to repay the bundler's loan asset balance.
     /// @param shares The amount of shares to burn.
     /// @param slippageAmount The minimum amount of shares to mint in exchange for `assets` when it is used.
     /// The maximum amount of assets to deposit in exchange for `shares` otherwise.
@@ -191,7 +192,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         else require(repaidAssets <= slippageAmount, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
 
-    /// @notice Withdraws `assets` of the loan asset on behalf of `onBehalf`.
+    /// @notice Withdraws `assets` of the loan asset on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Either `assets` or `shares` should be zero. Most usecases should rely on `assets` as an input so the
     /// initiator is guaranteed to withdraw `assets` tokens, but the possibility to mint a specific amount of shares is
@@ -231,6 +232,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     }
 
     /// @notice Triggers a liquidation on Morpho.
+    /// @notice Seized collateral is received by the bundler and should be used afterwards.
     /// @dev Either `seizedAssets` or `repaidShares` should be zero.
     /// @param marketParams The Morpho market of the position.
     /// @param borrower The owner of the position.
