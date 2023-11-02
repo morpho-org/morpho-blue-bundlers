@@ -41,10 +41,10 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
 
     /// @notice Repays `amount` of `cToken`'s underlying asset, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @dev Warning: `cToken` can re-enter the bundler flow.
-    /// @dev Pass `amount = type(uint256).max` to repay all.
     /// @param cToken The address of the cToken contract
-    /// @param amount The amount of `cToken` to repay.
+    /// @param amount The amount of `cToken` to repay. Pass `type(uint256).max` to repay all (except for cETH).
     function compoundV2Repay(address cToken, uint256 amount) external payable {
         if (cToken == C_ETH) {
             amount = Math.min(amount, address(this).balance);
@@ -66,11 +66,12 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
     }
 
     /// @notice Redeems `amount` of `cToken` from CompoundV2.
+    /// @notice Withdrawn assets are received by the bundler and should be used afterwards.
     /// @dev Initiator must have previously transferred their cTokens to the bundler.
     /// @dev Warning: `cToken` can re-enter the bundler flow.
-    /// @dev Pass `amount = type(uint256).max` to redeem all.
     /// @param cToken The address of the cToken contract
-    /// @param amount The amount of `cToken` to redeem.
+    /// @param amount The amount of `cToken` to redeem. Pass `type(uint256).max` to redeem the bundler's `cToken`
+    /// balance.
     function compoundV2Redeem(address cToken, uint256 amount) external payable {
         amount = Math.min(amount, ERC20(cToken).balanceOf(address(this)));
 
