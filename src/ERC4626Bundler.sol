@@ -19,6 +19,7 @@ abstract contract ERC4626Bundler is BaseBundler {
     /* ACTIONS */
 
     /// @notice Mints the given amount of `shares` on the given ERC4626 `vault`, on behalf of `receiver`.
+    /// @dev Warning: `vault` can re-enter the bundler flow.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
     /// @param shares The amount of shares to mint. Pass `type(uint256).max` to mint max.
@@ -44,6 +45,7 @@ abstract contract ERC4626Bundler is BaseBundler {
     }
 
     /// @notice Deposits the given amount of `assets` on the given ERC4626 `vault`, on behalf of `receiver`.
+    /// @dev Warning: `vault` can re-enter the bundler flow.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
     /// @param assets The amount of assets to deposit. Pass `type(uint256).max` to deposit max.
@@ -71,6 +73,7 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @notice Withdraws the given amount of `assets` from the given ERC4626 `vault`, transferring assets to
     /// `receiver`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @dev Warning: `vault` can re-enter the bundler flow.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
     /// @param assets The amount of assets to withdraw. Pass `type(uint256).max` to withdraw max.
@@ -97,6 +100,7 @@ abstract contract ERC4626Bundler is BaseBundler {
 
     /// @notice Redeems the given amount of `shares` from the given ERC4626 `vault`, transferring assets to `receiver`.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @dev Warning: `vault` can re-enter the bundler flow.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
     /// @param shares The amount of shares to burn. Pass `type(uint256).max` to redeem max.

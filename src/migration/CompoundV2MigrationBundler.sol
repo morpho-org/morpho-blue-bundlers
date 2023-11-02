@@ -41,6 +41,7 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
 
     /// @notice Repays `amount` of `cToken`'s underlying asset, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @dev Warning: `cToken` can re-enter the bundler flow.
     /// @dev Pass `amount = type(uint256).max` to repay all.
     /// @param cToken The address of the cToken contract
     /// @param amount The amount of `cToken` to repay.
@@ -66,6 +67,7 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
 
     /// @notice Redeems `amount` of `cToken` from CompoundV2.
     /// @dev Initiator must have previously transferred their cTokens to the bundler.
+    /// @dev Warning: `cToken` can re-enter the bundler flow.
     /// @dev Pass `amount = type(uint256).max` to redeem all.
     /// @param cToken The address of the cToken contract
     /// @param amount The amount of `cToken` to redeem.

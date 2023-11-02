@@ -31,6 +31,7 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
 
     /// @notice Repays `amount` of `underlying` on the AaveV3 Optimizer, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @dev Warning: `underlying` can re-enter the bundler flow.
     /// @dev Pass `amount = type(uint256).max` to repay all.
     /// @param underlying The address of the underlying asset to repay.
     /// @param amount The amount of `underlying` to repay.
@@ -74,12 +75,17 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     /// @param nonce The nonce of the signed message.
     /// @param deadline The deadline of the signed message.
     /// @param signature The signature of the message.
+    /// @param skipRevert Whether to avoid reverting the call in case the signature is frontrunned.
     function aaveV3OptimizerApproveManagerWithSig(
         bool isApproved,
         uint256 nonce,
         uint256 deadline,
-        Signature calldata signature
+        Signature calldata signature,
+        bool skipRevert
     ) external payable {
-        AAVE_V3_OPTIMIZER.approveManagerWithSig(initiator(), address(this), isApproved, nonce, deadline, signature);
+        try AAVE_V3_OPTIMIZER.approveManagerWithSig(initiator(), address(this), isApproved, nonce, deadline, signature)
+        {} catch (bytes memory returnData) {
+            if (!skipRevert) _revert(returnData);
+        }
     }
 }
