@@ -10,6 +10,7 @@ import {WNativeBundler} from "../WNativeBundler.sol";
 import {StEthBundler} from "../StEthBundler.sol";
 import {UrdBundler} from "../UrdBundler.sol";
 import {MorphoBundler} from "../MorphoBundler.sol";
+import {TransferBundler} from "../TransferBundler.sol";
 
 /// @title GoerliBundler
 /// @author Morpho Labs
@@ -22,7 +23,8 @@ contract GoerliBundler is
     WNativeBundler,
     StEthBundler,
     UrdBundler,
-    MorphoBundler
+    MorphoBundler,
+    TransferBundler
 {
     /* CONSTRUCTOR */
 
