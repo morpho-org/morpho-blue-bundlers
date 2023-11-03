@@ -12,7 +12,7 @@ library ErrorsLib {
     string internal constant ALREADY_INITIATED = "already initiated";
 
     /// @dev Thrown when a call is attempted while the bundler is not in an initiated execution context.
-    string internal constant UNINITIATED = "uninitiated";
+    string internal constant PROTECTED = "protected";
 
     /// @dev Thrown when a call is attempted with a zero address as input.
     string internal constant ZERO_ADDRESS = "zero address";

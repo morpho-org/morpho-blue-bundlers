@@ -7,6 +7,7 @@ import {ICToken} from "./interfaces/ICToken.sol";
 import {Math} from "../../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 
+import {BaseBundler} from "../BaseBundler.sol";
 import {WNativeBundler} from "../WNativeBundler.sol";
 import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 
@@ -40,11 +41,10 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
     /* ACTIONS */
 
     /// @notice Repays `amount` of `cToken`'s underlying asset, on behalf of the initiator.
-    /// @dev Warning: `cToken` can re-enter the bundler flow.
     /// @dev Pass `amount = type(uint256).max` to repay all.
     /// @param cToken The address of the cToken contract
     /// @param amount The amount of `cToken` to repay.
-    function compoundV2Repay(address cToken, uint256 amount) external payable onlyInitiated {
+    function compoundV2Repay(address cToken, uint256 amount) external payable protected {
         if (cToken == C_ETH) {
             amount = Math.min(amount, address(this).balance);
 
@@ -66,15 +66,20 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
 
     /// @notice Redeems `amount` of `cToken` from CompoundV2.
     /// @dev Initiator must have previously transferred their cTokens to the bundler.
-    /// @dev Warning: `cToken` can re-enter the bundler flow.
     /// @dev Pass `amount = type(uint256).max` to redeem all.
     /// @param cToken The address of the cToken contract
     /// @param amount The amount of `cToken` to redeem.
-    function compoundV2Redeem(address cToken, uint256 amount) external payable {
+    function compoundV2Redeem(address cToken, uint256 amount) external payable protected {
         amount = Math.min(amount, ERC20(cToken).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
         ICToken(cToken).redeem(amount);
+    }
+
+    /* INTERNAL */
+
+    function _isProtectedCall() internal view override(BaseBundler, MigrationBundler) returns (bool) {
+        return MigrationBundler._isProtectedCall();
     }
 }

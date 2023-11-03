@@ -3,6 +3,7 @@ pragma solidity 0.8.21;
 
 import {SafeTransferLib, ERC20} from "../../lib/solmate/src/utils/SafeTransferLib.sol";
 
+import {BaseBundler} from "../BaseBundler.sol";
 import {TransferBundler} from "../TransferBundler.sol";
 import {PermitBundler} from "../PermitBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
@@ -28,5 +29,9 @@ abstract contract MigrationBundler is TransferBundler, PermitBundler, Permit2Bun
         if (ERC20(asset).allowance(address(this), to) == 0) {
             ERC20(asset).safeApprove(to, type(uint256).max);
         }
+    }
+
+    function _isProtectedCall() internal view virtual override(BaseBundler, MorphoBundler) returns (bool) {
+        return MorphoBundler._isProtectedCall();
     }
 }

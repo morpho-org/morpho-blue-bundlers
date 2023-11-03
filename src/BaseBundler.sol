@@ -24,8 +24,8 @@ abstract contract BaseBundler is IMulticall {
     /* MODIFIERS */
 
     /// @dev Prevents a function to be called outside a `multicall` context.
-    modifier onlyInitiated() {
-        require(_initiator != UNSET_INITIATOR, ErrorsLib.UNINITIATED);
+    modifier protected() {
+        require(_initiator != UNSET_INITIATOR && _isProtectedCall(), ErrorsLib.PROTECTED);
 
         _;
     }
@@ -75,5 +75,10 @@ abstract contract BaseBundler is IMulticall {
         assembly ("memory-safe") {
             revert(add(32, returnData), length)
         }
+    }
+
+    /// @dev Returns whether the sender is protected in the current multicall context.
+    function _isProtectedCall() internal view virtual returns (bool) {
+        return msg.sender == _initiator;
     }
 }

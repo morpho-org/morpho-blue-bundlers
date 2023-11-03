@@ -22,12 +22,11 @@ contract CompoundV3MigrationBundler is MigrationBundler {
 
     /// @notice Repays `amount` on the CompoundV3 `instance`, on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
-    /// @dev Warning: `instance` can re-enter the bundler flow.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
     /// @dev Pass `amount = type(uint256).max` to repay all.
     /// @param instance The address of the CompoundV3 instance to call.
     /// @param amount The amount of `asset` to repay.
-    function compoundV3Repay(address instance, uint256 amount) external payable onlyInitiated {
+    function compoundV3Repay(address instance, uint256 amount) external payable protected {
         address initiator = initiator();
         address asset = ICompoundV3(instance).baseToken();
 
@@ -44,13 +43,12 @@ contract CompoundV3MigrationBundler is MigrationBundler {
 
     /// @notice Withdraws `amount` of `asset` from the CompoundV3 `instance`, on behalf of the initiator.
     /// @dev Initiator must have previously approved the bundler to manage their CompoundV3 position.
-    /// @dev Warning: `instance` can re-enter the bundler flow.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
     /// @dev Pass `amount = type(uint256).max` to withdraw all.
     /// @param instance The address of the CompoundV3 instance to call.
     /// @param asset The address of the token to withdraw from the CompoundV3 `instance`.
     /// @param amount The amount of `asset` to withdraw the CompoundV3 `instance`.
-    function compoundV3WithdrawFrom(address instance, address asset, uint256 amount) external payable onlyInitiated {
+    function compoundV3WithdrawFrom(address instance, address asset, uint256 amount) external payable protected {
         address initiator = initiator();
         uint256 balance = asset == ICompoundV3(instance).baseToken()
             ? ICompoundV3(instance).balanceOf(initiator)
@@ -65,7 +63,6 @@ contract CompoundV3MigrationBundler is MigrationBundler {
 
     /// @notice Approves the bundler to act on behalf of the initiator on the CompoundV3 `instance`, given a signed
     /// EIP-712 approval message.
-    /// @dev Warning: `instance` can re-enter the bundler flow.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
     /// @param instance The address of the CompoundV3 instance to call.
     /// @param isAllowed Whether the bundler is allowed to manage the initiator's position or not.
@@ -84,7 +81,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
         bytes32 r,
         bytes32 s,
         bool skipRevert
-    ) external payable onlyInitiated {
+    ) external payable protected {
         try ICompoundV3(instance).allowBySig(initiator(), address(this), isAllowed, nonce, expiry, v, r, s) {}
         catch (bytes memory returnData) {
             if (!skipRevert) _revert(returnData);

@@ -38,7 +38,7 @@ contract PermitBundlerLocalTest is LocalTest {
     function testPermitUninitiated(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        vm.expectRevert(bytes(ErrorsLib.PROTECTED));
         PermitBundlerMock(address(bundler)).permit(address(loanToken), amount, SIGNATURE_DEADLINE, 0, 0, 0, true);
     }
 

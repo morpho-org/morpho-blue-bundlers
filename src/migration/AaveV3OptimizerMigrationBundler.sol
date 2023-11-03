@@ -30,10 +30,9 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     /* ACTIONS */
 
     /// @notice Repays `amount` of `underlying` on the AaveV3 Optimizer, on behalf of the initiator.
-    /// @dev Warning: `underlying` can re-enter the bundler flow.
     /// @param underlying The address of the underlying asset to repay.
     /// @param amount The amount of `underlying` to repay.
-    function aaveV3OptimizerRepay(address underlying, uint256 amount) external payable onlyInitiated {
+    function aaveV3OptimizerRepay(address underlying, uint256 amount) external payable protected {
         if (amount != type(uint256).max) amount = Math.min(amount, ERC20(underlying).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
@@ -53,7 +52,7 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     function aaveV3OptimizerWithdraw(address underlying, uint256 amount, uint256 maxIterations)
         external
         payable
-        onlyInitiated
+        protected
     {
         AAVE_V3_OPTIMIZER.withdraw(underlying, amount, initiator(), address(this), maxIterations);
     }
@@ -64,7 +63,7 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     /// @dev Pass `amount = type(uint256).max` to withdraw all.
     /// @param underlying The address of the underlying asset to withdraw.
     /// @param amount The amount of `underlying` to withdraw.
-    function aaveV3OptimizerWithdrawCollateral(address underlying, uint256 amount) external payable onlyInitiated {
+    function aaveV3OptimizerWithdrawCollateral(address underlying, uint256 amount) external payable protected {
         AAVE_V3_OPTIMIZER.withdrawCollateral(underlying, amount, initiator(), address(this));
     }
 
@@ -81,7 +80,7 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
         uint256 deadline,
         Signature calldata signature,
         bool skipRevert
-    ) external payable onlyInitiated {
+    ) external payable protected {
         try AAVE_V3_OPTIMIZER.approveManagerWithSig(initiator(), address(this), isApproved, nonce, deadline, signature)
         {} catch (bytes memory returnData) {
             if (!skipRevert) _revert(returnData);

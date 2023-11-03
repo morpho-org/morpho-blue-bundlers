@@ -3,7 +3,9 @@ pragma solidity 0.8.21;
 
 import {MainnetLib} from "../libraries/MainnetLib.sol";
 
+import {BaseBundler} from "../../BaseBundler.sol";
 import {EthereumStEthBundler} from "../EthereumStEthBundler.sol";
+import {MigrationBundler} from "../../migration/MigrationBundler.sol";
 import {AaveV2MigrationBundler} from "../../migration/AaveV2MigrationBundler.sol";
 
 /// @title AaveV2EthereumMigrationBundler
@@ -14,4 +16,10 @@ contract AaveV2EthereumMigrationBundler is EthereumStEthBundler, AaveV2Migration
     /* CONSTRUCTOR */
 
     constructor(address morpho) AaveV2MigrationBundler(morpho, MainnetLib.AAVE_V2_POOL) {}
+
+    /* INTERNAL */
+
+    function _isProtectedCall() internal view override(BaseBundler, MigrationBundler) returns (bool) {
+        return MigrationBundler._isProtectedCall();
+    }
 }

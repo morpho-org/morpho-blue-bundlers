@@ -19,13 +19,16 @@ abstract contract ERC4626Bundler is BaseBundler {
     /* ACTIONS */
 
     /// @notice Mints the given amount of `shares` on the given ERC4626 `vault`, on behalf of `receiver`.
-    /// @dev Warning: `vault` can re-enter the bundler flow.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
     /// @param shares The amount of shares to mint. Pass `type(uint256).max` to mint max.
     /// @param maxAssets The maximum amount of assets to deposit in exchange for `shares`.
     /// @param receiver The address to which shares will be minted.
-    function erc4626Mint(address vault, uint256 shares, uint256 maxAssets, address receiver) external payable {
+    function erc4626Mint(address vault, uint256 shares, uint256 maxAssets, address receiver)
+        external
+        payable
+        protected
+    {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the vault's shares.
 
@@ -45,13 +48,16 @@ abstract contract ERC4626Bundler is BaseBundler {
     }
 
     /// @notice Deposits the given amount of `assets` on the given ERC4626 `vault`, on behalf of `receiver`.
-    /// @dev Warning: `vault` can re-enter the bundler flow.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
     /// @param assets The amount of assets to deposit. Pass `type(uint256).max` to deposit max.
     /// @param minShares The minimum amount of shares to mint in exchange for `assets`.
     /// @param receiver The address to which shares will be minted.
-    function erc4626Deposit(address vault, uint256 assets, uint256 minShares, address receiver) external payable {
+    function erc4626Deposit(address vault, uint256 assets, uint256 minShares, address receiver)
+        external
+        payable
+        protected
+    {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the vault's shares.
 
@@ -72,7 +78,6 @@ abstract contract ERC4626Bundler is BaseBundler {
 
     /// @notice Withdraws the given amount of `assets` from the given ERC4626 `vault`, transferring assets to
     /// `receiver`.
-    /// @dev Warning: `vault` can re-enter the bundler flow.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
     /// @param assets The amount of assets to withdraw. Pass `type(uint256).max` to withdraw max.
@@ -81,7 +86,7 @@ abstract contract ERC4626Bundler is BaseBundler {
     function erc4626Withdraw(address vault, uint256 assets, uint256 maxShares, address receiver)
         external
         payable
-        onlyInitiated
+        protected
     {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
@@ -97,7 +102,6 @@ abstract contract ERC4626Bundler is BaseBundler {
     }
 
     /// @notice Redeems the given amount of `shares` from the given ERC4626 `vault`, transferring assets to `receiver`.
-    /// @dev Warning: `vault` can re-enter the bundler flow.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
     /// @param shares The amount of shares to burn. Pass `type(uint256).max` to redeem max.
@@ -106,7 +110,7 @@ abstract contract ERC4626Bundler is BaseBundler {
     function erc4626Redeem(address vault, uint256 shares, uint256 minAssets, address receiver)
         external
         payable
-        onlyInitiated
+        protected
     {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.

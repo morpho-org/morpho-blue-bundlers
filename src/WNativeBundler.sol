@@ -42,7 +42,7 @@ abstract contract WNativeBundler is BaseBundler {
     /// @notice Wraps the given `amount` of the native token to wNative.
     /// @dev Pass `amount = type(uint256).max` to wrap all.
     /// @param amount The amount of native token to wrap.
-    function wrapNative(uint256 amount) external payable onlyInitiated {
+    function wrapNative(uint256 amount) external payable protected {
         amount = Math.min(amount, address(this).balance);
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
@@ -53,7 +53,7 @@ abstract contract WNativeBundler is BaseBundler {
     /// @notice Unwraps the given `amount` of wNative to the native token.
     /// @dev Pass `amount = type(uint256).max` to unwrap all.
     /// @param amount The amount of wrapped native token to unwrap.
-    function unwrapNative(uint256 amount) external payable onlyInitiated {
+    function unwrapNative(uint256 amount) external payable protected {
         amount = Math.min(amount, ERC20(WRAPPED_NATIVE).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);

@@ -96,7 +96,7 @@ contract TransferBundlerLocalTest is LocalTest {
     function testTransferFromUninitiated(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        vm.expectRevert(bytes(ErrorsLib.PROTECTED));
         TransferBundlerMock(address(bundler)).erc20TransferFrom(address(loanToken), amount);
     }
 

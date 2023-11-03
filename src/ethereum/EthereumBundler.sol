@@ -3,6 +3,7 @@ pragma solidity 0.8.21;
 
 import {MainnetLib} from "./libraries/MainnetLib.sol";
 
+import {BaseBundler} from "../BaseBundler.sol";
 import {TransferBundler} from "../TransferBundler.sol";
 import {EthereumPermitBundler} from "./EthereumPermitBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
@@ -29,4 +30,10 @@ contract EthereumBundler is
     /* CONSTRUCTOR */
 
     constructor(address morpho) WNativeBundler(MainnetLib.WETH) MorphoBundler(morpho) {}
+
+    /* INTERNAL */
+
+    function _isProtectedCall() internal view override(BaseBundler, MorphoBundler) returns (bool) {
+        return MorphoBundler._isProtectedCall();
+    }
 }

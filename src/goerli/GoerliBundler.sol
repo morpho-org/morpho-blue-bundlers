@@ -3,6 +3,7 @@ pragma solidity 0.8.21;
 
 import {GoerliLib} from "./libraries/GoerliLib.sol";
 
+import {BaseBundler} from "../BaseBundler.sol";
 import {PermitBundler} from "../PermitBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
 import {ERC4626Bundler} from "../ERC4626Bundler.sol";
@@ -27,4 +28,10 @@ contract GoerliBundler is
     /* CONSTRUCTOR */
 
     constructor(address morpho) WNativeBundler(GoerliLib.WETH) StEthBundler(GoerliLib.WST_ETH) MorphoBundler(morpho) {}
+
+    /* INTERNAL */
+
+    function _isProtectedCall() internal view override(BaseBundler, MorphoBundler) returns (bool) {
+        return MorphoBundler._isProtectedCall();
+    }
 }

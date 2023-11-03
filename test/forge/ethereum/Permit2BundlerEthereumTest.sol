@@ -44,7 +44,7 @@ contract Permit2BundlerEthereumTest is EthereumTest {
         ISignatureTransfer.PermitTransferFrom memory permit;
         bytes memory signature;
 
-        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        vm.expectRevert(bytes(ErrorsLib.PROTECTED));
         Permit2BundlerMock(address(bundler)).permit2TransferFrom(permit, signature);
     }
 

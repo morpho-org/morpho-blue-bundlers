@@ -14,7 +14,6 @@ import {BaseBundler} from "./BaseBundler.sol";
 /// @notice Bundler that allows to claim token rewards on the Universal Rewards Distributor.
 abstract contract UrdBundler is BaseBundler {
     /// @notice Claims `amount` of `reward` on behalf of `account` on the given rewards distributor, using `proof`.
-    /// @dev Warning: `distributor` can re-enter the bundler flow.
     /// @dev Assumes the given distributor implements IUniversalRewardsDistributor.
     /// @param distributor The address of the reward distributor contract.
     /// @param account The address of the owner of the rewards (also the address that will receive the rewards).
@@ -29,7 +28,7 @@ abstract contract UrdBundler is BaseBundler {
         uint256 amount,
         bytes32[] calldata proof,
         bool skipRevert
-    ) external payable {
+    ) external payable protected {
         require(account != address(0), ErrorsLib.ZERO_ADDRESS);
         require(account != address(this), ErrorsLib.BUNDLER_ADDRESS);
 
