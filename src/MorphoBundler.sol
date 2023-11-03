@@ -70,143 +70,189 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         }
     }
 
-    /// @notice Supplies `amount` of the loan asset on behalf of `onBehalf`.
-    /// @notice The supplied amount cannot be used as collateral but is eligible to earn interest.
+    /// @notice Supplies `assets` of the loan asset on behalf of `onBehalf`.
+    /// @notice The supplied assets cannot be used as collateral but is eligible to earn interest.
+    /// @dev Either `assets` or `shares` should be zero. Most usecases should rely on `assets` as an input so the
+    /// bundler is guaranteed to have `assets` tokens pulled from its balance, but the possibility to mint a specific
+    /// amount of shares is given for full compatibility and precision.
     /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @param marketParams The Morpho market to supply assets to.
-    /// @param amount The amount of assets to supply. Pass `type(uint256).max` to supply the bundler's loan asset
+    /// @param assets The amount of assets to supply. Pass `type(uint256).max` to supply the bundler's loan asset
     /// balance.
     /// @param shares The amount of shares to mint.
+    /// @param slippageAmount The minimum amount of shares to mint in exchange for `assets` when it is used.
+    /// The maximum amount of assets to deposit in exchange for `shares` otherwise.
     /// @param onBehalf The address that will own the increased supply position.
     /// @param data Arbitrary data to pass to the `onMorphoSupply` callback. Pass empty data if not needed.
     function morphoSupply(
         MarketParams calldata marketParams,
-        uint256 amount,
+        uint256 assets,
         uint256 shares,
+        uint256 slippageAmount,
         address onBehalf,
         bytes calldata data
     ) external payable {
         // Do not check `onBehalf` against the zero address as it's done at Morpho's level.
         require(onBehalf != address(this), ErrorsLib.BUNDLER_ADDRESS);
 
-        // Don't always cap the amount to the bundler's balance because the liquidity can be transferred later
+        // Don't always cap the assets to the bundler's balance because the liquidity can be transferred later
         // (via the `onMorphoSupply` callback).
-        if (amount == type(uint256).max) amount = ERC20(marketParams.loanToken).balanceOf(address(this));
+        if (assets == type(uint256).max) assets = ERC20(marketParams.loanToken).balanceOf(address(this));
 
         _approveMaxMorpho(marketParams.loanToken);
 
-        MORPHO.supply(marketParams, amount, shares, onBehalf, data);
+        (uint256 suppliedAssets, uint256 suppliedShares) = MORPHO.supply(marketParams, assets, shares, onBehalf, data);
+
+        if (assets > 0) require(suppliedShares >= slippageAmount, ErrorsLib.SLIPPAGE_EXCEEDED);
+        else require(suppliedAssets <= slippageAmount, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
 
-    /// @notice Supplies `amount` of the collateral asset on behalf of `onBehalf`.
+    /// @notice Supplies `assets` of collateral on behalf of `onBehalf`.
     /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @param marketParams The Morpho market to supply collateral to.
-    /// @param amount The amount of collateral to supply. Pass `type(uint256).max` to supply the bundler's loan asset
+    /// @param assets The amount of collateral to supply. Pass `type(uint256).max` to supply the bundler's loan asset
     /// balance.
     /// @param onBehalf The address that will own the increased collateral position.
     /// @param data Arbitrary data to pass to the `onMorphoSupplyCollateral` callback. Pass empty data if not needed.
     function morphoSupplyCollateral(
         MarketParams calldata marketParams,
-        uint256 amount,
+        uint256 assets,
         address onBehalf,
         bytes calldata data
     ) external payable {
         // Do not check `onBehalf` against the zero address as it's done at Morpho's level.
         require(onBehalf != address(this), ErrorsLib.BUNDLER_ADDRESS);
 
-        // Don't always cap the amount to the bundler's balance because the liquidity can be transferred later
+        // Don't always cap the assets to the bundler's balance because the liquidity can be transferred later
         // (via the `onMorphoSupplyCollateral` callback).
-        if (amount == type(uint256).max) amount = ERC20(marketParams.collateralToken).balanceOf(address(this));
+        if (assets == type(uint256).max) assets = ERC20(marketParams.collateralToken).balanceOf(address(this));
 
         _approveMaxMorpho(marketParams.collateralToken);
 
-        MORPHO.supplyCollateral(marketParams, amount, onBehalf, data);
+        MORPHO.supplyCollateral(marketParams, assets, onBehalf, data);
     }
 
-    /// @notice Borrows `amount` of the loan asset on behalf of the initiator.
+    /// @notice Borrows `assets` of the loan asset on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @dev Either `assets` or `shares` should be zero. Most usecases should rely on `assets` as an input so the
+    /// initiator is guaranteed to borrow `assets` tokens, but the possibility to mint a specific amount of shares is
+    /// given for full compatibility and precision.
     /// @dev Initiator must have previously authorized the bundler to act on their behalf on Morpho.
     /// @param marketParams The Morpho market to borrow assets from.
-    /// @param amount The amount of assets to borrow.
+    /// @param assets The amount of assets to borrow.
     /// @param shares The amount of shares to mint.
+    /// @param slippageAmount The maximum amount of shares to mint in exchange for `assets` when it is used.
+    /// The minimum amount of assets to borrow in exchange for `shares` otherwise.
     /// @param receiver The address that will receive the borrowed assets.
-    function morphoBorrow(MarketParams calldata marketParams, uint256 amount, uint256 shares, address receiver)
-        external
-        payable
-    {
-        MORPHO.borrow(marketParams, amount, shares, initiator(), receiver);
+    function morphoBorrow(
+        MarketParams calldata marketParams,
+        uint256 assets,
+        uint256 shares,
+        uint256 slippageAmount,
+        address receiver
+    ) external payable {
+        (uint256 borrowedAssets, uint256 borrowedShares) =
+            MORPHO.borrow(marketParams, assets, shares, initiator(), receiver);
+
+        if (assets > 0) require(borrowedShares <= slippageAmount, ErrorsLib.SLIPPAGE_EXCEEDED);
+        else require(borrowedAssets >= slippageAmount, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
 
-    /// @notice Repays `amount` of the loan asset on behalf of `onBehalf`.
-    /// @dev Initiator must have previously transferred their assets to the bundler.
+    /// @notice Repays `assets` of the loan asset on behalf of `onBehalf`.
+    /// @dev Either `assets` or `shares` should be zero. Most usecases should rely on `assets` as an input so the
+    /// bundler is guaranteed to have `assets` tokens pulled from its balance, but the possibility to mint a specific
+    /// amount of shares is given for full compatibility and precision.
     /// @param marketParams The Morpho market to repay assets to.
-    /// @param amount The amount of assets to repay. Pass `type(uint256).max` to repay the bundler's loan asset balance.
+    /// @param assets The amount of assets to repay. Pass `type(uint256).max` to repay the bundler's loan asset balance.
     /// @param shares The amount of shares to burn.
+    /// @param slippageAmount The minimum amount of shares to mint in exchange for `assets` when it is used.
+    /// The maximum amount of assets to deposit in exchange for `shares` otherwise.
     /// @param onBehalf The address of the owner of the debt position.
     /// @param data Arbitrary data to pass to the `onMorphoRepay` callback. Pass empty data if not needed.
     function morphoRepay(
         MarketParams calldata marketParams,
-        uint256 amount,
+        uint256 assets,
         uint256 shares,
+        uint256 slippageAmount,
         address onBehalf,
         bytes calldata data
     ) external payable {
         // Do not check `onBehalf` against the zero address as it's done at Morpho's level.
         require(onBehalf != address(this), ErrorsLib.BUNDLER_ADDRESS);
 
-        // Don't always cap the amount to the bundler's balance because the liquidity can be transferred later
+        // Don't always cap the assets to the bundler's balance because the liquidity can be transferred later
         // (via the `onMorphoRepay` callback).
-        if (amount == type(uint256).max) amount = ERC20(marketParams.loanToken).balanceOf(address(this));
+        if (assets == type(uint256).max) assets = ERC20(marketParams.loanToken).balanceOf(address(this));
 
         _approveMaxMorpho(marketParams.loanToken);
 
-        MORPHO.repay(marketParams, amount, shares, onBehalf, data);
+        (uint256 repaidAssets, uint256 repaidShares) = MORPHO.repay(marketParams, assets, shares, onBehalf, data);
+
+        if (assets > 0) require(repaidShares >= slippageAmount, ErrorsLib.SLIPPAGE_EXCEEDED);
+        else require(repaidAssets <= slippageAmount, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
 
-    /// @notice Withdraws `amount` of the loan asset on behalf of the initiator.
+    /// @notice Withdraws `assets` of the loan asset on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @dev Either `assets` or `shares` should be zero. Most usecases should rely on `assets` as an input so the
+    /// initiator is guaranteed to withdraw `assets` tokens, but the possibility to mint a specific amount of shares is
+    /// given for full compatibility and precision.
     /// @dev Initiator must have previously authorized the bundler to act on their behalf on Morpho.
     /// @param marketParams The Morpho market to withdraw assets from.
-    /// @param amount The amount of assets to withdraw.
+    /// @param assets The amount of assets to withdraw.
     /// @param shares The amount of shares to burn.
+    /// @param slippageAmount The minimum amount of shares to mint in exchange for `assets` when it is used.
+    /// The maximum amount of assets to deposit in exchange for `shares` otherwise.
     /// @param receiver The address that will receive the withdrawn assets.
-    function morphoWithdraw(MarketParams calldata marketParams, uint256 amount, uint256 shares, address receiver)
-        external
-        payable
-    {
-        MORPHO.withdraw(marketParams, amount, shares, initiator(), receiver);
+    function morphoWithdraw(
+        MarketParams calldata marketParams,
+        uint256 assets,
+        uint256 shares,
+        uint256 slippageAmount,
+        address receiver
+    ) external payable {
+        (uint256 withdrawnAssets, uint256 withdrawnShares) =
+            MORPHO.withdraw(marketParams, assets, shares, initiator(), receiver);
+
+        if (assets > 0) require(withdrawnShares <= slippageAmount, ErrorsLib.SLIPPAGE_EXCEEDED);
+        else require(withdrawnAssets >= slippageAmount, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
 
-    /// @notice Withdraws `amount` of the collateral asset on behalf of the initiator.
+    /// @notice Withdraws `assets` of the collateral asset on behalf of the initiator.
     /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously authorized the bundler to act on their behalf on Morpho.
     /// @param marketParams The Morpho market to withdraw collateral from.
-    /// @param amount The amount of collateral to withdraw.
+    /// @param assets The amount of collateral to withdraw.
     /// @param receiver The address that will receive the collateral assets.
-    function morphoWithdrawCollateral(MarketParams calldata marketParams, uint256 amount, address receiver)
+    function morphoWithdrawCollateral(MarketParams calldata marketParams, uint256 assets, address receiver)
         external
         payable
     {
-        MORPHO.withdrawCollateral(marketParams, amount, initiator(), receiver);
+        MORPHO.withdrawCollateral(marketParams, assets, initiator(), receiver);
     }
 
     /// @notice Triggers a liquidation on Morpho.
     /// @notice Seized collateral is received by the bundler and should be used afterwards.
+    /// @dev Either `seizedAssets` or `repaidShares` should be zero.
     /// @param marketParams The Morpho market of the position.
     /// @param borrower The owner of the position.
-    /// @param seizedCollateral The amount of collateral to seize.
+    /// @param seizedAssets The amount of collateral to seize.
     /// @param repaidShares The amount of shares to repay.
+    /// @param maxRepaidAssets The maximum amount of assets to repay.
     /// @param data Arbitrary data to pass to the `onMorphoLiquidate` callback. Pass empty data if not needed.
     function morphoLiquidate(
         MarketParams calldata marketParams,
         address borrower,
-        uint256 seizedCollateral,
+        uint256 seizedAssets,
         uint256 repaidShares,
+        uint256 maxRepaidAssets,
         bytes memory data
     ) external payable {
         _approveMaxMorpho(marketParams.loanToken);
 
-        MORPHO.liquidate(marketParams, borrower, seizedCollateral, repaidShares, data);
+        (, uint256 repaidAssets) = MORPHO.liquidate(marketParams, borrower, seizedAssets, repaidShares, data);
+
+        require(repaidAssets <= maxRepaidAssets, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
 
     /// @notice Triggers a flash loan on Morpho.

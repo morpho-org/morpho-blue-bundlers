@@ -149,15 +149,17 @@ export class BundlerAction {
 
   static morphoSupply(
     market: MarketParamsStruct,
-    amount: BigNumberish,
+    assets: BigNumberish,
     shares: BigNumberish,
+    slippageAmount: BigNumberish,
     onBehalf: string,
     callbackCalls: BundlerCall[],
   ): BundlerCall {
     return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoSupply", [
       market,
-      amount,
+      assets,
       shares,
+      slippageAmount,
       onBehalf,
       BundlerAction.MORPHO_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
     ]);
@@ -165,13 +167,13 @@ export class BundlerAction {
 
   static morphoSupplyCollateral(
     market: MarketParamsStruct,
-    amount: BigNumberish,
+    assets: BigNumberish,
     onBehalf: string,
     callbackCalls: BundlerCall[],
   ): BundlerCall {
     return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoSupplyCollateral", [
       market,
-      amount,
+      assets,
       onBehalf,
       BundlerAction.MORPHO_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
     ]);
@@ -179,24 +181,33 @@ export class BundlerAction {
 
   static morphoBorrow(
     market: MarketParamsStruct,
-    amount: BigNumberish,
+    assets: BigNumberish,
     shares: BigNumberish,
+    slippageAmount: BigNumberish,
     receiver: string,
   ): BundlerCall {
-    return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoBorrow", [market, amount, shares, receiver]);
+    return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoBorrow", [
+      market,
+      assets,
+      shares,
+      slippageAmount,
+      receiver,
+    ]);
   }
 
   static morphoRepay(
     market: MarketParamsStruct,
-    amount: BigNumberish,
+    assets: BigNumberish,
     shares: BigNumberish,
+    slippageAmount: BigNumberish,
     onBehalf: string,
     callbackCalls: BundlerCall[],
   ): BundlerCall {
     return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoRepay", [
       market,
-      amount,
+      assets,
       shares,
+      slippageAmount,
       onBehalf,
       BundlerAction.MORPHO_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
     ]);
@@ -204,15 +215,22 @@ export class BundlerAction {
 
   static morphoWithdraw(
     market: MarketParamsStruct,
-    amount: BigNumberish,
+    assets: BigNumberish,
     shares: BigNumberish,
+    slippageAmount: BigNumberish,
     receiver: string,
   ): BundlerCall {
-    return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoWithdraw", [market, amount, shares, receiver]);
+    return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoWithdraw", [
+      market,
+      assets,
+      shares,
+      slippageAmount,
+      receiver,
+    ]);
   }
 
-  static morphoWithdrawCollateral(market: MarketParamsStruct, amount: BigNumberish, receiver: string): BundlerCall {
-    return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoWithdrawCollateral", [market, amount, receiver]);
+  static morphoWithdrawCollateral(market: MarketParamsStruct, assets: BigNumberish, receiver: string): BundlerCall {
+    return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoWithdrawCollateral", [market, assets, receiver]);
   }
 
   static morphoLiquidate(
@@ -220,6 +238,7 @@ export class BundlerAction {
     borrower: string,
     seizedAssets: BigNumberish,
     repaidShares: BigNumberish,
+    maxRepaidAssets: BigNumberish,
     callbackCalls: BundlerCall[],
   ): BundlerCall {
     return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoLiquidate", [
@@ -227,6 +246,7 @@ export class BundlerAction {
       borrower,
       seizedAssets,
       repaidShares,
+      maxRepaidAssets,
       BundlerAction.MORPHO_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
     ]);
   }
