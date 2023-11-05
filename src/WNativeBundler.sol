@@ -32,10 +32,9 @@ abstract contract WNativeBundler is BaseBundler {
 
     /* FALLBACKS */
 
-    /// @dev Only the wNative contract is allowed to transfer the native token to this contract, without any calldata.
-    receive() external payable virtual {
-        require(msg.sender == WRAPPED_NATIVE, ErrorsLib.ONLY_WNATIVE);
-    }
+    /// @notice Native tokens are received by the bundler and should be used afterwards.
+    /// @dev Allows the wrapped native contract to send native tokens to the bundler.
+    receive() external payable {}
 
     /* ACTIONS */
 
