@@ -23,7 +23,8 @@ abstract contract MigrationBundler is TransferBundler, PermitBundler, Permit2Bun
 
     /* INTERNAL */
 
-    function _isProtectedCall() internal view virtual override(BaseBundler, MorphoBundler) returns (bool) {
-        return MorphoBundler._isProtectedCall();
+    /// @inheritdoc MorphoBundler
+    function _isSenderAuthorized() internal view virtual override(BaseBundler, MorphoBundler) returns (bool) {
+        return MorphoBundler._isSenderAuthorized();
     }
 }

@@ -20,7 +20,7 @@ contract WNativeBundlerEthereumTest is EthereumTest {
     function testWrapUninitiated(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        vm.expectRevert(bytes(ErrorsLib.PROTECTED));
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
         WNativeBundlerMock(payable(address(bundler))).wrapNative(amount);
     }
 
@@ -55,7 +55,7 @@ contract WNativeBundlerEthereumTest is EthereumTest {
     function testUnwrapUninitiated(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        vm.expectRevert(bytes(ErrorsLib.PROTECTED));
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
         WNativeBundlerMock(payable(address(bundler))).unwrapNative(amount);
     }
 

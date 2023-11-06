@@ -26,9 +26,11 @@ abstract contract BaseBundler is IMulticall {
 
     /* MODIFIERS */
 
-    /// @dev Prevents a function to be called outside a `multicall` context.
+    /// @dev Prevents a function to be called outside an initiated `multicall` context and protects a function from
+    /// being called by an unauthorized sender inside an initiated multicall context.
     modifier protected() {
-        require(_initiator != UNSET_INITIATOR && _isProtectedCall(), ErrorsLib.PROTECTED);
+        require(_initiator != UNSET_INITIATOR, ErrorsLib.UNINITIATED);
+        require(_isSenderAuthorized(), ErrorsLib.UNAUTHORIZED_SENDER);
 
         _;
     }
@@ -80,8 +82,9 @@ abstract contract BaseBundler is IMulticall {
         }
     }
 
-    /// @dev Returns whether the sender is protected in the current multicall context.
-    function _isProtectedCall() internal view virtual returns (bool) {
+    /// @dev Returns whether the sender of the call is authorized.
+    /// @dev Assumes to be inside a properly initiated `multicall` context.
+    function _isSenderAuthorized() internal view virtual returns (bool) {
         return msg.sender == _initiator;
     }
 

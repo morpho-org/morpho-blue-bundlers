@@ -35,7 +35,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
     function testAaveV3OptimizerRepayUninitiated(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        vm.expectRevert(bytes(ErrorsLib.PROTECTED));
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
         AaveV3OptimizerMigrationBundler(address(bundler)).aaveV3OptimizerRepay(marketParams.loanToken, amount);
     }
 
@@ -188,7 +188,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
 
         MA3Signature memory sig;
 
-        vm.expectRevert(bytes(ErrorsLib.PROTECTED));
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
         AaveV3OptimizerMigrationBundler(address(bundler)).aaveV3OptimizerApproveManagerWithSig(
             true, 0, SIGNATURE_DEADLINE, sig, false
         );
@@ -197,7 +197,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
     function testAaveV3OptimizerWithdrawUninitiated(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        vm.expectRevert(bytes(ErrorsLib.PROTECTED));
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
         AaveV3OptimizerMigrationBundler(address(bundler)).aaveV3OptimizerWithdraw(
             marketParams.loanToken, amount, MAX_ITERATIONS
         );
@@ -206,7 +206,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
     function testAaveV3OptimizerWithdrawCollateralUninitiated(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        vm.expectRevert(bytes(ErrorsLib.PROTECTED));
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
         AaveV3OptimizerMigrationBundler(address(bundler)).aaveV3OptimizerWithdrawCollateral(
             marketParams.loanToken, amount
         );

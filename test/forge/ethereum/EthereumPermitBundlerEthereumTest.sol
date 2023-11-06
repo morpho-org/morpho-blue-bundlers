@@ -35,7 +35,7 @@ contract EthereumPermitBundlerEthereumTest is EthereumTest {
     }
 
     function testPermitDaiUninitiated() public {
-        vm.expectRevert(bytes(ErrorsLib.PROTECTED));
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
         EthereumPermitBundlerMock(address(bundler)).permitDai(0, SIGNATURE_DEADLINE, true, 0, 0, 0, true);
     }
 

@@ -34,7 +34,6 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
 
     /// @notice Repays `amount` of `cToken`'s underlying asset, on behalf of the initiator.
     /// @dev Initiator must have previously transferred their assets to the bundler.
-    /// @dev Warning: `cToken` can re-enter the bundler flow.
     /// @param cToken The address of the cToken contract
     /// @param amount The amount of `cToken` to repay. Pass `type(uint256).max` to repay all (except for cETH).
     function compoundV2Repay(address cToken, uint256 amount) external payable protected {
@@ -60,7 +59,6 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
     /// @notice Redeems `amount` of `cToken` from CompoundV2.
     /// @notice Withdrawn assets are received by the bundler and should be used afterwards.
     /// @dev Initiator must have previously transferred their cTokens to the bundler.
-    /// @dev Warning: `cToken` can re-enter the bundler flow.
     /// @param cToken The address of the cToken contract
     /// @param amount The amount of `cToken` to redeem. Pass `type(uint256).max` to redeem the bundler's `cToken`
     /// balance.
@@ -74,7 +72,8 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
 
     /* INTERNAL */
 
-    function _isProtectedCall() internal view override(BaseBundler, MigrationBundler) returns (bool) {
-        return MigrationBundler._isProtectedCall();
+    /// @inheritdoc MigrationBundler
+    function _isSenderAuthorized() internal view override(BaseBundler, MigrationBundler) returns (bool) {
+        return MigrationBundler._isSenderAuthorized();
     }
 }

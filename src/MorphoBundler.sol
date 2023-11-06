@@ -270,7 +270,8 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         _multicall(abi.decode(data, (bytes[])));
     }
 
-    function _isProtectedCall() internal view virtual override returns (bool) {
-        return super._isProtectedCall() || msg.sender == address(MORPHO);
+    /// @inheritdoc BaseBundler
+    function _isSenderAuthorized() internal view virtual override returns (bool) {
+        return super._isSenderAuthorized() || msg.sender == address(MORPHO);
     }
 }

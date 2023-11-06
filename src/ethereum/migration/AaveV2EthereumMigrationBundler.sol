@@ -19,7 +19,8 @@ contract AaveV2EthereumMigrationBundler is EthereumStEthBundler, AaveV2Migration
 
     /* INTERNAL */
 
-    function _isProtectedCall() internal view override(BaseBundler, MigrationBundler) returns (bool) {
-        return MigrationBundler._isProtectedCall();
+    /// @inheritdoc MigrationBundler
+    function _isSenderAuthorized() internal view override(BaseBundler, MigrationBundler) returns (bool) {
+        return MigrationBundler._isSenderAuthorized();
     }
 }

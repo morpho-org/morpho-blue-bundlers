@@ -32,7 +32,6 @@ contract AaveV2MigrationBundler is MigrationBundler {
 
     /// @notice Repays `amount` of `asset` on AaveV2, on behalf of the initiator.
     /// @dev Initiator must have previously transferred their assets to the bundler.
-    /// @dev Warning: `asset` can re-enter the bundler flow.
     /// @param asset The address of the token to repay.
     /// @param amount The amount of `asset` to repay. Pass `type(uint256).max` to repay the bundler's `asset` balance.
     /// @param interestRateMode The interest rate mode of the position.

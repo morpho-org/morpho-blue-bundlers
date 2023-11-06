@@ -33,7 +33,8 @@ contract GoerliBundler is
 
     /* INTERNAL */
 
-    function _isProtectedCall() internal view override(BaseBundler, MorphoBundler) returns (bool) {
-        return MorphoBundler._isProtectedCall();
+    /// @inheritdoc MorphoBundler
+    function _isSenderAuthorized() internal view override(BaseBundler, MorphoBundler) returns (bool) {
+        return MorphoBundler._isSenderAuthorized();
     }
 }
