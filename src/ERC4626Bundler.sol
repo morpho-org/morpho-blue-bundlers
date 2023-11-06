@@ -19,6 +19,7 @@ abstract contract ERC4626Bundler is BaseBundler {
     /* ACTIONS */
 
     /// @notice Mints the given amount of `shares` on the given ERC4626 `vault`, on behalf of `receiver`.
+    /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @dev Warning: `vault` can re-enter the bundler flow.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
@@ -33,18 +34,14 @@ abstract contract ERC4626Bundler is BaseBundler {
 
         require(shares != 0, ErrorsLib.ZERO_SHARES);
 
-        uint256 assets = IERC4626(vault).previewMint(shares);
+        _approveMaxTo(IERC4626(vault).asset(), vault);
+
+        uint256 assets = IERC4626(vault).mint(shares, receiver);
         require(assets <= maxAssets, ErrorsLib.SLIPPAGE_EXCEEDED);
-
-        address asset = IERC4626(vault).asset();
-
-        // Approve 0 first to comply with tokens that implement the anti frontrunning approval fix.
-        ERC20(asset).safeApprove(vault, 0);
-        ERC20(asset).safeApprove(vault, assets);
-        IERC4626(vault).mint(shares, receiver);
     }
 
     /// @notice Deposits the given amount of `assets` on the given ERC4626 `vault`, on behalf of `receiver`.
+    /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @dev Warning: `vault` can re-enter the bundler flow.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
@@ -62,9 +59,7 @@ abstract contract ERC4626Bundler is BaseBundler {
 
         require(assets != 0, ErrorsLib.ZERO_AMOUNT);
 
-        // Approve 0 first to comply with tokens that implement the anti frontrunning approval fix.
-        ERC20(asset).safeApprove(vault, 0);
-        ERC20(asset).safeApprove(vault, assets);
+        _approveMaxTo(asset, vault);
 
         uint256 shares = IERC4626(vault).deposit(assets, receiver);
         require(shares >= minShares, ErrorsLib.SLIPPAGE_EXCEEDED);
