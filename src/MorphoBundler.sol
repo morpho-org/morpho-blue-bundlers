@@ -46,6 +46,11 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         _callback(data);
     }
 
+    function onMorphoLiquidate(uint256, bytes calldata data) external {
+        // Don't need to approve Morpho to pull tokens because it should already be approved max.
+        _callback(data);
+    }
+
     function onMorphoFlashLoan(uint256, bytes calldata data) external {
         // Don't need to approve Morpho to pull tokens because it should already be approved max.
         _callback(data);

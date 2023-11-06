@@ -446,7 +446,8 @@ contract MorphoBundlerLocalTest is LocalTest {
             seizedCollateral.mulDivUp(ORACLE_PRICE_SCALE / 2, ORACLE_PRICE_SCALE).wDivUp(incentiveFactor);
         uint256 expectedRepaidShares = repaidAssets.toSharesDown(amountBorrowed, borrowShares);
 
-        bundle.push(_erc20TransferFrom(address(loanToken), repaidAssets));
+        callbackBundle.push(_erc20TransferFrom(address(loanToken), repaidAssets));
+
         bundle.push(_morphoLiquidate(marketParams, USER, seizedCollateral, 0, type(uint256).max));
         bundle.push(_erc20Transfer(address(collateralToken), LIQUIDATOR, seizedCollateral));
 
