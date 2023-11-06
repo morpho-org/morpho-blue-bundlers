@@ -21,11 +21,10 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /* ACTIONS */
 
     /// @notice Repays `amount` on the CompoundV3 `instance`, on behalf of the initiator.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
+    /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
-    /// @dev Pass `amount = type(uint256).max` to repay all.
     /// @param instance The address of the CompoundV3 instance to call.
-    /// @param amount The amount of `asset` to repay.
+    /// @param amount The amount of `asset` to repay. Pass `type(uint256).max` to repay all.
     function compoundV3Repay(address instance, uint256 amount) external payable protected {
         address initiator = initiator();
         address asset = ICompoundV3(instance).baseToken();
@@ -42,12 +41,12 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     }
 
     /// @notice Withdraws `amount` of `asset` from the CompoundV3 `instance`, on behalf of the initiator.
+    /// @notice Withdrawn assets are received by the bundler and should be used afterwards.
     /// @dev Initiator must have previously approved the bundler to manage their CompoundV3 position.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
-    /// @dev Pass `amount = type(uint256).max` to withdraw all.
     /// @param instance The address of the CompoundV3 instance to call.
-    /// @param asset The address of the token to withdraw from the CompoundV3 `instance`.
-    /// @param amount The amount of `asset` to withdraw the CompoundV3 `instance`.
+    /// @param asset The address of the token to withdraw.
+    /// @param amount The amount of `asset` to withdraw. Pass `type(uint256).max` to withdraw all.
     function compoundV3WithdrawFrom(address instance, address asset, uint256 amount) external payable protected {
         address initiator = initiator();
         uint256 balance = asset == ICompoundV3(instance).baseToken()

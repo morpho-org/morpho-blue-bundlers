@@ -18,6 +18,8 @@ abstract contract Permit2Bundler is BaseBundler {
     /* ACTIONS */
 
     /// @notice Permits and performs a transfer from the initiator to the recipient via Permit2.
+    /// @notice User must have given sufficient allowance to the Permit2 contract to manage their tokens.
+    /// @dev Warning: `permit.permitted.token` can re-enter the bundler flow.
     /// @dev Pass `permit.permitted.amount = type(uint256).max` to transfer all.
     /// @param permit The `PermitTransferFrom` struct.
     /// @param signature The signature.

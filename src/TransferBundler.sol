@@ -19,9 +19,10 @@ abstract contract TransferBundler is BaseBundler {
 
     /// @notice Transfers the minimum between the given `amount` and the bundler's balance of native asset from the
     /// bundler to `recipient`.
-    /// @dev Pass `amount = type(uint256).max` to transfer all.
+    /// @dev Warning: `recipient` can re-enter the bundler flow.
     /// @param recipient The address that will receive the native tokens.
-    /// @param amount The amount of native tokens to transfer.
+    /// @param amount The amount of native tokens to transfer from the initiator. Pass `type(uint256).max` to transfer
+    /// the initiator's balance.
     function nativeTransfer(address recipient, uint256 amount) external payable protected {
         require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
         require(recipient != address(this), ErrorsLib.BUNDLER_ADDRESS);
@@ -35,10 +36,10 @@ abstract contract TransferBundler is BaseBundler {
 
     /// @notice Transfers the minimum between the given `amount` and the bundler's balance of `asset` from the bundler
     /// to `recipient`.
-    /// @dev Pass `amount = type(uint256).max` to transfer all.
+    /// @dev Warning: `asset` can re-enter the bundler flow.
     /// @param asset The address of the ERC20 token to transfer.
     /// @param recipient The address that will receive the tokens.
-    /// @param amount The amount of `asset` to transfer.
+    /// @param amount The amount of `asset` to transfer. Pass `type(uint256).max` to transfer the bundler's balance.
     function erc20Transfer(address asset, address recipient, uint256 amount) external payable protected {
         require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
         require(recipient != address(this), ErrorsLib.BUNDLER_ADDRESS);
@@ -51,9 +52,11 @@ abstract contract TransferBundler is BaseBundler {
     }
 
     /// @notice Transfers the given `amount` of `asset` from sender to this contract via ERC20 transferFrom.
-    /// @dev Pass `amount = type(uint256).max` to transfer all.
+    /// @notice User must have given sufficient allowance to the Bundler to manage their tokens.
+    /// @dev Warning: `asset` can re-enter the bundler flow.
     /// @param asset The address of the ERC20 token to transfer.
-    /// @param amount The amount of `asset` to transfer from the initiator.
+    /// @param amount The amount of `asset` to transfer from the initiator. Pass `type(uint256).max` to transfer the
+    /// initiator's balance.
     function erc20TransferFrom(address asset, uint256 amount) external payable protected {
         address initiator = initiator();
         amount = Math.min(amount, ERC20(asset).balanceOf(initiator));
