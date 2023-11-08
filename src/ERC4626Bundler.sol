@@ -67,14 +67,17 @@ abstract contract ERC4626Bundler is BaseBundler {
 
     /// @notice Withdraws the given amount of `assets` from the given ERC4626 `vault`, transferring assets to
     /// `receiver`.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Warning: `vault` can re-enter the bundler flow.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
     /// @param assets The amount of assets to withdraw. Pass `type(uint256).max` to withdraw max.
     /// @param maxShares The maximum amount of shares to redeem in exchange for `assets`.
     /// @param receiver The address that will receive the withdrawn assets.
-    function erc4626Withdraw(address vault, uint256 assets, uint256 maxShares, address receiver) external payable {
+    function erc4626Withdraw(address vault, uint256 assets, uint256 maxShares, address receiver)
+        external
+        payable
+        onlyInitiated
+    {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
 
@@ -89,14 +92,17 @@ abstract contract ERC4626Bundler is BaseBundler {
     }
 
     /// @notice Redeems the given amount of `shares` from the given ERC4626 `vault`, transferring assets to `receiver`.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Warning: `vault` can re-enter the bundler flow.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
     /// @param shares The amount of shares to burn. Pass `type(uint256).max` to redeem max.
     /// @param minAssets The minimum amount of assets to withdraw in exchange for `shares`.
     /// @param receiver The address that will receive the withdrawn assets.
-    function erc4626Redeem(address vault, uint256 shares, uint256 minAssets, address receiver) external payable {
+    function erc4626Redeem(address vault, uint256 shares, uint256 minAssets, address receiver)
+        external
+        payable
+        onlyInitiated
+    {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
 
