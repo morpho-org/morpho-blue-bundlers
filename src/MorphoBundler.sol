@@ -78,7 +78,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /// @param assets The amount of assets to supply. Pass `type(uint256).max` to supply the bundler's loan asset
     /// balance.
     /// @param shares The amount of shares to mint.
-    /// @param slippageAmount The minimum amount of shares to mint in exchange for `assets` when it is used.
+    /// @param slippageAmount The minimum amount of supply shares to mint in exchange for `assets` when it is used.
     /// The maximum amount of assets to deposit in exchange for `shares` otherwise.
     /// @param onBehalf The address that will own the increased supply position.
     /// @param data Arbitrary data to pass to the `onMorphoSupply` callback. Pass empty data if not needed.
@@ -138,7 +138,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /// @param marketParams The Morpho market to borrow assets from.
     /// @param assets The amount of assets to borrow.
     /// @param shares The amount of shares to mint.
-    /// @param slippageAmount The maximum amount of shares to mint in exchange for `assets` when it is used.
+    /// @param slippageAmount The maximum amount of borrow shares to mint in exchange for `assets` when it is used.
     /// The minimum amount of assets to borrow in exchange for `shares` otherwise.
     /// @param receiver The address that will receive the borrowed assets.
     function morphoBorrow(
@@ -157,12 +157,12 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /// @notice Repays `assets` of the loan asset on behalf of `onBehalf`.
     /// @dev Either `assets` or `shares` should be zero. Most usecases should rely on `assets` as an input so the
-    /// bundler is guaranteed to have `assets` tokens pulled from its balance, but the possibility to mint a specific
+    /// bundler is guaranteed to have `assets` tokens pulled from its balance, but the possibility to burn a specific
     /// amount of shares is given for full compatibility and precision.
     /// @param marketParams The Morpho market to repay assets to.
     /// @param assets The amount of assets to repay. Pass `type(uint256).max` to repay the bundler's loan asset balance.
     /// @param shares The amount of shares to burn.
-    /// @param slippageAmount The minimum amount of shares to mint in exchange for `assets` when it is used.
+    /// @param slippageAmount The minimum amount of borrow shares to burn in exchange for `assets` when it is used.
     /// The maximum amount of assets to deposit in exchange for `shares` otherwise.
     /// @param onBehalf The address of the owner of the debt position.
     /// @param data Arbitrary data to pass to the `onMorphoRepay` callback. Pass empty data if not needed.
@@ -191,14 +191,14 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /// @notice Withdraws `assets` of the loan asset on behalf of the initiator.
     /// @dev Either `assets` or `shares` should be zero. Most usecases should rely on `assets` as an input so the
-    /// initiator is guaranteed to withdraw `assets` tokens, but the possibility to mint a specific amount of shares is
+    /// initiator is guaranteed to withdraw `assets` tokens, but the possibility to burn a specific amount of shares is
     /// given for full compatibility and precision.
     /// @dev Initiator must have previously authorized the bundler to act on their behalf on Morpho.
     /// @param marketParams The Morpho market to withdraw assets from.
     /// @param assets The amount of assets to withdraw.
     /// @param shares The amount of shares to burn.
-    /// @param slippageAmount The minimum amount of shares to mint in exchange for `assets` when it is used.
-    /// The maximum amount of assets to deposit in exchange for `shares` otherwise.
+    /// @param slippageAmount The minimum amount of supply shares to burn in exchange for `assets` when it is used.
+    /// The maximum amount of assets to withdraw in exchange for `shares` otherwise.
     /// @param receiver The address that will receive the withdrawn assets.
     function morphoWithdraw(
         MarketParams calldata marketParams,
