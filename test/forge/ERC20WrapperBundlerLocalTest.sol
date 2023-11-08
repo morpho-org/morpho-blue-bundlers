@@ -69,4 +69,18 @@ contract ERC20WrapperBundlerBundlerLocalTest is LocalTest {
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(bundle);
     }
+
+    function testErc20WrapperDepositForUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        ERC20WrapperBundler(address(bundler)).erc20WrapperDepositFor(address(loanWrapper), amount);
+    }
+
+    function testErc20WrapperWithdrawToUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        ERC20WrapperBundler(address(bundler)).erc20WrapperWithdrawTo(address(loanWrapper), RECEIVER, amount);
+    }
 }
