@@ -61,7 +61,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         Authorization calldata authorization,
         Signature calldata signature,
         bool skipRevert
-    ) external payable {
+    ) external payable protected {
         try MORPHO.setAuthorizationWithSig(authorization, signature) {}
         catch (bytes memory returnData) {
             if (!skipRevert) _revert(returnData);
@@ -89,7 +89,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         uint256 slippageAmount,
         address onBehalf,
         bytes calldata data
-    ) external payable {
+    ) external payable protected {
         // Do not check `onBehalf` against the zero address as it's done at Morpho's level.
         require(onBehalf != address(this), ErrorsLib.BUNDLER_ADDRESS);
 
@@ -117,7 +117,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         uint256 assets,
         address onBehalf,
         bytes calldata data
-    ) external payable {
+    ) external payable protected {
         // Do not check `onBehalf` against the zero address as it's done at Morpho's level.
         require(onBehalf != address(this), ErrorsLib.BUNDLER_ADDRESS);
 
@@ -147,7 +147,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         uint256 shares,
         uint256 slippageAmount,
         address receiver
-    ) external payable onlyInitiated {
+    ) external payable protected {
         (uint256 borrowedAssets, uint256 borrowedShares) =
             MORPHO.borrow(marketParams, assets, shares, initiator(), receiver);
 
@@ -173,7 +173,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         uint256 slippageAmount,
         address onBehalf,
         bytes calldata data
-    ) external payable {
+    ) external payable protected {
         // Do not check `onBehalf` against the zero address as it's done at Morpho's level.
         require(onBehalf != address(this), ErrorsLib.BUNDLER_ADDRESS);
 
@@ -206,7 +206,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         uint256 shares,
         uint256 slippageAmount,
         address receiver
-    ) external payable onlyInitiated {
+    ) external payable protected {
         (uint256 withdrawnAssets, uint256 withdrawnShares) =
             MORPHO.withdraw(marketParams, assets, shares, initiator(), receiver);
 
@@ -222,7 +222,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     function morphoWithdrawCollateral(MarketParams calldata marketParams, uint256 assets, address receiver)
         external
         payable
-        onlyInitiated
+        protected
     {
         MORPHO.withdrawCollateral(marketParams, assets, initiator(), receiver);
     }
@@ -243,7 +243,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         uint256 repaidShares,
         uint256 maxRepaidAssets,
         bytes memory data
-    ) external payable {
+    ) external payable protected {
         _approveMaxTo(marketParams.loanToken, address(MORPHO));
 
         (, uint256 repaidAssets) = MORPHO.liquidate(marketParams, borrower, seizedAssets, repaidShares, data);
@@ -255,7 +255,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /// @param token The address of the token to flash loan.
     /// @param assets The amount of assets to flash loan.
     /// @param data Arbitrary data to pass to the `onMorphoFlashLoan` callback.
-    function morphoFlashLoan(address token, uint256 assets, bytes calldata data) external payable {
+    function morphoFlashLoan(address token, uint256 assets, bytes calldata data) external payable protected {
         _approveMaxTo(token, address(MORPHO));
 
         MORPHO.flashLoan(token, assets, data);
@@ -264,7 +264,14 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /* INTERNAL */
 
     /// @dev Triggers `_multicall` logic during a callback.
-    function _callback(bytes calldata data) internal onlyInitiated {
+    function _callback(bytes calldata data) internal {
+        require(msg.sender == address(MORPHO), ErrorsLib.UNAUTHORIZED_SENDER);
+
         _multicall(abi.decode(data, (bytes[])));
+    }
+
+    /// @inheritdoc BaseBundler
+    function _isSenderAuthorized() internal view virtual override returns (bool) {
+        return super._isSenderAuthorized() || msg.sender == address(MORPHO);
     }
 }
