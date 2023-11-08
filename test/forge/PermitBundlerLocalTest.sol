@@ -35,6 +35,13 @@ contract PermitBundlerLocalTest is LocalTest {
         assertEq(permitToken.allowance(user, address(bundler)), amount, "allowance(user, bundler)");
     }
 
+    function testPermitUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        PermitBundlerMock(address(bundler)).permit(address(loanToken), amount, SIGNATURE_DEADLINE, 0, 0, 0, true);
+    }
+
     function testPermitRevert(uint256 amount, uint256 privateKey, uint256 deadline) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
         deadline = bound(deadline, block.timestamp, type(uint48).max);

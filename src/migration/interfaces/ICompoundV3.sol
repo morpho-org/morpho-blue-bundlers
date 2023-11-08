@@ -16,6 +16,8 @@ struct Authorization {
 }
 
 interface ICompoundV3 {
+    error BadSignatory();
+
     function name() external view returns (string memory);
 
     function version() external view returns (string memory);

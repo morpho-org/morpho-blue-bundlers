@@ -22,13 +22,13 @@ abstract contract Permit2Bundler is BaseBundler {
 
     /// @notice Approves the given `amount` of `asset` from the initiator to be spent by the bundler via Permit2 with
     /// the given `deadline` & EIP-712 `signature`.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @param permitSingle The `PermitSingle` struct.
     /// @param signature The signature, serialized.
     /// @param skipRevert Whether to avoid reverting the call in case the signature is frontrunned.
     function approve2(IAllowanceTransfer.PermitSingle calldata permitSingle, bytes calldata signature, bool skipRevert)
         external
         payable
+        protected
     {
         try Permit2Lib.PERMIT2.permit(initiator(), permitSingle, signature) {}
         catch (bytes memory returnData) {
@@ -41,7 +41,7 @@ abstract contract Permit2Bundler is BaseBundler {
     /// @param asset The address of the ERC20 token to transfer. Pass `type(uint256).max` to transfer the initiator's
     /// balance.
     /// @param amount The amount of `asset` to transfer from the initiator.
-    function transferFrom2(address asset, uint256 amount) external payable {
+    function transferFrom2(address asset, uint256 amount) external payable protected {
         address initiator = initiator();
         amount = Math.min(amount, ERC20(asset).balanceOf(initiator));
 

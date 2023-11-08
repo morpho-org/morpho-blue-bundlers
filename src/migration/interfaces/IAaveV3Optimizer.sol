@@ -21,6 +21,8 @@ struct Authorization {
 }
 
 interface IAaveV3Optimizer {
+    error InvalidSignatory();
+
     function DOMAIN_SEPARATOR() external view returns (bytes32);
 
     function supply(address underlying, uint256 amount, address onBehalf, uint256 maxIterations)

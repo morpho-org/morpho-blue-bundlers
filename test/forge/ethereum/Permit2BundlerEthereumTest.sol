@@ -41,7 +41,15 @@ contract Permit2BundlerEthereumTest is EthereumTest {
         assertEq(ERC20(marketParams.loanToken).allowance(user, address(bundler)), 0, "loan.allowance(user, bundler)");
     }
 
-    function testApprove2Revert(uint256 seed, uint256 privateKey, uint256 deadline, uint256 amount) public {
+    function testApprove2Uninitiated() public {
+        IAllowanceTransfer.PermitSingle memory permitSingle;
+        bytes memory signature;
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        Permit2BundlerMock(address(bundler)).approve2(permitSingle, signature, false);
+    }
+
+    function testApprove2InvalidNonce(uint256 seed, uint256 privateKey, uint256 deadline, uint256 amount) public {
         privateKey = bound(privateKey, 1, type(uint160).max);
         deadline = bound(deadline, block.timestamp, type(uint48).max);
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
@@ -62,5 +70,10 @@ contract Permit2BundlerEthereumTest is EthereumTest {
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(bundle);
+    }
+
+    function testTransferFrom2Uninitiated() public {
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        Permit2BundlerMock(address(bundler)).transferFrom2(address(0), 0);
     }
 }
