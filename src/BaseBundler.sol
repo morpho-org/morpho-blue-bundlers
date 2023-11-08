@@ -24,6 +24,17 @@ abstract contract BaseBundler is IMulticall {
     /// @dev Also prevents interacting with the bundler outside of an initiated execution context.
     address private _initiator = UNSET_INITIATOR;
 
+    /* MODIFIERS */
+
+    /// @dev Prevents a function to be called outside an initiated `multicall` context and protects a function from
+    /// being called by an unauthorized sender inside an initiated multicall context.
+    modifier protected() {
+        require(_initiator != UNSET_INITIATOR, ErrorsLib.UNINITIATED);
+        require(_isSenderAuthorized(), ErrorsLib.UNAUTHORIZED_SENDER);
+
+        _;
+    }
+
     /* PUBLIC */
 
     /// @notice Returns the address of the initiator of the multicall transaction.
@@ -60,11 +71,6 @@ abstract contract BaseBundler is IMulticall {
         }
     }
 
-    /// @dev Checks that the contract is in an initiated execution context.
-    function _checkInitiated() internal view {
-        require(_initiator != UNSET_INITIATOR, ErrorsLib.UNINITIATED);
-    }
-
     /// @dev Bubbles up the revert reason / custom error encoded in `returnData`.
     /// @dev Assumes `returnData` is the return data of any kind of failing CALL to a contract.
     function _revert(bytes memory returnData) internal pure {
@@ -74,6 +80,12 @@ abstract contract BaseBundler is IMulticall {
         assembly ("memory-safe") {
             revert(add(32, returnData), length)
         }
+    }
+
+    /// @dev Returns whether the sender of the call is authorized.
+    /// @dev Assumes to be inside a properly initiated `multicall` context.
+    function _isSenderAuthorized() internal view virtual returns (bool) {
+        return msg.sender == _initiator;
     }
 
     /// @dev Gives the max approval to `spender` to spend the given `asset` if not already approved.

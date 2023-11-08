@@ -47,6 +47,11 @@ contract ERC4626BundlerLocalTest is LocalTest {
         bundler.multicall(bundle);
     }
 
+    function test4626DepositUninitiated(uint256 assets) public {
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        ERC4626BundlerMock(address(bundler)).erc4626Withdraw(address(vault), assets, 0, RECEIVER);
+    }
+
     function testErc4626WithdrawZeroAdressVault(uint256 assets) public {
         bundle.push(_erc4626Withdraw(address(0), assets, type(uint256).max, RECEIVER));
 
@@ -59,6 +64,11 @@ contract ERC4626BundlerLocalTest is LocalTest {
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         bundler.multicall(bundle);
+    }
+
+    function test4626RedeemUninitiated(uint256 shares) public {
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        ERC4626BundlerMock(address(bundler)).erc4626Redeem(address(vault), shares, 0, RECEIVER);
     }
 
     function testErc4626RedeemZeroAdressVault(uint256 shares) public {

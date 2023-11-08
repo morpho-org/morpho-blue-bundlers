@@ -215,6 +215,11 @@ contract MorphoBundlerLocalTest is LocalTest {
         _testSupplyCollateral(amount, onBehalf);
     }
 
+    function testWithdrawUninitiated(uint256 withdrawnShares) public {
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        MorphoBundlerMock(address(bundler)).morphoWithdraw(marketParams, 0, withdrawnShares, 0, RECEIVER);
+    }
+
     function testWithdraw(uint256 privateKey, uint256 amount, uint256 withdrawnShares) public {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
@@ -245,6 +250,11 @@ contract MorphoBundlerLocalTest is LocalTest {
         assertEq(morpho.collateral(id, user), 0, "collateral(user)");
         assertEq(morpho.supplyShares(id, user), expectedSupplyShares - withdrawnShares, "supplyShares(user)");
         assertEq(morpho.borrowShares(id, user), 0, "borrowShares(user)");
+    }
+
+    function testBorrowUnititiated(uint256 borrowedAssets) public {
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        MorphoBundlerMock(address(bundler)).morphoBorrow(marketParams, borrowedAssets, 0, type(uint256).max, RECEIVER);
     }
 
     function _testSupplyCollateralBorrow(address user, uint256 amount, uint256 collateralAmount) internal {
@@ -314,6 +324,11 @@ contract MorphoBundlerLocalTest is LocalTest {
         bundler.multicall(bundle);
 
         _testSupplyCollateralBorrow(user, amount, collateralAmount);
+    }
+
+    function testWithdrawCollateralUninitiated(uint256 collateralAmount) public {
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        MorphoBundlerMock(address(bundler)).morphoWithdrawCollateral(marketParams, collateralAmount, RECEIVER);
     }
 
     function _testRepayWithdrawCollateral(address user, uint256 collateralAmount) internal {

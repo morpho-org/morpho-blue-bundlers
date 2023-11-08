@@ -24,6 +24,13 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         bundler = new CompoundV3MigrationBundler(address(morpho));
     }
 
+    function testCompoundV3RepayUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        CompoundV3MigrationBundler(address(bundler)).compoundV3Repay(C_WETH_V3, amount);
+    }
+
     function testCompoundV3RepayZeroAmount() public {
         bundle.push(_compoundV3Repay(C_WETH_V3, 0));
 
@@ -135,6 +142,20 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         bundler.multicall(bundle);
 
         _assertVaultSupplierPosition(supplied, user, address(bundler));
+    }
+
+    function testCompoundV3AllowUninitiated() public {
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        CompoundV3MigrationBundler(address(bundler)).compoundV3AllowBySig(
+            C_WETH_V3, true, 0, SIGNATURE_DEADLINE, 0, 0, 0, false
+        );
+    }
+
+    function testCompoundV3WithdrawFromUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        CompoundV3MigrationBundler(address(bundler)).compoundV3WithdrawFrom(C_WETH_V3, marketParams.loanToken, amount);
     }
 
     /* ACTIONS */
