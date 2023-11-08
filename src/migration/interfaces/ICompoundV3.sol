@@ -1,6 +1,20 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity >=0.5.0;
 
+bytes32 constant DOMAIN_TYPEHASH =
+    keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+
+bytes32 constant AUTHORIZATION_TYPEHASH =
+    keccak256("Authorization(address owner,address manager,bool isAllowed,uint256 nonce,uint256 expiry)");
+
+struct Authorization {
+    address owner;
+    address manager;
+    bool isAllowed;
+    uint256 nonce;
+    uint256 expiry;
+}
+
 interface ICompoundV3 {
     function name() external view returns (string memory);
 
