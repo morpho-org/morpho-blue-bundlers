@@ -39,21 +39,25 @@ abstract contract StEthBundler is BaseBundler {
     /* ACTIONS */
 
     /// @notice Stakes the given `amount` of ETH via Lido, using the `referral` id.
-    /// @dev Pass `amount = type(uint256).max` to stake all.
-    /// @param amount The amount of ETH to stake.
+    /// @notice stETH tokens are received by the bundler and should be used afterwards.
+    /// @dev Initiator must have previously transferred their ETH to the bundler.
+    /// @param amount The amount of ETH to stake. Pass `type(uint256).max` to stake all.
+    /// @param minShares The minimum amount of shares to mint in exchange for `amount`.
     /// @param referral The address of the referral regarding the Lido Rewards-Share Program.
-    function stakeEth(uint256 amount, address referral) external payable {
+    function stakeEth(uint256 amount, uint256 minShares, address referral) external payable protected {
         amount = Math.min(amount, address(this).balance);
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        IStEth(ST_ETH).submit{value: amount}(referral);
+        uint256 shares = IStEth(ST_ETH).submit{value: amount}(referral);
+        require(shares >= minShares, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
 
     /// @notice Wraps the given `amount` of stETH to wstETH.
-    /// @dev Pass `amount = type(uint256).max` to wrap all.
-    /// @param amount The amount of stEth to wrap.
-    function wrapStEth(uint256 amount) external payable {
+    /// @notice wstETH tokens are received by the bundler and should be used afterwards.
+    /// @dev Initiator must have previously transferred their stETH tokens to the bundler.
+    /// @param amount The amount of stEth to wrap. Pass `type(uint256).max` to wrap all.
+    function wrapStEth(uint256 amount) external payable protected {
         amount = Math.min(amount, ERC20(ST_ETH).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
@@ -62,9 +66,10 @@ abstract contract StEthBundler is BaseBundler {
     }
 
     /// @notice Unwraps the given `amount` of wstETH to stETH.
-    /// @dev Pass `amount = type(uint256).max` to unwrap all.
-    /// @param amount The amount of wstEth to unwrap.
-    function unwrapStEth(uint256 amount) external payable {
+    /// @notice stETH tokens are received by the bundler and should be used afterwards.
+    /// @dev Initiator must have previously transferred their wstETH tokens to the bundler.
+    /// @param amount The amount of wstEth to unwrap. Pass `type(uint256).max` to unwrap all.
+    function unwrapStEth(uint256 amount) external payable protected {
         amount = Math.min(amount, ERC20(WST_ETH).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);

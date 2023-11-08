@@ -6,6 +6,7 @@ import {IAaveV2} from "./interfaces/IAaveV2.sol";
 import {Math} from "../../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 
+import {BaseBundler} from "../BaseBundler.sol";
 import {StEthBundler} from "../StEthBundler.sol";
 import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 
@@ -34,12 +35,11 @@ contract AaveV2MigrationBundler is MigrationBundler, StEthBundler {
     /* ACTIONS */
 
     /// @notice Repays `amount` of `asset` on AaveV2, on behalf of the initiator.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
-    /// @dev Pass `amount = type(uint256).max` to repay all.
+    /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @param asset The address of the token to repay.
-    /// @param amount The amount of `asset` to repay.
+    /// @param amount The amount of `asset` to repay. Pass `type(uint256).max` to repay the bundler's `asset` balance.
     /// @param interestRateMode The interest rate mode of the position.
-    function aaveV2Repay(address asset, uint256 amount, uint256 interestRateMode) external payable {
+    function aaveV2Repay(address asset, uint256 amount, uint256 interestRateMode) external payable protected {
         if (amount != type(uint256).max) amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
@@ -50,11 +50,18 @@ contract AaveV2MigrationBundler is MigrationBundler, StEthBundler {
     }
 
     /// @notice Withdraws `amount` of `asset` on AaveV2, on behalf of the initiator.
+    /// @notice Withdrawn assets are received by the bundler and should be used afterwards.
     /// @dev Initiator must have previously transferred their aTokens to the bundler.
-    /// @dev Pass `amount = type(uint256).max` to withdraw all.
     /// @param asset The address of the token to withdraw.
-    /// @param amount The amount of `asset` to withdraw.
-    function aaveV2Withdraw(address asset, uint256 amount) external payable {
+    /// @param amount The amount of `asset` to withdraw. Pass `type(uint256).max` to withdraw all.
+    function aaveV2Withdraw(address asset, uint256 amount) external payable protected {
         AAVE_V2_POOL.withdraw(asset, amount, address(this));
+    }
+
+    /* INTERNAL */
+
+    /// @inheritdoc MigrationBundler
+    function _isSenderAuthorized() internal view virtual override(BaseBundler, MigrationBundler) returns (bool) {
+        return MigrationBundler._isSenderAuthorized();
     }
 }

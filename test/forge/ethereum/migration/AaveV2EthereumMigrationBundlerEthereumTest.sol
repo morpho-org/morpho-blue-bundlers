@@ -30,6 +30,20 @@ contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
         bundler = new AaveV2MigrationBundler(address(morpho), AAVE_V2_POOL, WST_ETH);
     }
 
+    function testAaveV2RepayUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        AaveV2MigrationBundler(address(bundler)).aaveV2Repay(marketParams.loanToken, amount, 1);
+    }
+
+    function testAaveV2WithdrawUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        AaveV2MigrationBundler(address(bundler)).aaveV2Withdraw(marketParams.loanToken, amount);
+    }
+
     function testAaveV2RepayZeroAmount() public {
         bundle.push(_aaveV2Repay(marketParams.loanToken, 0));
 
@@ -58,7 +72,7 @@ contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
 
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));
-        callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, address(bundler)));
+        callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, type(uint256).max, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, false, 1, false));
         callbackBundle.push(_aaveV2Repay(marketParams.loanToken, borrowed));
         callbackBundle.push(_permit2TransferFrom(privateKey, aToken, aTokenBalance, 0));
@@ -96,12 +110,12 @@ contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
         uint256 sDaiAmount = IERC4626(S_DAI).previewDeposit(collateralSupplied);
 
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));
-        callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, address(bundler)));
+        callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, type(uint256).max, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, false, 1, false));
         callbackBundle.push(_aaveV2Repay(marketParams.loanToken, borrowed));
         callbackBundle.push(_permit2TransferFrom(privateKey, aToken, aTokenBalance, 0));
         callbackBundle.push(_aaveV2Withdraw(DAI, collateralSupplied));
-        callbackBundle.push(_erc4626Deposit(S_DAI, collateralSupplied, address(bundler)));
+        callbackBundle.push(_erc4626Deposit(S_DAI, collateralSupplied, 0, address(bundler)));
 
         bundle.push(_morphoSupplyCollateral(marketParams, sDaiAmount, user));
 
@@ -140,7 +154,7 @@ contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
         ERC20(aToken).safeApprove(address(Permit2Lib.PERMIT2), aTokenBalance);
 
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));
-        callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, address(bundler)));
+        callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, type(uint256).max, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, false, 1, false));
         callbackBundle.push(_aaveV2Repay(marketParams.loanToken, borrowed));
         callbackBundle.push(_permit2TransferFrom(privateKey, aToken, type(uint256).max, 0));
@@ -175,7 +189,7 @@ contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         bundle.push(_permit2TransferFrom(privateKey, aToken, aTokenBalance, 0));
         bundle.push(_aaveV2Withdraw(marketParams.loanToken, supplied));
-        bundle.push(_morphoSupply(marketParams, supplied, 0, user));
+        bundle.push(_morphoSupply(marketParams, supplied, 0, 0, user));
 
         vm.prank(user);
         bundler.multicall(bundle);
@@ -203,7 +217,7 @@ contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         bundle.push(_permit2TransferFrom(privateKey, aToken, aTokenBalance, 0));
         bundle.push(_aaveV2Withdraw(marketParams.loanToken, supplied));
-        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
+        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, 0, user));
 
         vm.prank(user);
         bundler.multicall(bundle);

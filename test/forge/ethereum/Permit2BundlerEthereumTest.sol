@@ -40,6 +40,14 @@ contract Permit2BundlerEthereumTest is EthereumTest {
         assertEq(ERC20(marketParams.loanToken).balanceOf(address(bundler)), amount, "loan.balanceOf(bundler)");
     }
 
+    function testPermtestPermit2TransferFromUninitiated() public {
+        ISignatureTransfer.PermitTransferFrom memory permit;
+        bytes memory signature;
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        Permit2BundlerMock(address(bundler)).permit2TransferFrom(permit, signature);
+    }
+
     function testPermit2TransferFromZeroAmount(uint256 seed, uint256 privateKey, uint256 amount) public {
         privateKey = bound(privateKey, 1, type(uint160).max);
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
