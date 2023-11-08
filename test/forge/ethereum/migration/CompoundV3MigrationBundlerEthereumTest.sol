@@ -24,10 +24,41 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         bundler = new CompoundV3MigrationBundler(address(morpho));
     }
 
+    function testCompoundV3RepayUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        CompoundV3MigrationBundler(address(bundler)).compoundV3Repay(C_WETH_V3, amount);
+    }
+
     function testCompoundV3RepayZeroAmount() public {
-        bundle.push(_compoundV3Repay(C_WETH_V3, marketParams.loanToken, 0));
+        bundle.push(_compoundV3Repay(C_WETH_V3, 0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
+        bundler.multicall(bundle);
+    }
+
+    function testCompoundVAuthorizationWithSigRevert(uint256 privateKey, address owner) public {
+        address user;
+        (privateKey, user) = _boundPrivateKey(privateKey);
+
+        vm.assume(owner != user);
+
+        bytes32 digest = SigUtils.toTypedDataHash(
+            C_WETH_V3, CompoundV3Authorization(owner, address(bundler), true, 0, SIGNATURE_DEADLINE)
+        );
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, digest);
+
+        bundle.push(
+            abi.encodeCall(
+                CompoundV3MigrationBundler.compoundV3AllowBySig,
+                (C_WETH_V3, true, 0, SIGNATURE_DEADLINE, v, r, s, false)
+            )
+        );
+
+        vm.prank(user);
+        vm.expectRevert(ICompoundV3.BadSignatory.selector);
         bundler.multicall(bundle);
     }
 
@@ -46,12 +77,12 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         vm.stopPrank();
 
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));
-        callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, address(bundler)));
+        callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, type(uint256).max, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, false, 1, false));
-        callbackBundle.push(_compoundV3Repay(C_WETH_V3, marketParams.loanToken, borrowed));
-        callbackBundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0));
+        callbackBundle.push(_compoundV3Repay(C_WETH_V3, borrowed));
+        callbackBundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0, false));
         callbackBundle.push(_compoundV3WithdrawFrom(C_WETH_V3, marketParams.collateralToken, collateralSupplied));
-        callbackBundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1));
+        callbackBundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1, false));
 
         bundle.push(_morphoSupplyCollateral(marketParams, collateralSupplied, user));
 
@@ -76,42 +107,13 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         // Margin necessary due to CompoundV3 roundings.
         supplied -= 100;
 
-        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0));
+        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0, false));
         bundle.push(_compoundV3WithdrawFrom(C_WETH_V3, marketParams.loanToken, supplied));
-        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1));
-        bundle.push(_morphoSupply(marketParams, supplied, 0, user));
+        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1, false));
+        bundle.push(_morphoSupply(marketParams, supplied, 0, 0, user));
 
         vm.prank(user);
         bundler.multicall(bundle);
-
-        _assertSupplierPosition(supplied, user, address(bundler));
-    }
-
-    function testMigrateSupplierWithPermit2(uint256 privateKey, uint256 supplied) public {
-        address user;
-        (privateKey, user) = _boundPrivateKey(privateKey);
-        supplied = bound(supplied, 101, 100 ether);
-
-        deal(marketParams.loanToken, user, supplied);
-
-        vm.startPrank(user);
-        ERC20(marketParams.loanToken).safeApprove(C_WETH_V3, supplied);
-        ICompoundV3(C_WETH_V3).supply(marketParams.loanToken, supplied);
-        vm.stopPrank();
-
-        // Margin necessary due to CompoundV3 roundings.
-        supplied -= 100;
-
-        uint256 cTokenBalance = ICompoundV3(C_WETH_V3).balanceOf(user);
-
-        bundle.push(_permit2TransferFrom(privateKey, C_WETH_V3, cTokenBalance, 0));
-        bundle.push(_compoundV3Withdraw(C_WETH_V3, marketParams.loanToken, supplied));
-        bundle.push(_morphoSupply(marketParams, supplied, 0, user));
-
-        vm.startPrank(user);
-        ERC20(C_WETH_V3).safeApprove(address(Permit2Lib.PERMIT2), type(uint256).max);
-        bundler.multicall(bundle);
-        vm.stopPrank();
 
         _assertSupplierPosition(supplied, user, address(bundler));
     }
@@ -131,10 +133,10 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         // Margin necessary due to CompoundV3 roundings.
         supplied -= 100;
 
-        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0));
+        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0, false));
         bundle.push(_compoundV3WithdrawFrom(C_WETH_V3, marketParams.loanToken, supplied));
-        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1));
-        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
+        bundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1, false));
+        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, 0, user));
 
         vm.prank(user);
         bundler.multicall(bundle);
@@ -142,42 +144,30 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         _assertVaultSupplierPosition(supplied, user, address(bundler));
     }
 
-    function testMigrateSupplierToVaultWithPermit2(uint256 privateKey, uint256 supplied) public {
-        address user;
-        (privateKey, user) = _boundPrivateKey(privateKey);
-        supplied = bound(supplied, 101, 100 ether);
+    function testCompoundV3AllowUninitiated() public {
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        CompoundV3MigrationBundler(address(bundler)).compoundV3AllowBySig(
+            C_WETH_V3, true, 0, SIGNATURE_DEADLINE, 0, 0, 0, false
+        );
+    }
 
-        deal(marketParams.loanToken, user, supplied);
+    function testCompoundV3WithdrawFromUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
-        vm.startPrank(user);
-        ERC20(marketParams.loanToken).safeApprove(C_WETH_V3, supplied);
-        ICompoundV3(C_WETH_V3).supply(marketParams.loanToken, supplied);
-        vm.stopPrank();
-
-        // Margin necessary due to CompoundV3 roundings.
-        supplied -= 100;
-
-        uint256 cTokenBalance = ICompoundV3(C_WETH_V3).balanceOf(user);
-
-        bundle.push(_permit2TransferFrom(privateKey, C_WETH_V3, cTokenBalance, 0));
-        bundle.push(_compoundV3Withdraw(C_WETH_V3, marketParams.loanToken, supplied));
-        bundle.push(_erc4626Deposit(address(suppliersVault), supplied, user));
-
-        vm.startPrank(user);
-        ERC20(C_WETH_V3).safeApprove(address(Permit2Lib.PERMIT2), type(uint256).max);
-        bundler.multicall(bundle);
-        vm.stopPrank();
-
-        _assertVaultSupplierPosition(supplied, user, address(bundler));
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        CompoundV3MigrationBundler(address(bundler)).compoundV3WithdrawFrom(C_WETH_V3, marketParams.loanToken, amount);
     }
 
     /* ACTIONS */
 
-    function _compoundV3Allow(uint256 privateKey, address instance, address manager, bool isAllowed, uint256 nonce)
-        internal
-        view
-        returns (bytes memory)
-    {
+    function _compoundV3Allow(
+        uint256 privateKey,
+        address instance,
+        address manager,
+        bool isAllowed,
+        uint256 nonce,
+        bool skipRevert
+    ) internal view returns (bytes memory) {
         bytes32 digest = SigUtils.toTypedDataHash(
             instance, CompoundV3Authorization(vm.addr(privateKey), manager, isAllowed, nonce, SIGNATURE_DEADLINE)
         );
@@ -185,20 +175,13 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, digest);
 
         return abi.encodeCall(
-            CompoundV3MigrationBundler.compoundV3AllowBySig, (instance, isAllowed, nonce, SIGNATURE_DEADLINE, v, r, s)
+            CompoundV3MigrationBundler.compoundV3AllowBySig,
+            (instance, isAllowed, nonce, SIGNATURE_DEADLINE, v, r, s, skipRevert)
         );
     }
 
-    function _compoundV3Repay(address instance, address asset, uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(CompoundV3MigrationBundler.compoundV3Repay, (instance, asset, amount));
-    }
-
-    function _compoundV3Withdraw(address instance, address asset, uint256 amount)
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return abi.encodeCall(CompoundV3MigrationBundler.compoundV3Withdraw, (instance, asset, amount));
+    function _compoundV3Repay(address instance, uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(CompoundV3MigrationBundler.compoundV3Repay, (instance, amount));
     }
 
     function _compoundV3WithdrawFrom(address instance, address asset, uint256 amount)

@@ -16,13 +16,19 @@ struct Authorization {
 }
 
 interface ICompoundV3 {
+    error BadSignatory();
+
     function name() external view returns (string memory);
 
     function version() external view returns (string memory);
 
     function baseToken() external view returns (address);
 
-    function balanceOf(address) external view returns (uint256);
+    function userCollateral(address account, address asset) external view returns (uint256);
+
+    function balanceOf(address account) external view returns (uint256);
+
+    function borrowBalanceOf(address account) external view returns (uint256);
 
     function supply(address asset, uint256 amount) external;
 

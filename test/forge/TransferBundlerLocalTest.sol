@@ -93,6 +93,13 @@ contract TransferBundlerLocalTest is LocalTest {
         assertEq(loanToken.balanceOf(USER), 0, "loan.balanceOf(USER)");
     }
 
+    function testTransferFromUninitiated(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        TransferBundlerMock(address(bundler)).erc20TransferFrom(address(loanToken), amount);
+    }
+
     function testTranferFromZeroAddress(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
