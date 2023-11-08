@@ -33,40 +33,6 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         bundler.multicall(bundle);
     }
 
-    function testCompoundV2RepayErr(uint256 privateKey, uint256 amount) public {
-        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
-
-        address user;
-        (privateKey, user) = _boundPrivateKey(privateKey);
-
-        deal(DAI, address(bundler), amount);
-
-        vm.mockCall(C_DAI_V2, abi.encodeWithSelector(ICToken.repayBorrowBehalf.selector), abi.encode(1));
-
-        bundle.push(_compoundV2Repay(C_DAI_V2, amount));
-
-        vm.prank(user);
-        vm.expectRevert(bytes(ErrorsLib.REPAY_ERROR));
-        bundler.multicall(bundle);
-    }
-
-    function testCompoundV2RedeemErr(uint256 privateKey, uint256 amount) public {
-        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
-
-        address user;
-        (privateKey, user) = _boundPrivateKey(privateKey);
-
-        deal(C_DAI_V2, address(bundler), amount);
-
-        vm.mockCall(C_DAI_V2, abi.encodeWithSelector(ICToken.redeem.selector), abi.encode(1));
-
-        bundle.push(_compoundV2Redeem(C_DAI_V2, amount));
-
-        vm.prank(user);
-        vm.expectRevert(bytes(ErrorsLib.REDEEM_ERROR));
-        bundler.multicall(bundle);
-    }
-
     function testMigrateBorrowerWithPermit2(uint256 privateKey) public {
         uint256 collateral = 10 ether;
         uint256 borrowed = 1 ether;
@@ -91,7 +57,7 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         ERC20(C_ETH_V2).safeApprove(address(Permit2Lib.PERMIT2), cTokenBalance);
 
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));
-        callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, address(bundler)));
+        callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, type(uint256).max, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, false, 1, false));
         callbackBundle.push(_compoundV2Repay(C_DAI_V2, borrowed));
         callbackBundle.push(_permit2TransferFrom(privateKey, C_ETH_V2, cTokenBalance, 0));

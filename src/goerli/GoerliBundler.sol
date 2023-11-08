@@ -3,6 +3,7 @@ pragma solidity 0.8.21;
 
 import {GoerliLib} from "./libraries/GoerliLib.sol";
 
+import {TransferBundler} from "../TransferBundler.sol";
 import {PermitBundler} from "../PermitBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
 import {ERC4626Bundler} from "../ERC4626Bundler.sol";
@@ -16,6 +17,7 @@ import {MorphoBundler} from "../MorphoBundler.sol";
 /// @custom:contact security@morpho.org
 /// @notice Bundler contract specific to the Goerli testnet.
 contract GoerliBundler is
+    TransferBundler,
     PermitBundler,
     Permit2Bundler,
     ERC4626Bundler,
@@ -26,9 +28,5 @@ contract GoerliBundler is
 {
     /* CONSTRUCTOR */
 
-    constructor(address morpho)
-        WNativeBundler(GoerliLib.WETH)
-        StEthBundler(GoerliLib.ST_ETH, GoerliLib.WST_ETH)
-        MorphoBundler(morpho)
-    {}
+    constructor(address morpho) WNativeBundler(GoerliLib.WETH) StEthBundler(GoerliLib.WST_ETH) MorphoBundler(morpho) {}
 }
