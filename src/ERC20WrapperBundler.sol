@@ -31,9 +31,7 @@ abstract contract ERC20WrapperBundler is BaseBundler {
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        // Approve 0 first to comply with tokens that implement the anti frontrunning approval fix.
-        underlying.safeApprove(wrapper, 0);
-        underlying.safeApprove(wrapper, amount);
+        _approveMaxTo(address(underlying), wrapper);
         ERC20Wrapper(wrapper).depositFor(initiator(), amount);
     }
 
