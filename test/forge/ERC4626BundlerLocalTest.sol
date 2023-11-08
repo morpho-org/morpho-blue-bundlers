@@ -19,6 +19,11 @@ contract ERC4626BundlerLocalTest is LocalTest {
         vault = new ERC4626Mock(address(loanToken), "LoanToken Vault", "BV");
     }
 
+    function test4626MintUninitiated(uint256 shares) public {
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        ERC4626BundlerMock(address(bundler)).erc4626Mint(address(vault), 0, shares, RECEIVER);
+    }
+
     function testErc4626MintZeroAdressVault(uint256 shares) public {
         bundle.push(_erc4626Mint(address(0), shares, type(uint256).max, RECEIVER));
 
@@ -33,6 +38,11 @@ contract ERC4626BundlerLocalTest is LocalTest {
         bundler.multicall(bundle);
     }
 
+    function test4626DepositUninitiated(uint256 assets) public {
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        ERC4626BundlerMock(address(bundler)).erc4626Deposit(address(vault), assets, 0, RECEIVER);
+    }
+
     function testErc4626DepositZeroAdressVault(uint256 assets) public {
         bundle.push(_erc4626Deposit(address(0), assets, 0, RECEIVER));
 
@@ -45,6 +55,11 @@ contract ERC4626BundlerLocalTest is LocalTest {
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_ADDRESS));
         bundler.multicall(bundle);
+    }
+
+    function test4626WithdrawUninitiated(uint256 assets) public {
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        ERC4626BundlerMock(address(bundler)).erc4626Withdraw(address(vault), assets, 0, RECEIVER, address(bundler));
     }
 
     function testErc4626WithdrawZeroAdressVault(uint256 assets) public {
@@ -70,8 +85,13 @@ contract ERC4626BundlerLocalTest is LocalTest {
         bundler.multicall(bundle);
     }
 
-    function testErc4626RedeemZeroAdressVault(uint256 assets) public {
-        bundle.push(_erc4626Redeem(address(0), assets, 0, RECEIVER, address(bundler)));
+    function test4626RedeemUninitiated(uint256 shares) public {
+        vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
+        ERC4626BundlerMock(address(bundler)).erc4626Redeem(address(vault), shares, 0, RECEIVER, address(bundler));
+    }
+
+    function testErc4626RedeemZeroAdressVault(uint256 shares) public {
+        bundle.push(_erc4626Redeem(address(0), shares, 0, RECEIVER, address(bundler)));
 
         vm.expectRevert();
         bundler.multicall(bundle);
@@ -126,15 +146,15 @@ contract ERC4626BundlerLocalTest is LocalTest {
 
         uint256 assets = vault.previewMint(shares);
 
-        bundle.push(_erc20TransferFrom(address(loanToken), assets));
+        bundle.push(_erc20TransferFrom(address(loanToken), assets * 2));
         bundle.push(_erc4626Mint(address(vault), shares, assets, USER));
 
         loanToken.setBalance(address(vault), 1);
 
-        loanToken.setBalance(USER, assets);
+        loanToken.setBalance(USER, assets * 2);
 
         vm.prank(USER);
-        loanToken.approve(address(bundler), assets);
+        loanToken.approve(address(bundler), type(uint256).max);
 
         vm.prank(USER);
         vm.expectRevert(bytes(ErrorsLib.SLIPPAGE_EXCEEDED));
@@ -175,7 +195,7 @@ contract ERC4626BundlerLocalTest is LocalTest {
         loanToken.setBalance(USER, assets);
 
         vm.prank(USER);
-        loanToken.approve(address(bundler), assets);
+        loanToken.approve(address(bundler), type(uint256).max);
 
         vm.prank(USER);
         vm.expectRevert(bytes(ErrorsLib.SLIPPAGE_EXCEEDED));

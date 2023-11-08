@@ -1,7 +1,7 @@
 import { AbiCoder, MaxUint256, Signature, keccak256, toBigInt, TypedDataDomain, TypedDataField } from "ethers";
 import hre from "hardhat";
 import { BundlerAction } from "pkg";
-import { ERC20Mock, EthereumBundler, MorphoMock, OracleMock, SpeedJumpIrmMock } from "types";
+import { ERC20Mock, ERC4626Mock, EthereumBundler, MorphoMock, OracleMock, IrmMock } from "types";
 import { MarketParamsStruct } from "types/lib/morpho-blue/src/Morpho";
 
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
@@ -130,9 +130,12 @@ describe("EthereumBundler", () => {
   let loan: ERC20Mock;
   let collateral: ERC20Mock;
   let oracle: OracleMock;
-  let irm: SpeedJumpIrmMock;
+  let irm: IrmMock;
 
   let morphoAuthorizationConfig: TypedDataConfig;
+
+  let erc4626: ERC4626Mock;
+  let erc4626Address: string;
 
   let bundler: EthereumBundler;
   let bundlerAddress: string;
@@ -171,17 +174,24 @@ describe("EthereumBundler", () => {
 
     const morphoAddress = await morpho.getAddress();
 
-    const SpeedJumpIrmFactory = await hre.ethers.getContractFactory("SpeedJumpIrmMock", admin);
+    const IrmFactory = await hre.ethers.getContractFactory("IrmMock", admin);
 
-    irm = await SpeedJumpIrmFactory.deploy(morphoAddress);
+    irm = await IrmFactory.deploy();
 
     morphoAuthorizationConfig = {
       domain: { chainId: "0x1", verifyingContract: morphoAddress },
       types: morphoAuthorizationTypes,
     };
 
-    const loanAddress = await loan.getAddress();
+    const ERC4626MockFactory = await hre.ethers.getContractFactory("ERC4626Mock", admin);
+
     const collateralAddress = await collateral.getAddress();
+
+    erc4626 = await ERC4626MockFactory.deploy(collateralAddress, "MetaMorpho", "MM");
+
+    erc4626Address = await erc4626.getAddress();
+
+    const loanAddress = await loan.getAddress();
     const oracleAddress = await oracle.getAddress();
     const irmAddress = await irm.getAddress();
 
@@ -216,11 +226,11 @@ describe("EthereumBundler", () => {
     hre.tracer.nameTags[collateralAddress] = "Collateral";
     hre.tracer.nameTags[loanAddress] = "Loan";
     hre.tracer.nameTags[oracleAddress] = "Oracle";
-    hre.tracer.nameTags[irmAddress] = "SpeedJumpIrm";
+    hre.tracer.nameTags[irmAddress] = "Irm";
     hre.tracer.nameTags[bundlerAddress] = "EthereumBundler";
   });
 
-  it("should simulate gas cost [supplyCollateral+borrow]", async () => {
+  it("should simulate gas cost [morpho-supplyCollateral+borrow]", async () => {
     for (let i = 0; i < suppliers.length; ++i) {
       logProgress("supplyCollateral+borrow", i, suppliers.length);
 
@@ -275,7 +285,43 @@ describe("EthereumBundler", () => {
             ),
           ),
           BundlerAction.morphoSupplyCollateral(marketParams, assets, borrower.address, []),
-          BundlerAction.morphoBorrow(marketParams, assets / 2n, 0, borrower.address),
+          BundlerAction.morphoBorrow(marketParams, assets / 2n, 0, MaxUint256, borrower.address),
+        ]);
+    }
+  });
+
+  it("should simulate gas cost [erc4626-deposit]", async () => {
+    for (let i = 0; i < suppliers.length; ++i) {
+      logProgress("erc4626-deposit", i, suppliers.length);
+
+      const supplier = suppliers[i];
+
+      const assets = BigInt.WAD * toBigInt(1 + Math.floor(random() * 100));
+
+      const permit2TransferFrom = {
+        permitted: {
+          token: await collateral.getAddress(),
+          amount: assets,
+        },
+        spender: bundlerAddress,
+        nonce: 0n,
+        deadline: MAX_UINT48,
+      };
+
+      await collateral.connect(supplier).approve(permit2Address, MaxUint256);
+
+      await randomForwardTimestamp();
+
+      await bundler
+        .connect(supplier)
+        .multicall([
+          BundlerAction.permit2TransferFrom(
+            permit2TransferFrom,
+            Signature.from(
+              await supplier.signTypedData(permit2Config.domain, permit2Config.types, permit2TransferFrom),
+            ),
+          ),
+          BundlerAction.erc4626Deposit(erc4626Address, assets, 0, supplier.address),
         ]);
     }
   });

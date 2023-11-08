@@ -186,68 +186,80 @@ abstract contract BaseTest is Test {
         return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (authorization, signature, skipRevert));
     }
 
-    function _morphoSupply(MarketParams memory marketParams, uint256 assets, uint256 shares, address onBehalf)
+    function _morphoSupply(
+        MarketParams memory marketParams,
+        uint256 assets,
+        uint256 shares,
+        uint256 slippageAmount,
+        address onBehalf
+    ) internal view returns (bytes memory) {
+        return abi.encodeCall(
+            MorphoBundler.morphoSupply,
+            (marketParams, assets, shares, slippageAmount, onBehalf, abi.encode(callbackBundle))
+        );
+    }
+
+    function _morphoBorrow(
+        MarketParams memory marketParams,
+        uint256 assets,
+        uint256 shares,
+        uint256 slippageAmount,
+        address receiver
+    ) internal pure returns (bytes memory) {
+        return abi.encodeCall(MorphoBundler.morphoBorrow, (marketParams, assets, shares, slippageAmount, receiver));
+    }
+
+    function _morphoWithdraw(
+        MarketParams memory marketParams,
+        uint256 assets,
+        uint256 shares,
+        uint256 slippageAmount,
+        address receiver
+    ) internal pure returns (bytes memory) {
+        return abi.encodeCall(MorphoBundler.morphoWithdraw, (marketParams, assets, shares, slippageAmount, receiver));
+    }
+
+    function _morphoRepay(
+        MarketParams memory marketParams,
+        uint256 assets,
+        uint256 shares,
+        uint256 slippageAmount,
+        address onBehalf
+    ) internal view returns (bytes memory) {
+        return abi.encodeCall(
+            MorphoBundler.morphoRepay,
+            (marketParams, assets, shares, slippageAmount, onBehalf, abi.encode(callbackBundle))
+        );
+    }
+
+    function _morphoSupplyCollateral(MarketParams memory marketParams, uint256 assets, address onBehalf)
         internal
         view
         returns (bytes memory)
     {
         return abi.encodeCall(
-            MorphoBundler.morphoSupply, (marketParams, assets, shares, onBehalf, abi.encode(callbackBundle))
+            MorphoBundler.morphoSupplyCollateral, (marketParams, assets, onBehalf, abi.encode(callbackBundle))
         );
     }
 
-    function _morphoBorrow(MarketParams memory marketParams, uint256 assets, uint256 shares, address receiver)
+    function _morphoWithdrawCollateral(MarketParams memory marketParams, uint256 assets, address receiver)
         internal
         pure
         returns (bytes memory)
     {
-        return abi.encodeCall(MorphoBundler.morphoBorrow, (marketParams, assets, shares, receiver));
-    }
-
-    function _morphoWithdraw(MarketParams memory marketParams, uint256 assets, uint256 shares, address receiver)
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return abi.encodeCall(MorphoBundler.morphoWithdraw, (marketParams, assets, shares, receiver));
-    }
-
-    function _morphoRepay(MarketParams memory marketParams, uint256 assets, uint256 shares, address onBehalf)
-        internal
-        view
-        returns (bytes memory)
-    {
-        return abi.encodeCall(
-            MorphoBundler.morphoRepay, (marketParams, assets, shares, onBehalf, abi.encode(callbackBundle))
-        );
-    }
-
-    function _morphoSupplyCollateral(MarketParams memory marketParams, uint256 collateral, address onBehalf)
-        internal
-        view
-        returns (bytes memory)
-    {
-        return abi.encodeCall(
-            MorphoBundler.morphoSupplyCollateral, (marketParams, collateral, onBehalf, abi.encode(callbackBundle))
-        );
-    }
-
-    function _morphoWithdrawCollateral(MarketParams memory marketParams, uint256 collateral, address receiver)
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, collateral, receiver));
+        return abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, assets, receiver));
     }
 
     function _morphoLiquidate(
         MarketParams memory marketParams,
         address borrower,
         uint256 seizedCollateral,
-        uint256 repaidShares
+        uint256 repaidShares,
+        uint256 maxRepaidAssets
     ) internal pure returns (bytes memory) {
         return abi.encodeCall(
-            MorphoBundler.morphoLiquidate, (marketParams, borrower, seizedCollateral, repaidShares, hex"")
+            MorphoBundler.morphoLiquidate,
+            (marketParams, borrower, seizedCollateral, repaidShares, maxRepaidAssets, hex"")
         );
     }
 

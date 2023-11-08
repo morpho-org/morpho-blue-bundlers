@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version_type:
-        description: 'Version to release'
+        description: "Version to release"
         required: true
         type: choice
         options:
@@ -16,23 +16,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
-
 jobs:
   build-and-deploy:
     name: Build and Publish
     runs-on: ubuntu-latest
     steps:
-      - name: Generate a token
-        id: generate-token
-        uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92
-        with:
-          app_id: ${{ secrets.APP_ID }}
-          private_key: ${{ secrets.APP_PRIVATE_KEY }}
-
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          token: ${{ steps.generate-token.outputs.token }}
           submodules: recursive
 
       - name: Build contracts & package with hardhat

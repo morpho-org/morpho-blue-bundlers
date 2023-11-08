@@ -38,7 +38,7 @@ contract EthereumBundlerEthereumTest is EthereumTest {
         MarketParams memory marketParams = _randomMarketParams(seed);
 
         bundle.push(_permit2TransferFrom(privateKey, marketParams.loanToken, amount, 0));
-        bundle.push(_morphoSupply(marketParams, amount, 0, onBehalf));
+        bundle.push(_morphoSupply(marketParams, amount, 0, 0, onBehalf));
 
         uint256 collateralBalanceBefore = ERC20(marketParams.collateralToken).balanceOf(onBehalf);
         uint256 loanBalanceBefore = ERC20(marketParams.loanToken).balanceOf(onBehalf);
