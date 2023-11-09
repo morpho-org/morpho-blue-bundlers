@@ -12,6 +12,7 @@ import {WNativeBundler} from "../WNativeBundler.sol";
 import {StEthBundler} from "../StEthBundler.sol";
 import {UrdBundler} from "../UrdBundler.sol";
 import {MorphoBundler} from "../MorphoBundler.sol";
+import {ERC20WrapperBundler} from "../ERC20WrapperBundler.sol";
 
 /// @title GoerliBundler
 /// @author Morpho Labs
@@ -25,7 +26,8 @@ contract GoerliBundler is
     WNativeBundler,
     StEthBundler,
     UrdBundler,
-    MorphoBundler
+    MorphoBundler,
+    ERC20WrapperBundler
 {
     /* CONSTRUCTOR */
 
