@@ -44,6 +44,9 @@ abstract contract ERC20WrapperBundler is BaseBundler {
     /// @param amount The amount of wrapped tokens to burn. Pass `type(uint256).max` to burn the bundler's balance.
     function erc20WrapperWithdrawTo(address wrapper, address account, uint256 amount) external protected {
         require(account != address(0), ErrorsLib.ZERO_ADDRESS);
+
+        amount = Math.min(amount, ERC20(wrapper).balanceOf(address(this)));
+
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
         ERC20Wrapper(wrapper).withdrawTo(account, amount);
