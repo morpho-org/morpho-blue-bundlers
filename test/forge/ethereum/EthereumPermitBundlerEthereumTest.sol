@@ -25,8 +25,8 @@ contract EthereumPermitBundlerEthereumTest is EthereumTest {
 
         address user = vm.addr(privateKey);
 
-        bundle.push(_permitDaiCall(privateKey, expiry, true, false));
-        bundle.push(_permitDaiCall(privateKey, expiry, true, true));
+        bundle.push(_permitDai(privateKey, expiry, true, false));
+        bundle.push(_permitDai(privateKey, expiry, true, true));
 
         vm.prank(user);
         bundler.multicall(bundle);
@@ -45,15 +45,15 @@ contract EthereumPermitBundlerEthereumTest is EthereumTest {
 
         address user = vm.addr(privateKey);
 
-        bundle.push(_permitDaiCall(privateKey, expiry, true, false));
-        bundle.push(_permitDaiCall(privateKey, expiry, true, false));
+        bundle.push(_permitDai(privateKey, expiry, true, false));
+        bundle.push(_permitDai(privateKey, expiry, true, false));
 
         vm.prank(user);
         vm.expectRevert("Dai/invalid-nonce");
         bundler.multicall(bundle);
     }
 
-    function _permitDaiCall(uint256 privateKey, uint256 expiry, bool allowed, bool skipRevert)
+    function _permitDai(uint256 privateKey, uint256 expiry, bool allowed, bool skipRevert)
         internal
         view
         returns (bytes memory)
