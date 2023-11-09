@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {ICompoundV3} from "../../../src/migration/interfaces/ICompoundV3.sol";
 import {Authorization} from "../../../lib/morpho-blue/src/interfaces/IMorpho.sol";
-import {ISignatureTransfer} from "../../../lib/permit2/src/interfaces/ISignatureTransfer.sol";
+import {IAllowanceTransfer} from "../../../lib/permit2/src/interfaces/IAllowanceTransfer.sol";
 import {
     Authorization as AaveV3OptimizerAuthorization,
     AUTHORIZATION_TYPEHASH as AAVE_V3_OPTIMIZER_AUTHORIZATION_TYPEHASH
@@ -70,23 +70,20 @@ library SigUtils {
         );
     }
 
-    function toTypedDataHash(
-        bytes32 domainSeparator,
-        ISignatureTransfer.PermitTransferFrom memory permit,
-        address spender
-    ) internal pure returns (bytes32) {
-        // Don't use PermitHash.hash(permit) because msg.sender would not correspond to the expected spender.
-        bytes32 permitHash = keccak256(
-            abi.encode(
-                PermitHash._PERMIT_TRANSFER_FROM_TYPEHASH,
-                keccak256(abi.encode(PermitHash._TOKEN_PERMISSIONS_TYPEHASH, permit.permitted)),
-                spender,
-                permit.nonce,
-                permit.deadline
-            )
-        );
+    function toTypedDataHash(bytes32 domainSeparator, IAllowanceTransfer.PermitSingle memory permitSingle)
+        internal
+        pure
+        returns (bytes32)
+    {
+        return ECDSA.toTypedDataHash(domainSeparator, PermitHash.hash(permitSingle));
+    }
 
-        return ECDSA.toTypedDataHash(domainSeparator, permitHash);
+    function toTypedDataHash(bytes32 domainSeparator, IAllowanceTransfer.PermitBatch memory permitBatch)
+        internal
+        pure
+        returns (bytes32)
+    {
+        return ECDSA.toTypedDataHash(domainSeparator, PermitHash.hash(permitBatch));
     }
 
     function toTypedDataHash(bytes32 domainSeparator, AaveV3OptimizerAuthorization memory authorization)

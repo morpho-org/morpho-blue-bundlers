@@ -21,7 +21,7 @@ abstract contract TransferBundler is BaseBundler {
     /// bundler to `recipient`.
     /// @dev If the minimum happens to be zero, the transfer is silently skipped.
     /// @param recipient The address that will receive the native tokens.
-    /// @param amount The amount of native tokens to transfer from the initiator. Pass `type(uint256).max` to transfer
+    /// @param amount The amount of native tokens to transfer. Pass `type(uint256).max` to transfer
     /// the initiator's balance.
     function nativeTransfer(address recipient, uint256 amount) external payable protected {
         require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
@@ -52,7 +52,7 @@ abstract contract TransferBundler is BaseBundler {
     }
 
     /// @notice Transfers the given `amount` of `asset` from sender to this contract via ERC20 transferFrom.
-    /// @notice User must have given sufficient allowance to the Bundler to manage their tokens.
+    /// @notice User must have given sufficient allowance to the Bundler to spend their tokens.
     /// @param asset The address of the ERC20 token to transfer.
     /// @param amount The amount of `asset` to transfer from the initiator. Pass `type(uint256).max` to transfer the
     /// initiator's balance.
