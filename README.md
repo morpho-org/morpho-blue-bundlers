@@ -4,7 +4,7 @@
 
 ## Structure
 
-![image](https://github.com/morpho-labs/morpho-blue-bundlers/assets/3147812/23ec25d2-3280-4644-bda6-8044aaea8b4f)
+![image (4)](https://github.com/morpho-org/morpho-blue-bundlers/assets/44097430/5cb0796b-c20c-415e-840d-8b0705836dc8)
 
 Each Bundler is a domain-specific abstract layer of contract that implements some functions that can be bundled in a single call by EOAs to a single contract. They all inherit from [`BaseBundler`](./src/BaseBundler.sol) that enables bundling multiple function calls into a single `multicall(bytes[] calldata data)` call to the end bundler contract. Each chain-specific bundler is available under their chain-specific folder (e.g. [`ethereum`](./src/ethereum/)).
 
