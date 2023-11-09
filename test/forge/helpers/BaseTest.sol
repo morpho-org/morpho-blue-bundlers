@@ -31,6 +31,7 @@ import {TransferBundler} from "../../../src/TransferBundler.sol";
 import {ERC4626Bundler} from "../../../src/ERC4626Bundler.sol";
 import {UrdBundler} from "../../../src/UrdBundler.sol";
 import {MorphoBundler} from "../../../src/MorphoBundler.sol";
+import {ERC20WrapperBundler} from "../../../src/ERC20WrapperBundler.sol";
 
 import "../../../lib/forge-std/src/Test.sol";
 import "../../../lib/forge-std/src/console2.sol";
@@ -112,6 +113,20 @@ abstract contract BaseTest is Test {
 
     function _erc20TransferFrom(address asset, uint256 amount) internal pure returns (bytes memory) {
         return abi.encodeCall(TransferBundler.erc20TransferFrom, (asset, amount));
+    }
+
+    /* ERC20 WRAPPER ACTIONS */
+
+    function _erc20WrapperDepositFor(address asset, uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(ERC20WrapperBundler.erc20WrapperDepositFor, (asset, amount));
+    }
+
+    function _erc20WrapperWithdrawTo(address asset, address account, uint256 amount)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return abi.encodeCall(ERC20WrapperBundler.erc20WrapperWithdrawTo, (asset, account, amount));
     }
 
     /* ERC4626 ACTIONS */
