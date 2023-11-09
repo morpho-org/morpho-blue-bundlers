@@ -6,6 +6,8 @@ import {IAaveV2} from "./interfaces/IAaveV2.sol";
 import {Math} from "../../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 
+import {BaseBundler} from "../BaseBundler.sol";
+import {StEthBundler} from "../StEthBundler.sol";
 import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 
 /// @title AaveV2MigrationBundler
@@ -13,7 +15,7 @@ import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from Aave V2 to Morpho Blue easily.
 /// If deploying to Ethereum, deploy `AaveV2EthereumMigrationBundler` instead.
-contract AaveV2MigrationBundler is MigrationBundler {
+contract AaveV2MigrationBundler is MigrationBundler, StEthBundler {
     /* IMMUTABLES */
 
     /// @dev The AaveV2 contract address.
@@ -24,7 +26,9 @@ contract AaveV2MigrationBundler is MigrationBundler {
     /// @param morpho The Morpho contract Address.
     /// @param aaveV2Pool The AaveV2 contract address. Assumes it is non-zero (not expected to be an input at
     /// deployment).
-    constructor(address morpho, address aaveV2Pool) MigrationBundler(morpho) {
+    constructor(address morpho, address aaveV2Pool, address wstEth) MigrationBundler(morpho) StEthBundler(wstEth) {
+        require(aaveV2Pool != address(0), ErrorsLib.ZERO_ADDRESS);
+
         AAVE_V2_POOL = IAaveV2(aaveV2Pool);
     }
 
@@ -52,5 +56,12 @@ contract AaveV2MigrationBundler is MigrationBundler {
     /// @param amount The amount of `asset` to withdraw. Pass `type(uint256).max` to withdraw all.
     function aaveV2Withdraw(address asset, uint256 amount) external payable protected {
         AAVE_V2_POOL.withdraw(asset, amount, address(this));
+    }
+
+    /* INTERNAL */
+
+    /// @inheritdoc MigrationBundler
+    function _isSenderAuthorized() internal view virtual override(BaseBundler, MigrationBundler) returns (bool) {
+        return MigrationBundler._isSenderAuthorized();
     }
 }

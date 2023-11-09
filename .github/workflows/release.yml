@@ -61,11 +61,6 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
           yarn publish --access public
 
-      - name: Create Git Tag
-        run: |
-          version=$(node -e "console.log(require('./package.json').version)")
-          git tag -a "v${version}" -m "Release version ${version}"
-
       - name: Push Git Tag
         run: |
           git push origin  $(echo "${{ github.ref }}" | sed 's|refs/heads/||') --tags

@@ -256,10 +256,10 @@ abstract contract BaseTest is Test {
         uint256 seizedCollateral,
         uint256 repaidShares,
         uint256 maxRepaidAssets
-    ) internal pure returns (bytes memory) {
+    ) internal view returns (bytes memory) {
         return abi.encodeCall(
             MorphoBundler.morphoLiquidate,
-            (marketParams, borrower, seizedCollateral, repaidShares, maxRepaidAssets, hex"")
+            (marketParams, borrower, seizedCollateral, repaidShares, maxRepaidAssets, abi.encode(callbackBundle))
         );
     }
 
