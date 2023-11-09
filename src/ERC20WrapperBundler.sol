@@ -17,13 +17,13 @@ abstract contract ERC20WrapperBundler is BaseBundler {
 
     /* WRAPPER ACTIONS */
 
-    /// @notice Deposits underlying tokens and mints the corresponding number of wrapped tokens to the initiator.
+    /// @notice Deposits underlying tokens and mints the corresponding amount of wrapped tokens to the initiator.
     /// @dev Deposits tokens "for" the `initiator` to conduct the permissionned check. Wrapped tokens must
     /// be sent back to the bundler contract to perform additional actions.
-    /// @dev Assumes that underlying tokens are already on the bundler.
+    /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @dev Assumes that `wrapper` implements the `ERC20Wrapper` interface.
     /// @param wrapper The address of the ERC20 wrapper contract.
-    /// @param amount The amount of underlying tokens to deposit.
+    /// @param amount The amount of underlying tokens to deposit. Pass `type(uint256).max` to deposit the bundler's balance.
     function erc20WrapperDepositFor(address wrapper, uint256 amount) external protected {
         ERC20 underlying = ERC20(address(ERC20Wrapper(wrapper).underlying()));
 
@@ -36,11 +36,11 @@ abstract contract ERC20WrapperBundler is BaseBundler {
     }
 
     /// @notice Burns a number of wrapped tokens and withdraws the corresponding number of underlying tokens.
-    /// @dev Assumes that wrapped tokens are already on the bundler.
+    /// @dev Initiator must have previously transferred their wrapped tokens to the bundler.
     /// @dev Assumes that `wrapper` implements the `ERC20Wrapper` interface.
     /// @param wrapper The address of the ERC20 wrapper contract.
     /// @param account The address receiving the underlying tokens.
-    /// @param amount The amount of wrapped tokens to burn.
+    /// @param amount The amount of wrapped tokens to burn. Pass `type(uint256).max` to burn the bundler's balance.
     function erc20WrapperWithdrawTo(address wrapper, address account, uint256 amount) external protected {
         require(account != address(0), ErrorsLib.ZERO_ADDRESS);
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
