@@ -18,9 +18,9 @@ abstract contract ERC20WrapperBundler is BaseBundler {
     /* WRAPPER ACTIONS */
 
     /// @notice Deposits underlying tokens and mints the corresponding amount of wrapped tokens to the initiator.
-    /// @dev Deposits tokens "for" the `initiator` to conduct the permissionned check. Wrapped tokens must
-    /// be sent back to the bundler contract to perform additional actions.
-    /// @dev Initiator must have previously transferred their assets to the bundler.
+    /// @dev Wraps tokens on behalf of the initiator to make sure they are able to receive and transfer wrapped tokens.
+    /// @dev Wrapped tokens must be transferred to the bundler afterwards to perform additional actions.
+    /// @dev Initiator must have previously transferred their tokens to the bundler.
     /// @dev Assumes that `wrapper` implements the `ERC20Wrapper` interface.
     /// @param wrapper The address of the ERC20 wrapper contract.
     /// @param amount The amount of underlying tokens to deposit. Pass `type(uint256).max` to deposit the bundler's
