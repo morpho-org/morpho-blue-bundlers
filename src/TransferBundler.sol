@@ -19,6 +19,7 @@ abstract contract TransferBundler is BaseBundler {
 
     /// @notice Transfers the minimum between the given `amount` and the bundler's balance of native asset from the
     /// bundler to `recipient`.
+    /// @dev If the minimum happens to be zero, the transfer is silently skipped.
     /// @param recipient The address that will receive the native tokens.
     /// @param amount The amount of native tokens to transfer from the initiator. Pass `type(uint256).max` to transfer
     /// the initiator's balance.
@@ -28,13 +29,14 @@ abstract contract TransferBundler is BaseBundler {
 
         amount = Math.min(amount, address(this).balance);
 
-        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
+        if (amount == 0) return;
 
         SafeTransferLib.safeTransferETH(recipient, amount);
     }
 
     /// @notice Transfers the minimum between the given `amount` and the bundler's balance of `asset` from the bundler
     /// to `recipient`.
+    /// @dev If the minimum happens to be zero, the transfer is silently skipped.
     /// @param asset The address of the ERC20 token to transfer.
     /// @param recipient The address that will receive the tokens.
     /// @param amount The amount of `asset` to transfer. Pass `type(uint256).max` to transfer the bundler's balance.
@@ -44,7 +46,7 @@ abstract contract TransferBundler is BaseBundler {
 
         amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
 
-        require(amount != 0, ErrorsLib.ZERO_AMOUNT);
+        if (amount == 0) return;
 
         ERC20(asset).safeTransfer(recipient, amount);
     }
