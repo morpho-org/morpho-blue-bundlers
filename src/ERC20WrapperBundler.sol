@@ -11,7 +11,9 @@ import {ERC20Wrapper} from "../lib/openzeppelin-contracts/contracts/token/ERC20/
 /// @title ERC20WrapperBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
-/// @notice Enables the wrapping and unwrapping of ERC20 tokens.
+/// @notice Enables the wrapping and unwrapping of ERC20 tokens. The largest usecase is to wrap permissionless tokens to
+/// their permissioned counterparts and access permissioned markets on Morpho Blue. Permissioned tokens can be built
+/// using: https://github.com/morpho-org/erc20-permissioned
 abstract contract ERC20WrapperBundler is BaseBundler {
     using SafeTransferLib for ERC20;
 
