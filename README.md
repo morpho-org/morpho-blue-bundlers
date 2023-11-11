@@ -12,7 +12,7 @@ Some chain-specific domains are also scoped to the chain-specific folder, becaus
 
 User-end bundlers are provided in each chain-specific folder, instanciating all the intermediary domain-specific bundlers and associated parameters (such as chain-specific protocol addresses, e.g. [`EthereumBundler`](./src/ethereum/EthereumBundler.sol)).
 
-## Get Started
+## Getting Started
 
 Install dependencies with `yarn`.
 
