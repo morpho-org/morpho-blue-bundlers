@@ -17,3 +17,11 @@ User-end bundlers are provided in each chain-specific folder, instanciating all 
 Install dependencies with `yarn`.
 
 The first time running the tests with `yarn test:forge` will build Morpho Blue.
+
+## Audits
+
+All audits are stored in the [audits](./audits/)' folder.
+
+## License
+
+Bundlers are licensed under `GPL-2.0-or-later`, see [`LICENSE`](./LICENSE).
