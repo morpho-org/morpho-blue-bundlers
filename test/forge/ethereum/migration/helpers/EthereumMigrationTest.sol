@@ -5,6 +5,7 @@ import {SafeTransferLib, ERC20} from "../../../../../lib/solmate/src/utils/SafeT
 import {ErrorsLib} from "../../../../../src/libraries/ErrorsLib.sol";
 import {MarketParamsLib} from "../../../../../lib/morpho-blue/src/libraries/MarketParamsLib.sol";
 import {MorphoLib} from "../../../../../lib/morpho-blue/src/libraries/periphery/MorphoLib.sol";
+import {Market} from "../../../../../lib/morpho-blue/src/interfaces/IMorpho.sol";
 import {MorphoBalancesLib} from "../../../../../lib/morpho-blue/src/libraries/periphery/MorphoBalancesLib.sol";
 
 import "../../helpers/EthereumTest.sol";
@@ -31,8 +32,8 @@ contract EthereumMigrationTest is EthereumTest {
         marketParams.irm = address(irm);
         marketParams.lltv = 0.8 ether;
 
-        (,,,, uint128 lastUpdate,) = morpho.market(marketParams.id());
-        if (lastUpdate == 0) {
+        Market memory market = morpho.market(marketParams.id());
+        if (market.lastUpdate == 0) {
             morpho.createMarket(marketParams);
         }
 
@@ -49,16 +50,16 @@ contract EthereumMigrationTest is EthereumTest {
     function _assertBorrowerPosition(uint256 collateralSupplied, uint256 borrowed, address user, address bundler)
         internal
     {
-        assertEq(morpho.expectedSupplyBalance(marketParams, user), 0, "supply != 0");
+        assertEq(morpho.expectedSupplyAssets(marketParams, user), 0, "supply != 0");
         assertEq(morpho.collateral(marketParams.id(), user), collateralSupplied, "wrong collateral supply amount");
-        assertEq(morpho.expectedBorrowBalance(marketParams, user), borrowed, "wrong borrow amount");
+        assertEq(morpho.expectedBorrowAssets(marketParams, user), borrowed, "wrong borrow amount");
         assertFalse(morpho.isAuthorized(user, bundler), "authorization not revoked");
     }
 
     function _assertSupplierPosition(uint256 supplied, address user, address bundler) internal {
-        assertEq(morpho.expectedSupplyBalance(marketParams, user), supplied, "wrong supply amount");
+        assertEq(morpho.expectedSupplyAssets(marketParams, user), supplied, "wrong supply amount");
         assertEq(morpho.collateral(marketParams.id(), user), 0, "collateral supplied != 0");
-        assertEq(morpho.expectedBorrowBalance(marketParams, user), 0, "borrow != 0");
+        assertEq(morpho.expectedBorrowAssets(marketParams, user), 0, "borrow != 0");
         assertFalse(morpho.isAuthorized(user, bundler), "authorization not revoked");
     }
 
