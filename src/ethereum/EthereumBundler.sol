@@ -3,6 +3,7 @@ pragma solidity 0.8.21;
 
 import {MainnetLib} from "./libraries/MainnetLib.sol";
 
+import {BaseBundler} from "../BaseBundler.sol";
 import {TransferBundler} from "../TransferBundler.sol";
 import {EthereumPermitBundler} from "./EthereumPermitBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
@@ -11,6 +12,7 @@ import {WNativeBundler} from "../WNativeBundler.sol";
 import {EthereumStEthBundler} from "./EthereumStEthBundler.sol";
 import {UrdBundler} from "../UrdBundler.sol";
 import {MorphoBundler} from "../MorphoBundler.sol";
+import {ERC20WrapperBundler} from "../ERC20WrapperBundler.sol";
 
 /// @title EthereumBundler
 /// @author Morpho Labs
@@ -24,9 +26,17 @@ contract EthereumBundler is
     WNativeBundler,
     EthereumStEthBundler,
     UrdBundler,
-    MorphoBundler
+    MorphoBundler,
+    ERC20WrapperBundler
 {
     /* CONSTRUCTOR */
 
     constructor(address morpho) WNativeBundler(MainnetLib.WETH) MorphoBundler(morpho) {}
+
+    /* INTERNAL */
+
+    /// @inheritdoc MorphoBundler
+    function _isSenderAuthorized() internal view override(BaseBundler, MorphoBundler) returns (bool) {
+        return MorphoBundler._isSenderAuthorized();
+    }
 }

@@ -24,7 +24,7 @@ abstract contract EthereumPermitBundler is PermitBundler {
     function permitDai(uint256 nonce, uint256 expiry, bool allowed, uint8 v, bytes32 r, bytes32 s, bool skipRevert)
         external
         payable
-        onlyInitiated
+        protected
     {
         try IDaiPermit(MainnetLib.DAI).permit(initiator(), address(this), nonce, expiry, allowed, v, r, s) {}
         catch (bytes memory returnData) {

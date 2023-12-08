@@ -12,7 +12,7 @@
 	url = https://github.com/morpho-dao/morpho-utils
 [submodule "lib/morpho-blue"]
 	path = lib/morpho-blue
-	url = https://github.com/morpho-labs/morpho-blue
+	url = https://github.com/morpho-org/morpho-blue
 [submodule "lib/universal-rewards-distributor"]
 	path = lib/universal-rewards-distributor
 	url = https://github.com/morpho-org/universal-rewards-distributor

@@ -31,6 +31,7 @@ import {TransferBundler} from "../../../src/TransferBundler.sol";
 import {ERC4626Bundler} from "../../../src/ERC4626Bundler.sol";
 import {UrdBundler} from "../../../src/UrdBundler.sol";
 import {MorphoBundler} from "../../../src/MorphoBundler.sol";
+import {ERC20WrapperBundler} from "../../../src/ERC20WrapperBundler.sol";
 
 import "../../../lib/forge-std/src/Test.sol";
 import "../../../lib/forge-std/src/console2.sol";
@@ -114,6 +115,20 @@ abstract contract BaseTest is Test {
         return abi.encodeCall(TransferBundler.erc20TransferFrom, (asset, amount));
     }
 
+    /* ERC20 WRAPPER ACTIONS */
+
+    function _erc20WrapperDepositFor(address asset, uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(ERC20WrapperBundler.erc20WrapperDepositFor, (asset, amount));
+    }
+
+    function _erc20WrapperWithdrawTo(address asset, address account, uint256 amount)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return abi.encodeCall(ERC20WrapperBundler.erc20WrapperWithdrawTo, (asset, account, amount));
+    }
+
     /* ERC4626 ACTIONS */
 
     function _erc4626Mint(address vault, uint256 shares, uint256 maxAssets, address receiver)
@@ -132,20 +147,20 @@ abstract contract BaseTest is Test {
         return abi.encodeCall(ERC4626Bundler.erc4626Deposit, (vault, assets, minShares, receiver));
     }
 
-    function _erc4626Withdraw(address vault, uint256 assets, uint256 maxShares, address receiver)
+    function _erc4626Withdraw(address vault, uint256 assets, uint256 maxShares, address receiver, address owner)
         internal
         pure
         returns (bytes memory)
     {
-        return abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (vault, assets, maxShares, receiver));
+        return abi.encodeCall(ERC4626Bundler.erc4626Withdraw, (vault, assets, maxShares, receiver, owner));
     }
 
-    function _erc4626Redeem(address vault, uint256 shares, uint256 minAssets, address receiver)
+    function _erc4626Redeem(address vault, uint256 shares, uint256 minAssets, address receiver, address owner)
         internal
         pure
         returns (bytes memory)
     {
-        return abi.encodeCall(ERC4626Bundler.erc4626Redeem, (vault, shares, minAssets, receiver));
+        return abi.encodeCall(ERC4626Bundler.erc4626Redeem, (vault, shares, minAssets, receiver, owner));
     }
 
     /* URD ACTIONS */
@@ -256,10 +271,10 @@ abstract contract BaseTest is Test {
         uint256 seizedCollateral,
         uint256 repaidShares,
         uint256 maxRepaidAssets
-    ) internal pure returns (bytes memory) {
+    ) internal view returns (bytes memory) {
         return abi.encodeCall(
             MorphoBundler.morphoLiquidate,
-            (marketParams, borrower, seizedCollateral, repaidShares, maxRepaidAssets, hex"")
+            (marketParams, borrower, seizedCollateral, repaidShares, maxRepaidAssets, abi.encode(callbackBundle))
         );
     }
 

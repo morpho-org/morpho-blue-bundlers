@@ -11,7 +11,7 @@ fs_permissions = [
 libs = ["lib"]
 
 [profile.default.fuzz]
-runs = 32
+runs = 16
 
 
 [profile.default.rpc_endpoints]

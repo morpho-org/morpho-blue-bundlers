@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import {ISignatureTransfer} from "../lib/permit2/src/interfaces/ISignatureTransfer.sol";
+import {IAllowanceTransfer} from "../lib/permit2/src/interfaces/IAllowanceTransfer.sol";
 
-import "./libraries/ConstantsLib.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {Math} from "../lib/morpho-utils/src/math/Math.sol";
+import {Permit2Lib} from "../lib/permit2/src/libraries/Permit2Lib.sol";
+import {SafeCast160} from "../lib/permit2/src/libraries/SafeCast160.sol";
 import {ERC20} from "../lib/solmate/src/tokens/ERC20.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
@@ -13,29 +14,38 @@ import {BaseBundler} from "./BaseBundler.sol";
 /// @title Permit2Bundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.xyz
-/// @notice Bundler contract managing interactions with ERC20 tokens and Permit2.
+/// @notice Bundler contract managing interactions with Uniswap's Permit2.
 abstract contract Permit2Bundler is BaseBundler {
+    using SafeCast160 for uint256;
+
     /* ACTIONS */
 
-    /// @notice Permits and performs a transfer from the initiator to the recipient via Permit2.
-    /// @notice User must have given sufficient allowance to the Permit2 contract to manage their tokens.
-    /// @dev Warning: `permit.permitted.token` can re-enter the bundler flow.
-    /// @dev Pass `permit.permitted.amount = type(uint256).max` to transfer all.
-    /// @param permit The `PermitTransferFrom` struct.
-    /// @param signature The signature.
-    function permit2TransferFrom(ISignatureTransfer.PermitTransferFrom memory permit, bytes memory signature)
+    /// @notice Approves the given `amount` of `asset` from the initiator to be spent by the bundler via Permit2 with
+    /// the given `deadline` & EIP-712 `signature`.
+    /// @param permitSingle The `PermitSingle` struct.
+    /// @param signature The signature, serialized.
+    /// @param skipRevert Whether to avoid reverting the call in case the signature is frontrunned.
+    function approve2(IAllowanceTransfer.PermitSingle calldata permitSingle, bytes calldata signature, bool skipRevert)
         external
         payable
-        onlyInitiated
+        protected
     {
-        address initiator = initiator();
-        uint256 amount = Math.min(permit.permitted.amount, ERC20(permit.permitted.token).balanceOf(initiator));
+        try Permit2Lib.PERMIT2.permit(initiator(), permitSingle, signature) {}
+        catch (bytes memory returnData) {
+            if (!skipRevert) _revert(returnData);
+        }
+    }
+
+    /// @notice Transfers the given `amount` of `asset` from the initiator to the bundler via Permit2.
+    /// @param asset The address of the ERC20 token to transfer.
+    /// @param amount The amount of `asset` to transfer from the initiator. Pass `type(uint256).max` to transfer the
+    /// initiator's balance.
+    function transferFrom2(address asset, uint256 amount) external payable protected {
+        address _initiator = initiator();
+        amount = Math.min(amount, ERC20(asset).balanceOf(_initiator));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        ISignatureTransfer.SignatureTransferDetails memory transferDetails =
-            ISignatureTransfer.SignatureTransferDetails({to: address(this), requestedAmount: amount});
-
-        ISignatureTransfer(PERMIT2).permitTransferFrom(permit, transferDetails, initiator, signature);
+        Permit2Lib.PERMIT2.transferFrom(_initiator, address(this), amount.toUint160(), asset);
     }
 }

@@ -24,19 +24,19 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     /// @param aaveV3Optimizer The AaveV3 optimizer contract address. Assumes it is non-zero (not expected to be an
     /// input at deployment).
     constructor(address morpho, address aaveV3Optimizer) MigrationBundler(morpho) {
+        require(aaveV3Optimizer != address(0), ErrorsLib.ZERO_ADDRESS);
+
         AAVE_V3_OPTIMIZER = IAaveV3Optimizer(aaveV3Optimizer);
     }
 
     /* ACTIONS */
 
     /// @notice Repays `amount` of `underlying` on the AaveV3 Optimizer, on behalf of the initiator.
-    /// @notice Warning: should only be called via the bundler's `multicall` function.
     /// @dev Initiator must have previously transferred their assets to the bundler.
-    /// @dev Warning: `underlying` can re-enter the bundler flow.
     /// @param underlying The address of the underlying asset to repay.
     /// @param amount The amount of `underlying` to repay. Pass `type(uint256).max` to repay the bundler's `underlying`
     /// balance.
-    function aaveV3OptimizerRepay(address underlying, uint256 amount) external payable onlyInitiated {
+    function aaveV3OptimizerRepay(address underlying, uint256 amount) external payable protected {
         if (amount != type(uint256).max) amount = Math.min(amount, ERC20(underlying).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
@@ -56,7 +56,7 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     function aaveV3OptimizerWithdraw(address underlying, uint256 amount, uint256 maxIterations)
         external
         payable
-        onlyInitiated
+        protected
     {
         AAVE_V3_OPTIMIZER.withdraw(underlying, amount, initiator(), address(this), maxIterations);
     }
@@ -67,7 +67,7 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     /// @dev Initiator must have previously approved the bundler to manage their AaveV3 Optimizer position.
     /// @param underlying The address of the underlying asset to withdraw.
     /// @param amount The amount of `underlying` to withdraw. Pass `type(uint256).max` to withdraw all.
-    function aaveV3OptimizerWithdrawCollateral(address underlying, uint256 amount) external payable onlyInitiated {
+    function aaveV3OptimizerWithdrawCollateral(address underlying, uint256 amount) external payable protected {
         AAVE_V3_OPTIMIZER.withdrawCollateral(underlying, amount, initiator(), address(this));
     }
 
@@ -84,7 +84,7 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
         uint256 deadline,
         Signature calldata signature,
         bool skipRevert
-    ) external payable onlyInitiated {
+    ) external payable protected {
         try AAVE_V3_OPTIMIZER.approveManagerWithSig(initiator(), address(this), isApproved, nonce, deadline, signature)
         {} catch (bytes memory returnData) {
             if (!skipRevert) _revert(returnData);
