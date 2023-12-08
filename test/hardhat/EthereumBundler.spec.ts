@@ -1,7 +1,7 @@
 import { AbiCoder, MaxUint256, Signature, keccak256, toBigInt, TypedDataDomain, TypedDataField } from "ethers";
 import hre from "hardhat";
 import { BundlerAction } from "pkg";
-import { ERC20Mock, ERC4626Mock, EthereumBundler, MorphoMock, OracleMock, SpeedJumpIrmMock } from "types";
+import { ERC20Mock, ERC4626Mock, EthereumBundler, MorphoMock, OracleMock, AdaptiveCurveIrmMock } from "types";
 import { MarketParamsStruct } from "types/lib/morpho-blue/src/Morpho";
 
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
@@ -25,32 +25,36 @@ const permit2Config: TypedDataConfig = {
     verifyingContract: permit2Address,
   },
   types: {
-    PermitTransferFrom: [
+    PermitSingle: [
       {
-        name: "permitted",
-        type: "TokenPermissions",
+        name: "details",
+        type: "PermitDetails",
       },
       {
         name: "spender",
         type: "address",
       },
       {
-        name: "nonce",
-        type: "uint256",
-      },
-      {
-        name: "deadline",
+        name: "sigDeadline",
         type: "uint256",
       },
     ],
-    TokenPermissions: [
+    PermitDetails: [
       {
         name: "token",
         type: "address",
       },
       {
         name: "amount",
-        type: "uint256",
+        type: "uint160",
+      },
+      {
+        name: "expiration",
+        type: "uint48",
+      },
+      {
+        name: "nonce",
+        type: "uint48",
       },
     ],
   },
@@ -130,7 +134,7 @@ describe("EthereumBundler", () => {
   let loan: ERC20Mock;
   let collateral: ERC20Mock;
   let oracle: OracleMock;
-  let irm: SpeedJumpIrmMock;
+  let irm: AdaptiveCurveIrmMock;
 
   let morphoAuthorizationConfig: TypedDataConfig;
 
@@ -174,9 +178,9 @@ describe("EthereumBundler", () => {
 
     const morphoAddress = await morpho.getAddress();
 
-    const SpeedJumpIrmFactory = await hre.ethers.getContractFactory("SpeedJumpIrmMock", admin);
+    const AdaptiveCurveIrmFactory = await hre.ethers.getContractFactory("AdaptiveCurveIrmMock", admin);
 
-    irm = await SpeedJumpIrmFactory.deploy(morphoAddress);
+    irm = await AdaptiveCurveIrmFactory.deploy(morphoAddress);
 
     morphoAuthorizationConfig = {
       domain: { chainId: "0x1", verifyingContract: morphoAddress },
@@ -226,7 +230,7 @@ describe("EthereumBundler", () => {
     hre.tracer.nameTags[collateralAddress] = "Collateral";
     hre.tracer.nameTags[loanAddress] = "Loan";
     hre.tracer.nameTags[oracleAddress] = "Oracle";
-    hre.tracer.nameTags[irmAddress] = "SpeedJumpIrm";
+    hre.tracer.nameTags[irmAddress] = "AdaptiveCurveIrm";
     hre.tracer.nameTags[bundlerAddress] = "EthereumBundler";
   });
 
@@ -250,14 +254,17 @@ describe("EthereumBundler", () => {
         deadline: MAX_UINT48,
       };
 
-      const permit2TransferFrom = {
-        permitted: {
-          token: await collateral.getAddress(),
+      const collateralAddress = await collateral.getAddress();
+
+      const approve2 = {
+        details: {
+          token: collateralAddress,
           amount: assets,
+          nonce: 0n,
+          expiration: MAX_UINT48,
         },
         spender: bundlerAddress,
-        nonce: 0n,
-        deadline: MAX_UINT48,
+        sigDeadline: MAX_UINT48,
       };
 
       await collateral.connect(borrower).approve(permit2Address, MaxUint256);
@@ -278,14 +285,14 @@ describe("EthereumBundler", () => {
             ),
             false,
           ),
-          BundlerAction.permit2TransferFrom(
-            permit2TransferFrom,
-            Signature.from(
-              await borrower.signTypedData(permit2Config.domain, permit2Config.types, permit2TransferFrom),
-            ),
+          BundlerAction.approve2(
+            approve2,
+            Signature.from(await borrower.signTypedData(permit2Config.domain, permit2Config.types, approve2)),
+            false,
           ),
+          BundlerAction.transferFrom2(collateralAddress, assets),
           BundlerAction.morphoSupplyCollateral(marketParams, assets, borrower.address, []),
-          BundlerAction.morphoBorrow(marketParams, assets / 2n, 0, borrower.address),
+          BundlerAction.morphoBorrow(marketParams, assets / 2n, 0, borrower.address, borrower.address),
         ]);
     }
   });
@@ -297,15 +304,17 @@ describe("EthereumBundler", () => {
       const supplier = suppliers[i];
 
       const assets = BigInt.WAD * toBigInt(1 + Math.floor(random() * 100));
+      const collateralAddress = await collateral.getAddress();
 
-      const permit2TransferFrom = {
-        permitted: {
-          token: await collateral.getAddress(),
+      const approve2 = {
+        details: {
+          token: collateralAddress,
           amount: assets,
+          expiration: MAX_UINT48,
+          nonce: 0n,
         },
         spender: bundlerAddress,
-        nonce: 0n,
-        deadline: MAX_UINT48,
+        sigDeadline: MAX_UINT48,
       };
 
       await collateral.connect(supplier).approve(permit2Address, MaxUint256);
@@ -315,12 +324,12 @@ describe("EthereumBundler", () => {
       await bundler
         .connect(supplier)
         .multicall([
-          BundlerAction.permit2TransferFrom(
-            permit2TransferFrom,
-            Signature.from(
-              await supplier.signTypedData(permit2Config.domain, permit2Config.types, permit2TransferFrom),
-            ),
+          BundlerAction.approve2(
+            approve2,
+            Signature.from(await supplier.signTypedData(permit2Config.domain, permit2Config.types, approve2)),
+            false,
           ),
+          BundlerAction.transferFrom2(collateralAddress, assets),
           BundlerAction.erc4626Deposit(erc4626Address, assets, 0, supplier.address),
         ]);
     }
