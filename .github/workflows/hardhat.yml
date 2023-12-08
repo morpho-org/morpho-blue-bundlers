@@ -23,3 +23,6 @@ jobs:
 
       - name: Build contracts & package with hardhat
         uses: ./.github/actions/build-hardhat
+
+      - name: Run hardhat tests
+        run: yarn test:hardhat
