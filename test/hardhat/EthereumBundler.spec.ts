@@ -8,7 +8,7 @@ import {
   EthereumBundler,
   MorphoMock,
   OracleMock,
-  IrmMock,
+  AdaptiveCurveIrmMock,
   EthereumBundler__factory,
 } from "types";
 import { MarketParamsStruct } from "types/lib/morpho-blue/src/Morpho";
@@ -143,7 +143,7 @@ describe("EthereumBundler", () => {
   let loan: ERC20Mock;
   let collateral: ERC20Mock;
   let oracle: OracleMock;
-  let irm: IrmMock;
+  let irm: AdaptiveCurveIrmMock;
 
   let morphoAuthorizationConfig: TypedDataConfig;
 
@@ -187,9 +187,9 @@ describe("EthereumBundler", () => {
 
     const morphoAddress = await morpho.getAddress();
 
-    const IrmFactory = await hre.ethers.getContractFactory("IrmMock", admin);
+    const AdaptiveCurveIrmFactory = await hre.ethers.getContractFactory("AdaptiveCurveIrmMock", admin);
 
-    irm = await IrmFactory.deploy();
+    irm = await AdaptiveCurveIrmFactory.deploy(morphoAddress);
 
     morphoAuthorizationConfig = {
       domain: { chainId: "0x1", verifyingContract: morphoAddress },
@@ -239,7 +239,7 @@ describe("EthereumBundler", () => {
     hre.tracer.nameTags[collateralAddress] = "Collateral";
     hre.tracer.nameTags[loanAddress] = "Loan";
     hre.tracer.nameTags[oracleAddress] = "Oracle";
-    hre.tracer.nameTags[irmAddress] = "Irm";
+    hre.tracer.nameTags[irmAddress] = "AdaptiveCurveIrm";
     hre.tracer.nameTags[bundlerAddress] = "EthereumBundler";
   });
 
@@ -301,7 +301,7 @@ describe("EthereumBundler", () => {
           ),
           BundlerAction.transferFrom2(collateralAddress, assets),
           BundlerAction.morphoSupplyCollateral(marketParams, assets, borrower.address, []),
-          BundlerAction.morphoBorrow(marketParams, assets / 2n, 0, MaxUint256, borrower.address),
+          BundlerAction.morphoBorrow(marketParams, assets / 2n, 0, borrower.address, borrower.address),
         ]);
     }
   });
