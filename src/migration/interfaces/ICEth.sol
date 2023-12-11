@@ -2,6 +2,8 @@
 pragma solidity >=0.5.0;
 
 interface ICEth {
+    function borrowBalanceCurrent(address borrower) external returns (uint256);
+
     function repayBorrowBehalf(address borrower) external payable;
 
     function balanceOf(address) external view returns (uint256);
