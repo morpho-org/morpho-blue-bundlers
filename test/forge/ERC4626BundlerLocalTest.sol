@@ -141,6 +141,22 @@ contract ERC4626BundlerLocalTest is LocalTest {
         bundler.multicall(bundle);
     }
 
+    function testErc4626MintSlippageAdapts(uint256 shares) public {
+        shares = bound(shares, MIN_AMOUNT, MAX_AMOUNT);
+
+        uint256 assets = vault.previewMint(shares);
+
+        bundle.push(_erc20TransferFrom(address(loanToken), assets / 2));
+        bundle.push(_erc4626Mint(address(vault), shares, assets, USER));
+
+        loanToken.setBalance(USER, assets / 2);
+
+        vm.startPrank(USER);
+        loanToken.approve(address(bundler), type(uint256).max);
+
+        bundler.multicall(bundle);
+    }
+
     function testErc4626MintSlippageExceeded(uint256 shares) public {
         shares = bound(shares, MIN_AMOUNT, MAX_AMOUNT);
 
@@ -221,6 +237,25 @@ contract ERC4626BundlerLocalTest is LocalTest {
         assertEq(loanToken.balanceOf(address(bundler)), 0, "loan.balanceOf(bundler)");
         assertEq(vault.balanceOf(address(bundler)), 0, "vault.balanceOf(USER)");
         assertEq(vault.balanceOf(USER), shares, "vault.balanceOf(USER)");
+    }
+
+    function testErc4626WithdrawSlippageAdapts(uint256 deposited, uint256 assets) public {
+        deposited = bound(deposited, MIN_AMOUNT + 1, MAX_AMOUNT);
+
+        _depositVault(deposited);
+
+        // Don't withdraw max to avoid being limited by `maxWithdraw`.
+        assets = bound(assets, MIN_AMOUNT, deposited - 1);
+
+        uint256 redeemed = vault.previewWithdraw(assets);
+
+        bundle.push(_erc4626Withdraw(address(vault), assets, redeemed, RECEIVER, USER));
+
+        vm.startPrank(USER);
+        vault.approve(address(bundler), type(uint256).max);
+        vault.transfer(address(1), redeemed / 2);
+
+        bundler.multicall(bundle);
     }
 
     function testErc4626WithdrawSlippageExceeded(uint256 deposited, uint256 assets) public {

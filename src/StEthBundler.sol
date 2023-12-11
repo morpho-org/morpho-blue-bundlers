@@ -41,16 +41,18 @@ abstract contract StEthBundler is BaseBundler {
     /// @notice Stakes the given `amount` of ETH via Lido, using the `referral` id.
     /// @notice stETH tokens are received by the bundler and should be used afterwards.
     /// @dev Initiator must have previously transferred their ETH to the bundler.
-    /// @param amount The amount of ETH to stake. Pass `type(uint256).max` to stake all.
+    /// @param amount The amount of ETH to stake. Will be capped to the bundler's balance.
     /// @param minShares The minimum amount of shares to mint in exchange for `amount`.
     /// @param referral The address of the referral regarding the Lido Rewards-Share Program.
     function stakeEth(uint256 amount, uint256 minShares, address referral) external payable protected {
+        uint256 initialAmount = amount;
+
         amount = Math.min(amount, address(this).balance);
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
         uint256 shares = IStEth(ST_ETH).submit{value: amount}(referral);
-        require(shares >= minShares, ErrorsLib.SLIPPAGE_EXCEEDED);
+        require(shares * initialAmount >= minShares * amount, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
 
     /// @notice Wraps the given `amount` of stETH to wstETH.
