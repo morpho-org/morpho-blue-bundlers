@@ -15,6 +15,7 @@ import {
   CompoundV3MigrationBundler__factory,
   EthereumPermitBundler__factory,
   IAllowanceTransfer,
+  ERC20WrapperBundler__factory,
 } from "types";
 import { AuthorizationStruct, MarketParamsStruct } from "types/src/MorphoBundler";
 
@@ -24,6 +25,7 @@ export class BundlerAction {
   private static TRANSFER_BUNDLER_IFC = TransferBundler__factory.createInterface();
   private static PERMIT_BUNDLER_IFC = PermitBundler__factory.createInterface();
   private static PERMIT2_BUNDLER_IFC = Permit2Bundler__factory.createInterface();
+  private static ERC20_WRAPPER_BUNDLER_IFC = ERC20WrapperBundler__factory.createInterface();
   private static ERC4626_BUNDLER_IFC = ERC4626Bundler__factory.createInterface();
   private static MORPHO_BUNDLER_IFC = MorphoBundler__factory.createInterface();
   private static URD_BUNDLER_IFC = UrdBundler__factory.createInterface();
@@ -105,6 +107,20 @@ export class BundlerAction {
 
   static transferFrom2(asset: string, amount: BigNumberish): BundlerCall {
     return BundlerAction.PERMIT2_BUNDLER_IFC.encodeFunctionData("transferFrom2", [asset, amount]);
+  }
+
+  /* ERC20 Wrapper */
+
+  static erc20WrapperDepositFor(wrapper: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.ERC20_WRAPPER_BUNDLER_IFC.encodeFunctionData("erc20WrapperDepositFor", [wrapper, amount]);
+  }
+
+  static erc20WrapperWithdrawTo(wrapper: string, account: string, amount: BigNumberish): BundlerCall {
+    return BundlerAction.ERC20_WRAPPER_BUNDLER_IFC.encodeFunctionData("erc20WrapperWithdrawTo", [
+      wrapper,
+      account,
+      amount,
+    ]);
   }
 
   /* ERC4626 */
