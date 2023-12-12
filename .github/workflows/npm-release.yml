@@ -18,8 +18,10 @@ jobs:
 
       - uses: ./.github/actions/install
 
+      - name: Build package
+        run: yarn build:pkg
+
       - name: Publish to npm
         run: |
-          cp package.json dist/package.json
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
-          yarn publish dist --access public --ignore-scripts
+          yarn publish --access public --ignore-scripts
