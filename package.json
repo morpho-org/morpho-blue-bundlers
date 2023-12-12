@@ -2,7 +2,7 @@
   "name": "@morpho-org/blue-bundlers",
   "description": "Morpho Blue Bundlers",
   "license": "GPL-2.0-or-later",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/morpho-labs/morpho-blue-bundlers.git"
@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "ethers": "^6.8.0",
-    "ethers-maths": "^5.0.0",
+    "evm-maths": "^6.0.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {

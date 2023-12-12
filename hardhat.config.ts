@@ -1,5 +1,5 @@
 import * as dotenv from "dotenv";
-import "ethers-maths";
+import "evm-maths";
 import "hardhat-gas-reporter";
 import "hardhat-tracer";
 import { HardhatUserConfig } from "hardhat/config";

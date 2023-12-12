@@ -2406,13 +2406,6 @@ ethereumjs-util@^7.1.4:
     ethereum-cryptography "^0.1.3"
     rlp "^2.2.4"
 
-ethers-maths@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/ethers-maths/-/ethers-maths-5.0.0.tgz#cbb5b65b559701fe1850094580668c5d8e25da7e"
-  integrity sha512-3/u8ADceu5wsk+FJ+nIEXtTf0hwT/I4cAzH0oTAmChssF5atS+20pIVQV06igzCZ4Er2jcd1U3MpcuWz3TsIYg==
-  dependencies:
-    ethers "^6.0.0"
-
 ethers@^5.6.1, ethers@^5.7.1, ethers@^5.7.2:
   version "5.7.2"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.7.2.tgz#3a7deeabbb8c030d4126b24f84e525466145872e"
@@ -2449,7 +2442,7 @@ ethers@^5.6.1, ethers@^5.7.1, ethers@^5.7.2:
     "@ethersproject/web" "5.7.1"
     "@ethersproject/wordlists" "5.7.0"
 
-ethers@^6.0.0, ethers@^6.8.0:
+ethers@^6.8.0:
   version "6.8.0"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-6.8.0.tgz#0a26f57e96fd697cefcfcef464e0c325689d1daf"
   integrity sha512-zrFbmQRlraM+cU5mE4CZTLBurZTs2gdp2ld0nG/f3ecBK+x6lZ69KSxBqZ4NjclxwfTxl5LeNufcBbMsTdY53Q==
@@ -2482,6 +2475,11 @@ eventemitter3@^5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-5.0.1.tgz#53f5ffd0a492ac800721bb42c66b841de96423c4"
   integrity sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==
+
+evm-maths@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/evm-maths/-/evm-maths-6.0.0.tgz#d1555b4418caef26c1f756ecd5c75699606006fc"
+  integrity sha512-XZ5h1UFXtBgCHuS3nnHFfogwVACvbxiWaP5waNP1FsKI4E/lpgL9SUOkw9e07kpcgR1tfV3gxtXIDYZyqrKv5g==
 
 evp_bytestokey@^1.0.3:
   version "1.0.3"
