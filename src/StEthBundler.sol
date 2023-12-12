@@ -33,7 +33,7 @@ abstract contract StEthBundler is BaseBundler {
         ST_ETH = IWstEth(wstEth).stETH();
         WST_ETH = wstEth;
 
-        ERC20(ST_ETH).safeApprove(WST_ETH, type(uint256).max);
+        _approveMaxTo(ST_ETH, WST_ETH);
     }
 
     /* ACTIONS */
