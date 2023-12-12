@@ -23,5 +23,6 @@ jobs:
 
       - name: Publish to npm
         run: |
+          cp LICENSE README.md package.json dist/
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
-          yarn publish --access public --ignore-scripts
+          yarn publish dist --access public --ignore-scripts
