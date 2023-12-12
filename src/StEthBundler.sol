@@ -46,7 +46,6 @@ abstract contract StEthBundler is BaseBundler {
     /// @param referral The address of the referral regarding the Lido Rewards-Share Program.
     function stakeEth(uint256 amount, uint256 minShares, address referral) external payable protected {
         uint256 initialAmount = amount;
-
         amount = Math.min(amount, address(this).balance);
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);

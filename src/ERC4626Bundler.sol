@@ -35,7 +35,6 @@ abstract contract ERC4626Bundler is BaseBundler {
 
         uint256 initialShares = shares;
         address asset = IERC4626(vault).asset();
-
         shares = Math.min(shares, IERC4626(vault).convertToShares(ERC20(asset).balanceOf(address(this))));
 
         require(shares != 0, ErrorsLib.ZERO_SHARES);
@@ -63,7 +62,6 @@ abstract contract ERC4626Bundler is BaseBundler {
 
         uint256 initialAssets = assets;
         address asset = IERC4626(vault).asset();
-
         assets = Math.min(assets, ERC20(asset).balanceOf(address(this)));
 
         require(assets != 0, ErrorsLib.ZERO_AMOUNT);
@@ -95,7 +93,6 @@ abstract contract ERC4626Bundler is BaseBundler {
         require(owner == address(this) || owner == initiator(), ErrorsLib.UNEXPECTED_OWNER);
 
         uint256 initialAssets = assets;
-
         assets = Math.min(assets, IERC4626(vault).convertToAssets(IERC4626(vault).balanceOf(owner)));
 
         require(assets != 0, ErrorsLib.ZERO_AMOUNT);
@@ -123,7 +120,6 @@ abstract contract ERC4626Bundler is BaseBundler {
         require(owner == address(this) || owner == initiator(), ErrorsLib.UNEXPECTED_OWNER);
 
         uint256 initialShares = shares;
-
         shares = Math.min(shares, IERC4626(vault).balanceOf(owner));
 
         require(shares != 0, ErrorsLib.ZERO_SHARES);
