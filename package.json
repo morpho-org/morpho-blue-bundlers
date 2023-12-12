@@ -2,12 +2,7 @@
   "name": "@morpho-org/blue-bundlers",
   "description": "Morpho Blue Bundlers",
   "license": "GPL-2.0-or-later",
-  "version": "0.3.0",
-  "main": "dist/index.js",
-  "files": [
-    "dist",
-    "package.json"
-  ],
+  "version": "0.3.1",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/morpho-labs/morpho-blue-bundlers.git"
