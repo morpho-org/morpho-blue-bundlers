@@ -9,6 +9,7 @@ import {PermitBundler} from "../PermitBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
 import {ERC4626Bundler} from "../ERC4626Bundler.sol";
 import {WNativeBundler} from "../WNativeBundler.sol";
+import {StEthBundler} from "../StEthBundler.sol";
 import {UrdBundler} from "../UrdBundler.sol";
 import {MorphoBundler} from "../MorphoBundler.sol";
 import {ERC20WrapperBundler} from "../ERC20WrapperBundler.sol";
@@ -23,13 +24,18 @@ contract SepoliaBundler is
     Permit2Bundler,
     ERC4626Bundler,
     WNativeBundler,
+    StEthBundler,
     UrdBundler,
     MorphoBundler,
     ERC20WrapperBundler
 {
     /* CONSTRUCTOR */
 
-    constructor(address morpho) WNativeBundler(SepoliaLib.WETH) MorphoBundler(morpho) {}
+    constructor(address morpho)
+        WNativeBundler(SepoliaLib.WETH)
+        StEthBundler(SepoliaLib.WST_ETH)
+        MorphoBundler(morpho)
+    {}
 
     /* INTERNAL */
 
