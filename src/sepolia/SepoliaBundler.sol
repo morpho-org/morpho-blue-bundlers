@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.21;
 
-import {GoerliLib} from "./libraries/GoerliLib.sol";
+import {SepoliaLib} from "./libraries/SepoliaLib.sol";
 
 import {BaseBundler} from "../BaseBundler.sol";
 import {TransferBundler} from "../TransferBundler.sol";
@@ -29,7 +29,7 @@ contract SepoliaBundler is
 {
     /* CONSTRUCTOR */
 
-    constructor(address morpho) WNativeBundler(GoerliLib.WETH) MorphoBundler(morpho) {}
+    constructor(address morpho) WNativeBundler(SepoliaLib.WETH) MorphoBundler(morpho) {}
 
     /* INTERNAL */
 
