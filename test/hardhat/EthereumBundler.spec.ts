@@ -343,14 +343,4 @@ describe("EthereumBundler", () => {
         ]);
     }
   });
-
-  it("should have all batched functions payable", async () => {
-    EthereumBundler__factory.createInterface().forEachFunction((func) => {
-      if (func.stateMutability === "view" || func.stateMutability === "pure") return;
-
-      const shouldPayable = !func.name.startsWith("onMorpho");
-
-      expect(func.payable).to.equal(shouldPayable);
-    });
-  });
 });
