@@ -64,7 +64,7 @@ abstract contract BaseBundler is IMulticall {
     /// @dev All functions delegatecalled must be `payable` if `msg.value` is non-zero.
     function _multicall(bytes[] memory data) internal {
         for (uint256 i; i < data.length; ++i) {
-            (bool success, bytes memory returnData) = address(this).delegatecall(data[i]);
+            (bool success, bytes memory returnData) = address(this).call(data[i]);
 
             // No need to check that `address(this)` has code in case of success.
             if (!success) _revert(returnData);
@@ -85,7 +85,7 @@ abstract contract BaseBundler is IMulticall {
     /// @dev Returns whether the sender of the call is authorized.
     /// @dev Assumes to be inside a properly initiated `multicall` context.
     function _isSenderAuthorized() internal view virtual returns (bool) {
-        return msg.sender == _initiator;
+        return msg.sender == _initiator || msg.sender == address(this);
     }
 
     /// @dev Gives the max approval to `spender` to spend the given `asset` if not already approved.
