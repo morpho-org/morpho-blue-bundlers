@@ -85,7 +85,7 @@ abstract contract BaseBundler is IMulticall {
     /// @dev Returns whether the sender of the call is authorized.
     /// @dev Assumes to be inside a properly initiated `multicall` context.
     function _isSenderAuthorized() internal view virtual returns (bool) {
-        return msg.sender == _initiator || msg.sender == address(this);
+        return msg.sender == address(this);
     }
 
     /// @dev Gives the max approval to `spender` to spend the given `asset` if not already approved.
