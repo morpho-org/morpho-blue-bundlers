@@ -32,11 +32,4 @@ contract EthereumBundler is
     /* CONSTRUCTOR */
 
     constructor(address morpho) WNativeBundler(MainnetLib.WETH) MorphoBundler(morpho) {}
-
-    /* INTERNAL */
-
-    /// @inheritdoc MorphoBundler
-    function _isSenderAuthorized() internal view override(BaseBundler, MorphoBundler) returns (bool) {
-        return MorphoBundler._isSenderAuthorized();
-    }
 }

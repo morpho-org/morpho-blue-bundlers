@@ -12,9 +12,6 @@ import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.s
 /// @custom:contact security@morpho.org
 /// @notice Enables calling multiple functions in a single call to the same contract (self).
 /// @dev Every bundler must inherit from this contract.
-/// @dev Every bundler inheriting from this contract must have their external functions payable as they will be
-/// delegate called by the `multicall` function (which is payable, and thus might pass a non-null ETH value). It is
-/// recommended not to rely on `msg.value` as the same value can be reused for multiple calls.
 abstract contract BaseBundler is IMulticall {
     using SafeTransferLib for ERC20;
 
@@ -30,7 +27,7 @@ abstract contract BaseBundler is IMulticall {
     /// being called by an unauthorized sender inside an initiated multicall context.
     modifier protected() {
         require(_initiator != UNSET_INITIATOR, ErrorsLib.UNINITIATED);
-        require(_isSenderAuthorized(), ErrorsLib.UNAUTHORIZED_SENDER);
+        require(msg.sender == address(this), ErrorsLib.UNAUTHORIZED_SENDER);
 
         _;
     }
@@ -45,9 +42,8 @@ abstract contract BaseBundler is IMulticall {
 
     /* EXTERNAL */
 
-    /// @notice Executes a series of delegate calls to the contract itself.
+    /// @notice Executes a series of calls to the contract itself.
     /// @dev Locks the initiator so that the sender can uniquely be identified in callbacks.
-    /// @dev All functions delegatecalled must be `payable` if `msg.value` is non-zero.
     function multicall(bytes[] memory data) external payable {
         require(_initiator == UNSET_INITIATOR, ErrorsLib.ALREADY_INITIATED);
 
@@ -60,8 +56,7 @@ abstract contract BaseBundler is IMulticall {
 
     /* INTERNAL */
 
-    /// @dev Executes a series of delegate calls to the contract itself.
-    /// @dev All functions delegatecalled must be `payable` if `msg.value` is non-zero.
+    /// @dev Executes a series of calls to the contract itself.
     function _multicall(bytes[] memory data) internal {
         for (uint256 i; i < data.length; ++i) {
             (bool success, bytes memory returnData) = address(this).call(data[i]);
@@ -80,12 +75,6 @@ abstract contract BaseBundler is IMulticall {
         assembly ("memory-safe") {
             revert(add(32, returnData), length)
         }
-    }
-
-    /// @dev Returns whether the sender of the call is authorized.
-    /// @dev Assumes to be inside a properly initiated `multicall` context.
-    function _isSenderAuthorized() internal view virtual returns (bool) {
-        return msg.sender == address(this);
     }
 
     /// @dev Gives the max approval to `spender` to spend the given `asset` if not already approved.

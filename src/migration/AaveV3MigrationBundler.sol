@@ -36,7 +36,7 @@ contract AaveV3MigrationBundler is MigrationBundler {
     /// @param asset The address of the token to repay.
     /// @param amount The amount of `asset` to repay. Pass `type(uint256).max` to repay the bundler's `asset` balance.
     /// @param interestRateMode The interest rate mode of the position.
-    function aaveV3Repay(address asset, uint256 amount, uint256 interestRateMode) external payable protected {
+    function aaveV3Repay(address asset, uint256 amount, uint256 interestRateMode) external protected {
         if (amount != type(uint256).max) amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
@@ -51,7 +51,7 @@ contract AaveV3MigrationBundler is MigrationBundler {
     /// @dev Initiator must have previously transferred their aTokens to the bundler.
     /// @param asset The address of the token to withdraw.
     /// @param amount The amount of `asset` to withdraw. Pass `type(uint256).max` to withdraw all.
-    function aaveV3Withdraw(address asset, uint256 amount) external payable protected {
+    function aaveV3Withdraw(address asset, uint256 amount) external protected {
         AAVE_V3_POOL.withdraw(asset, amount, address(this));
     }
 }

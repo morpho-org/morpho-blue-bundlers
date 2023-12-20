@@ -25,11 +25,7 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @param shares The amount of shares to mint. Pass `type(uint256).max` to mint max.
     /// @param maxAssets The maximum amount of assets to deposit in exchange for `shares`.
     /// @param receiver The address to which shares will be minted.
-    function erc4626Mint(address vault, uint256 shares, uint256 maxAssets, address receiver)
-        external
-        payable
-        protected
-    {
+    function erc4626Mint(address vault, uint256 shares, uint256 maxAssets, address receiver) external protected {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the vault's shares.
 
@@ -50,11 +46,7 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @param assets The amount of assets to deposit. Pass `type(uint256).max` to deposit max.
     /// @param minShares The minimum amount of shares to mint in exchange for `assets`.
     /// @param receiver The address to which shares will be minted.
-    function erc4626Deposit(address vault, uint256 assets, uint256 minShares, address receiver)
-        external
-        payable
-        protected
-    {
+    function erc4626Deposit(address vault, uint256 assets, uint256 minShares, address receiver) external protected {
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         /// Do not check `receiver != address(this)` to allow the bundler to receive the vault's shares.
 
@@ -83,7 +75,6 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// Otherwise, they must have previously transferred their vault shares to the bundler.
     function erc4626Withdraw(address vault, uint256 assets, uint256 maxShares, address receiver, address owner)
         external
-        payable
         protected
     {
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
@@ -109,7 +100,6 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// Otherwise, they must have previously transferred their vault shares to the bundler.
     function erc4626Redeem(address vault, uint256 shares, uint256 minAssets, address receiver, address owner)
         external
-        payable
         protected
     {
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.

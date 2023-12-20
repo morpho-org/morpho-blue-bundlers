@@ -20,11 +20,4 @@ abstract contract MigrationBundler is TransferBundler, PermitBundler, Permit2Bun
     /* CONSTRUCTOR */
 
     constructor(address morpho) MorphoBundler(morpho) {}
-
-    /* INTERNAL */
-
-    /// @inheritdoc MorphoBundler
-    function _isSenderAuthorized() internal view virtual override(BaseBundler, MorphoBundler) returns (bool) {
-        return MorphoBundler._isSenderAuthorized();
-    }
 }

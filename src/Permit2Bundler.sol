@@ -27,7 +27,6 @@ abstract contract Permit2Bundler is BaseBundler {
     /// @param skipRevert Whether to avoid reverting the call in case the signature is frontrunned.
     function approve2(IAllowanceTransfer.PermitSingle calldata permitSingle, bytes calldata signature, bool skipRevert)
         external
-        payable
         protected
     {
         try Permit2Lib.PERMIT2.permit(initiator(), permitSingle, signature) {}
@@ -40,7 +39,7 @@ abstract contract Permit2Bundler is BaseBundler {
     /// @param asset The address of the ERC20 token to transfer.
     /// @param amount The amount of `asset` to transfer from the initiator. Pass `type(uint256).max` to transfer the
     /// initiator's balance.
-    function transferFrom2(address asset, uint256 amount) external payable protected {
+    function transferFrom2(address asset, uint256 amount) external protected {
         address _initiator = initiator();
         amount = Math.min(amount, ERC20(asset).balanceOf(_initiator));
 

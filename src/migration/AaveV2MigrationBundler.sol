@@ -39,7 +39,7 @@ contract AaveV2MigrationBundler is MigrationBundler, StEthBundler {
     /// @param asset The address of the token to repay.
     /// @param amount The amount of `asset` to repay. Pass `type(uint256).max` to repay the bundler's `asset` balance.
     /// @param interestRateMode The interest rate mode of the position.
-    function aaveV2Repay(address asset, uint256 amount, uint256 interestRateMode) external payable protected {
+    function aaveV2Repay(address asset, uint256 amount, uint256 interestRateMode) external protected {
         if (amount != type(uint256).max) amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
@@ -54,14 +54,7 @@ contract AaveV2MigrationBundler is MigrationBundler, StEthBundler {
     /// @dev Initiator must have previously transferred their aTokens to the bundler.
     /// @param asset The address of the token to withdraw.
     /// @param amount The amount of `asset` to withdraw. Pass `type(uint256).max` to withdraw all.
-    function aaveV2Withdraw(address asset, uint256 amount) external payable protected {
+    function aaveV2Withdraw(address asset, uint256 amount) external protected {
         AAVE_V2_POOL.withdraw(asset, amount, address(this));
-    }
-
-    /* INTERNAL */
-
-    /// @inheritdoc MigrationBundler
-    function _isSenderAuthorized() internal view virtual override(BaseBundler, MigrationBundler) returns (bool) {
-        return MigrationBundler._isSenderAuthorized();
     }
 }

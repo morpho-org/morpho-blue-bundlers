@@ -32,11 +32,4 @@ contract GoerliBundler is
     /* CONSTRUCTOR */
 
     constructor(address morpho) WNativeBundler(GoerliLib.WETH) StEthBundler(GoerliLib.WST_ETH) MorphoBundler(morpho) {}
-
-    /* INTERNAL */
-
-    /// @inheritdoc MorphoBundler
-    function _isSenderAuthorized() internal view override(BaseBundler, MorphoBundler) returns (bool) {
-        return MorphoBundler._isSenderAuthorized();
-    }
 }

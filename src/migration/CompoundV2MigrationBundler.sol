@@ -38,7 +38,7 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
     /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @param cToken The address of the cToken contract
     /// @param amount The amount of `cToken` to repay. Pass `type(uint256).max` to repay all (except for cETH).
-    function compoundV2Repay(address cToken, uint256 amount) external payable protected {
+    function compoundV2Repay(address cToken, uint256 amount) external protected {
         if (cToken == C_ETH) {
             amount = Math.min(amount, address(this).balance);
 
@@ -64,18 +64,11 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
     /// @param cToken The address of the cToken contract
     /// @param amount The amount of `cToken` to redeem. Pass `type(uint256).max` to redeem the bundler's `cToken`
     /// balance.
-    function compoundV2Redeem(address cToken, uint256 amount) external payable protected {
+    function compoundV2Redeem(address cToken, uint256 amount) external protected {
         amount = Math.min(amount, ERC20(cToken).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
         ICToken(cToken).redeem(amount);
-    }
-
-    /* INTERNAL */
-
-    /// @inheritdoc MigrationBundler
-    function _isSenderAuthorized() internal view override(BaseBundler, MigrationBundler) returns (bool) {
-        return MigrationBundler._isSenderAuthorized();
     }
 }

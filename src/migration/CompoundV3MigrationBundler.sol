@@ -25,7 +25,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
     /// @param instance The address of the CompoundV3 instance to call.
     /// @param amount The amount of `asset` to repay. Pass `type(uint256).max` to repay all.
-    function compoundV3Repay(address instance, uint256 amount) external payable protected {
+    function compoundV3Repay(address instance, uint256 amount) external protected {
         address _initiator = initiator();
         address asset = ICompoundV3(instance).baseToken();
 
@@ -47,7 +47,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// @param instance The address of the CompoundV3 instance to call.
     /// @param asset The address of the token to withdraw.
     /// @param amount The amount of `asset` to withdraw. Pass `type(uint256).max` to withdraw all.
-    function compoundV3WithdrawFrom(address instance, address asset, uint256 amount) external payable protected {
+    function compoundV3WithdrawFrom(address instance, address asset, uint256 amount) external protected {
         address _initiator = initiator();
         uint256 balance = asset == ICompoundV3(instance).baseToken()
             ? ICompoundV3(instance).balanceOf(_initiator)
@@ -80,7 +80,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
         bytes32 r,
         bytes32 s,
         bool skipRevert
-    ) external payable protected {
+    ) external protected {
         try ICompoundV3(instance).allowBySig(initiator(), address(this), isAllowed, nonce, expiry, v, r, s) {}
         catch (bytes memory returnData) {
             if (!skipRevert) _revert(returnData);
