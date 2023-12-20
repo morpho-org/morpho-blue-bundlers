@@ -35,8 +35,6 @@ library ErrorsLib {
     /// @dev Thrown when the given owner is unexpected.
     string internal constant UNEXPECTED_OWNER = "unexpected owner";
 
-    /* MIGRATION BUNDLERS */
-
     /// @dev Thrown when an action ends up minting/burning more shares than a given slippage.
     string internal constant SLIPPAGE_EXCEEDED = "slippage exceeded";
 }
