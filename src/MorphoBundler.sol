@@ -58,7 +58,8 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /* ACTIONS */
 
-    /// @notice Approves this contract to manage the `authorization.authorizer`'s position via EIP712 `signature`.
+    /// @notice Approves `authorization.authorized` to manage `authorization.authorizer`'s position via EIP712
+    /// `signature`.
     /// @param authorization The `Authorization` struct.
     /// @param signature The signature.
     /// @param skipRevert Whether to avoid reverting the call in case the signature is frontrunned.
@@ -202,8 +203,8 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /// @param marketParams The Morpho market to withdraw assets from.
     /// @param assets The amount of assets to withdraw.
     /// @param shares The amount of shares to burn.
-    /// @param slippageAmount The minimum amount of supply shares to burn in exchange for `assets` when it is used.
-    /// The maximum amount of assets to withdraw in exchange for `shares` otherwise.
+    /// @param slippageAmount The maximum amount of supply shares to burn in exchange for `assets` when it is used.
+    /// The minimum amount of assets to withdraw in exchange for `shares` otherwise.
     /// @param receiver The address that will receive the withdrawn assets.
     function morphoWithdraw(
         MarketParams calldata marketParams,

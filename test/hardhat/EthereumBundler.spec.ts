@@ -1,7 +1,16 @@
+import { expect } from "chai";
 import { AbiCoder, MaxUint256, Signature, keccak256, toBigInt, TypedDataDomain, TypedDataField } from "ethers";
 import hre from "hardhat";
 import { BundlerAction } from "pkg";
-import { ERC20Mock, ERC4626Mock, EthereumBundler, MorphoMock, OracleMock, AdaptiveCurveIrmMock } from "types";
+import {
+  ERC20Mock,
+  ERC4626Mock,
+  EthereumBundler,
+  MorphoMock,
+  OracleMock,
+  AdaptiveCurveIrmMock,
+  EthereumBundler__factory,
+} from "types";
 import { MarketParamsStruct } from "types/lib/morpho-blue/src/Morpho";
 
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
@@ -333,5 +342,15 @@ describe("EthereumBundler", () => {
           BundlerAction.erc4626Deposit(erc4626Address, assets, 0, supplier.address),
         ]);
     }
+  });
+
+  it("should have all batched functions payable", async () => {
+    EthereumBundler__factory.createInterface().forEachFunction((func) => {
+      if (func.stateMutability === "view" || func.stateMutability === "pure") return;
+
+      const shouldPayable = !func.name.startsWith("onMorpho");
+
+      expect(func.payable).to.equal(shouldPayable);
+    });
   });
 });
