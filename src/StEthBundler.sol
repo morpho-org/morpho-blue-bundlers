@@ -42,7 +42,8 @@ abstract contract StEthBundler is BaseBundler {
     /// @notice stETH tokens are received by the bundler and should be used afterwards.
     /// @dev Initiator must have previously transferred their ETH to the bundler.
     /// @param amount The amount of ETH to stake. Pass `type(uint256).max` to stake all.
-    /// @param minShares The minimum amount of shares to mint in exchange for `amount`.
+    /// @param minShares The minimum amount of shares to mint in exchange for `amount`. This parameter is
+    /// proportionally scaled down in case there is fewer ETH than `amount` on the bundler.
     /// @param referral The address of the referral regarding the Lido Rewards-Share Program.
     function stakeEth(uint256 amount, uint256 minShares, address referral) external payable protected {
         uint256 initialAmount = amount;
