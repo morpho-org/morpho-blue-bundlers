@@ -33,7 +33,7 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
 
         uint256 shares = IStEth(ST_ETH).getSharesByPooledEth(amount);
 
-        bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, shares, address(0))));
+        bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, shares - 2, address(0))));
         bundle.push(_erc20Transfer(ST_ETH, RECEIVER, type(uint256).max));
 
         deal(USER, amount);
@@ -49,12 +49,29 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), amount, 3, "balanceOf(RECEIVER)");
     }
 
+    function testStakeEthSlippageAdapts(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, 10_000 ether);
+
+        uint256 shares = IStEth(ST_ETH).getSharesByPooledEth(amount);
+
+        bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, shares - 2, address(0))));
+        bundle.push(_erc20Transfer(ST_ETH, USER, type(uint256).max));
+
+        deal(USER, amount / 2);
+
+        vm.prank(USER);
+        bundler.multicall{value: amount / 2}(bundle);
+
+        assertApproxEqAbs(ERC20(ST_ETH).balanceOf(USER), amount / 2, 3, "amount");
+        assertApproxEqAbs(IStEth(ST_ETH).sharesOf(USER), shares / 2, 2, "shares");
+    }
+
     function testStakeEthSlippageExceeded(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, 10_000 ether);
 
         uint256 shares = IStEth(ST_ETH).getSharesByPooledEth(amount);
 
-        bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, shares, address(0))));
+        bundle.push(abi.encodeCall(StEthBundler.stakeEth, (amount, shares - 2, address(0))));
 
         vm.store(ST_ETH, BEACON_BALANCE_POSITION, bytes32(uint256(vm.load(ST_ETH, BEACON_BALANCE_POSITION)) * 2));
 
