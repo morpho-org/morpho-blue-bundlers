@@ -58,7 +58,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /* ACTIONS */
 
-    /// @notice Approves `authorization.authorized` to manage the `authorization.authorizer`'s position via EIP712
+    /// @notice Approves `authorization.authorized` to manage `authorization.authorizer`'s position via EIP712
     /// `signature`.
     /// @param authorization The `Authorization` struct.
     /// @param signature The signature.

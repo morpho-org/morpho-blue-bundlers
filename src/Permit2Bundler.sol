@@ -20,7 +20,7 @@ abstract contract Permit2Bundler is BaseBundler {
 
     /* ACTIONS */
 
-    /// @notice Approves the given `amount` of `asset` from the initiator to be spent by the `permitSingle.spender` via
+    /// @notice Approves the given `amount` of `asset` from the initiator to be spent by `permitSingle.spender` via
     /// Permit2 with the given `deadline` & EIP-712 `signature`.
     /// @param permitSingle The `PermitSingle` struct.
     /// @param signature The signature, serialized.
