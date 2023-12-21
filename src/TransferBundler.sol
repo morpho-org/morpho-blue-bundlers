@@ -21,8 +21,7 @@ abstract contract TransferBundler is BaseBundler {
     /// bundler to `recipient`.
     /// @dev If the minimum happens to be zero, the transfer is silently skipped.
     /// @param recipient The address that will receive the native tokens.
-    /// @param amount The amount of native tokens to transfer. Pass `type(uint256).max` to transfer
-    /// the initiator's balance.
+    /// @param amount The amount of native tokens to transfer. Capped at the initiator's balance.
     function nativeTransfer(address recipient, uint256 amount) external payable protected {
         require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
         require(recipient != address(this), ErrorsLib.BUNDLER_ADDRESS);
@@ -39,7 +38,7 @@ abstract contract TransferBundler is BaseBundler {
     /// @dev If the minimum happens to be zero, the transfer is silently skipped.
     /// @param asset The address of the ERC20 token to transfer.
     /// @param recipient The address that will receive the tokens.
-    /// @param amount The amount of `asset` to transfer. Pass `type(uint256).max` to transfer the bundler's balance.
+    /// @param amount The amount of `asset` to transfer. Capped at the bundler's balance.
     function erc20Transfer(address asset, address recipient, uint256 amount) external payable protected {
         require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
         require(recipient != address(this), ErrorsLib.BUNDLER_ADDRESS);
@@ -54,8 +53,7 @@ abstract contract TransferBundler is BaseBundler {
     /// @notice Transfers the given `amount` of `asset` from sender to this contract via ERC20 transferFrom.
     /// @notice User must have given sufficient allowance to the Bundler to spend their tokens.
     /// @param asset The address of the ERC20 token to transfer.
-    /// @param amount The amount of `asset` to transfer from the initiator. Pass `type(uint256).max` to transfer the
-    /// initiator's balance.
+    /// @param amount The amount of `asset` to transfer from the initiator. Capped at the initiator's balance.
     function erc20TransferFrom(address asset, uint256 amount) external payable protected {
         address _initiator = initiator();
         amount = Math.min(amount, ERC20(asset).balanceOf(_initiator));

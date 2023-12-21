@@ -43,7 +43,7 @@ abstract contract WNativeBundler is BaseBundler {
     /// @notice Wraps the given `amount` of the native token to wNative.
     /// @notice Wrapped native tokens are received by the bundler and should be used afterwards.
     /// @dev Initiator must have previously transferred their native tokens to the bundler.
-    /// @param amount The amount of native token to wrap. Pass `type(uint256).max` to wrap all.
+    /// @param amount The amount of native token to wrap. Capped at the bundler's native token balance.
     function wrapNative(uint256 amount) external payable protected {
         amount = Math.min(amount, address(this).balance);
 
@@ -55,7 +55,7 @@ abstract contract WNativeBundler is BaseBundler {
     /// @notice Unwraps the given `amount` of wNative to the native token.
     /// @notice Unwrapped native tokens are received by the bundler and should be used afterwards.
     /// @dev Initiator must have previously transferred their wrapped native tokens to the bundler.
-    /// @param amount The amount of wrapped native token to unwrap. Pass `type(uint256).max` to unwrap all.
+    /// @param amount The amount of wrapped native token to unwrap. Capped at the bundler's wNative balance.
     function unwrapNative(uint256 amount) external payable protected {
         amount = Math.min(amount, ERC20(WRAPPED_NATIVE).balanceOf(address(this)));
 
