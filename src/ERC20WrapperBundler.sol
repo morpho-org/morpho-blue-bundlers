@@ -27,7 +27,7 @@ abstract contract ERC20WrapperBundler is BaseBundler {
     /// @param wrapper The address of the ERC20 wrapper contract.
     /// @param amount The amount of underlying tokens to deposit. Pass `type(uint256).max` to deposit the bundler's
     /// balance.
-    function erc20WrapperDepositFor(address wrapper, uint256 amount) external protected {
+    function erc20WrapperDepositFor(address wrapper, uint256 amount) external payable protected {
         ERC20 underlying = ERC20(address(ERC20Wrapper(wrapper).underlying()));
 
         amount = Math.min(amount, underlying.balanceOf(address(this)));
@@ -44,7 +44,7 @@ abstract contract ERC20WrapperBundler is BaseBundler {
     /// @param wrapper The address of the ERC20 wrapper contract.
     /// @param account The address receiving the underlying tokens.
     /// @param amount The amount of wrapped tokens to burn. Pass `type(uint256).max` to burn the bundler's balance.
-    function erc20WrapperWithdrawTo(address wrapper, address account, uint256 amount) external protected {
+    function erc20WrapperWithdrawTo(address wrapper, address account, uint256 amount) external payable protected {
         require(account != address(0), ErrorsLib.ZERO_ADDRESS);
 
         amount = Math.min(amount, ERC20(wrapper).balanceOf(address(this)));

@@ -56,7 +56,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
         address _initiator = initiator();
         uint256 balance = asset == ICompoundV3(instance).baseToken()
             ? ICompoundV3(instance).balanceOf(_initiator)
-            : ICompoundV3(instance).userCollateral(_initiator, asset);
+            : ICompoundV3(instance).userCollateral(_initiator, asset).balance;
 
         amount = Math.min(amount, balance);
 
