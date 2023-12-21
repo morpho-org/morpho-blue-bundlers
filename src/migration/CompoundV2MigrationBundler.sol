@@ -38,7 +38,7 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
     /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @param cToken The address of the cToken contract
     /// @param amount The amount of `cToken` to repay.
-    /// Pass `type(uint256).max - 1` to repay the bundler's balance of underlying (except for cETH).
+    /// Pass `type(uint256).max - 1` to repay the maximum repayable debt (except for cETH).
     /// Pass `type(uint256).max` to repay the initiator's debt and interest (except for cETH).
     /// For cETH, pass `type(uint256).max` to repay the maximum repayable debt.
     function compoundV2Repay(address cToken, uint256 amount) external payable protected {
@@ -46,7 +46,7 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
             address _initiator = initiator();
 
             amount = Math.min(amount, address(this).balance);
-            amount = Math.min(amount, ICEth(C_ETH).borrowBalanceCurrent(_initiator));
+            if (amount != type(uint256).max) amount = Math.min(amount, ICEth(C_ETH).borrowBalanceCurrent(_initiator));
 
             require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
