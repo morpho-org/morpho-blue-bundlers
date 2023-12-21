@@ -54,8 +54,10 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
         } else {
             address underlying = ICToken(cToken).underlying();
 
-            if (amount != type(uint256).max) amount = Math.min(amount, ERC20(underlying).balanceOf(address(this)));
-            amount = Math.min(amount, ICToken(cToken).borrowBalanceCurrent(_initiator));
+            if (amount != type(uint256).max) {
+                amount = Math.min(amount, ERC20(underlying).balanceOf(address(this)));
+                amount = Math.min(amount, ICToken(cToken).borrowBalanceCurrent(_initiator));
+            }
 
             require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
