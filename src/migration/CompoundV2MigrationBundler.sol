@@ -46,7 +46,7 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
             address _initiator = initiator();
 
             amount = Math.min(amount, address(this).balance);
-            if (amount != type(uint256).max) amount = Math.min(amount, ICEth(C_ETH).borrowBalanceCurrent(_initiator));
+            amount = Math.min(amount, ICEth(C_ETH).borrowBalanceCurrent(_initiator));
 
             require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
