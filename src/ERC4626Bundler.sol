@@ -22,7 +22,7 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
-    /// @param shares The amount of shares to mint. Will be capped at the shares corresponding to the bundler's assets.
+    /// @param shares The amount of shares to mint.
     /// @param maxAssets The maximum amount of assets to deposit in exchange for `shares`.
     /// @param receiver The address to which shares will be minted.
     function erc4626Mint(address vault, uint256 shares, uint256 maxAssets, address receiver)
@@ -32,17 +32,12 @@ abstract contract ERC4626Bundler is BaseBundler {
     {
         /// Do not check `receiver != address(this)` to allow the bundler to receive the vault's shares.
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
-
-        uint256 initialShares = shares;
-        address asset = IERC4626(vault).asset();
-        shares = Math.min(shares, IERC4626(vault).convertToShares(ERC20(asset).balanceOf(address(this))));
-
         require(shares != 0, ErrorsLib.ZERO_SHARES);
 
-        _approveMaxTo(asset, vault);
+        _approveMaxTo(IERC4626(vault).asset(), vault);
 
         uint256 assets = IERC4626(vault).mint(shares, receiver);
-        require(assets * initialShares <= maxAssets * shares, ErrorsLib.SLIPPAGE_EXCEEDED);
+        require(assets <= maxAssets, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
 
     /// @notice Deposits the given amount of `assets` on the given ERC4626 `vault`, on behalf of `receiver`.
@@ -76,8 +71,7 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// `receiver`.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
-    /// @param assets The amount of assets to withdraw. Will be capped at the assets corresponding to the owner's
-    /// shares.
+    /// @param assets The amount of assets to withdraw.
     /// @param maxShares The maximum amount of shares to redeem in exchange for `assets`.
     /// @param receiver The address that will receive the withdrawn assets.
     /// @param owner The address on behalf of which the assets are withdrawn. Can only be the bundler or the initiator.
@@ -91,14 +85,10 @@ abstract contract ERC4626Bundler is BaseBundler {
         /// Do not check `receiver != address(this)` to allow the bundler to receive the underlying asset.
         require(receiver != address(0), ErrorsLib.ZERO_ADDRESS);
         require(owner == address(this) || owner == initiator(), ErrorsLib.UNEXPECTED_OWNER);
-
-        uint256 initialAssets = assets;
-        assets = Math.min(assets, IERC4626(vault).convertToAssets(IERC4626(vault).balanceOf(owner)));
-
         require(assets != 0, ErrorsLib.ZERO_AMOUNT);
 
         uint256 shares = IERC4626(vault).withdraw(assets, receiver, owner);
-        require(shares * initialAssets <= maxShares * assets, ErrorsLib.SLIPPAGE_EXCEEDED);
+        require(shares <= maxShares, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
 
     /// @notice Redeems the given amount of `shares` from the given ERC4626 `vault`, transferring assets to `receiver`.

@@ -1,7 +1,6 @@
 [profile.default]
 names = true
 sizes = true
-via-ir = true
 src = "src"
 test = "test/forge"
 fs_permissions = [
@@ -9,6 +8,7 @@ fs_permissions = [
     { access = "read", path = "./lib/morpho-blue/out/"}
 ]
 libs = ["lib"]
+optimization_runs = 999999 # Etherscan does not support verifying contracts with more optimization runs.
 
 [profile.default.fuzz]
 runs = 16
@@ -23,6 +23,7 @@ wrap_comments = true
 
 
 [profile.build]
+via-ir = true
 test = "/dev/null"
 script = "/dev/null"
 
