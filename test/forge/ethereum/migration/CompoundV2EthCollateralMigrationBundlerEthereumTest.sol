@@ -60,7 +60,7 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, type(uint256).max, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, false, 1, false));
         callbackBundle.push(_compoundV2Repay(C_DAI_V2, borrowed / 2));
-        callbackBundle.push(_compoundV2Repay(C_DAI_V2, type(uint256).max));
+        callbackBundle.push(_compoundV2Repay(C_DAI_V2, type(uint256).max - 1));
         callbackBundle.push(_approve2(privateKey, C_ETH_V2, uint160(cTokenBalance), 0, false));
         callbackBundle.push(_transferFrom2(C_ETH_V2, cTokenBalance));
         callbackBundle.push(_compoundV2Redeem(C_ETH_V2, cTokenBalance));
@@ -72,6 +72,29 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         bundler.multicall(bundle);
 
         _assertBorrowerPosition(collateral, borrowed, user, address(bundler));
+    }
+
+    function testRepayMaxInsufficientFunds(uint256 amount) public {
+        uint256 collateral = 10 ether;
+        uint256 borrowed = 1 ether;
+
+        _provideLiquidity(borrowed);
+
+        deal(USER, collateral);
+
+        vm.startPrank(USER);
+        ICEth(C_ETH_V2).mint{value: collateral}();
+        require(IComptroller(COMPTROLLER).enterMarkets(enteredMarkets)[0] == 0, "enter market error");
+        require(ICToken(C_DAI_V2).borrow(borrowed) == 0, "borrow error");
+        vm.stopPrank();
+
+        bundle.push(_compoundV2Repay(C_DAI_V2, type(uint256).max));
+
+        deal(marketParams.loanToken, address(bundler), bound(amount, 0, borrowed - 1));
+
+        vm.expectRevert(bytes("Dai/insufficient-balance"));
+        vm.prank(USER);
+        bundler.multicall(bundle);
     }
 
     /* ACTIONS */

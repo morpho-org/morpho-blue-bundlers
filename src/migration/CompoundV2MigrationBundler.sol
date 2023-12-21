@@ -61,7 +61,7 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
 
             _approveMaxTo(underlying, cToken);
 
-            ICToken(cToken).repayBorrowBehalf(_initiator, amount);
+            require(ICToken(cToken).repayBorrowBehalf(_initiator, amount) == 0, ErrorsLib.REPAY_ERROR);
         }
     }
 
@@ -76,7 +76,7 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        ICToken(cToken).redeem(amount);
+        require(ICToken(cToken).redeem(amount) == 0, ErrorsLib.REDEEM_ERROR);
     }
 
     /* INTERNAL */

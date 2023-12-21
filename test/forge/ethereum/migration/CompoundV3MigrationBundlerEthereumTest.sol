@@ -80,7 +80,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, type(uint256).max, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, false, 1, false));
         callbackBundle.push(_compoundV3Repay(C_WETH_V3, borrowed / 2));
-        callbackBundle.push(_compoundV3Repay(C_WETH_V3, type(uint256).max));
+        callbackBundle.push(_compoundV3Repay(C_WETH_V3, type(uint256).max - 1));
         callbackBundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0, false));
         callbackBundle.push(_compoundV3WithdrawFrom(C_WETH_V3, marketParams.collateralToken, collateralSupplied));
         callbackBundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1, false));
@@ -91,6 +91,26 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         bundler.multicall(bundle);
 
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
+    }
+
+    function testRepayMaxInsufficientFunds(uint256 amount) public {
+        _provideLiquidity(borrowed);
+
+        deal(marketParams.collateralToken, USER, collateralSupplied);
+
+        vm.startPrank(USER);
+        ERC20(marketParams.collateralToken).safeApprove(C_WETH_V3, collateralSupplied);
+        ICompoundV3(C_WETH_V3).supply(marketParams.collateralToken, collateralSupplied);
+        ICompoundV3(C_WETH_V3).withdraw(marketParams.loanToken, borrowed);
+        vm.stopPrank();
+
+        bundle.push(_compoundV3Repay(C_WETH_V3, type(uint256).max));
+
+        deal(marketParams.loanToken, address(bundler), bound(amount, 0, borrowed - 1));
+
+        vm.expectRevert(bytes("call failed"));
+        vm.prank(USER);
+        bundler.multicall(bundle);
     }
 
     function testMigrateSupplierWithCompoundAllowance(uint256 privateKey, uint256 supplied) public {

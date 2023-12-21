@@ -79,6 +79,26 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
     }
 
+    function testRepayMaxInsufficientFunds(uint256 amount) public {
+        _provideLiquidity(borrowed);
+
+        deal(marketParams.collateralToken, USER, collateralSupplied);
+
+        vm.startPrank(USER);
+        ERC20(marketParams.collateralToken).safeApprove(AAVE_V3_POOL, collateralSupplied);
+        IAaveV3(AAVE_V3_POOL).deposit(marketParams.collateralToken, collateralSupplied, USER, 0);
+        IAaveV3(AAVE_V3_POOL).borrow(marketParams.loanToken, borrowed, RATE_MODE, 0, USER);
+        vm.stopPrank();
+
+        bundle.push(_aaveV3Repay(marketParams.loanToken, type(uint256).max - 1));
+
+        deal(marketParams.loanToken, address(bundler), bound(amount, 0, borrowed - 1));
+
+        vm.expectRevert(bytes("call failed"));
+        vm.prank(USER);
+        bundler.multicall(bundle);
+    }
+
     function testMigrateBorrowerWithPermit2(uint256 privateKey) public {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
