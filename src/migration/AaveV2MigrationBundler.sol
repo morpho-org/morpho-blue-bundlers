@@ -37,7 +37,8 @@ contract AaveV2MigrationBundler is MigrationBundler, StEthBundler {
     /// @notice Repays `amount` of `asset` on AaveV2, on behalf of the initiator.
     /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @param asset The address of the token to repay.
-    /// @param amount The amount of `asset` to repay. Capped at the maximum repayable debt.
+    /// @param amount The amount of `asset` to repay. Capped at the maximum repayable debt
+    /// (mininimum of the bundler's balance and the initiator's debt).
     /// @param interestRateMode The interest rate mode of the position.
     function aaveV2Repay(address asset, uint256 amount, uint256 interestRateMode) external payable protected {
         amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));

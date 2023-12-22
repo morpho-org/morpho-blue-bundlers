@@ -36,8 +36,9 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
 
     /// @notice Repays `amount` of `cToken`'s underlying asset, on behalf of the initiator.
     /// @dev Initiator must have previously transferred their assets to the bundler.
-    /// @param cToken The address of the cToken contract
-    /// @param amount The amount of `cToken` to repay. Capped at the maximum repayable debt.
+    /// @param cToken The address of the cToken contract.
+    /// @param amount The amount of `cToken` to repay. Capped at the maximum repayable debt
+    /// (mininimum of the bundler's balance and the initiator's debt).
     function compoundV2Repay(address cToken, uint256 amount) external payable protected {
         address _initiator = initiator();
 

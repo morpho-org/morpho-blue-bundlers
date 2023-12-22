@@ -34,7 +34,8 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     /// @notice Repays `amount` of `underlying` on the AaveV3 Optimizer, on behalf of the initiator.
     /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @param underlying The address of the underlying asset to repay.
-    /// @param amount The amount of `underlying` to repay. Capped at the maximum repayable debt.
+    /// @param amount The amount of `underlying` to repay. Capped at the maximum repayable debt
+    /// (mininimum of the bundler's balance and the initiator's debt).
     function aaveV3OptimizerRepay(address underlying, uint256 amount) external payable protected {
         amount = Math.min(amount, ERC20(underlying).balanceOf(address(this)));
 

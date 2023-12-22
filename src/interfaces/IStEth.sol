@@ -2,6 +2,8 @@
 pragma solidity >=0.5.0;
 
 interface IStEth {
+    function sharesOf(address _account) external view returns (uint256);
+
     function transferShares(address _recipient, uint256 _sharesAmount) external returns (uint256);
 
     function getPooledEthByShares(uint256 _sharesAmount) external view returns (uint256);
