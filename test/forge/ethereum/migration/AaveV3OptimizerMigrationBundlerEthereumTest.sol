@@ -89,7 +89,8 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));
         callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, type(uint256).max, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, false, 1, false));
-        callbackBundle.push(_aaveV3OptimizerRepay(marketParams.loanToken, borrowed));
+        callbackBundle.push(_aaveV3OptimizerRepay(marketParams.loanToken, borrowed / 2));
+        callbackBundle.push(_aaveV3OptimizerRepay(marketParams.loanToken, type(uint256).max));
         callbackBundle.push(_aaveV3OptimizerApproveManager(privateKey, address(bundler), true, 0, false));
         callbackBundle.push(_aaveV3OptimizerWithdrawCollateral(marketParams.collateralToken, collateralSupplied));
         callbackBundle.push(_aaveV3OptimizerApproveManager(privateKey, address(bundler), false, 1, false));
@@ -124,7 +125,8 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));
         callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, type(uint256).max, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, false, 1, false));
-        callbackBundle.push(_aaveV3OptimizerRepay(marketParams.loanToken, borrowed));
+        callbackBundle.push(_aaveV3OptimizerRepay(marketParams.loanToken, borrowed / 2));
+        callbackBundle.push(_aaveV3OptimizerRepay(marketParams.loanToken, type(uint256).max));
         callbackBundle.push(_aaveV3OptimizerApproveManager(privateKey, address(bundler), true, 0, false));
         callbackBundle.push(_aaveV3OptimizerWithdrawCollateral(USDT, amountUsdt));
         callbackBundle.push(_aaveV3OptimizerApproveManager(privateKey, address(bundler), false, 1, false));

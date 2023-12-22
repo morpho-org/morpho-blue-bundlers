@@ -34,10 +34,11 @@ contract AaveV3MigrationBundler is MigrationBundler {
     /// @notice Repays `amount` of `asset` on AaveV3, on behalf of the initiator.
     /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @param asset The address of the token to repay.
-    /// @param amount The amount of `asset` to repay. Pass `type(uint256).max` to repay the bundler's `asset` balance.
+    /// @param amount The amount of `asset` to repay. Pass `type(uint256).max` to repay the maximum repayable debt
+    /// (mininimum of the bundler's balance and the initiator's debt).
     /// @param interestRateMode The interest rate mode of the position.
     function aaveV3Repay(address asset, uint256 amount, uint256 interestRateMode) external payable protected {
-        if (amount != type(uint256).max) amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
+        amount = Math.min(amount, ERC20(asset).balanceOf(address(this)));
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 

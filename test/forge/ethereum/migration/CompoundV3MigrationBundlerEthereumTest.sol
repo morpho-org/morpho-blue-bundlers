@@ -79,7 +79,8 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, true, 0, false));
         callbackBundle.push(_morphoBorrow(marketParams, borrowed, 0, type(uint256).max, address(bundler)));
         callbackBundle.push(_morphoSetAuthorizationWithSig(privateKey, false, 1, false));
-        callbackBundle.push(_compoundV3Repay(C_WETH_V3, borrowed));
+        callbackBundle.push(_compoundV3Repay(C_WETH_V3, borrowed / 2));
+        callbackBundle.push(_compoundV3Repay(C_WETH_V3, type(uint256).max));
         callbackBundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), true, 0, false));
         callbackBundle.push(_compoundV3WithdrawFrom(C_WETH_V3, marketParams.collateralToken, collateralSupplied));
         callbackBundle.push(_compoundV3Allow(privateKey, C_WETH_V3, address(bundler), false, 1, false));
