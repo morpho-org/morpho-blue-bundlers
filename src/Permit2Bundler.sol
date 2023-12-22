@@ -38,8 +38,7 @@ abstract contract Permit2Bundler is BaseBundler {
 
     /// @notice Transfers the given `amount` of `asset` from the initiator to the bundler via Permit2.
     /// @param asset The address of the ERC20 token to transfer.
-    /// @param amount The amount of `asset` to transfer from the initiator. Pass `type(uint256).max` to transfer the
-    /// initiator's balance.
+    /// @param amount The amount of `asset` to transfer from the initiator. Capped at the initiator's balance.
     function transferFrom2(address asset, uint256 amount) external payable protected {
         address _initiator = initiator();
         amount = Math.min(amount, ERC20(asset).balanceOf(_initiator));

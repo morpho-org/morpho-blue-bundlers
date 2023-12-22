@@ -41,7 +41,7 @@ abstract contract StEthBundler is BaseBundler {
     /// @notice Stakes the given `amount` of ETH via Lido, using the `referral` id.
     /// @notice stETH tokens are received by the bundler and should be used afterwards.
     /// @dev Initiator must have previously transferred their ETH to the bundler.
-    /// @param amount The amount of ETH to stake. Pass `type(uint256).max` to stake all.
+    /// @param amount The amount of ETH to stake. Capped at the bundler's ETH balance.
     /// @param minShares The minimum amount of shares to mint in exchange for `amount`. This parameter is
     /// proportionally scaled down in case there is fewer ETH than `amount` on the bundler.
     /// @param referral The address of the referral regarding the Lido Rewards-Share Program.
@@ -58,7 +58,7 @@ abstract contract StEthBundler is BaseBundler {
     /// @notice Wraps the given `amount` of stETH to wstETH.
     /// @notice wstETH tokens are received by the bundler and should be used afterwards.
     /// @dev Initiator must have previously transferred their stETH tokens to the bundler.
-    /// @param amount The amount of stEth to wrap. Pass `type(uint256).max` to wrap all.
+    /// @param amount The amount of stEth to wrap. Capped at the bundler's stETH balance.
     function wrapStEth(uint256 amount) external payable protected {
         amount = Math.min(amount, ERC20(ST_ETH).balanceOf(address(this)));
 
@@ -70,7 +70,7 @@ abstract contract StEthBundler is BaseBundler {
     /// @notice Unwraps the given `amount` of wstETH to stETH.
     /// @notice stETH tokens are received by the bundler and should be used afterwards.
     /// @dev Initiator must have previously transferred their wstETH tokens to the bundler.
-    /// @param amount The amount of wstEth to unwrap. Pass `type(uint256).max` to unwrap all.
+    /// @param amount The amount of wstEth to unwrap. Capped at the bundler's wstETH balance.
     function unwrapStEth(uint256 amount) external payable protected {
         amount = Math.min(amount, ERC20(WST_ETH).balanceOf(address(this)));
 

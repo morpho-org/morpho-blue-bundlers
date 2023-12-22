@@ -44,7 +44,7 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
-    /// @param assets The amount of assets to deposit. Pass `type(uint256).max` to deposit the bundler's assets.
+    /// @param assets The amount of assets to deposit. Capped at the bundler's assets.
     /// @param minShares The minimum amount of shares to mint in exchange for `assets`. This parameter is proportionally
     /// scaled down in case there are fewer assets than `assets` on the bundler.
     /// @param receiver The address to which shares will be minted.
@@ -95,9 +95,9 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @notice Redeems the given amount of `shares` from the given ERC4626 `vault`, transferring assets to `receiver`.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
-    /// @param shares The amount of shares to burn. Pass `type(uint256).max` to redeem the bundler's shares.
+    /// @param shares The amount of shares to redeem. Capped at the owner's shares.
     /// @param minAssets The minimum amount of assets to withdraw in exchange for `shares`. This parameter is
-    /// proportionally scaled down in case there are fewer shares than `shares` on the bundler.
+    /// proportionally scaled down in case the owner holds fewer shares than `shares`.
     /// @param receiver The address that will receive the withdrawn assets.
     /// @param owner The address on behalf of which the shares are redeemed. Can only be the bundler or the initiator.
     /// If `owner` is the initiator, they must have previously approved the bundler to spend their vault shares.
