@@ -46,11 +46,6 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         _callback(data);
     }
 
-    function onMorphoLiquidate(uint256, bytes calldata data) external {
-        // Don't need to approve Morpho to pull tokens because it should already be approved max.
-        _callback(data);
-    }
-
     function onMorphoFlashLoan(uint256, bytes calldata data) external {
         // Don't need to approve Morpho to pull tokens because it should already be approved max.
         _callback(data);
@@ -231,30 +226,6 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         protected
     {
         MORPHO.withdrawCollateral(marketParams, assets, initiator(), receiver);
-    }
-
-    /// @notice Triggers a liquidation on Morpho.
-    /// @notice Seized collateral is received by the bundler and should be used afterwards.
-    /// @dev Either `seizedAssets` or `repaidShares` should be zero.
-    /// @param marketParams The Morpho market of the position.
-    /// @param borrower The owner of the position.
-    /// @param seizedAssets The amount of collateral to seize.
-    /// @param repaidShares The amount of shares to repay.
-    /// @param maxRepaidAssets The maximum amount of assets to repay.
-    /// @param data Arbitrary data to pass to the `onMorphoLiquidate` callback. Pass empty data if not needed.
-    function morphoLiquidate(
-        MarketParams calldata marketParams,
-        address borrower,
-        uint256 seizedAssets,
-        uint256 repaidShares,
-        uint256 maxRepaidAssets,
-        bytes memory data
-    ) external payable protected {
-        _approveMaxTo(marketParams.loanToken, address(MORPHO));
-
-        (, uint256 repaidAssets) = MORPHO.liquidate(marketParams, borrower, seizedAssets, repaidShares, data);
-
-        require(repaidAssets <= maxRepaidAssets, ErrorsLib.SLIPPAGE_EXCEEDED);
     }
 
     /// @notice Triggers a flash loan on Morpho.
