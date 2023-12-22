@@ -37,14 +37,11 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
     /// @notice Repays `amount` of `cToken`'s underlying asset, on behalf of the initiator.
     /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @param cToken The address of the cToken contract
-    /// @param amount The amount of `cToken` to repay.
-    /// Pass `type(uint256).max` to repay the initiator's debt and interest (except for cETH).
-    /// Otherwise, the parameter is capped at the bundler's underlying balance (except for cETH).
-    /// For cETH, the parameter is capped at the maximum repayable debt.
+    /// @param amount The amount of `cToken` to repay. Capped at the maximum repayable debt.
     function compoundV2Repay(address cToken, uint256 amount) external payable protected {
-        if (cToken == C_ETH) {
-            address _initiator = initiator();
+        address _initiator = initiator();
 
+        if (cToken == C_ETH) {
             amount = Math.min(amount, address(this).balance);
             amount = Math.min(amount, ICEth(C_ETH).borrowBalanceCurrent(_initiator));
 
@@ -54,13 +51,14 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
         } else {
             address underlying = ICToken(cToken).underlying();
 
-            if (amount != type(uint256).max) amount = Math.min(amount, ERC20(underlying).balanceOf(address(this)));
+            amount = Math.min(amount, ERC20(underlying).balanceOf(address(this)));
+            amount = Math.min(amount, ICToken(cToken).borrowBalanceCurrent(_initiator));
 
             require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
             _approveMaxTo(underlying, cToken);
 
-            ICToken(cToken).repayBorrowBehalf(initiator(), amount);
+            require(ICToken(cToken).repayBorrowBehalf(_initiator, amount) == 0, ErrorsLib.REPAY_ERROR);
         }
     }
 
@@ -75,7 +73,7 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        ICToken(cToken).redeem(amount);
+        require(ICToken(cToken).redeem(amount) == 0, ErrorsLib.REDEEM_ERROR);
     }
 
     /* INTERNAL */

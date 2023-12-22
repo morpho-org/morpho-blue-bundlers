@@ -94,7 +94,7 @@ abstract contract ERC4626Bundler is BaseBundler {
     /// @notice Redeems the given amount of `shares` from the given ERC4626 `vault`, transferring assets to `receiver`.
     /// @dev Assumes the given `vault` implements EIP-4626.
     /// @param vault The address of the vault.
-    /// @param shares The amount of shares to burn. Capped at the bundler's shares.
+    /// @param shares The amount of shares to burn. Capped at the owner's shares.
     /// @param minAssets The minimum amount of assets to withdraw in exchange for `shares`.
     /// @param receiver The address that will receive the withdrawn assets.
     /// @param owner The address on behalf of which the shares are redeemed. Can only be the bundler or the initiator.

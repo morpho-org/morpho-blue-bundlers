@@ -21,7 +21,7 @@ abstract contract TransferBundler is BaseBundler {
     /// bundler to `recipient`.
     /// @dev If the minimum happens to be zero, the transfer is silently skipped.
     /// @param recipient The address that will receive the native tokens.
-    /// @param amount The amount of native tokens to transfer. Capped at the initiator's balance.
+    /// @param amount The amount of native tokens to transfer. Capped at the bundler's balance.
     function nativeTransfer(address recipient, uint256 amount) external payable protected {
         require(recipient != address(0), ErrorsLib.ZERO_ADDRESS);
         require(recipient != address(this), ErrorsLib.BUNDLER_ADDRESS);
