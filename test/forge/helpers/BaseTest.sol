@@ -265,19 +265,6 @@ abstract contract BaseTest is Test {
         return abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, assets, receiver));
     }
 
-    function _morphoLiquidate(
-        MarketParams memory marketParams,
-        address borrower,
-        uint256 seizedCollateral,
-        uint256 repaidShares,
-        uint256 maxRepaidAssets
-    ) internal view returns (bytes memory) {
-        return abi.encodeCall(
-            MorphoBundler.morphoLiquidate,
-            (marketParams, borrower, seizedCollateral, repaidShares, maxRepaidAssets, abi.encode(callbackBundle))
-        );
-    }
-
     function _morphoFlashLoan(address asset, uint256 amount) internal view returns (bytes memory) {
         return abi.encodeCall(MorphoBundler.morphoFlashLoan, (asset, amount, abi.encode(callbackBundle)));
     }

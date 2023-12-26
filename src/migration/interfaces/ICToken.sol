@@ -8,6 +8,8 @@ interface ICToken {
 
     function exchangeRateStored() external view returns (uint256);
 
+    function borrowBalanceCurrent(address borrower) external returns (uint256);
+
     function repayBorrowBehalf(address borrower, uint256 repayAmount) external returns (uint256);
 
     function redeem(uint256 redeemTokens) external returns (uint256);

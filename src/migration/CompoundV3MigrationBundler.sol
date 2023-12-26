@@ -24,7 +24,8 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /// @dev Initiator must have previously transferred their assets to the bundler.
     /// @dev Assumes the given `instance` is a CompoundV3 instance.
     /// @param instance The address of the CompoundV3 instance to call.
-    /// @param amount The amount of `asset` to repay. Pass `type(uint256).max` to repay all.
+    /// @param amount The amount of `asset` to repay. Capped at the maximum repayable debt
+    /// (mininimum of the bundler's balance and the initiator's debt).
     function compoundV3Repay(address instance, uint256 amount) external payable protected {
         address _initiator = initiator();
         address asset = ICompoundV3(instance).baseToken();
@@ -51,7 +52,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
         address _initiator = initiator();
         uint256 balance = asset == ICompoundV3(instance).baseToken()
             ? ICompoundV3(instance).balanceOf(_initiator)
-            : ICompoundV3(instance).userCollateral(_initiator, asset);
+            : ICompoundV3(instance).userCollateral(_initiator, asset).balance;
 
         amount = Math.min(amount, balance);
 

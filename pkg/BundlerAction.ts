@@ -270,24 +270,6 @@ export class BundlerAction {
     return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoWithdrawCollateral", [market, assets, receiver]);
   }
 
-  static morphoLiquidate(
-    market: MarketParamsStruct,
-    borrower: string,
-    seizedAssets: BigNumberish,
-    repaidShares: BigNumberish,
-    maxRepaidAssets: BigNumberish,
-    callbackCalls: BundlerCall[],
-  ): BundlerCall {
-    return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoLiquidate", [
-      market,
-      borrower,
-      seizedAssets,
-      repaidShares,
-      maxRepaidAssets,
-      BundlerAction.MORPHO_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
-    ]);
-  }
-
   static morphoFlashLoan(asset: string, amount: BigNumberish, callbackCalls: BundlerCall[]): BundlerCall {
     return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("morphoFlashLoan", [
       asset,
