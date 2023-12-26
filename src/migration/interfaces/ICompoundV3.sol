@@ -15,6 +15,11 @@ struct Authorization {
     uint256 expiry;
 }
 
+struct UserCollateral {
+    uint128 balance;
+    uint128 _reserved;
+}
+
 interface ICompoundV3 {
     error BadSignatory();
 
@@ -24,7 +29,7 @@ interface ICompoundV3 {
 
     function baseToken() external view returns (address);
 
-    function userCollateral(address account, address asset) external view returns (uint256);
+    function userCollateral(address account, address asset) external view returns (UserCollateral memory);
 
     function balanceOf(address account) external view returns (uint256);
 
