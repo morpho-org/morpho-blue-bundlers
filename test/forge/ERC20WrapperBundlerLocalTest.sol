@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {ErrorsLib} from "../../src/libraries/ErrorsLib.sol";
 
 import {ERC20WrapperBundlerMock} from "../../src/mocks/bundlers/ERC20WrapperBundlerMock.sol";
-import {ERC20WrapperMock} from "../../src/mocks/ERC20WrapperMock.sol";
+import {ERC20WrapperMock, ERC20Wrapper} from "../../src/mocks/ERC20WrapperMock.sol";
 
 import "./helpers/LocalTest.sol";
 
@@ -97,5 +97,30 @@ contract ERC20WrapperBundlerBundlerLocalTest is LocalTest {
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
         ERC20WrapperBundler(address(bundler)).erc20WrapperWithdrawTo(address(loanWrapper), RECEIVER, amount);
+    }
+
+    function testErc20WrapperDepositToUnseccessfull(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+        loanToken.setBalance(address(bundler), amount);
+
+        bundle.push(_erc20WrapperDepositFor(address(loanWrapper), amount));
+
+        vm.mockCall(address(loanWrapper), abi.encodeWithSelector(ERC20Wrapper.depositFor.selector), abi.encode(false));
+
+        vm.expectRevert(bytes(ErrorsLib.UNSECCESSFULL_DEPOSIT));
+        bundler.multicall(bundle);
+    }
+
+    function testErc20WrapperWithdrawToUnseccessfull(uint256 amount) public {
+        amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
+        loanWrapper.setBalance(address(bundler), amount);
+        loanToken.setBalance(address(loanWrapper), amount);
+
+        bundle.push(_erc20WrapperWithdrawTo(address(loanWrapper), RECEIVER, amount));
+
+        vm.mockCall(address(loanWrapper), abi.encodeWithSelector(ERC20Wrapper.withdrawTo.selector), abi.encode(false));
+
+        vm.expectRevert(bytes(ErrorsLib.UNSECCESSFULL_WITHDRAW));
+        bundler.multicall(bundle);
     }
 }
