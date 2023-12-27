@@ -34,7 +34,8 @@ abstract contract ERC20WrapperBundler is BaseBundler {
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
         _approveMaxTo(address(underlying), wrapper);
-        ERC20Wrapper(wrapper).depositFor(initiator(), amount);
+        bool success = ERC20Wrapper(wrapper).depositFor(initiator(), amount);
+        require(success, ErrorsLib.UNSECCESSFULL_DEPOSIT);
     }
 
     /// @notice Burns a number of wrapped tokens and withdraws the corresponding number of underlying tokens.
@@ -50,6 +51,7 @@ abstract contract ERC20WrapperBundler is BaseBundler {
 
         require(amount != 0, ErrorsLib.ZERO_AMOUNT);
 
-        ERC20Wrapper(wrapper).withdrawTo(account, amount);
+        bool success = ERC20Wrapper(wrapper).withdrawTo(account, amount);
+        require(success, ErrorsLib.UNSECCESSFULL_WITHDRAW);
     }
 }
