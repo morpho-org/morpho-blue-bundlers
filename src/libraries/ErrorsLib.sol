@@ -39,10 +39,10 @@ library ErrorsLib {
     string internal constant SLIPPAGE_EXCEEDED = "slippage exceeded";
 
     /// @dev Thrown when a call to depositFor fails.
-    string internal constant DEPOSIT_FAILED = "Deposit failed";
+    string internal constant DEPOSIT_FAILED = "deposit failed";
 
     /// @dev Thrown when a call to withdrawTo fails.
-    string internal constant WITHDRAW_FAILED = "Withdraw failed";
+    string internal constant WITHDRAW_FAILED = "withdraw failed";
 
     /* MIGRATION BUNDLERS */
 
