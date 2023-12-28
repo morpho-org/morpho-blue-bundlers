@@ -38,6 +38,12 @@ library ErrorsLib {
     /// @dev Thrown when an action ends up minting/burning more shares than a given slippage.
     string internal constant SLIPPAGE_EXCEEDED = "slippage exceeded";
 
+    /// @dev Thrown when a call to depositFor fails.
+    string internal constant DEPOSIT_FAILED = "deposit failed";
+
+    /// @dev Thrown when a call to withdrawTo fails.
+    string internal constant WITHDRAW_FAILED = "withdraw failed";
+
     /* MIGRATION BUNDLERS */
 
     /// @dev Thrown when repaying a CompoundV2 debt returns an error code.
