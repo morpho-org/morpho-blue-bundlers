@@ -99,7 +99,7 @@ contract ERC20WrapperBundlerBundlerLocalTest is LocalTest {
         ERC20WrapperBundler(address(bundler)).erc20WrapperWithdrawTo(address(loanWrapper), RECEIVER, amount);
     }
 
-    function testErc20WrapperDepositToUnseccessfull(uint256 amount) public {
+    function testErc20WrapperDepositToFailed(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
         loanToken.setBalance(address(bundler), amount);
 
@@ -107,11 +107,11 @@ contract ERC20WrapperBundlerBundlerLocalTest is LocalTest {
 
         vm.mockCall(address(loanWrapper), abi.encodeWithSelector(ERC20Wrapper.depositFor.selector), abi.encode(false));
 
-        vm.expectRevert(bytes(ErrorsLib.UNSECCESSFULL_DEPOSIT));
+        vm.expectRevert(bytes(ErrorsLib.DEPOSIT_FAILED));
         bundler.multicall(bundle);
     }
 
-    function testErc20WrapperWithdrawToUnseccessfull(uint256 amount) public {
+    function testErc20WrapperWithdrawToFailed(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
         loanWrapper.setBalance(address(bundler), amount);
         loanToken.setBalance(address(loanWrapper), amount);
@@ -120,7 +120,7 @@ contract ERC20WrapperBundlerBundlerLocalTest is LocalTest {
 
         vm.mockCall(address(loanWrapper), abi.encodeWithSelector(ERC20Wrapper.withdrawTo.selector), abi.encode(false));
 
-        vm.expectRevert(bytes(ErrorsLib.UNSECCESSFULL_WITHDRAW));
+        vm.expectRevert(bytes(ErrorsLib.WITHDRAW_FAILED));
         bundler.multicall(bundle);
     }
 }
