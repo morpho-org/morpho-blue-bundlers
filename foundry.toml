@@ -8,7 +8,7 @@ fs_permissions = [
     { access = "read", path = "./lib/morpho-blue/out/"}
 ]
 libs = ["lib"]
-optimization_runs = 999999 # Etherscan does not support verifying contracts with more optimization runs.
+optimizer_runs = 999999 # Etherscan does not support verifying contracts with more optimization runs.
 
 [profile.default.fuzz]
 runs = 16
