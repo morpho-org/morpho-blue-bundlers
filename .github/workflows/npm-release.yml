@@ -10,7 +10,7 @@ jobs:
 
     environment:
       name: npm
-      url: https://www.npmjs.com/package/@morpho-org/morpho-blue
+      url: https://www.npmjs.com/package/@morpho-org/morpho-blue-bundlers
 
     steps:
       - name: Checkout
