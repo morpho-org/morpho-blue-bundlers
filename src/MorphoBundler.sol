@@ -7,6 +7,7 @@ import {MarketParams, Signature, Authorization, IMorpho} from "../lib/morpho-blu
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
 
+import {MarketAllocation, PublicAllocator} from "../lib/public-allocator/src/PublicAllocator.sol";
 import {BaseBundler} from "./BaseBundler.sol";
 
 /// @title MorphoBundler
@@ -236,6 +237,14 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         _approveMaxTo(token, address(MORPHO));
 
         MORPHO.flashLoan(token, assets, data);
+    }
+
+    function reallocate(address publicAllocator, uint256 amount, MarketAllocation[] calldata allocations)
+        external
+        payable
+        protected
+    {
+        PublicAllocator(publicAllocator).reallocate(allocations);
     }
 
     /* INTERNAL */

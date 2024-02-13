@@ -25,3 +25,6 @@
 [submodule "lib/morpho-blue-irm"]
 	path = lib/morpho-blue-irm
 	url = https://github.com/morpho-labs/morpho-blue-irm
+[submodule "lib/public-allocator"]
+	path = lib/public-allocator
+	url = https://github.com/morpho-org/public-allocator
