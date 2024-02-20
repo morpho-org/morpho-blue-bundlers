@@ -8,7 +8,7 @@ import {
     Authorization as MorphoBlueAuthorization,
     Signature as MorphoBlueSignature
 } from "../../../lib/morpho-blue/src/interfaces/IMorpho.sol";
-import {IPublicAllocator} from "../../../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
+import {IPublicAllocatorBase, Withdrawal} from "../../../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
 
 import {SigUtils} from "./SigUtils.sol";
 import {MarketParamsLib} from "../../../lib/morpho-blue/src/libraries/MarketParamsLib.sol";
@@ -31,7 +31,7 @@ import {BaseBundler} from "../../../src/BaseBundler.sol";
 import {TransferBundler} from "../../../src/TransferBundler.sol";
 import {ERC4626Bundler} from "../../../src/ERC4626Bundler.sol";
 import {UrdBundler} from "../../../src/UrdBundler.sol";
-import {MorphoBundler} from "../../../src/MorphoBundler.sol";
+import "../../../src/MorphoBundler.sol";
 import {ERC20WrapperBundler} from "../../../src/ERC20WrapperBundler.sol";
 
 import "../../../lib/forge-std/src/Test.sol";
@@ -272,5 +272,14 @@ abstract contract BaseTest is Test {
 
     function _morphoFlashLoan(address asset, uint256 amount) internal view returns (bytes memory) {
         return abi.encodeCall(MorphoBundler.morphoFlashLoan, (asset, amount, abi.encode(callbackBundle)));
+    }
+
+    function _reallocateTo(
+        address vault,
+        uint256 value,
+        Withdrawal[] calldata withdrawals,
+        PublicAllocatorMarketParams calldata supplyMarketParams
+    ) internal view returns (bytes memory) {
+        return abi.encodeCall(MorphoBundler.reallocateTo, (vault, value, withdrawals, supplyMarketParams));
     }
 }

@@ -641,4 +641,16 @@ contract MorphoBundlerLocalTest is LocalTest {
         assertEq(loanToken.balanceOf(address(bundler)), 0, "Bundler's loan token balance");
         assertEq(loanToken.balanceOf(address(morpho)), amount, "Morpho's loan token balance");
     }
+
+    function testReallocateTo(
+        address vault,
+        uint256 value,
+        Withdrawal[] calldata withdrawals,
+        PublicAllocatorMarketParams calldata supplyMarketParams
+    ) public {
+        bytes memory params = abi.encode(vault, abi.encode(withdrawals), abi.encode(supplyMarketParams));
+        vm.mockCall(address(publicAllocator), abi.encodeWithSelector(IPublicAllocatorBase.reallocateTo.selector), "");
+
+        bundle.push(_reallocateTo(vault, value, withdrawals, supplyMarketParams));
+    }
 }
