@@ -31,7 +31,10 @@ contract EthereumBundler is
 {
     /* CONSTRUCTOR */
 
-    constructor(address morpho) WNativeBundler(MainnetLib.WETH) MorphoBundler(morpho) {}
+    constructor(address morpho, address publicAllocator)
+        WNativeBundler(MainnetLib.WETH)
+        MorphoBundler(morpho, publicAllocator)
+    {}
 
     /* INTERNAL */
 

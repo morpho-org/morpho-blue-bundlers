@@ -19,7 +19,7 @@ abstract contract MigrationBundler is TransferBundler, PermitBundler, Permit2Bun
 
     /* CONSTRUCTOR */
 
-    constructor(address morpho) MorphoBundler(morpho) {}
+    constructor(address morpho, address publicAllocator) MorphoBundler(morpho, publicAllocator) {}
 
     /* INTERNAL */
 

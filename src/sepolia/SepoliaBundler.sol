@@ -31,10 +31,10 @@ contract SepoliaBundler is
 {
     /* CONSTRUCTOR */
 
-    constructor(address morpho)
+    constructor(address morpho, address publicAllocator)
         WNativeBundler(SepoliaLib.WETH)
         StEthBundler(SepoliaLib.WST_ETH)
-        MorphoBundler(morpho)
+        MorphoBundler(morpho, publicAllocator)
     {}
 
     /* INTERNAL */

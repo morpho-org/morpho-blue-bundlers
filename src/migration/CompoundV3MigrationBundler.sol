@@ -16,7 +16,7 @@ contract CompoundV3MigrationBundler is MigrationBundler {
     /* CONSTRUCTOR */
 
     /// @param morpho The Morpho contract Address.
-    constructor(address morpho) MigrationBundler(morpho) {}
+    constructor(address morpho, address publicAllocator) MigrationBundler(morpho, publicAllocator) {}
 
     /* ACTIONS */
 

@@ -23,7 +23,9 @@ contract AaveV3MigrationBundler is MigrationBundler {
     /// @param morpho The Morpho contract Address.
     /// @param aaveV3Pool The AaveV3 contract address. Assumes it is non-zero (not expected to be an input at
     /// deployment).
-    constructor(address morpho, address aaveV3Pool) MigrationBundler(morpho) {
+    constructor(address morpho, address publicAllocator, address aaveV3Pool)
+        MigrationBundler(morpho, publicAllocator)
+    {
         require(aaveV3Pool != address(0), ErrorsLib.ZERO_ADDRESS);
 
         AAVE_V3_POOL = IAaveV3(aaveV3Pool);

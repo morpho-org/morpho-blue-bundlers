@@ -17,7 +17,7 @@ contract EthereumBundlerEthereumTest is EthereumTest {
     function setUp() public override {
         super.setUp();
 
-        bundler = new EthereumBundler(address(morpho));
+        bundler = new EthereumBundler(address(morpho), address(publicAllocator));
 
         vm.prank(USER);
         morpho.setAuthorization(address(bundler), true);

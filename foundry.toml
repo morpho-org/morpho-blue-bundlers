@@ -4,6 +4,7 @@ sizes = true
 src = "src"
 test = "test/forge"
 fs_permissions = [
+    { access = "read", path = "./out/"},
     { access = "read", path = "./config/"},
     { access = "read", path = "./lib/morpho-blue/out/"}
 ]

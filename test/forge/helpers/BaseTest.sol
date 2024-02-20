@@ -8,6 +8,7 @@ import {
     Authorization as MorphoBlueAuthorization,
     Signature as MorphoBlueSignature
 } from "../../../lib/morpho-blue/src/interfaces/IMorpho.sol";
+import {IPublicAllocator} from "../../../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
 
 import {SigUtils} from "./SigUtils.sol";
 import {MarketParamsLib} from "../../../lib/morpho-blue/src/libraries/MarketParamsLib.sol";
@@ -56,6 +57,7 @@ abstract contract BaseTest is Test {
     IMorpho internal morpho;
     IrmMock internal irm;
     OracleMock internal oracle;
+    IPublicAllocator internal publicAllocator;
 
     BaseBundler internal bundler;
 
@@ -65,6 +67,9 @@ abstract contract BaseTest is Test {
     function setUp() public virtual {
         morpho = IMorpho(_deploy("lib/morpho-blue/out/Morpho.sol/Morpho.json", abi.encode(OWNER)));
         vm.label(address(morpho), "Morpho");
+
+        publicAllocator = IPublicAllocator(_deploy("out/PublicAllocator.sol/PublicAllocator.json", abi.encode(morpho)));
+        vm.label(address(publicAllocator), "PublicAllocator");
 
         irm = new IrmMock();
 

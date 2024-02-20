@@ -25,13 +25,17 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /// @notice The Morpho contract address.
     IMorpho public immutable MORPHO;
+    /// @notice The public allocator contract address.
+    IPublicAllocator public immutable PUBLIC_ALLOCATOR;
 
     /* CONSTRUCTOR */
 
-    constructor(address morpho) {
+    constructor(address morpho, address publicAllocator) {
         require(morpho != address(0), ErrorsLib.ZERO_ADDRESS);
+        require(publicAllocator != address(0), ErrorsLib.ZERO_ADDRESS);
 
         MORPHO = IMorpho(morpho);
+        PUBLIC_ALLOCATOR = IPublicAllocator(publicAllocator);
     }
 
     /* CALLBACKS */
@@ -243,13 +247,13 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         MORPHO.flashLoan(token, assets, data);
     }
 
-    function reallocate(
-        address publicAllocator,
+    function reallocateTo(
+        address vault,
         uint256 value,
         Withdrawal[] calldata withdrawals,
         PublicAllocatorMarketParams calldata supplyMarketParams
     ) external payable protected {
-        IPublicAllocator(publicAllocator).reallocateTo{value: value}(withdrawals, supplyMarketParams);
+        IPublicAllocator(PUBLIC_ALLOCATOR).reallocateTo{value: value}(vault, withdrawals, supplyMarketParams);
     }
 
     /* INTERNAL */

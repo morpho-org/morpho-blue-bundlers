@@ -26,7 +26,10 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
     /// @param morpho The Morpho contract Address.
     /// @param wNative The address of the wNative token contract.
     /// @param cEth The address of the cETH contract.
-    constructor(address morpho, address wNative, address cEth) WNativeBundler(wNative) MigrationBundler(morpho) {
+    constructor(address morpho, address publicAllocator, address wNative, address cEth)
+        WNativeBundler(wNative)
+        MigrationBundler(morpho, publicAllocator)
+    {
         require(cEth != address(0), ErrorsLib.ZERO_ADDRESS);
 
         C_ETH = cEth;
