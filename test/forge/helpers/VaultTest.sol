@@ -2,13 +2,15 @@
 pragma solidity ^0.8.0;
 
 import {ERC20Mock} from "../../../src/mocks/ERC20Mock.sol";
-import {MetaMorpho} from "../../../lib/metamorpho/src/MetaMorpho.sol";
+import {IMetaMorpho} from "../../../lib/metamorpho/src/interfaces/IMetaMorpho.sol";
 
 import "./LocalTest.sol";
 
 abstract contract VaultTest is LocalTest {
+    using MarketParamsLib for MarketParams;
+
     address internal constant VAULT_OWNER = vm.addr("VaultOwner");
-    MetaMorpho vault;
+    IMetaMorpho vault;
     MarketParams idleMarketParams;
 
     function setUp() public virtual override {
@@ -18,17 +20,20 @@ abstract contract VaultTest is LocalTest {
         vm.prank(OWNER);
         morpho.createMarket(idleMarketParams);
 
-        vault = new MetaMorpho(VAULT_OWNER, address(morpho), 1 days, address(loanToken), "MetaMorpho Vault", "MMV");
+        vault = IMetaMorpho(
+            _deploy("Metamorpho.sol", abi.encode(VAULT_OWNER, morpho, 1 days, loanToken, "MetaMorpho Vault", "MMV"))
+        );
+        vm.label(address(vault), "MetaMorpho Vault");
         _setCap(marketParams, type(uint184).max);
         _setCap(idleMarketParams, type(uint184).max);
 
-        Id[] memory newSupplyQueue = Id[](1);
+        Id[] memory newSupplyQueue = Id[]();
         newSupplyQueue[0] = idleMarketParams.id();
         vm.prank(VAULT_OWNER);
         vault.setSupplyQueue(newSupplyQueue);
     }
 
-    function setCap(MarketParams marketParams, uint256 newSupplyCap) internal {
+    function _setCap(MarketParams memory marketParams, uint256 newSupplyCap) internal {
         vm.startPrank(VAULT_OWNER);
         vault.submitCap(marketParams, newSupplyCap);
         vm.warp(1 days);
