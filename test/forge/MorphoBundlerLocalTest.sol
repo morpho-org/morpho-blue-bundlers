@@ -4,16 +4,18 @@ pragma solidity ^0.8.0;
 import {SigUtils} from "./helpers/SigUtils.sol";
 import {ErrorsLib} from "../../src/libraries/ErrorsLib.sol";
 import {ErrorsLib as MorphoErrorsLib} from "../../lib/morpho-blue/src/libraries/ErrorsLib.sol";
+import {MarketParamsLib} from "../../lib/morpho-blue/src/libraries/MarketParamsLib.sol";
 
 import "../../src/mocks/bundlers/MorphoBundlerMock.sol";
 
-import "./helpers/LocalTest.sol";
+import "./helpers/VaultTest.sol";
 
-contract MorphoBundlerLocalTest is LocalTest {
+contract MorphoBundlerLocalTest is VaultTest {
     using MathLib for uint256;
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
     using SharesMathLib for uint256;
+    using MarketParamsLib for MarketParams;
 
     function setUp() public override {
         super.setUp();
@@ -642,15 +644,29 @@ contract MorphoBundlerLocalTest is LocalTest {
         assertEq(loanToken.balanceOf(address(morpho)), amount, "Morpho's loan token balance");
     }
 
-    function testReallocateTo(
-        address vault,
-        uint256 value,
-        Withdrawal[] calldata withdrawals,
-        PublicAllocatorMarketParams calldata supplyMarketParams
-    ) public {
-        bytes memory params = abi.encode(vault, abi.encode(withdrawals), abi.encode(supplyMarketParams));
+    function testReallocateTo(uint256 amount, uint256 fee) public {
+        amount = bound(amount, 0, type(uint184).max);
+        fee = bound(fee, 0, 1 ether);
+
+        vm.prank(VAULT_OWNER);
+        publicAllocator.setFee(address(vault), fee);
+
+        loanToken.setBalance(SUPPLIER, amount);
+        vm.prank(SUPPLIER);
+        vault.deposit(amount, SUPPLIER);
+
         vm.mockCall(address(publicAllocator), abi.encodeWithSelector(IPublicAllocatorBase.reallocateTo.selector), "");
 
-        bundle.push(_reallocateTo(vault, value, withdrawals, supplyMarketParams));
+        Withdrawal[] memory withdrawals = Withdrawal[](1);
+        withdrawals[0].id = idleMarketParams.id();
+        withdrawals[0].amount = amount;
+        PublicAllocatorMarketParams memory supplyMarketParams = marketParams;
+        bundle.push(_reallocateTo(address(vault), fee, withdrawals, supplyMarketParams));
+
+        vm.prank(USER);
+        bundler.multicall(bundle);
+
+        assertEq(morpho.expectedSupplyAssets(idleMarketParams), 0);
+        assertEq(morpho.expectedSupplyAssets(marketParams), amount);
     }
 }
