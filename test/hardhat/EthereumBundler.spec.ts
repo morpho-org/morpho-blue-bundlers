@@ -222,7 +222,7 @@ describe("EthereumBundler", () => {
 
     const EthereumBundlerFactory = await hre.ethers.getContractFactory("EthereumBundler", admin);
 
-    bundler = await EthereumBundlerFactory.deploy(morphoAddress);
+    bundler = await EthereumBundlerFactory.deploy(morphoAddress, "0x0000000000000000000000000000000000000001");
 
     bundlerAddress = await bundler.getAddress();
 
