@@ -24,8 +24,8 @@ abstract contract VaultTest is LocalTest {
             _deploy("Metamorpho.sol", abi.encode(VAULT_OWNER, morpho, 1 days, loanToken, "MetaMorpho Vault", "MMV"))
         );
         vm.label(address(vault), "MetaMorpho Vault");
-        _setCap(marketParams, type(uint184).max);
-        _setCap(idleMarketParams, type(uint184).max);
+        setCap(marketParams, type(uint184).max);
+        setCap(idleMarketParams, type(uint184).max);
 
         Id[] memory newSupplyQueue = new Id[](1);
         newSupplyQueue[0] = idleMarketParams.id();
@@ -33,11 +33,23 @@ abstract contract VaultTest is LocalTest {
         vault.setSupplyQueue(newSupplyQueue);
     }
 
-    function _setCap(MarketParams memory marketParams, uint256 newSupplyCap) internal {
+    function setCap(MarketParams memory marketParams, uint256 newSupplyCap) internal {
         vm.startPrank(VAULT_OWNER);
         vault.submitCap(marketParams, newSupplyCap);
         vm.warp(1 days);
         vault.acceptCap(marketParams);
         vm.stopPrank();
+    }
+
+    function convertParams(MarketParams memory marketParams)
+        internal
+        pure
+        returns (PublicAllocatorMarketParams memory mp)
+    {
+        mp.loanToken = marketParams.loanToken;
+        mp.collateralToken = marketParams.collateralToken;
+        mp.lltv = marketParams.lltv;
+        mp.irm = marketParams.irm;
+        mp.oracle = marketParams.oracle;
     }
 }
