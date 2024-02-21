@@ -247,6 +247,11 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         MORPHO.flashLoan(token, assets, data);
     }
 
+    /// @notice Reallocates funds from markets of a vault to another market of that same vault.
+    /// @param vault The address of the vault.
+    /// @param value The value in ETH to pay for the reallocate fee.
+    /// @param withdrawals The list of markets and amount to withdraw.
+    /// @param supplyMarketParams The market receiving the funds.
     function reallocateTo(
         address vault,
         uint256 value,

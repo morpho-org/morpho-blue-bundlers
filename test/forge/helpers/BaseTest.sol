@@ -8,7 +8,7 @@ import {
     Authorization as MorphoBlueAuthorization,
     Signature as MorphoBlueSignature
 } from "../../../lib/morpho-blue/src/interfaces/IMorpho.sol";
-import {IPublicAllocatorBase, Withdrawal} from "../../../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
+import {IPublicAllocatorBase} from "../../../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
 
 import {SigUtils} from "./SigUtils.sol";
 import {MarketParamsLib} from "../../../lib/morpho-blue/src/libraries/MarketParamsLib.sol";
@@ -279,7 +279,7 @@ abstract contract BaseTest is Test {
         uint256 value,
         Withdrawal[] calldata withdrawals,
         PublicAllocatorMarketParams calldata supplyMarketParams
-    ) internal view returns (bytes memory) {
+    ) internal pure returns (bytes memory) {
         return abi.encodeCall(MorphoBundler.reallocateTo, (vault, value, withdrawals, supplyMarketParams));
     }
 }
