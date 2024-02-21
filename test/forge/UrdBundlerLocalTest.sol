@@ -27,7 +27,7 @@ contract UrdBundlerLocalTest is LocalTest {
         super.setUp();
 
         bundler = new UrdBundlerMock();
-        urdFactory = IUrdFactory(_deploy("UrdFactory.sol", ""));
+        urdFactory = IUrdFactory(_deploy("out/UrdFactory.sol/UrdFactory.json", ""));
         vm.label(address(urdFactory), "UrdFactory");
         merkle = new Merkle();
 
