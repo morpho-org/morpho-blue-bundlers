@@ -9,7 +9,7 @@ import "./LocalTest.sol";
 abstract contract VaultTest is LocalTest {
     using MarketParamsLib for MarketParams;
 
-    address internal constant VAULT_OWNER = vm.addr("VaultOwner");
+    address internal VAULT_OWNER = makeAddr("VaultOwner");
     IMetaMorpho vault;
     MarketParams idleMarketParams;
 
@@ -27,7 +27,7 @@ abstract contract VaultTest is LocalTest {
         _setCap(marketParams, type(uint184).max);
         _setCap(idleMarketParams, type(uint184).max);
 
-        Id[] memory newSupplyQueue = Id[]();
+        Id[] memory newSupplyQueue = new Id[](1);
         newSupplyQueue[0] = idleMarketParams.id();
         vm.prank(VAULT_OWNER);
         vault.setSupplyQueue(newSupplyQueue);
