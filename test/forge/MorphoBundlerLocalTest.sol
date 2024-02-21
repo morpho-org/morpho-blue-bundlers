@@ -646,7 +646,7 @@ contract MorphoBundlerLocalTest is LocalTest {
         address vault,
         uint256 value,
         Withdrawal[] calldata withdrawals,
-        MarketParams calldata supplyMarketParams
+        PublicAllocatorMarketParams calldata supplyMarketParams
     ) public {
         bytes memory params = abi.encode(vault, abi.encode(withdrawals), abi.encode(supplyMarketParams));
         vm.mockCall(address(publicAllocator), abi.encodeWithSelector(IPublicAllocatorBase.reallocateTo.selector), "");
