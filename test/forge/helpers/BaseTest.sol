@@ -278,7 +278,7 @@ abstract contract BaseTest is Test {
         address vault,
         uint256 value,
         Withdrawal[] calldata withdrawals,
-        PublicAllocatorMarketParams calldata supplyMarketParams
+        MarketParams calldata supplyMarketParams
     ) internal pure returns (bytes memory) {
         return abi.encodeCall(MorphoBundler.reallocateTo, (vault, value, withdrawals, supplyMarketParams));
     }
