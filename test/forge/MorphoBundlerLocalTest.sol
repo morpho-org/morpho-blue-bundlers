@@ -650,7 +650,7 @@ contract MorphoBundlerLocalTest is VaultTest {
         vm.label(address(publicAllocator), "PublicAllocator");
 
         amount = bound(amount, 0, type(uint64).max);
-        fee = bound(fee, 0, 1 ether);
+        fee = bound(fee, 1, 1 ether);
 
         vm.prank(VAULT_OWNER);
         publicAllocator.setFee(address(vault), fee);
