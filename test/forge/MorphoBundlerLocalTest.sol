@@ -8,17 +8,13 @@ import {MarketParamsLib} from "../../lib/morpho-blue/src/libraries/MarketParamsL
 import {
     FlowCapsConfig,
     MAX_SETTABLE_FLOW_CAP,
-    Id as PAId
+    Id,
+    IPublicAllocator
 } from "../../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
 
 import "../../src/mocks/bundlers/MorphoBundlerMock.sol";
 
 import "./helpers/VaultTest.sol";
-
-interface IPublicAllocator {
-    function setFee(address vault, uint256 newFee) external;
-    function setFlowCaps(address vault, FlowCapsConfig[] calldata config) external;
-}
 
 contract MorphoBundlerLocalTest is VaultTest {
     using MathLib for uint256;
@@ -665,9 +661,9 @@ contract MorphoBundlerLocalTest is VaultTest {
         maxOut = bound(maxOut, amount, MAX_SETTABLE_FLOW_CAP);
 
         FlowCapsConfig[] memory flows = new FlowCapsConfig[](2);
-        flows[0].id = PAId.wrap(Id.unwrap(marketParams.id()));
+        flows[0].id = Id.wrap(Id.unwrap(marketParams.id()));
         flows[0].caps.maxIn = uint128(maxIn);
-        flows[1].id = PAId.wrap(Id.unwrap(idleMarketParams.id()));
+        flows[1].id = Id.wrap(Id.unwrap(idleMarketParams.id()));
         flows[1].caps.maxOut = uint128(maxOut);
 
         vm.startPrank(VAULT_OWNER);

@@ -1,1 +1,2 @@
 solmate/=lib/permit2/lib/solmate/
+lib/public-allocator/lib/metamorpho/lib/morpho-blue=lib/morpho-blue

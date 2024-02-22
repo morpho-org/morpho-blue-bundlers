@@ -9,16 +9,7 @@ import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.s
 
 import {BaseBundler} from "./BaseBundler.sol";
 
-struct Withdrawal {
-    MarketParams marketParams;
-    uint128 amount;
-}
-
-interface IPublicAllocator {
-    function reallocateTo(address vault, Withdrawal[] calldata withdrawals, MarketParams calldata supplyMarketParams)
-        external
-        payable;
-}
+import {IPublicAllocator, Withdrawal} from "../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
 
 /// @title MorphoBundler
 /// @author Morpho Labs
