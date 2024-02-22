@@ -667,8 +667,9 @@ contract MorphoBundlerLocalTest is VaultTest {
         assertEq(morpho.expectedSupplyAssets(idleMarketParams, address(vault)), amount, "initial idle");
         assertEq(morpho.expectedSupplyAssets(marketParams, address(vault)), 0, "initial market");
 
+        vm.deal(USER, fee);
         vm.prank(USER);
-        bundler.multicall(bundle);
+        bundler.multicall{value: fee}(bundle);
 
         assertEq(morpho.expectedSupplyAssets(idleMarketParams, address(vault)), 0, "final idle");
         assertEq(morpho.expectedSupplyAssets(marketParams, address(vault)), amount, "final market");
