@@ -47,7 +47,7 @@ abstract contract VaultTest is LocalTest {
     function setCap(MarketParams memory marketParams, uint256 newSupplyCap) internal {
         vm.startPrank(VAULT_OWNER);
         vault.submitCap(marketParams, newSupplyCap);
-        vm.warp(1 days);
+        vm.warp(block.timestamp + 1 days);
         vault.acceptCap(marketParams);
         vm.stopPrank();
     }
