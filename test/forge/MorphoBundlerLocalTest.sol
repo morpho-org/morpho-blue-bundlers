@@ -15,6 +15,11 @@ import "../../src/mocks/bundlers/MorphoBundlerMock.sol";
 
 import "./helpers/VaultTest.sol";
 
+interface IPublicAllocator {
+    function setFee(address vault, uint256 newFee) external;
+    function setFlowCaps(address vault, FlowCapsConfig[] calldata config) external;
+}
+
 contract MorphoBundlerLocalTest is VaultTest {
     using MathLib for uint256;
     using MorphoLib for IMorpho;
@@ -676,7 +681,7 @@ contract MorphoBundlerLocalTest is VaultTest {
         vault.deposit(amount, SUPPLIER);
 
         Withdrawal[] memory withdrawals = new Withdrawal[](1);
-        withdrawals[0].marketParams = convertParams(idleMarketParams);
+        withdrawals[0].marketParams = idleMarketParams;
         withdrawals[0].amount = uint128(amount);
         bundle.push(_reallocateTo(address(publicAllocator), address(vault), fee, withdrawals, marketParams));
 

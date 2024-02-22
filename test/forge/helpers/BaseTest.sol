@@ -31,7 +31,7 @@ import {BaseBundler} from "../../../src/BaseBundler.sol";
 import {TransferBundler} from "../../../src/TransferBundler.sol";
 import {ERC4626Bundler} from "../../../src/ERC4626Bundler.sol";
 import {UrdBundler} from "../../../src/UrdBundler.sol";
-import "../../../src/MorphoBundler.sol";
+import {MorphoBundler, Withdrawal} from "../../../src/MorphoBundler.sol";
 import {ERC20WrapperBundler} from "../../../src/ERC20WrapperBundler.sol";
 
 import "../../../lib/forge-std/src/Test.sol";

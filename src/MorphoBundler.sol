@@ -7,12 +7,18 @@ import {MarketParams, Signature, Authorization, IMorpho} from "../lib/morpho-blu
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
 
-import {
-    IPublicAllocator,
-    Withdrawal,
-    MarketParams as PublicAllocatorMarketParams
-} from "../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
 import {BaseBundler} from "./BaseBundler.sol";
+
+struct Withdrawal {
+    MarketParams marketParams;
+    uint128 amount;
+}
+
+interface IPublicAllocator {
+    function reallocateTo(address vault, Withdrawal[] calldata withdrawals, MarketParams calldata supplyMarketParams)
+        external
+        payable;
+}
 
 /// @title MorphoBundler
 /// @author Morpho Labs
@@ -244,7 +250,6 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     }
 
     /// @notice Reallocates funds from markets of a vault to another market of that same vault.
-    /// @param publicAllocator The address of the public allocator.
     /// @param vault The address of the vault.
     /// @param value The value in ETH to pay for the reallocate fee.
     /// @param withdrawals The list of markets and amount to withdraw.
@@ -256,11 +261,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         Withdrawal[] calldata withdrawals,
         MarketParams calldata supplyMarketParams
     ) external payable protected {
-        PublicAllocatorMarketParams calldata pamp;
-        assembly {
-            pamp := supplyMarketParams
-        }
-        IPublicAllocator(publicAllocator).reallocateTo{value: value}(vault, withdrawals, pamp);
+        IPublicAllocator(publicAllocator).reallocateTo{value: value}(vault, withdrawals, supplyMarketParams);
     }
 
     /* INTERNAL */
