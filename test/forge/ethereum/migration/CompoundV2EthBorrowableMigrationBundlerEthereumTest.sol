@@ -21,7 +21,7 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
 
         _initMarket(DAI, WETH);
 
-        bundler = new CompoundV2MigrationBundler(address(morpho), address(publicAllocator), WETH, C_ETH_V2);
+        bundler = new CompoundV2MigrationBundler(address(morpho), WETH, C_ETH_V2);
 
         enteredMarkets.push(C_DAI_V2);
     }

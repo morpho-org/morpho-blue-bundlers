@@ -20,7 +20,7 @@ contract MorphoBundlerLocalTest is VaultTest {
     function setUp() public override {
         super.setUp();
 
-        bundler = new MorphoBundlerMock(address(morpho), address(publicAllocator));
+        bundler = new MorphoBundlerMock(address(morpho));
 
         vm.startPrank(USER);
         loanToken.approve(address(morpho), type(uint256).max);
@@ -645,6 +645,10 @@ contract MorphoBundlerLocalTest is VaultTest {
     }
 
     function testReallocateTo(uint256 amount, uint256 fee) public {
+        IPublicAllocator publicAllocator =
+            IPublicAllocator(_deploy("out/PublicAllocator.sol/PublicAllocator.json", abi.encode(morpho)));
+        vm.label(address(publicAllocator), "PublicAllocator");
+
         amount = bound(amount, 0, type(uint64).max);
         fee = bound(fee, 0, 1 ether);
 
@@ -658,8 +662,7 @@ contract MorphoBundlerLocalTest is VaultTest {
         Withdrawal[] memory withdrawals = new Withdrawal[](1);
         withdrawals[0].marketParams = convertParams(idleMarketParams);
         withdrawals[0].amount = uint128(amount);
-        PublicAllocatorMarketParams memory supplyMarketParams = convertParams(marketParams);
-        bundle.push(_reallocateTo(address(vault), fee, withdrawals, supplyMarketParams));
+        bundle.push(_reallocateTo(address(publicAllocator), address(vault), fee, withdrawals, marketParams));
 
         assertEq(morpho.expectedSupplyAssets(idleMarketParams, address(vault)), amount, "initial idle");
         assertEq(morpho.expectedSupplyAssets(marketParams, address(vault)), 0, "initial market");

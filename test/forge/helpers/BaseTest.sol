@@ -57,7 +57,6 @@ abstract contract BaseTest is Test {
     IMorpho internal morpho;
     IrmMock internal irm;
     OracleMock internal oracle;
-    IPublicAllocator internal publicAllocator;
 
     BaseBundler internal bundler;
 
@@ -68,14 +67,12 @@ abstract contract BaseTest is Test {
         morpho = IMorpho(_deploy("lib/morpho-blue/out/Morpho.sol/Morpho.json", abi.encode(OWNER)));
         vm.label(address(morpho), "Morpho");
 
-        publicAllocator = IPublicAllocator(_deploy("out/PublicAllocator.sol/PublicAllocator.json", abi.encode(morpho)));
-        vm.label(address(publicAllocator), "PublicAllocator");
-
         irm = new IrmMock();
 
         vm.startPrank(OWNER);
         morpho.enableIrm(address(irm));
         morpho.enableIrm(address(0));
+        morpho.enableLltv(0);
         vm.stopPrank();
 
         oracle = new OracleMock();
@@ -277,11 +274,13 @@ abstract contract BaseTest is Test {
     }
 
     function _reallocateTo(
+        address publicAllocator,
         address vault,
         uint256 value,
         Withdrawal[] memory withdrawals,
-        PublicAllocatorMarketParams memory supplyMarketParams
+        MarketParams memory supplyMarketParams
     ) internal pure returns (bytes memory) {
-        return abi.encodeCall(MorphoBundler.reallocateTo, (vault, value, withdrawals, supplyMarketParams));
+        return
+            abi.encodeCall(MorphoBundler.reallocateTo, (publicAllocator, vault, value, withdrawals, supplyMarketParams));
     }
 }

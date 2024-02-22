@@ -21,7 +21,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         _initMarket(CB_ETH, WETH);
 
-        bundler = new CompoundV3MigrationBundler(address(morpho), address(publicAllocator));
+        bundler = new CompoundV3MigrationBundler(address(morpho));
     }
 
     function testCompoundV3RepayUninitiated(uint256 amount) public {

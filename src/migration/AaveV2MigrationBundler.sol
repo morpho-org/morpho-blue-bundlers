@@ -26,10 +26,7 @@ contract AaveV2MigrationBundler is MigrationBundler, StEthBundler {
     /// @param morpho The Morpho contract Address.
     /// @param aaveV2Pool The AaveV2 contract address. Assumes it is non-zero (not expected to be an input at
     /// deployment).
-    constructor(address morpho, address publicAllocator, address aaveV2Pool, address wstEth)
-        MigrationBundler(morpho, publicAllocator)
-        StEthBundler(wstEth)
-    {
+    constructor(address morpho, address aaveV2Pool, address wstEth) MigrationBundler(morpho) StEthBundler(wstEth) {
         require(aaveV2Pool != address(0), ErrorsLib.ZERO_ADDRESS);
 
         AAVE_V2_POOL = IAaveV2(aaveV2Pool);

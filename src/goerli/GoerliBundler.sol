@@ -31,11 +31,7 @@ contract GoerliBundler is
 {
     /* CONSTRUCTOR */
 
-    constructor(address morpho, address publicAllocator)
-        WNativeBundler(GoerliLib.WETH)
-        StEthBundler(GoerliLib.WST_ETH)
-        MorphoBundler(morpho, publicAllocator)
-    {}
+    constructor(address morpho) WNativeBundler(GoerliLib.WETH) StEthBundler(GoerliLib.WST_ETH) MorphoBundler(morpho) {}
 
     /* INTERNAL */
 
