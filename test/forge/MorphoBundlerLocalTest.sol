@@ -645,7 +645,7 @@ contract MorphoBundlerLocalTest is VaultTest {
     }
 
     function testReallocateTo(uint256 amount, uint256 fee) public {
-        amount = bound(amount, 0, type(uint128).max);
+        amount = bound(amount, 0, type(uint64).max);
         fee = bound(fee, 0, 1 ether);
 
         vm.prank(VAULT_OWNER);

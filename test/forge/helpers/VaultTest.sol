@@ -42,6 +42,9 @@ abstract contract VaultTest is LocalTest {
         newSupplyQueue[0] = idleMarketParams.id();
         vm.prank(VAULT_OWNER);
         vault.setSupplyQueue(newSupplyQueue);
+
+        vm.prank(SUPPLIER);
+        loanToken.approve(address(vault), type(uint256).max);
     }
 
     function setCap(MarketParams memory marketParams, uint256 newSupplyCap) internal {
