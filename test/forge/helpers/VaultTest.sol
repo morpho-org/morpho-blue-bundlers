@@ -23,10 +23,8 @@ abstract contract VaultTest is LocalTest {
         super.setUp();
 
         idleMarketParams = MarketParams(address(loanToken), address(0), address(0), address(0), 0);
-        vm.startPrank(OWNER);
-        morpho.enableLltv(0);
+        vm.prank(OWNER);
         morpho.createMarket(idleMarketParams);
-        vm.stopPrank();
 
         vault = IMetaMorpho(
             _deploy(
