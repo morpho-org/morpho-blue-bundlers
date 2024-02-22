@@ -25,17 +25,13 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
 
     /// @notice The Morpho contract address.
     IMorpho public immutable MORPHO;
-    /// @notice The public allocator contract address.
-    IPublicAllocator public immutable PUBLIC_ALLOCATOR;
 
     /* CONSTRUCTOR */
 
-    constructor(address morpho, address publicAllocator) {
+    constructor(address morpho) {
         require(morpho != address(0), ErrorsLib.ZERO_ADDRESS);
-        require(publicAllocator != address(0), ErrorsLib.ZERO_ADDRESS);
 
         MORPHO = IMorpho(morpho);
-        PUBLIC_ALLOCATOR = IPublicAllocator(publicAllocator);
     }
 
     /* CALLBACKS */
@@ -248,17 +244,19 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     }
 
     /// @notice Reallocates funds from markets of a vault to another market of that same vault.
+    /// @param publicAllocator The address of the public allocator.
     /// @param vault The address of the vault.
     /// @param value The value in ETH to pay for the reallocate fee.
     /// @param withdrawals The list of markets and amount to withdraw.
     /// @param supplyMarketParams The market receiving the funds.
     function reallocateTo(
+        address publicAllocator,
         address vault,
         uint256 value,
         Withdrawal[] calldata withdrawals,
         PublicAllocatorMarketParams calldata supplyMarketParams
     ) external payable protected {
-        IPublicAllocator(PUBLIC_ALLOCATOR).reallocateTo{value: value}(vault, withdrawals, supplyMarketParams);
+        IPublicAllocator(publicAllocator).reallocateTo{value: value}(vault, withdrawals, supplyMarketParams);
     }
 
     /* INTERNAL */
