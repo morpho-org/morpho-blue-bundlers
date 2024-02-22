@@ -27,7 +27,7 @@ contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.label(AAVE_V2_POOL, "Aave V2 Pool");
 
-        bundler = new AaveV2MigrationBundler(address(morpho), address(publicAllocator), AAVE_V2_POOL, WST_ETH);
+        bundler = new AaveV2MigrationBundler(address(morpho), AAVE_V2_POOL, WST_ETH);
     }
 
     function testAaveV2RepayUninitiated(uint256 amount) public {

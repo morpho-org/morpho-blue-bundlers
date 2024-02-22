@@ -4,21 +4,28 @@ pragma solidity ^0.8.0;
 import {SigUtils} from "./helpers/SigUtils.sol";
 import {ErrorsLib} from "../../src/libraries/ErrorsLib.sol";
 import {ErrorsLib as MorphoErrorsLib} from "../../lib/morpho-blue/src/libraries/ErrorsLib.sol";
+import {MarketParamsLib} from "../../lib/morpho-blue/src/libraries/MarketParamsLib.sol";
+import {
+    FlowCapsConfig,
+    MAX_SETTABLE_FLOW_CAP,
+    Id as PAId
+} from "../../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
 
 import "../../src/mocks/bundlers/MorphoBundlerMock.sol";
 
-import "./helpers/LocalTest.sol";
+import "./helpers/VaultTest.sol";
 
-contract MorphoBundlerLocalTest is LocalTest {
+contract MorphoBundlerLocalTest is VaultTest {
     using MathLib for uint256;
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
     using SharesMathLib for uint256;
+    using MarketParamsLib for MarketParams;
 
     function setUp() public override {
         super.setUp();
 
-        bundler = new MorphoBundlerMock(address(morpho), address(publicAllocator));
+        bundler = new MorphoBundlerMock(address(morpho));
 
         vm.startPrank(USER);
         loanToken.approve(address(morpho), type(uint256).max);
@@ -642,15 +649,45 @@ contract MorphoBundlerLocalTest is LocalTest {
         assertEq(loanToken.balanceOf(address(morpho)), amount, "Morpho's loan token balance");
     }
 
-    function testReallocateTo(
-        address vault,
-        uint256 value,
-        Withdrawal[] calldata withdrawals,
-        PublicAllocatorMarketParams calldata supplyMarketParams
-    ) public {
-        bytes memory params = abi.encode(vault, abi.encode(withdrawals), abi.encode(supplyMarketParams));
-        vm.mockCall(address(publicAllocator), abi.encodeWithSelector(IPublicAllocatorBase.reallocateTo.selector), "");
+    function testReallocateTo(uint256 amount, uint256 maxIn, uint256 maxOut, uint256 fee) public {
+        IPublicAllocator publicAllocator =
+            IPublicAllocator(_deploy("out/PublicAllocator.sol/PublicAllocator.json", abi.encode(morpho)));
+        vm.label(address(publicAllocator), "PublicAllocator");
 
-        bundle.push(_reallocateTo(vault, value, withdrawals, supplyMarketParams));
+        amount = bound(amount, 0, type(uint64).max);
+        fee = bound(fee, 1, 1 ether);
+        maxIn = bound(maxIn, amount, MAX_SETTABLE_FLOW_CAP);
+        maxOut = bound(maxOut, amount, MAX_SETTABLE_FLOW_CAP);
+
+        FlowCapsConfig[] memory flows = new FlowCapsConfig[](2);
+        flows[0].id = PAId.wrap(Id.unwrap(marketParams.id()));
+        flows[0].caps.maxIn = uint128(maxIn);
+        flows[1].id = PAId.wrap(Id.unwrap(idleMarketParams.id()));
+        flows[1].caps.maxOut = uint128(maxOut);
+
+        vm.startPrank(VAULT_OWNER);
+        vault.setIsAllocator(address(publicAllocator), true);
+        publicAllocator.setFee(address(vault), fee);
+        publicAllocator.setFlowCaps(address(vault), flows);
+        vm.stopPrank();
+
+        loanToken.setBalance(SUPPLIER, amount);
+        vm.prank(SUPPLIER);
+        vault.deposit(amount, SUPPLIER);
+
+        Withdrawal[] memory withdrawals = new Withdrawal[](1);
+        withdrawals[0].marketParams = convertParams(idleMarketParams);
+        withdrawals[0].amount = uint128(amount);
+        bundle.push(_reallocateTo(address(publicAllocator), address(vault), fee, withdrawals, marketParams));
+
+        assertEq(morpho.expectedSupplyAssets(idleMarketParams, address(vault)), amount, "initial idle");
+        assertEq(morpho.expectedSupplyAssets(marketParams, address(vault)), 0, "initial market");
+
+        vm.deal(USER, fee);
+        vm.prank(USER);
+        bundler.multicall{value: fee}(bundle);
+
+        assertEq(morpho.expectedSupplyAssets(idleMarketParams, address(vault)), 0, "final idle");
+        assertEq(morpho.expectedSupplyAssets(marketParams, address(vault)), amount, "final market");
     }
 }
