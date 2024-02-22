@@ -649,7 +649,7 @@ contract MorphoBundlerLocalTest is VaultTest {
             IPublicAllocator(_deploy("out/PublicAllocator.sol/PublicAllocator.json", abi.encode(morpho)));
         vm.label(address(publicAllocator), "PublicAllocator");
 
-        amount = bound(amount, 0, type(uint128).max);
+        amount = bound(amount, 0, type(uint64).max);
         fee = bound(fee, 0, 1 ether);
 
         vm.prank(VAULT_OWNER);
@@ -659,17 +659,18 @@ contract MorphoBundlerLocalTest is VaultTest {
         vm.prank(SUPPLIER);
         vault.deposit(amount, SUPPLIER);
 
-        vm.mockCall(address(publicAllocator), abi.encodeWithSelector(IPublicAllocatorBase.reallocateTo.selector), "");
-
         Withdrawal[] memory withdrawals = new Withdrawal[](1);
         withdrawals[0].marketParams = convertParams(idleMarketParams);
         withdrawals[0].amount = uint128(amount);
         bundle.push(_reallocateTo(address(publicAllocator), address(vault), fee, withdrawals, marketParams));
 
+        assertEq(morpho.expectedSupplyAssets(idleMarketParams, address(vault)), amount, "initial idle");
+        assertEq(morpho.expectedSupplyAssets(marketParams, address(vault)), 0, "initial market");
+
         vm.prank(USER);
         bundler.multicall(bundle);
 
-        assertEq(morpho.expectedSupplyAssets(idleMarketParams, address(vault)), 0);
-        assertEq(morpho.expectedSupplyAssets(marketParams, address(vault)), amount);
+        assertEq(morpho.expectedSupplyAssets(idleMarketParams, address(vault)), 0, "final idle");
+        assertEq(morpho.expectedSupplyAssets(marketParams, address(vault)), amount, "final market");
     }
 }
