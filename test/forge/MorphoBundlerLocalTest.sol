@@ -5,7 +5,11 @@ import {SigUtils} from "./helpers/SigUtils.sol";
 import {ErrorsLib} from "../../src/libraries/ErrorsLib.sol";
 import {ErrorsLib as MorphoErrorsLib} from "../../lib/morpho-blue/src/libraries/ErrorsLib.sol";
 import {MarketParamsLib} from "../../lib/morpho-blue/src/libraries/MarketParamsLib.sol";
-import {FlowCapsConfig} from "../../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
+import {
+    FlowCapsConfig,
+    MAX_SETTABLE_FLOW_CAP,
+    Id as PAId
+} from "../../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
 
 import "../../src/mocks/bundlers/MorphoBundlerMock.sol";
 
@@ -652,13 +656,13 @@ contract MorphoBundlerLocalTest is VaultTest {
 
         amount = bound(amount, 0, type(uint64).max);
         fee = bound(fee, 1, 1 ether);
-        maxIn = bound(maxIn, amount, type(uint128).max);
-        maxOut = bound(maxOut, amount, type(uint128).max);
+        maxIn = bound(maxIn, amount, MAX_SETTABLE_FLOW_CAP);
+        maxOut = bound(maxOut, amount, MAX_SETTABLE_FLOW_CAP);
 
-        FlowCapsConfig[] memory flows;
-        flows[0].id = marketParams.id();
+        FlowCapsConfig[] memory flows = new FlowCapsConfig[](2);
+        flows[0].id = PAId.wrap(Id.unwrap(marketParams.id()));
         flows[0].caps.maxIn = uint128(maxIn);
-        flows[1].id = idleMarketParams.id();
+        flows[1].id = PAId.wrap(Id.unwrap(idleMarketParams.id()));
         flows[1].caps.maxOut = uint128(maxOut);
 
         vm.startPrank(VAULT_OWNER);
