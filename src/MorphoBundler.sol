@@ -10,6 +10,7 @@ import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.s
 import {
     IPublicAllocator,
     Withdrawal,
+    IPublicAllocatorBase,
     MarketParams as PublicAllocatorMarketParams
 } from "../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
 import {BaseBundler} from "./BaseBundler.sol";
