@@ -18,7 +18,7 @@ import {
   IAllowanceTransfer,
   ERC20WrapperBundler__factory,
 } from "../types";
-import { AuthorizationStruct, MarketParamsStruct } from "../types/src/MorphoBundler";
+import { AuthorizationStruct, MarketParamsStruct } from "../types/src/MorphoBundler.sol/MorphoBundler";
 
 export type BundlerCall = string;
 
