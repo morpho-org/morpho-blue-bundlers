@@ -6,6 +6,7 @@ import {ERC20Mock} from "../../../src/mocks/ERC20Mock.sol";
 import "./LocalTest.sol";
 
 interface IMetaMorpho {
+    function setIsAllocator(address newAllocator, bool newIsAllocator) external;
     function acceptCap(MarketParams memory marketParams) external;
     function setSupplyQueue(Id[] calldata newSupplyQueue) external;
     function submitCap(MarketParams memory marketParams, uint256 newSupplyCap) external;

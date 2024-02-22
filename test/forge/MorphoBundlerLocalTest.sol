@@ -666,6 +666,7 @@ contract MorphoBundlerLocalTest is VaultTest {
         flows[1].caps.maxOut = uint128(maxOut);
 
         vm.startPrank(VAULT_OWNER);
+        vault.setIsAllocator(address(publicAllocator), true);
         publicAllocator.setFee(address(vault), fee);
         publicAllocator.setFlowCaps(address(vault), flows);
         vm.stopPrank();
