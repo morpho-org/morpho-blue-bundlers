@@ -655,18 +655,19 @@ contract MorphoBundlerLocalTest is VaultTest {
         vm.prank(SUPPLIER);
         vault.deposit(amount, SUPPLIER);
 
-        vm.mockCall(address(publicAllocator), abi.encodeWithSelector(IPublicAllocatorBase.reallocateTo.selector), "");
-
         Withdrawal[] memory withdrawals = new Withdrawal[](1);
         withdrawals[0].marketParams = convertParams(idleMarketParams);
         withdrawals[0].amount = uint128(amount);
         PublicAllocatorMarketParams memory supplyMarketParams = convertParams(marketParams);
         bundle.push(_reallocateTo(address(vault), fee, withdrawals, supplyMarketParams));
 
+        assertEq(morpho.expectedSupplyAssets(idleMarketParams, address(vault)), amount, "initial idle");
+        assertEq(morpho.expectedSupplyAssets(marketParams, address(vault)), 0, "initial market");
+
         vm.prank(USER);
         bundler.multicall(bundle);
 
-        assertEq(morpho.expectedSupplyAssets(idleMarketParams, address(vault)), 0);
-        assertEq(morpho.expectedSupplyAssets(marketParams, address(vault)), amount);
+        assertEq(morpho.expectedSupplyAssets(idleMarketParams, address(vault)), 0, "final idle");
+        assertEq(morpho.expectedSupplyAssets(marketParams, address(vault)), amount, "final market");
     }
 }
