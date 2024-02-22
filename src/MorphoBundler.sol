@@ -254,9 +254,13 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         address vault,
         uint256 value,
         Withdrawal[] calldata withdrawals,
-        PublicAllocatorMarketParams calldata supplyMarketParams
+        MarketParams calldata supplyMarketParams
     ) external payable protected {
-        IPublicAllocator(publicAllocator).reallocateTo{value: value}(vault, withdrawals, supplyMarketParams);
+        PublicAllocatorMarketParams calldata pamp;
+        assembly {
+            pamp := supplyMarketParams
+        }
+        IPublicAllocator(publicAllocator).reallocateTo{value: value}(vault, withdrawals, pamp);
     }
 
     /* INTERNAL */

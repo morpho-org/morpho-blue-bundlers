@@ -664,8 +664,7 @@ contract MorphoBundlerLocalTest is VaultTest {
         Withdrawal[] memory withdrawals = new Withdrawal[](1);
         withdrawals[0].marketParams = convertParams(idleMarketParams);
         withdrawals[0].amount = uint128(amount);
-        PublicAllocatorMarketParams memory supplyMarketParams = convertParams(marketParams);
-        bundle.push(_reallocateTo(address(publicAllocator), address(vault), fee, withdrawals, supplyMarketParams));
+        bundle.push(_reallocateTo(address(publicAllocator), address(vault), fee, withdrawals, marketParams));
 
         vm.prank(USER);
         bundler.multicall(bundle);
