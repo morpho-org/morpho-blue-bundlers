@@ -53,16 +53,4 @@ abstract contract VaultTest is LocalTest {
         vault.acceptCap(marketParams);
         vm.stopPrank();
     }
-
-    function convertParams(MarketParams memory marketParams)
-        internal
-        pure
-        returns (PublicAllocatorMarketParams memory mp)
-    {
-        mp.loanToken = marketParams.loanToken;
-        mp.collateralToken = marketParams.collateralToken;
-        mp.lltv = marketParams.lltv;
-        mp.irm = marketParams.irm;
-        mp.oracle = marketParams.oracle;
-    }
 }

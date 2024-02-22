@@ -1,31 +1,28 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {
-    IMorpho,
-    Id,
-    MarketParams,
-    Authorization as MorphoBlueAuthorization,
-    Signature as MorphoBlueSignature
-} from "../../../lib/morpho-blue/src/interfaces/IMorpho.sol";
 import {IPublicAllocatorBase} from "../../../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
 
 import {SigUtils} from "./SigUtils.sol";
-import {MarketParamsLib} from "../../../lib/morpho-blue/src/libraries/MarketParamsLib.sol";
-import {SharesMathLib} from "../../../lib/morpho-blue/src/libraries/SharesMathLib.sol";
-import {MathLib, WAD} from "../../../lib/morpho-blue/src/libraries/MathLib.sol";
-import {UtilsLib} from "../../../lib/morpho-blue/src/libraries/UtilsLib.sol";
+import {MarketParamsLib} from
+    "../../../lib/public-allocator/lib/metamorpho/lib/morpho-blue/src/libraries/MarketParamsLib.sol";
+import {SharesMathLib} from
+    "../../../lib/public-allocator/lib/metamorpho/lib/morpho-blue/src/libraries/SharesMathLib.sol";
+import {MathLib, WAD} from "../../../lib/public-allocator/lib/metamorpho/lib/morpho-blue/src/libraries/MathLib.sol";
+import {UtilsLib} from "../../../lib/public-allocator/lib/metamorpho/lib/morpho-blue/src/libraries/UtilsLib.sol";
 import {SafeTransferLib, ERC20} from "../../../lib/solmate/src/utils/SafeTransferLib.sol";
-import {MorphoLib} from "../../../lib/morpho-blue/src/libraries/periphery/MorphoLib.sol";
-import {MorphoBalancesLib} from "../../../lib/morpho-blue/src/libraries/periphery/MorphoBalancesLib.sol";
+import {MorphoLib} from
+    "../../../lib/public-allocator/lib/metamorpho/lib/morpho-blue/src/libraries/periphery/MorphoLib.sol";
+import {MorphoBalancesLib} from
+    "../../../lib/public-allocator/lib/metamorpho/lib/morpho-blue/src/libraries/periphery/MorphoBalancesLib.sol";
 import {
     LIQUIDATION_CURSOR,
     MAX_LIQUIDATION_INCENTIVE_FACTOR,
     ORACLE_PRICE_SCALE
-} from "../../../lib/morpho-blue/src/libraries/ConstantsLib.sol";
+} from "../../../lib/public-allocator/lib/metamorpho/lib/morpho-blue/src/libraries/ConstantsLib.sol";
 
-import {IrmMock} from "../../../lib/morpho-blue/src/mocks/IrmMock.sol";
-import {OracleMock} from "../../../lib/morpho-blue/src/mocks/OracleMock.sol";
+import {IrmMock} from "../../../lib/public-allocator/lib/metamorpho/lib/morpho-blue/src/mocks/IrmMock.sol";
+import {OracleMock} from "../../../lib/public-allocator/lib/metamorpho/lib/morpho-blue/src/mocks/OracleMock.sol";
 
 import {BaseBundler} from "../../../src/BaseBundler.sol";
 import {TransferBundler} from "../../../src/TransferBundler.sol";
@@ -189,7 +186,7 @@ abstract contract BaseTest is Test {
     {
         address user = vm.addr(privateKey);
 
-        MorphoBlueAuthorization memory authorization = MorphoBlueAuthorization({
+        Authorization memory authorization = Authorization({
             authorizer: user,
             authorized: address(bundler),
             isAuthorized: isAuthorized,
@@ -199,7 +196,7 @@ abstract contract BaseTest is Test {
 
         bytes32 digest = SigUtils.toTypedDataHash(morpho.DOMAIN_SEPARATOR(), authorization);
 
-        MorphoBlueSignature memory signature;
+        Signature memory signature;
         (signature.v, signature.r, signature.s) = vm.sign(privateKey, digest);
 
         return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (authorization, signature, skipRevert));

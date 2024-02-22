@@ -3,10 +3,11 @@ pragma solidity ^0.8.0;
 
 import {SafeTransferLib, ERC20} from "../../../../../lib/solmate/src/utils/SafeTransferLib.sol";
 import {ErrorsLib} from "../../../../../src/libraries/ErrorsLib.sol";
-import {MarketParamsLib} from "../../../../../lib/morpho-blue/src/libraries/MarketParamsLib.sol";
-import {MorphoLib} from "../../../../../lib/morpho-blue/src/libraries/periphery/MorphoLib.sol";
-import {Market} from "../../../../../lib/morpho-blue/src/interfaces/IMorpho.sol";
-import {MorphoBalancesLib} from "../../../../../lib/morpho-blue/src/libraries/periphery/MorphoBalancesLib.sol";
+import {MorphoLib} from
+    "../../../../../lib/public-allocator/lib/metamorpho/lib/morpho-blue/src/libraries/periphery/MorphoLib.sol";
+import {Market} from "../../../../../lib/public-allocator/lib/metamorpho/lib/morpho-blue/src/interfaces/IMorpho.sol";
+import {MorphoBalancesLib} from
+    "../../../../../lib/public-allocator/lib/metamorpho/lib/morpho-blue/src/libraries/periphery/MorphoBalancesLib.sol";
 
 import "../../helpers/EthereumTest.sol";
 import {BaseBundler} from "../../../../../src/BaseBundler.sol";

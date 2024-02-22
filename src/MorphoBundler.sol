@@ -2,16 +2,18 @@
 pragma solidity 0.8.24;
 
 import {IMorphoBundler} from "./interfaces/IMorphoBundler.sol";
-import {MarketParams, Signature, Authorization, IMorpho} from "../lib/morpho-blue/src/interfaces/IMorpho.sol";
+import {
+    IMorpho,
+    Id,
+    MarketParams,
+    Signature,
+    Authorization
+} from "../lib/public-allocator/lib/metamorpho/lib/morpho-blue/src/interfaces/IMorpho.sol";
 
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
 
-import {
-    IPublicAllocator,
-    Withdrawal,
-    MarketParams as PublicAllocatorMarketParams
-} from "../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
+import {IPublicAllocator, Withdrawal} from "../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
 import {BaseBundler} from "./BaseBundler.sol";
 
 /// @title MorphoBundler
@@ -256,11 +258,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         Withdrawal[] calldata withdrawals,
         MarketParams calldata supplyMarketParams
     ) external payable protected {
-        PublicAllocatorMarketParams calldata pamp;
-        assembly {
-            pamp := supplyMarketParams
-        }
-        IPublicAllocator(publicAllocator).reallocateTo{value: value}(vault, withdrawals, pamp);
+        IPublicAllocator(publicAllocator).reallocateTo{value: value}(vault, withdrawals, supplyMarketParams);
     }
 
     /* INTERNAL */

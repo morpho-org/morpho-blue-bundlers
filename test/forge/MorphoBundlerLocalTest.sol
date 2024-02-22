@@ -3,13 +3,9 @@ pragma solidity ^0.8.0;
 
 import {SigUtils} from "./helpers/SigUtils.sol";
 import {ErrorsLib} from "../../src/libraries/ErrorsLib.sol";
-import {ErrorsLib as MorphoErrorsLib} from "../../lib/morpho-blue/src/libraries/ErrorsLib.sol";
-import {MarketParamsLib} from "../../lib/morpho-blue/src/libraries/MarketParamsLib.sol";
-import {
-    FlowCapsConfig,
-    MAX_SETTABLE_FLOW_CAP,
-    Id as PAId
-} from "../../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
+import {ErrorsLib as MorphoErrorsLib} from
+    "../../lib/public-allocator/lib/metamorpho/lib/morpho-blue/src/libraries/ErrorsLib.sol";
+import {FlowCapsConfig, MAX_SETTABLE_FLOW_CAP} from "../../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
 
 import "../../src/mocks/bundlers/MorphoBundlerMock.sol";
 
@@ -660,9 +656,9 @@ contract MorphoBundlerLocalTest is VaultTest {
         maxOut = bound(maxOut, amount, MAX_SETTABLE_FLOW_CAP);
 
         FlowCapsConfig[] memory flows = new FlowCapsConfig[](2);
-        flows[0].id = PAId.wrap(Id.unwrap(marketParams.id()));
+        flows[0].id = marketParams.id();
         flows[0].caps.maxIn = uint128(maxIn);
-        flows[1].id = PAId.wrap(Id.unwrap(idleMarketParams.id()));
+        flows[1].id = idleMarketParams.id();
         flows[1].caps.maxOut = uint128(maxOut);
 
         vm.startPrank(VAULT_OWNER);
@@ -676,7 +672,7 @@ contract MorphoBundlerLocalTest is VaultTest {
         vault.deposit(amount, SUPPLIER);
 
         Withdrawal[] memory withdrawals = new Withdrawal[](1);
-        withdrawals[0].marketParams = convertParams(idleMarketParams);
+        withdrawals[0].marketParams = idleMarketParams;
         withdrawals[0].amount = uint128(amount);
         bundle.push(_reallocateTo(address(publicAllocator), address(vault), fee, withdrawals, marketParams));
 

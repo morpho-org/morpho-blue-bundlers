@@ -25,8 +25,10 @@ abstract contract LocalTest is BaseTest {
         loanToken = new ERC20Mock("loan", "B");
         collateralToken = new ERC20Mock("collateral", "C");
 
-        marketParams = MarketParams(address(loanToken), address(collateralToken), address(oracle), address(irm), LLTV);
-        id = marketParams.id();
+        MarketParams memory mp =
+            MarketParams(address(loanToken), address(collateralToken), address(oracle), address(irm), LLTV);
+        marketParams = mp;
+        id = mp.id();
 
         vm.startPrank(OWNER);
         morpho.enableLltv(LLTV);

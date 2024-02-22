@@ -6,7 +6,7 @@ import {
     IMorphoSupplyCallback,
     IMorphoSupplyCollateralCallback,
     IMorphoFlashLoanCallback
-} from "../../lib/morpho-blue/src/interfaces/IMorphoCallbacks.sol";
+} from "../../lib/public-allocator/lib/metamorpho/lib/morpho-blue/src/interfaces/IMorphoCallbacks.sol";
 
 /// @title IMorphoBundler
 /// @author Morpho Labs
