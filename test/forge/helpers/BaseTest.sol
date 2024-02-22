@@ -73,8 +73,10 @@ abstract contract BaseTest is Test {
 
         irm = new IrmMock();
 
-        vm.prank(OWNER);
+        vm.startPrank(OWNER);
         morpho.enableIrm(address(irm));
+        morpho.enableIrm(address(0));
+        vm.stopPrank();
 
         oracle = new OracleMock();
         oracle.setPrice(ORACLE_PRICE_SCALE);
