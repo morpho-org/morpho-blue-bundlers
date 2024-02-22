@@ -5,6 +5,7 @@ import {SigUtils} from "./helpers/SigUtils.sol";
 import {ErrorsLib} from "../../src/libraries/ErrorsLib.sol";
 import {ErrorsLib as MorphoErrorsLib} from "../../lib/morpho-blue/src/libraries/ErrorsLib.sol";
 import {MarketParamsLib} from "../../lib/morpho-blue/src/libraries/MarketParamsLib.sol";
+import {FlowCapsConfig} from "../../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
 
 import "../../src/mocks/bundlers/MorphoBundlerMock.sol";
 
@@ -644,16 +645,26 @@ contract MorphoBundlerLocalTest is VaultTest {
         assertEq(loanToken.balanceOf(address(morpho)), amount, "Morpho's loan token balance");
     }
 
-    function testReallocateTo(uint256 amount, uint256 fee) public {
+    function testReallocateTo(uint256 amount, uint256 maxIn, uint256 maxOut, uint256 fee) public {
         IPublicAllocator publicAllocator =
             IPublicAllocator(_deploy("out/PublicAllocator.sol/PublicAllocator.json", abi.encode(morpho)));
         vm.label(address(publicAllocator), "PublicAllocator");
 
         amount = bound(amount, 0, type(uint64).max);
         fee = bound(fee, 1, 1 ether);
+        maxIn = bound(maxIn, amount, type(uint128).max);
+        maxOut = bound(maxOut, amount, type(uint128).max);
 
-        vm.prank(VAULT_OWNER);
+        FlowCapsConfig[] memory flows;
+        flows[0].id = marketParams.id();
+        flows[0].caps.maxIn = uint128(maxIn);
+        flows[1].id = idleMarketParams.id();
+        flows[1].caps.maxOut = uint128(maxOut);
+
+        vm.startPrank(VAULT_OWNER);
         publicAllocator.setFee(address(vault), fee);
+        publicAllocator.setFlowCaps(address(vault), flows);
+        vm.stopPrank();
 
         loanToken.setBalance(SUPPLIER, amount);
         vm.prank(SUPPLIER);
