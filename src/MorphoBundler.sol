@@ -250,6 +250,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     }
 
     /// @notice Reallocates funds from markets of a vault to another market of that same vault.
+    /// @param publicAllocator The address of the public allocator.
     /// @param vault The address of the vault.
     /// @param value The value in ETH to pay for the reallocate fee.
     /// @param withdrawals The list of markets and amount to withdraw.
