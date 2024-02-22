@@ -2,9 +2,15 @@
 pragma solidity ^0.8.0;
 
 import {ERC20Mock} from "../../../src/mocks/ERC20Mock.sol";
-import {IMetaMorpho} from "../../../lib/metamorpho/src/interfaces/IMetaMorpho.sol";
 
 import "./LocalTest.sol";
+
+interface IMetaMorpho {
+    function acceptCap(MarketParams memory marketParams) external;
+    function setSupplyQueue(Id[] calldata newSupplyQueue) external;
+    function submitCap(MarketParams memory marketParams, uint256 newSupplyCap) external;
+    function deposit(uint256 assets, address receiver) external returns (uint256 shares);
+}
 
 abstract contract VaultTest is LocalTest {
     using MarketParamsLib for MarketParams;
