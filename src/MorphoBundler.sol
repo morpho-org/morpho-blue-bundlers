@@ -243,7 +243,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
     /// @param publicAllocator The address of the public allocator.
     /// @param vault The address of the vault.
     /// @param value The value in ETH to pay for the reallocate fee.
-    /// @param withdrawals The list of markets and amount to withdraw.
+    /// @param withdrawals The list of markets and corresponding amounts to withdraw.
     /// @param supplyMarketParams The market receiving the funds.
     function reallocateTo(
         address publicAllocator,
