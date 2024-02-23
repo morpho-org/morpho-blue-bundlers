@@ -2,23 +2,13 @@
 pragma solidity 0.8.24;
 
 import {IMorphoBundler} from "./interfaces/IMorphoBundler.sol";
+import {IPublicAllocator, Withdrawal} from "./interfaces/IPublicAllocator.sol";
 import {MarketParams, Signature, Authorization, IMorpho} from "../lib/morpho-blue/src/interfaces/IMorpho.sol";
 
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
 
 import {BaseBundler} from "./BaseBundler.sol";
-
-struct Withdrawal {
-    MarketParams marketParams;
-    uint128 amount;
-}
-
-interface IPublicAllocator {
-    function reallocateTo(address vault, Withdrawal[] calldata withdrawals, MarketParams calldata supplyMarketParams)
-        external
-        payable;
-}
 
 /// @title MorphoBundler
 /// @author Morpho Labs
