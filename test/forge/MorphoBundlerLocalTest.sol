@@ -15,9 +15,9 @@ import {MarketParamsLib} from "../../lib/morpho-blue/src/libraries/MarketParamsL
 
 import "../../src/mocks/bundlers/MorphoBundlerMock.sol";
 
-import "./helpers/VaultTest.sol";
+import "./helpers/MetaMorphoLocalTest.sol";
 
-contract MorphoBundlerLocalTest is VaultTest {
+contract MorphoBundlerLocalTest is MetaMorphoLocalTest {
     using MathLib for uint256;
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;

@@ -13,7 +13,7 @@ interface IMetaMorpho {
     function deposit(uint256 assets, address receiver) external returns (uint256 shares);
 }
 
-abstract contract VaultTest is LocalTest {
+abstract contract MetaMorphoLocalTest is LocalTest {
     using MarketParamsLib for MarketParams;
 
     address internal VAULT_OWNER = makeAddr("VaultOwner");
