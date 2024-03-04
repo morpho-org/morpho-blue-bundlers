@@ -11,7 +11,7 @@ import {ERC4626Bundler} from "../ERC4626Bundler.sol";
 import {WNativeBundler} from "../WNativeBundler.sol";
 import {StEthBundler} from "../StEthBundler.sol";
 import {UrdBundler} from "../UrdBundler.sol";
-import {MorphoBundler} from "../MorphoBundler.sol";
+import {MorphoBundlerV2} from "../MorphoBundlerV2.sol";
 import {ERC20WrapperBundler} from "../ERC20WrapperBundler.sol";
 
 /// @title SepoliaBundler
@@ -26,7 +26,7 @@ contract SepoliaBundler is
     WNativeBundler,
     StEthBundler,
     UrdBundler,
-    MorphoBundler,
+    MorphoBundlerV2,
     ERC20WrapperBundler
 {
     /* CONSTRUCTOR */
@@ -34,13 +34,13 @@ contract SepoliaBundler is
     constructor(address morpho)
         WNativeBundler(SepoliaLib.WETH)
         StEthBundler(SepoliaLib.WST_ETH)
-        MorphoBundler(morpho)
+        MorphoBundlerV2(morpho)
     {}
 
     /* INTERNAL */
 
-    /// @inheritdoc MorphoBundler
-    function _isSenderAuthorized() internal view override(BaseBundler, MorphoBundler) returns (bool) {
-        return MorphoBundler._isSenderAuthorized();
+    /// @inheritdoc MorphoBundlerV2
+    function _isSenderAuthorized() internal view override(BaseBundler, MorphoBundlerV2) returns (bool) {
+        return MorphoBundlerV2._isSenderAuthorized();
     }
 }

@@ -5,20 +5,20 @@ import {
   PermitBundler__factory,
   Permit2Bundler__factory,
   ERC4626Bundler__factory,
-  MorphoBundler__factory,
+  MorphoBundlerV2__factory,
   UrdBundler__factory,
   WNativeBundler__factory,
   StEthBundler__factory,
-  AaveV2MigrationBundler__factory,
-  AaveV3MigrationBundler__factory,
-  AaveV3OptimizerMigrationBundler__factory,
-  CompoundV2MigrationBundler__factory,
-  CompoundV3MigrationBundler__factory,
+  AaveV2MigrationBundlerV2__factory,
+  AaveV3MigrationBundlerV2__factory,
+  AaveV3OptimizerMigrationBundlerV2__factory,
+  CompoundV2MigrationBundlerV2__factory,
+  CompoundV3MigrationBundlerV2__factory,
   EthereumPermitBundler__factory,
   IAllowanceTransfer,
   ERC20WrapperBundler__factory,
 } from "../types";
-import { AuthorizationStruct, MarketParamsStruct } from "../types/src/MorphoBundler";
+import { AuthorizationStruct, MarketParamsStruct } from "../types/src/MorphoBundlerV2";
 
 export type BundlerCall = string;
 
@@ -28,17 +28,17 @@ export class BundlerAction {
   private static PERMIT2_BUNDLER_IFC = Permit2Bundler__factory.createInterface();
   private static ERC20_WRAPPER_BUNDLER_IFC = ERC20WrapperBundler__factory.createInterface();
   private static ERC4626_BUNDLER_IFC = ERC4626Bundler__factory.createInterface();
-  private static MORPHO_BUNDLER_IFC = MorphoBundler__factory.createInterface();
+  private static MORPHO_BUNDLER_IFC = MorphoBundlerV2__factory.createInterface();
   private static URD_BUNDLER_IFC = UrdBundler__factory.createInterface();
   private static WNATIVE_BUNDLER_IFC = WNativeBundler__factory.createInterface();
   private static ST_ETH_BUNDLER_IFC = StEthBundler__factory.createInterface();
   private static ETHEREUM_PERMIT_BUNDLER_IFC = EthereumPermitBundler__factory.createInterface();
 
-  private static AAVE_V2_BUNDLER_IFC = AaveV2MigrationBundler__factory.createInterface();
-  private static AAVE_V3_BUNDLER_IFC = AaveV3MigrationBundler__factory.createInterface();
-  private static AAVE_V3_OPTIMIZER_BUNDLER_IFC = AaveV3OptimizerMigrationBundler__factory.createInterface();
-  private static COMPOUND_V2_BUNDLER_IFC = CompoundV2MigrationBundler__factory.createInterface();
-  private static COMPOUND_V3_BUNDLER_IFC = CompoundV3MigrationBundler__factory.createInterface();
+  private static AAVE_V2_BUNDLER_IFC = AaveV2MigrationBundlerV2__factory.createInterface();
+  private static AAVE_V3_BUNDLER_IFC = AaveV3MigrationBundlerV2__factory.createInterface();
+  private static AAVE_V3_OPTIMIZER_BUNDLER_IFC = AaveV3OptimizerMigrationBundlerV2__factory.createInterface();
+  private static COMPOUND_V2_BUNDLER_IFC = CompoundV2MigrationBundlerV2__factory.createInterface();
+  private static COMPOUND_V3_BUNDLER_IFC = CompoundV3MigrationBundlerV2__factory.createInterface();
 
   /* ERC20 */
 

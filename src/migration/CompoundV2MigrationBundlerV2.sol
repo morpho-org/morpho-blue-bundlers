@@ -9,13 +9,13 @@ import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 
 import {BaseBundler} from "../BaseBundler.sol";
 import {WNativeBundler} from "../WNativeBundler.sol";
-import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
+import {MigrationBundlerV2, ERC20} from "./MigrationBundlerV2.sol";
 
-/// @title CompoundV2MigrationBundler
+/// @title CompoundV2MigrationBundlerV2
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from Compound V2 to Morpho Blue easily.
-contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
+contract CompoundV2MigrationBundlerV2 is WNativeBundler, MigrationBundlerV2 {
     /* IMMUTABLES */
 
     /// @dev The address of the cETH contract.
@@ -26,7 +26,7 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
     /// @param morpho The Morpho contract Address.
     /// @param wNative The address of the wNative token contract.
     /// @param cEth The address of the cETH contract.
-    constructor(address morpho, address wNative, address cEth) WNativeBundler(wNative) MigrationBundler(morpho) {
+    constructor(address morpho, address wNative, address cEth) WNativeBundler(wNative) MigrationBundlerV2(morpho) {
         require(cEth != address(0), ErrorsLib.ZERO_ADDRESS);
 
         C_ETH = cEth;
@@ -79,8 +79,8 @@ contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
 
     /* INTERNAL */
 
-    /// @inheritdoc MigrationBundler
-    function _isSenderAuthorized() internal view override(BaseBundler, MigrationBundler) returns (bool) {
-        return MigrationBundler._isSenderAuthorized();
+    /// @inheritdoc MigrationBundlerV2
+    function _isSenderAuthorized() internal view override(BaseBundler, MigrationBundlerV2) returns (bool) {
+        return MigrationBundlerV2._isSenderAuthorized();
     }
 }

@@ -13,11 +13,11 @@ import {ErrorsLib} from "../../src/libraries/ErrorsLib.sol";
 import {ErrorsLib as MorphoErrorsLib} from "../../lib/morpho-blue/src/libraries/ErrorsLib.sol";
 import {MarketParamsLib} from "../../lib/morpho-blue/src/libraries/MarketParamsLib.sol";
 
-import "../../src/mocks/bundlers/MorphoBundlerMock.sol";
+import "../../src/mocks/bundlers/MorphoBundlerV2Mock.sol";
 
 import "./helpers/MetaMorphoLocalTest.sol";
 
-contract MorphoBundlerLocalTest is MetaMorphoLocalTest {
+contract MorphoBundlerV2LocalTest is MetaMorphoLocalTest {
     using MathLib for uint256;
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
@@ -27,7 +27,7 @@ contract MorphoBundlerLocalTest is MetaMorphoLocalTest {
     function setUp() public override {
         super.setUp();
 
-        bundler = new MorphoBundlerMock(address(morpho));
+        bundler = new MorphoBundlerV2Mock(address(morpho));
 
         vm.startPrank(USER);
         loanToken.approve(address(morpho), type(uint256).max);
@@ -226,7 +226,7 @@ contract MorphoBundlerLocalTest is MetaMorphoLocalTest {
 
     function testWithdrawUninitiated(uint256 withdrawnShares) public {
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        MorphoBundlerMock(address(bundler)).morphoWithdraw(marketParams, 0, withdrawnShares, 0, RECEIVER);
+        MorphoBundlerV2Mock(address(bundler)).morphoWithdraw(marketParams, 0, withdrawnShares, 0, RECEIVER);
     }
 
     function testWithdraw(uint256 privateKey, uint256 amount, uint256 withdrawnShares) public {
@@ -263,7 +263,7 @@ contract MorphoBundlerLocalTest is MetaMorphoLocalTest {
 
     function testBorrowUnititiated(uint256 borrowedAssets) public {
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        MorphoBundlerMock(address(bundler)).morphoBorrow(marketParams, borrowedAssets, 0, type(uint256).max, RECEIVER);
+        MorphoBundlerV2Mock(address(bundler)).morphoBorrow(marketParams, borrowedAssets, 0, type(uint256).max, RECEIVER);
     }
 
     function _testSupplyCollateralBorrow(address user, uint256 amount, uint256 collateralAmount) internal {
@@ -337,7 +337,7 @@ contract MorphoBundlerLocalTest is MetaMorphoLocalTest {
 
     function testWithdrawCollateralUninitiated(uint256 collateralAmount) public {
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        MorphoBundlerMock(address(bundler)).morphoWithdrawCollateral(marketParams, collateralAmount, RECEIVER);
+        MorphoBundlerV2Mock(address(bundler)).morphoWithdrawCollateral(marketParams, collateralAmount, RECEIVER);
     }
 
     function _testRepayWithdrawCollateral(address user, uint256 collateralAmount) internal {

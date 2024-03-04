@@ -3,11 +3,11 @@ pragma solidity ^0.8.0;
 
 import {IComptroller} from "../../../../src/migration/interfaces/IComptroller.sol";
 
-import "../../../../src/migration/CompoundV2MigrationBundler.sol";
+import "../../../../src/migration/CompoundV2MigrationBundlerV2.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
 
-contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
+contract CompoundV2NoEthMigrationBundlerV2EthereumTest is EthereumMigrationTest {
     using MathLib for uint256;
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
@@ -21,7 +21,7 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
 
         _initMarket(DAI, USDC);
 
-        bundler = new CompoundV2MigrationBundler(address(morpho), WETH, C_ETH_V2);
+        bundler = new CompoundV2MigrationBundlerV2(address(morpho), WETH, C_ETH_V2);
 
         enteredMarkets.push(C_DAI_V2);
     }
@@ -134,10 +134,10 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
     /* ACTIONS */
 
     function _compoundV2Repay(address cToken, uint256 repayAmount) internal pure returns (bytes memory) {
-        return abi.encodeCall(CompoundV2MigrationBundler.compoundV2Repay, (cToken, repayAmount));
+        return abi.encodeCall(CompoundV2MigrationBundlerV2.compoundV2Repay, (cToken, repayAmount));
     }
 
     function _compoundV2Redeem(address cToken, uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(CompoundV2MigrationBundler.compoundV2Redeem, (cToken, amount));
+        return abi.encodeCall(CompoundV2MigrationBundlerV2.compoundV2Redeem, (cToken, amount));
     }
 }

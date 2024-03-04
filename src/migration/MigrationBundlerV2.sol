@@ -8,23 +8,29 @@ import {TransferBundler} from "../TransferBundler.sol";
 import {PermitBundler} from "../PermitBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
 import {ERC4626Bundler} from "../ERC4626Bundler.sol";
-import {MorphoBundler} from "../MorphoBundler.sol";
+import {MorphoBundlerV2} from "../MorphoBundlerV2.sol";
 
-/// @title MigrationBundler
+/// @title MigrationBundlerV2
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Abstract contract allowing to migrate a position from one lending protocol to Morpho Blue easily.
-abstract contract MigrationBundler is TransferBundler, PermitBundler, Permit2Bundler, ERC4626Bundler, MorphoBundler {
+abstract contract MigrationBundlerV2 is
+    TransferBundler,
+    PermitBundler,
+    Permit2Bundler,
+    ERC4626Bundler,
+    MorphoBundlerV2
+{
     using SafeTransferLib for ERC20;
 
     /* CONSTRUCTOR */
 
-    constructor(address morpho) MorphoBundler(morpho) {}
+    constructor(address morpho) MorphoBundlerV2(morpho) {}
 
     /* INTERNAL */
 
-    /// @inheritdoc MorphoBundler
-    function _isSenderAuthorized() internal view virtual override(BaseBundler, MorphoBundler) returns (bool) {
-        return MorphoBundler._isSenderAuthorized();
+    /// @inheritdoc MorphoBundlerV2
+    function _isSenderAuthorized() internal view virtual override(BaseBundler, MorphoBundlerV2) returns (bool) {
+        return MorphoBundlerV2._isSenderAuthorized();
     }
 }

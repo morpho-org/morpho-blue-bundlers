@@ -5,11 +5,11 @@ import {IStEth} from "../../../../src/interfaces/IStEth.sol";
 import {IAaveV2} from "../../../../src/migration/interfaces/IAaveV2.sol";
 import {IERC4626} from "../../../../lib/openzeppelin-contracts/contracts/interfaces/IERC4626.sol";
 
-import "../../../../src/migration/AaveV2MigrationBundler.sol";
+import "../../../../src/migration/AaveV2MigrationBundlerV2.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
 
-contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
+contract AaveV2MigrationBundlerV2EthereumTest is EthereumMigrationTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;
@@ -27,21 +27,21 @@ contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.label(AAVE_V2_POOL, "Aave V2 Pool");
 
-        bundler = new AaveV2MigrationBundler(address(morpho), AAVE_V2_POOL, WST_ETH);
+        bundler = new AaveV2MigrationBundlerV2(address(morpho), AAVE_V2_POOL, WST_ETH);
     }
 
     function testAaveV2RepayUninitiated(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        AaveV2MigrationBundler(address(bundler)).aaveV2Repay(marketParams.loanToken, amount, 1);
+        AaveV2MigrationBundlerV2(address(bundler)).aaveV2Repay(marketParams.loanToken, amount, 1);
     }
 
     function testAaveV2WithdrawUninitiated(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        AaveV2MigrationBundler(address(bundler)).aaveV2Withdraw(marketParams.loanToken, amount);
+        AaveV2MigrationBundlerV2(address(bundler)).aaveV2Withdraw(marketParams.loanToken, amount);
     }
 
     function testAaveV2RepayZeroAmount() public {
@@ -240,10 +240,10 @@ contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
     /* ACTIONS */
 
     function _aaveV2Repay(address asset, uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(AaveV2MigrationBundler.aaveV2Repay, (asset, amount, RATE_MODE));
+        return abi.encodeCall(AaveV2MigrationBundlerV2.aaveV2Repay, (asset, amount, RATE_MODE));
     }
 
     function _aaveV2Withdraw(address asset, uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(AaveV2MigrationBundler.aaveV2Withdraw, (asset, amount));
+        return abi.encodeCall(AaveV2MigrationBundlerV2.aaveV2Withdraw, (asset, amount));
     }
 }

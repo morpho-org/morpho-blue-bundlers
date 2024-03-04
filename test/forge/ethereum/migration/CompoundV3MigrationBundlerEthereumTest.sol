@@ -3,11 +3,11 @@ pragma solidity ^0.8.0;
 
 import {CompoundV3Authorization} from "../../helpers/SigUtils.sol";
 
-import "../../../../src/migration/CompoundV3MigrationBundler.sol";
+import "../../../../src/migration/CompoundV3MigrationBundlerV2.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
 
-contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
+contract CompoundV3MigrationBundlerV2EthereumTest is EthereumMigrationTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;
@@ -21,14 +21,14 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         _initMarket(CB_ETH, WETH);
 
-        bundler = new CompoundV3MigrationBundler(address(morpho));
+        bundler = new CompoundV3MigrationBundlerV2(address(morpho));
     }
 
     function testCompoundV3RepayUninitiated(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        CompoundV3MigrationBundler(address(bundler)).compoundV3Repay(C_WETH_V3, amount);
+        CompoundV3MigrationBundlerV2(address(bundler)).compoundV3Repay(C_WETH_V3, amount);
     }
 
     function testCompoundV3RepayZeroAmount() public {
@@ -52,7 +52,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         bundle.push(
             abi.encodeCall(
-                CompoundV3MigrationBundler.compoundV3AllowBySig,
+                CompoundV3MigrationBundlerV2.compoundV3AllowBySig,
                 (C_WETH_V3, true, 0, SIGNATURE_DEADLINE, v, r, s, false)
             )
         );
@@ -147,7 +147,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     function testCompoundV3AllowUninitiated() public {
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        CompoundV3MigrationBundler(address(bundler)).compoundV3AllowBySig(
+        CompoundV3MigrationBundlerV2(address(bundler)).compoundV3AllowBySig(
             C_WETH_V3, true, 0, SIGNATURE_DEADLINE, 0, 0, 0, false
         );
     }
@@ -156,7 +156,7 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        CompoundV3MigrationBundler(address(bundler)).compoundV3WithdrawFrom(C_WETH_V3, marketParams.loanToken, amount);
+        CompoundV3MigrationBundlerV2(address(bundler)).compoundV3WithdrawFrom(C_WETH_V3, marketParams.loanToken, amount);
     }
 
     /* ACTIONS */
@@ -176,13 +176,13 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, digest);
 
         return abi.encodeCall(
-            CompoundV3MigrationBundler.compoundV3AllowBySig,
+            CompoundV3MigrationBundlerV2.compoundV3AllowBySig,
             (instance, isAllowed, nonce, SIGNATURE_DEADLINE, v, r, s, skipRevert)
         );
     }
 
     function _compoundV3Repay(address instance, uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(CompoundV3MigrationBundler.compoundV3Repay, (instance, amount));
+        return abi.encodeCall(CompoundV3MigrationBundlerV2.compoundV3Repay, (instance, amount));
     }
 
     function _compoundV3WithdrawFrom(address instance, address asset, uint256 amount)
@@ -190,6 +190,6 @@ contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         pure
         returns (bytes memory)
     {
-        return abi.encodeCall(CompoundV3MigrationBundler.compoundV3WithdrawFrom, (instance, asset, amount));
+        return abi.encodeCall(CompoundV3MigrationBundlerV2.compoundV3WithdrawFrom, (instance, asset, amount));
     }
 }

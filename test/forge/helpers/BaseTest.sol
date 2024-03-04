@@ -31,7 +31,7 @@ import {BaseBundler} from "../../../src/BaseBundler.sol";
 import {TransferBundler} from "../../../src/TransferBundler.sol";
 import {ERC4626Bundler} from "../../../src/ERC4626Bundler.sol";
 import {UrdBundler} from "../../../src/UrdBundler.sol";
-import {MorphoBundler, Withdrawal} from "../../../src/MorphoBundler.sol";
+import {MorphoBundlerV2, Withdrawal} from "../../../src/MorphoBundlerV2.sol";
 import {ERC20WrapperBundler} from "../../../src/ERC20WrapperBundler.sol";
 
 import "../../../lib/forge-std/src/Test.sol";
@@ -202,7 +202,7 @@ abstract contract BaseTest is Test {
         MorphoBlueSignature memory signature;
         (signature.v, signature.r, signature.s) = vm.sign(privateKey, digest);
 
-        return abi.encodeCall(MorphoBundler.morphoSetAuthorizationWithSig, (authorization, signature, skipRevert));
+        return abi.encodeCall(MorphoBundlerV2.morphoSetAuthorizationWithSig, (authorization, signature, skipRevert));
     }
 
     function _morphoSupply(
@@ -213,7 +213,7 @@ abstract contract BaseTest is Test {
         address onBehalf
     ) internal view returns (bytes memory) {
         return abi.encodeCall(
-            MorphoBundler.morphoSupply,
+            MorphoBundlerV2.morphoSupply,
             (marketParams, assets, shares, slippageAmount, onBehalf, abi.encode(callbackBundle))
         );
     }
@@ -225,7 +225,7 @@ abstract contract BaseTest is Test {
         uint256 slippageAmount,
         address receiver
     ) internal pure returns (bytes memory) {
-        return abi.encodeCall(MorphoBundler.morphoBorrow, (marketParams, assets, shares, slippageAmount, receiver));
+        return abi.encodeCall(MorphoBundlerV2.morphoBorrow, (marketParams, assets, shares, slippageAmount, receiver));
     }
 
     function _morphoWithdraw(
@@ -235,7 +235,7 @@ abstract contract BaseTest is Test {
         uint256 slippageAmount,
         address receiver
     ) internal pure returns (bytes memory) {
-        return abi.encodeCall(MorphoBundler.morphoWithdraw, (marketParams, assets, shares, slippageAmount, receiver));
+        return abi.encodeCall(MorphoBundlerV2.morphoWithdraw, (marketParams, assets, shares, slippageAmount, receiver));
     }
 
     function _morphoRepay(
@@ -246,7 +246,7 @@ abstract contract BaseTest is Test {
         address onBehalf
     ) internal view returns (bytes memory) {
         return abi.encodeCall(
-            MorphoBundler.morphoRepay,
+            MorphoBundlerV2.morphoRepay,
             (marketParams, assets, shares, slippageAmount, onBehalf, abi.encode(callbackBundle))
         );
     }
@@ -257,7 +257,7 @@ abstract contract BaseTest is Test {
         returns (bytes memory)
     {
         return abi.encodeCall(
-            MorphoBundler.morphoSupplyCollateral, (marketParams, assets, onBehalf, abi.encode(callbackBundle))
+            MorphoBundlerV2.morphoSupplyCollateral, (marketParams, assets, onBehalf, abi.encode(callbackBundle))
         );
     }
 
@@ -266,11 +266,11 @@ abstract contract BaseTest is Test {
         pure
         returns (bytes memory)
     {
-        return abi.encodeCall(MorphoBundler.morphoWithdrawCollateral, (marketParams, assets, receiver));
+        return abi.encodeCall(MorphoBundlerV2.morphoWithdrawCollateral, (marketParams, assets, receiver));
     }
 
     function _morphoFlashLoan(address asset, uint256 amount) internal view returns (bytes memory) {
-        return abi.encodeCall(MorphoBundler.morphoFlashLoan, (asset, amount, abi.encode(callbackBundle)));
+        return abi.encodeCall(MorphoBundlerV2.morphoFlashLoan, (asset, amount, abi.encode(callbackBundle)));
     }
 
     function _reallocateTo(
@@ -280,7 +280,8 @@ abstract contract BaseTest is Test {
         Withdrawal[] memory withdrawals,
         MarketParams memory supplyMarketParams
     ) internal pure returns (bytes memory) {
-        return
-            abi.encodeCall(MorphoBundler.reallocateTo, (publicAllocator, vault, value, withdrawals, supplyMarketParams));
+        return abi.encodeCall(
+            MorphoBundlerV2.reallocateTo, (publicAllocator, vault, value, withdrawals, supplyMarketParams)
+        );
     }
 }

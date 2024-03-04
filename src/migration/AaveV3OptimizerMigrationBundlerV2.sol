@@ -6,13 +6,13 @@ import {IAaveV3Optimizer, Signature} from "./interfaces/IAaveV3Optimizer.sol";
 import {Math} from "../../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 
-import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
+import {MigrationBundlerV2, ERC20} from "./MigrationBundlerV2.sol";
 
-/// @title AaveV3OptimizerMigrationBundler
+/// @title AaveV3OptimizerMigrationBundlerV2
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from AaveV3 Optimizer to Morpho Blue easily.
-contract AaveV3OptimizerMigrationBundler is MigrationBundler {
+contract AaveV3OptimizerMigrationBundlerV2 is MigrationBundlerV2 {
     /* IMMUTABLES */
 
     /// @dev The AaveV3 optimizer contract address.
@@ -23,7 +23,7 @@ contract AaveV3OptimizerMigrationBundler is MigrationBundler {
     /// @param morpho The Morpho contract Address.
     /// @param aaveV3Optimizer The AaveV3 optimizer contract address. Assumes it is non-zero (not expected to be an
     /// input at deployment).
-    constructor(address morpho, address aaveV3Optimizer) MigrationBundler(morpho) {
+    constructor(address morpho, address aaveV3Optimizer) MigrationBundlerV2(morpho) {
         require(aaveV3Optimizer != address(0), ErrorsLib.ZERO_ADDRESS);
 
         AAVE_V3_OPTIMIZER = IAaveV3Optimizer(aaveV3Optimizer);

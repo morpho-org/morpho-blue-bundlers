@@ -8,11 +8,11 @@ import {
     IMorphoFlashLoanCallback
 } from "../../lib/morpho-blue/src/interfaces/IMorphoCallbacks.sol";
 
-/// @title IMorphoBundler
+/// @title IMorphoBundlerV2
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
-/// @notice Interface of MorphoBundler.
-interface IMorphoBundler is
+/// @notice Interface of MorphoBundlerV2.
+interface IMorphoBundlerV2 is
     IMorphoSupplyCallback,
     IMorphoRepayCallback,
     IMorphoSupplyCollateralCallback,

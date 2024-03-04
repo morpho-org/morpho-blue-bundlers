@@ -11,14 +11,14 @@ import {ERC4626Bundler} from "../ERC4626Bundler.sol";
 import {WNativeBundler} from "../WNativeBundler.sol";
 import {EthereumStEthBundler} from "./EthereumStEthBundler.sol";
 import {UrdBundler} from "../UrdBundler.sol";
-import {MorphoBundler} from "../MorphoBundler.sol";
+import {MorphoBundlerV2} from "../MorphoBundlerV2.sol";
 import {ERC20WrapperBundler} from "../ERC20WrapperBundler.sol";
 
-/// @title EthereumBundler
+/// @title EthereumBundlerV2
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Bundler contract specific to Ethereum.
-contract EthereumBundler is
+contract EthereumBundlerV2 is
     TransferBundler,
     EthereumPermitBundler,
     Permit2Bundler,
@@ -26,17 +26,17 @@ contract EthereumBundler is
     WNativeBundler,
     EthereumStEthBundler,
     UrdBundler,
-    MorphoBundler,
+    MorphoBundlerV2,
     ERC20WrapperBundler
 {
     /* CONSTRUCTOR */
 
-    constructor(address morpho) WNativeBundler(MainnetLib.WETH) MorphoBundler(morpho) {}
+    constructor(address morpho) WNativeBundler(MainnetLib.WETH) MorphoBundlerV2(morpho) {}
 
     /* INTERNAL */
 
-    /// @inheritdoc MorphoBundler
-    function _isSenderAuthorized() internal view override(BaseBundler, MorphoBundler) returns (bool) {
-        return MorphoBundler._isSenderAuthorized();
+    /// @inheritdoc MorphoBundlerV2
+    function _isSenderAuthorized() internal view override(BaseBundler, MorphoBundlerV2) returns (bool) {
+        return MorphoBundlerV2._isSenderAuthorized();
     }
 }

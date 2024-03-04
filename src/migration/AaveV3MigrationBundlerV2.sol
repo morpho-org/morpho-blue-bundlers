@@ -6,13 +6,13 @@ import {IAaveV3} from "./interfaces/IAaveV3.sol";
 import {Math} from "../../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 
-import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
+import {MigrationBundlerV2, ERC20} from "./MigrationBundlerV2.sol";
 
-/// @title AaveV3MigrationBundler
+/// @title AaveV3MigrationBundlerV2
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from Aave V3 to Morpho Blue easily.
-contract AaveV3MigrationBundler is MigrationBundler {
+contract AaveV3MigrationBundlerV2 is MigrationBundlerV2 {
     /* IMMUTABLES */
 
     /// @dev The AaveV3 contract address.
@@ -23,7 +23,7 @@ contract AaveV3MigrationBundler is MigrationBundler {
     /// @param morpho The Morpho contract Address.
     /// @param aaveV3Pool The AaveV3 contract address. Assumes it is non-zero (not expected to be an input at
     /// deployment).
-    constructor(address morpho, address aaveV3Pool) MigrationBundler(morpho) {
+    constructor(address morpho, address aaveV3Pool) MigrationBundlerV2(morpho) {
         require(aaveV3Pool != address(0), ErrorsLib.ZERO_ADDRESS);
 
         AAVE_V3_POOL = IAaveV3(aaveV3Pool);

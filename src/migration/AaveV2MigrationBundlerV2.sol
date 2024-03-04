@@ -8,14 +8,14 @@ import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 
 import {BaseBundler} from "../BaseBundler.sol";
 import {StEthBundler} from "../StEthBundler.sol";
-import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
+import {MigrationBundlerV2, ERC20} from "./MigrationBundlerV2.sol";
 
-/// @title AaveV2MigrationBundler
+/// @title AaveV2MigrationBundlerV2
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from Aave V2 to Morpho Blue easily.
-/// If deploying to Ethereum, deploy `AaveV2EthereumMigrationBundler` instead.
-contract AaveV2MigrationBundler is MigrationBundler, StEthBundler {
+/// If deploying to Ethereum, deploy `AaveV2EthereumMigrationBundlerV2` instead.
+contract AaveV2MigrationBundlerV2 is MigrationBundlerV2, StEthBundler {
     /* IMMUTABLES */
 
     /// @dev The AaveV2 contract address.
@@ -26,7 +26,7 @@ contract AaveV2MigrationBundler is MigrationBundler, StEthBundler {
     /// @param morpho The Morpho contract Address.
     /// @param aaveV2Pool The AaveV2 contract address. Assumes it is non-zero (not expected to be an input at
     /// deployment).
-    constructor(address morpho, address aaveV2Pool, address wstEth) MigrationBundler(morpho) StEthBundler(wstEth) {
+    constructor(address morpho, address aaveV2Pool, address wstEth) MigrationBundlerV2(morpho) StEthBundler(wstEth) {
         require(aaveV2Pool != address(0), ErrorsLib.ZERO_ADDRESS);
 
         AAVE_V2_POOL = IAaveV2(aaveV2Pool);
@@ -61,8 +61,8 @@ contract AaveV2MigrationBundler is MigrationBundler, StEthBundler {
 
     /* INTERNAL */
 
-    /// @inheritdoc MigrationBundler
-    function _isSenderAuthorized() internal view virtual override(BaseBundler, MigrationBundler) returns (bool) {
-        return MigrationBundler._isSenderAuthorized();
+    /// @inheritdoc MigrationBundlerV2
+    function _isSenderAuthorized() internal view virtual override(BaseBundler, MigrationBundlerV2) returns (bool) {
+        return MigrationBundlerV2._isSenderAuthorized();
     }
 }

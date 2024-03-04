@@ -4,14 +4,14 @@ pragma solidity ^0.8.0;
 import {Authorization as AaveV3OptimizerAuthorization} from "../../../../src/migration/interfaces/IAaveV3Optimizer.sol";
 
 import {
-    AaveV3OptimizerMigrationBundler,
+    AaveV3OptimizerMigrationBundlerV2,
     IAaveV3Optimizer,
     Signature as MA3Signature
-} from "../../../../src/migration/AaveV3OptimizerMigrationBundler.sol";
+} from "../../../../src/migration/AaveV3OptimizerMigrationBundlerV2.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
 
-contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
+contract AaveV3OptimizerMigrationBundlerV2EthereumTest is EthereumMigrationTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;
@@ -29,14 +29,14 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.label(AAVE_V3_OPTIMIZER, "AaveV3Optimizer");
 
-        bundler = new AaveV3OptimizerMigrationBundler(address(morpho), address(AAVE_V3_OPTIMIZER));
+        bundler = new AaveV3OptimizerMigrationBundlerV2(address(morpho), address(AAVE_V3_OPTIMIZER));
     }
 
     function testAaveV3OptimizerRepayUninitiated(uint256 amount) public {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        AaveV3OptimizerMigrationBundler(address(bundler)).aaveV3OptimizerRepay(marketParams.loanToken, amount);
+        AaveV3OptimizerMigrationBundlerV2(address(bundler)).aaveV3OptimizerRepay(marketParams.loanToken, amount);
     }
 
     function testAaveV3Optimizer3RepayZeroAmount() public {
@@ -62,7 +62,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
 
         bundle.push(
             abi.encodeCall(
-                AaveV3OptimizerMigrationBundler.aaveV3OptimizerApproveManagerWithSig,
+                AaveV3OptimizerMigrationBundlerV2.aaveV3OptimizerApproveManagerWithSig,
                 (true, 0, SIGNATURE_DEADLINE, sig, false)
             )
         );
@@ -191,7 +191,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         MA3Signature memory sig;
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        AaveV3OptimizerMigrationBundler(address(bundler)).aaveV3OptimizerApproveManagerWithSig(
+        AaveV3OptimizerMigrationBundlerV2(address(bundler)).aaveV3OptimizerApproveManagerWithSig(
             true, 0, SIGNATURE_DEADLINE, sig, false
         );
     }
@@ -200,7 +200,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        AaveV3OptimizerMigrationBundler(address(bundler)).aaveV3OptimizerWithdraw(
+        AaveV3OptimizerMigrationBundlerV2(address(bundler)).aaveV3OptimizerWithdraw(
             marketParams.loanToken, amount, MAX_ITERATIONS
         );
     }
@@ -209,7 +209,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        AaveV3OptimizerMigrationBundler(address(bundler)).aaveV3OptimizerWithdrawCollateral(
+        AaveV3OptimizerMigrationBundlerV2(address(bundler)).aaveV3OptimizerWithdrawCollateral(
             marketParams.loanToken, amount
         );
     }
@@ -232,18 +232,18 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         (sig.v, sig.r, sig.s) = vm.sign(privateKey, digest);
 
         return abi.encodeCall(
-            AaveV3OptimizerMigrationBundler.aaveV3OptimizerApproveManagerWithSig,
+            AaveV3OptimizerMigrationBundlerV2.aaveV3OptimizerApproveManagerWithSig,
             (isAllowed, nonce, SIGNATURE_DEADLINE, sig, skipRevert)
         );
     }
 
     function _aaveV3OptimizerRepay(address underlying, uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(AaveV3OptimizerMigrationBundler.aaveV3OptimizerRepay, (underlying, amount));
+        return abi.encodeCall(AaveV3OptimizerMigrationBundlerV2.aaveV3OptimizerRepay, (underlying, amount));
     }
 
     function _aaveV3OptimizerWithdraw(address underlying, uint256 amount) internal pure returns (bytes memory) {
         return abi.encodeCall(
-            AaveV3OptimizerMigrationBundler.aaveV3OptimizerWithdraw, (underlying, amount, MAX_ITERATIONS)
+            AaveV3OptimizerMigrationBundlerV2.aaveV3OptimizerWithdraw, (underlying, amount, MAX_ITERATIONS)
         );
     }
 
@@ -252,6 +252,6 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         pure
         returns (bytes memory)
     {
-        return abi.encodeCall(AaveV3OptimizerMigrationBundler.aaveV3OptimizerWithdrawCollateral, (underlying, amount));
+        return abi.encodeCall(AaveV3OptimizerMigrationBundlerV2.aaveV3OptimizerWithdrawCollateral, (underlying, amount));
     }
 }

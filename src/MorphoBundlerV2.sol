@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.24;
 
-import {IMorphoBundler} from "./interfaces/IMorphoBundler.sol";
+import {IMorphoBundlerV2} from "./interfaces/IMorphoBundlerV2.sol";
 import {IPublicAllocator, Withdrawal} from "./interfaces/IPublicAllocator.sol";
 import {MarketParams, Signature, Authorization, IMorpho} from "../lib/morpho-blue/src/interfaces/IMorpho.sol";
 
@@ -10,11 +10,11 @@ import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.s
 
 import {BaseBundler} from "./BaseBundler.sol";
 
-/// @title MorphoBundler
+/// @title MorphoBundlerV2
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Bundler contract managing interactions with Morpho.
-abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
+abstract contract MorphoBundlerV2 is BaseBundler, IMorphoBundlerV2 {
     using SafeTransferLib for ERC20;
 
     /* IMMUTABLES */
