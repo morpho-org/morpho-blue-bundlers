@@ -7,7 +7,7 @@ import "../../../src/ethereum/EthereumBundlerV2.sol";
 
 import "./helpers/EthereumTest.sol";
 
-contract EthereumBundlerEthereumTest is EthereumTest {
+contract EthereumBundlerV2EthereumTest is EthereumTest {
     using MathLib for uint256;
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
