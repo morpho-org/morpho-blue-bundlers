@@ -14,11 +14,11 @@ import {UrdBundler} from "../UrdBundler.sol";
 import {MorphoBundler} from "../MorphoBundler.sol";
 import {ERC20WrapperBundler} from "../ERC20WrapperBundler.sol";
 
-/// @title SepoliaBundler
+/// @title SepoliaBundlerV2
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Bundler contract specific to the Sepolia testnet.
-contract SepoliaBundler is
+contract SepoliaBundlerV2 is
     TransferBundler,
     PermitBundler,
     Permit2Bundler,

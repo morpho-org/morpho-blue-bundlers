@@ -14,11 +14,11 @@ import {UrdBundler} from "../UrdBundler.sol";
 import {MorphoBundler} from "../MorphoBundler.sol";
 import {ERC20WrapperBundler} from "../ERC20WrapperBundler.sol";
 
-/// @title EthereumBundler
+/// @title EthereumBundlerV2
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Bundler contract specific to Ethereum.
-contract EthereumBundler is
+contract EthereumBundlerV2 is
     TransferBundler,
     EthereumPermitBundler,
     Permit2Bundler,

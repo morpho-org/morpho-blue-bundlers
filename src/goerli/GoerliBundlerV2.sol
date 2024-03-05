@@ -14,11 +14,11 @@ import {UrdBundler} from "../UrdBundler.sol";
 import {MorphoBundler} from "../MorphoBundler.sol";
 import {ERC20WrapperBundler} from "../ERC20WrapperBundler.sol";
 
-/// @title GoerliBundler
+/// @title GoerliBundlerV2
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Bundler contract specific to the Goerli testnet.
-contract GoerliBundler is
+contract GoerliBundlerV2 is
     TransferBundler,
     PermitBundler,
     Permit2Bundler,

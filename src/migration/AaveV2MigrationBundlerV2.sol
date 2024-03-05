@@ -10,12 +10,12 @@ import {BaseBundler} from "../BaseBundler.sol";
 import {StEthBundler} from "../StEthBundler.sol";
 import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 
-/// @title AaveV2MigrationBundler
+/// @title AaveV2MigrationBundlerV2
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from Aave V2 to Morpho Blue easily.
 /// If deploying to Ethereum, deploy `AaveV2EthereumMigrationBundler` instead.
-contract AaveV2MigrationBundler is MigrationBundler, StEthBundler {
+contract AaveV2MigrationBundlerV2 is MigrationBundler, StEthBundler {
     /* IMMUTABLES */
 
     /// @dev The AaveV2 contract address.

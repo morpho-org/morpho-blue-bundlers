@@ -5,7 +5,7 @@ import {IAToken} from "./interfaces/IAToken.sol";
 import {IAaveV3} from "../../../../src/migration/interfaces/IAaveV3.sol";
 
 import {SigUtils, Permit} from "../../helpers/SigUtils.sol";
-import "../../../../src/migration/AaveV3MigrationBundler.sol";
+import "../../../../src/migration/AaveV3MigrationBundlerV2.sol";
 
 import "./helpers/EthereumMigrationTest.sol";
 
@@ -27,7 +27,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
         vm.label(AAVE_V3_POOL, "Aave V3 Pool");
 
-        bundler = new AaveV3MigrationBundler(address(morpho), address(AAVE_V3_POOL));
+        bundler = new AaveV3MigrationBundlerV2(address(morpho), address(AAVE_V3_POOL));
         vm.label(address(bundler), "Aave V3 Migration Bundler");
     }
 
@@ -35,7 +35,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        AaveV3MigrationBundler(address(bundler)).aaveV3Repay(marketParams.loanToken, amount, 1);
+        AaveV3MigrationBundlerV2(address(bundler)).aaveV3Repay(marketParams.loanToken, amount, 1);
     }
 
     function testAaveV3RepayZeroAmount() public {
@@ -290,10 +290,10 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
     }
 
     function _aaveV3Repay(address asset, uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(AaveV3MigrationBundler.aaveV3Repay, (asset, amount, RATE_MODE));
+        return abi.encodeCall(AaveV3MigrationBundlerV2.aaveV3Repay, (asset, amount, RATE_MODE));
     }
 
     function _aaveV3Withdraw(address asset, uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(AaveV3MigrationBundler.aaveV3Withdraw, (asset, amount));
+        return abi.encodeCall(AaveV3MigrationBundlerV2.aaveV3Withdraw, (asset, amount));
     }
 }
