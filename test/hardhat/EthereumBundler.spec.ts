@@ -5,11 +5,11 @@ import { BundlerAction } from "pkg";
 import {
   ERC20Mock,
   ERC4626Mock,
-  EthereumBundler,
+  EthereumBundlerV2,
   MorphoMock,
   OracleMock,
   AdaptiveCurveIrmMock,
-  EthereumBundler__factory,
+  EthereumBundlerV2__factory,
 } from "types";
 import { MarketParamsStruct } from "types/lib/morpho-blue/src/Morpho";
 
@@ -150,7 +150,7 @@ describe("EthereumBundler", () => {
   let erc4626: ERC4626Mock;
   let erc4626Address: string;
 
-  let bundler: EthereumBundler;
+  let bundler: EthereumBundlerV2;
   let bundlerAddress: string;
 
   let marketParams: MarketParamsStruct;
@@ -220,9 +220,9 @@ describe("EthereumBundler", () => {
     await morpho.enableLltv(marketParams.lltv);
     await morpho.createMarket(marketParams);
 
-    const EthereumBundlerFactory = await hre.ethers.getContractFactory("EthereumBundler", admin);
+    const EthereumBundlerV2Factory = await hre.ethers.getContractFactory("EthereumBundlerV2", admin);
 
-    bundler = await EthereumBundlerFactory.deploy(morphoAddress);
+    bundler = await EthereumBundlerV2Factory.deploy(morphoAddress);
 
     bundlerAddress = await bundler.getAddress();
 
@@ -345,7 +345,7 @@ describe("EthereumBundler", () => {
   });
 
   it("should have all batched functions payable", async () => {
-    EthereumBundler__factory.createInterface().forEachFunction((func) => {
+    EthereumBundlerV2__factory.createInterface().forEachFunction((func) => {
       if (func.stateMutability === "view" || func.stateMutability === "pure") return;
 
       const shouldPayable = !func.name.startsWith("onMorpho");
