@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-pragma solidity 0.8.21;
+pragma solidity 0.8.24;
 
-import {SepoliaLib} from "./libraries/SepoliaLib.sol";
+import {GoerliLib} from "./libraries/GoerliLib.sol";
 
 import {BaseBundler} from "../BaseBundler.sol";
 import {TransferBundler} from "../TransferBundler.sol";
@@ -14,11 +14,11 @@ import {UrdBundler} from "../UrdBundler.sol";
 import {MorphoBundler} from "../MorphoBundler.sol";
 import {ERC20WrapperBundler} from "../ERC20WrapperBundler.sol";
 
-/// @title SepoliaBundler
+/// @title GoerliBundlerV2
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
-/// @notice Bundler contract specific to the Sepolia testnet.
-contract SepoliaBundler is
+/// @notice Bundler contract specific to the Goerli testnet.
+contract GoerliBundlerV2 is
     TransferBundler,
     PermitBundler,
     Permit2Bundler,
@@ -31,11 +31,7 @@ contract SepoliaBundler is
 {
     /* CONSTRUCTOR */
 
-    constructor(address morpho)
-        WNativeBundler(SepoliaLib.WETH)
-        StEthBundler(SepoliaLib.WST_ETH)
-        MorphoBundler(morpho)
-    {}
+    constructor(address morpho) WNativeBundler(GoerliLib.WETH) StEthBundler(GoerliLib.WST_ETH) MorphoBundler(morpho) {}
 
     /* INTERNAL */
 

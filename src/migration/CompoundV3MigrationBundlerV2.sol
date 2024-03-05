@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-pragma solidity 0.8.21;
+pragma solidity 0.8.24;
 
 import {ICompoundV3} from "./interfaces/ICompoundV3.sol";
 
@@ -8,11 +8,11 @@ import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 
 import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 
-/// @title CompoundV3MigrationBundler
+/// @title CompoundV3MigrationBundlerV2
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from Compound V3 to Morpho Blue easily.
-contract CompoundV3MigrationBundler is MigrationBundler {
+contract CompoundV3MigrationBundlerV2 is MigrationBundler {
     /* CONSTRUCTOR */
 
     /// @param morpho The Morpho contract Address.

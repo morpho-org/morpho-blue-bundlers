@@ -8,6 +8,7 @@ import {
     Authorization as MorphoBlueAuthorization,
     Signature as MorphoBlueSignature
 } from "../../../lib/morpho-blue/src/interfaces/IMorpho.sol";
+import {IPublicAllocatorBase} from "../../../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
 
 import {SigUtils} from "./SigUtils.sol";
 import {MarketParamsLib} from "../../../lib/morpho-blue/src/libraries/MarketParamsLib.sol";
@@ -30,7 +31,7 @@ import {BaseBundler} from "../../../src/BaseBundler.sol";
 import {TransferBundler} from "../../../src/TransferBundler.sol";
 import {ERC4626Bundler} from "../../../src/ERC4626Bundler.sol";
 import {UrdBundler} from "../../../src/UrdBundler.sol";
-import {MorphoBundler} from "../../../src/MorphoBundler.sol";
+import {MorphoBundler, Withdrawal} from "../../../src/MorphoBundler.sol";
 import {ERC20WrapperBundler} from "../../../src/ERC20WrapperBundler.sol";
 
 import "../../../lib/forge-std/src/Test.sol";
@@ -68,8 +69,11 @@ abstract contract BaseTest is Test {
 
         irm = new IrmMock();
 
-        vm.prank(OWNER);
+        vm.startPrank(OWNER);
         morpho.enableIrm(address(irm));
+        morpho.enableIrm(address(0));
+        morpho.enableLltv(0);
+        vm.stopPrank();
 
         oracle = new OracleMock();
         oracle.setPrice(ORACLE_PRICE_SCALE);
@@ -267,5 +271,16 @@ abstract contract BaseTest is Test {
 
     function _morphoFlashLoan(address asset, uint256 amount) internal view returns (bytes memory) {
         return abi.encodeCall(MorphoBundler.morphoFlashLoan, (asset, amount, abi.encode(callbackBundle)));
+    }
+
+    function _reallocateTo(
+        address publicAllocator,
+        address vault,
+        uint256 value,
+        Withdrawal[] memory withdrawals,
+        MarketParams memory supplyMarketParams
+    ) internal pure returns (bytes memory) {
+        return
+            abi.encodeCall(MorphoBundler.reallocateTo, (publicAllocator, vault, value, withdrawals, supplyMarketParams));
     }
 }

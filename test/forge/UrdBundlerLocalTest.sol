@@ -8,14 +8,17 @@ import {ErrorsLib} from "../../src/libraries/ErrorsLib.sol";
 import {ErrorsLib as UrdErrorsLib} from "../../lib/universal-rewards-distributor/src/libraries/ErrorsLib.sol";
 
 import {Merkle} from "../../lib/murky/src/Merkle.sol";
-import {UrdFactory} from "../../lib/universal-rewards-distributor/src/UrdFactory.sol";
 
 import "../../src/mocks/bundlers/UrdBundlerMock.sol";
 
 import "./helpers/LocalTest.sol";
 
+interface IUrdFactory {
+    function createUrd(address, uint256, bytes32, bytes32, bytes32) external returns (address);
+}
+
 contract UrdBundlerLocalTest is LocalTest {
-    UrdFactory internal urdFactory;
+    IUrdFactory internal urdFactory;
     Merkle internal merkle;
 
     address internal distributor;
@@ -24,8 +27,8 @@ contract UrdBundlerLocalTest is LocalTest {
         super.setUp();
 
         bundler = new UrdBundlerMock();
-
-        urdFactory = new UrdFactory();
+        urdFactory = IUrdFactory(_deploy("out/UrdFactory.sol/UrdFactory.json", ""));
+        vm.label(address(urdFactory), "UrdFactory");
         merkle = new Merkle();
 
         distributor = address(urdFactory.createUrd(OWNER, 0, bytes32(0), hex"", hex""));

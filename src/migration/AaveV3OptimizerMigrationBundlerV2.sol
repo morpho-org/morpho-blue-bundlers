@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-pragma solidity 0.8.21;
+pragma solidity 0.8.24;
 
 import {IAaveV3Optimizer, Signature} from "./interfaces/IAaveV3Optimizer.sol";
 
@@ -8,11 +8,11 @@ import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 
 import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 
-/// @title AaveV3OptimizerMigrationBundler
+/// @title AaveV3OptimizerMigrationBundlerV2
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from AaveV3 Optimizer to Morpho Blue easily.
-contract AaveV3OptimizerMigrationBundler is MigrationBundler {
+contract AaveV3OptimizerMigrationBundlerV2 is MigrationBundler {
     /* IMMUTABLES */
 
     /// @dev The AaveV3 optimizer contract address.

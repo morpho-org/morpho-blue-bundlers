@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-pragma solidity 0.8.21;
+pragma solidity 0.8.24;
 
 import {IMorphoBundler} from "./interfaces/IMorphoBundler.sol";
+import {IPublicAllocator, Withdrawal} from "./interfaces/IPublicAllocator.sol";
 import {MarketParams, Signature, Authorization, IMorpho} from "../lib/morpho-blue/src/interfaces/IMorpho.sol";
 
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
@@ -236,6 +237,22 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         _approveMaxTo(token, address(MORPHO));
 
         MORPHO.flashLoan(token, assets, data);
+    }
+
+    /// @notice Reallocates funds from markets of a vault to another market of that same vault.
+    /// @param publicAllocator The address of the public allocator.
+    /// @param vault The address of the vault.
+    /// @param value The value in ETH to pay for the reallocate fee.
+    /// @param withdrawals The list of markets and corresponding amounts to withdraw.
+    /// @param supplyMarketParams The market receiving the funds.
+    function reallocateTo(
+        address publicAllocator,
+        address vault,
+        uint256 value,
+        Withdrawal[] calldata withdrawals,
+        MarketParams calldata supplyMarketParams
+    ) external payable protected {
+        IPublicAllocator(publicAllocator).reallocateTo{value: value}(vault, withdrawals, supplyMarketParams);
     }
 
     /* INTERNAL */

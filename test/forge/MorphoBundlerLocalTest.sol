@@ -1,19 +1,28 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
+import {
+    Withdrawal,
+    FlowCapsConfig,
+    MAX_SETTABLE_FLOW_CAP,
+    IPublicAllocator
+} from "../../src/interfaces/IPublicAllocator.sol";
+
 import {SigUtils} from "./helpers/SigUtils.sol";
 import {ErrorsLib} from "../../src/libraries/ErrorsLib.sol";
 import {ErrorsLib as MorphoErrorsLib} from "../../lib/morpho-blue/src/libraries/ErrorsLib.sol";
+import {MarketParamsLib} from "../../lib/morpho-blue/src/libraries/MarketParamsLib.sol";
 
 import "../../src/mocks/bundlers/MorphoBundlerMock.sol";
 
-import "./helpers/LocalTest.sol";
+import "./helpers/MetaMorphoLocalTest.sol";
 
-contract MorphoBundlerLocalTest is LocalTest {
+contract MorphoBundlerLocalTest is MetaMorphoLocalTest {
     using MathLib for uint256;
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
     using SharesMathLib for uint256;
+    using MarketParamsLib for MarketParams;
 
     function setUp() public override {
         super.setUp();
@@ -640,5 +649,47 @@ contract MorphoBundlerLocalTest is LocalTest {
         assertEq(loanToken.balanceOf(USER), 0, "User's loan token balance");
         assertEq(loanToken.balanceOf(address(bundler)), 0, "Bundler's loan token balance");
         assertEq(loanToken.balanceOf(address(morpho)), amount, "Morpho's loan token balance");
+    }
+
+    function testReallocateTo(uint256 amount, uint256 maxIn, uint256 maxOut, uint256 fee) public {
+        IPublicAllocator publicAllocator =
+            IPublicAllocator(_deploy("out/PublicAllocator.sol/PublicAllocator.json", abi.encode(morpho)));
+        vm.label(address(publicAllocator), "PublicAllocator");
+
+        amount = bound(amount, 0, type(uint64).max);
+        fee = bound(fee, 1, 1 ether);
+        maxIn = bound(maxIn, amount, MAX_SETTABLE_FLOW_CAP);
+        maxOut = bound(maxOut, amount, MAX_SETTABLE_FLOW_CAP);
+
+        FlowCapsConfig[] memory flows = new FlowCapsConfig[](2);
+        flows[0].id = marketParams.id();
+        flows[0].caps.maxIn = uint128(maxIn);
+        flows[1].id = idleMarketParams.id();
+        flows[1].caps.maxOut = uint128(maxOut);
+
+        vm.startPrank(VAULT_OWNER);
+        vault.setIsAllocator(address(publicAllocator), true);
+        publicAllocator.setFee(address(vault), fee);
+        publicAllocator.setFlowCaps(address(vault), flows);
+        vm.stopPrank();
+
+        loanToken.setBalance(SUPPLIER, amount);
+        vm.prank(SUPPLIER);
+        vault.deposit(amount, SUPPLIER);
+
+        Withdrawal[] memory withdrawals = new Withdrawal[](1);
+        withdrawals[0].marketParams = idleMarketParams;
+        withdrawals[0].amount = uint128(amount);
+        bundle.push(_reallocateTo(address(publicAllocator), address(vault), fee, withdrawals, marketParams));
+
+        assertEq(morpho.expectedSupplyAssets(idleMarketParams, address(vault)), amount, "initial idle");
+        assertEq(morpho.expectedSupplyAssets(marketParams, address(vault)), 0, "initial market");
+
+        vm.deal(USER, fee);
+        vm.prank(USER);
+        bundler.multicall{value: fee}(bundle);
+
+        assertEq(morpho.expectedSupplyAssets(idleMarketParams, address(vault)), 0, "final idle");
+        assertEq(morpho.expectedSupplyAssets(marketParams, address(vault)), amount, "final market");
     }
 }
