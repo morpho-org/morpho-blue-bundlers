@@ -240,7 +240,7 @@ describe("EthereumBundler", () => {
     hre.tracer.nameTags[loanAddress] = "Loan";
     hre.tracer.nameTags[oracleAddress] = "Oracle";
     hre.tracer.nameTags[irmAddress] = "AdaptiveCurveIrm";
-    hre.tracer.nameTags[bundlerAddress] = "EthereumBundler";
+    hre.tracer.nameTags[bundlerAddress] = "EthereumBundlerV2";
   });
 
   it("should simulate gas cost [morpho-supplyCollateral+borrow]", async () => {
