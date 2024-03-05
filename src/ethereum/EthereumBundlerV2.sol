@@ -1,37 +1,37 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.24;
 
-import {GoerliLib} from "./libraries/GoerliLib.sol";
+import {MainnetLib} from "./libraries/MainnetLib.sol";
 
 import {BaseBundler} from "../BaseBundler.sol";
 import {TransferBundler} from "../TransferBundler.sol";
-import {PermitBundler} from "../PermitBundler.sol";
+import {EthereumPermitBundler} from "./EthereumPermitBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
 import {ERC4626Bundler} from "../ERC4626Bundler.sol";
 import {WNativeBundler} from "../WNativeBundler.sol";
-import {StEthBundler} from "../StEthBundler.sol";
+import {EthereumStEthBundler} from "./EthereumStEthBundler.sol";
 import {UrdBundler} from "../UrdBundler.sol";
 import {MorphoBundler} from "../MorphoBundler.sol";
 import {ERC20WrapperBundler} from "../ERC20WrapperBundler.sol";
 
-/// @title GoerliBundler
+/// @title EthereumBundlerV2
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
-/// @notice Bundler contract specific to the Goerli testnet.
-contract GoerliBundler is
+/// @notice Bundler contract specific to Ethereum.
+contract EthereumBundlerV2 is
     TransferBundler,
-    PermitBundler,
+    EthereumPermitBundler,
     Permit2Bundler,
     ERC4626Bundler,
     WNativeBundler,
-    StEthBundler,
+    EthereumStEthBundler,
     UrdBundler,
     MorphoBundler,
     ERC20WrapperBundler
 {
     /* CONSTRUCTOR */
 
-    constructor(address morpho) WNativeBundler(GoerliLib.WETH) StEthBundler(GoerliLib.WST_ETH) MorphoBundler(morpho) {}
+    constructor(address morpho) WNativeBundler(MainnetLib.WETH) MorphoBundler(morpho) {}
 
     /* INTERNAL */
 

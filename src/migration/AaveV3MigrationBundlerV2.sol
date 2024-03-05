@@ -8,11 +8,11 @@ import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 
 import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 
-/// @title AaveV3MigrationBundler
+/// @title AaveV3MigrationBundlerV2
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from Aave V3 to Morpho Blue easily.
-contract AaveV3MigrationBundler is MigrationBundler {
+contract AaveV3MigrationBundlerV2 is MigrationBundler {
     /* IMMUTABLES */
 
     /// @dev The AaveV3 contract address.

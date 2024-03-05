@@ -11,11 +11,11 @@ import {BaseBundler} from "../BaseBundler.sol";
 import {WNativeBundler} from "../WNativeBundler.sol";
 import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 
-/// @title CompoundV2MigrationBundler
+/// @title CompoundV2MigrationBundlerV2
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to migrate a position from Compound V2 to Morpho Blue easily.
-contract CompoundV2MigrationBundler is WNativeBundler, MigrationBundler {
+contract CompoundV2MigrationBundlerV2 is WNativeBundler, MigrationBundler {
     /* IMMUTABLES */
 
     /// @dev The address of the cETH contract.
