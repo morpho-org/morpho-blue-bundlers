@@ -112,7 +112,7 @@ contract UrdBundlerLocalTest is LocalTest {
         bundle.push(_urdClaim(distributor, USER, address(loanToken), claimable, loanTokenProof, false));
 
         vm.prank(USER);
-        vm.expectRevert(bytes(UrdErrorsLib.ALREADY_CLAIMED));
+        vm.expectRevert(bytes(UrdErrorsLib.CLAIMABLE_TOO_LOW));
         bundler.multicall(bundle);
     }
 

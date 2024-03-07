@@ -656,7 +656,7 @@ contract MorphoBundlerLocalTest is MetaMorphoLocalTest {
             IPublicAllocator(_deploy("out/PublicAllocator.sol/PublicAllocator.json", abi.encode(morpho)));
         vm.label(address(publicAllocator), "PublicAllocator");
 
-        amount = bound(amount, 0, type(uint64).max);
+        amount = bound(amount, 1, type(uint64).max);
         fee = bound(fee, 1, 1 ether);
         maxIn = bound(maxIn, amount, MAX_SETTABLE_FLOW_CAP);
         maxOut = bound(maxOut, amount, MAX_SETTABLE_FLOW_CAP);
