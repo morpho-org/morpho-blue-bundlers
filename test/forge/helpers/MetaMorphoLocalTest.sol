@@ -29,7 +29,7 @@ abstract contract MetaMorphoLocalTest is LocalTest {
 
         vault = IMetaMorpho(
             _deploy(
-                "lib/metamorpho/out/MetaMorpho.sol/MetaMorpho.json",
+                "out/MetaMorpho.sol/MetaMorpho.json",
                 abi.encode(VAULT_OWNER, morpho, 1 days, loanToken, "MetaMorpho Vault", "MMV")
             )
         );

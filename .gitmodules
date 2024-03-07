@@ -28,6 +28,3 @@
 [submodule "lib/public-allocator"]
 	path = lib/public-allocator
 	url = https://github.com/morpho-org/public-allocator
-[submodule "lib/metamorpho"]
-	path = lib/metamorpho
-	url = git@github.com:morpho-org/metamorpho.git
