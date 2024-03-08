@@ -64,7 +64,7 @@ abstract contract BaseTest is Test {
     bytes[] internal callbackBundle;
 
     function setUp() public virtual {
-        morpho = IMorpho(_deploy("out/Morpho.sol/Morpho.json", abi.encode(OWNER)));
+        morpho = IMorpho(_deploy("Morpho", abi.encode(OWNER)));
         vm.label(address(morpho), "Morpho");
 
         irm = new IrmMock();
