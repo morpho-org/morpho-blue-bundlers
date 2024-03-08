@@ -64,7 +64,7 @@ abstract contract BaseTest is Test {
     bytes[] internal callbackBundle;
 
     function setUp() public virtual {
-        morpho = IMorpho(_deploy("Morpho", abi.encode(OWNER)));
+        morpho = IMorpho(deployCode("Morpho.sol", abi.encode(OWNER)));
         vm.label(address(morpho), "Morpho");
 
         irm = new IrmMock();
@@ -81,17 +81,6 @@ abstract contract BaseTest is Test {
         vm.prank(USER);
         // So tests can borrow/withdraw on behalf of USER without pranking it.
         morpho.setAuthorization(address(this), true);
-    }
-
-    function _deploy(string memory artifactPath, bytes memory constructorArgs) internal returns (address deployed) {
-        string memory artifact = vm.readFile(artifactPath);
-        bytes memory bytecode = bytes.concat(artifact.readBytes("$.bytecode.object"), constructorArgs);
-
-        assembly {
-            deployed := create(0, add(bytecode, 0x20), mload(bytecode))
-        }
-
-        require(deployed != address(0), string.concat("could not deploy `", artifactPath, "`"));
     }
 
     function _boundPrivateKey(uint256 privateKey) internal returns (uint256, address) {
