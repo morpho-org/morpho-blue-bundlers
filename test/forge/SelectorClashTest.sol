@@ -10,7 +10,7 @@ import "../../lib/openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20W
 // The bundler can do call to arbitrary contracts, we make sure no selectors clash by inheriting all the interfaces in
 // one single contract.
 abstract contract SelectorClashTest is IMorpho, IUniversalRewardsDistributor, IERC4626, IERC20Permit, ERC20Wrapper {
-    // Overriedes of functions that are present in multiple interfaces contract ("acknoledged clashes").
+    // Overrides of functions that are present in multiple interfaces contract ("acknowledged clashes").
     function setOwner(address) public override(IMorphoBase, IUniversalRewardsDistributorBase) {}
     function owner() public view override(IMorphoBase, IUniversalRewardsDistributorBase) returns (address) {}
     function DOMAIN_SEPARATOR() public view override(IMorphoBase, IERC20Permit) returns (bytes32) {}
