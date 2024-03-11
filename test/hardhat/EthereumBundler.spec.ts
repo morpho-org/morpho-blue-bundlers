@@ -8,7 +8,7 @@ import {
   EthereumBundlerV2,
   MorphoMock,
   OracleMock,
-  AdaptiveCurveIrmMock,
+  AdaptiveCurveIrm,
   EthereumBundlerV2__factory,
 } from "types";
 import { MarketParamsStruct } from "types/lib/morpho-blue/src/Morpho";
@@ -143,7 +143,7 @@ describe("EthereumBundler", () => {
   let loan: ERC20Mock;
   let collateral: ERC20Mock;
   let oracle: OracleMock;
-  let irm: AdaptiveCurveIrmMock;
+  let irm: AdaptiveCurveIrm;
 
   let morphoAuthorizationConfig: TypedDataConfig;
 
@@ -187,7 +187,7 @@ describe("EthereumBundler", () => {
 
     const morphoAddress = await morpho.getAddress();
 
-    const AdaptiveCurveIrmFactory = await hre.ethers.getContractFactory("AdaptiveCurveIrmMock", admin);
+    const AdaptiveCurveIrmFactory = await hre.ethers.getContractFactory("AdaptiveCurveIrm", admin);
 
     irm = await AdaptiveCurveIrmFactory.deploy(morphoAddress);
 

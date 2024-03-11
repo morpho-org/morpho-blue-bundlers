@@ -28,10 +28,7 @@ abstract contract MetaMorphoLocalTest is LocalTest {
         morpho.createMarket(idleMarketParams);
 
         vault = IMetaMorpho(
-            _deploy(
-                "lib/metamorpho/out/MetaMorpho.sol/MetaMorpho.json",
-                abi.encode(VAULT_OWNER, morpho, 1 days, loanToken, "MetaMorpho Vault", "MMV")
-            )
+            deployCode("MetaMorpho.sol", abi.encode(VAULT_OWNER, morpho, 1 days, loanToken, "MetaMorpho Vault", "MMV"))
         );
         vm.label(address(vault), "MetaMorpho Vault");
         setCap(marketParams, type(uint184).max);

@@ -9,7 +9,7 @@
 	url = https://github.com/openzeppelin/openzeppelin-contracts
 [submodule "lib/morpho-utils"]
 	path = lib/morpho-utils
-	url = https://github.com/morpho-dao/morpho-utils
+	url = https://github.com/morpho-org/morpho-utils
 [submodule "lib/morpho-blue"]
 	path = lib/morpho-blue
 	url = https://github.com/morpho-org/morpho-blue
@@ -24,10 +24,10 @@
 	url = https://github.com/dmfxyz/murky
 [submodule "lib/morpho-blue-irm"]
 	path = lib/morpho-blue-irm
-	url = https://github.com/morpho-labs/morpho-blue-irm
+	url = https://github.com/morpho-org/morpho-blue-irm
 [submodule "lib/public-allocator"]
 	path = lib/public-allocator
 	url = https://github.com/morpho-org/public-allocator
 [submodule "lib/metamorpho"]
 	path = lib/metamorpho
-	url = git@github.com:morpho-org/metamorpho.git
+	url = https://github.com/morpho-org/metamorpho

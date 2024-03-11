@@ -3,4 +3,4 @@ pragma solidity 0.8.19;
 // Force foundry to compile this contract.
 // The resulting bytecode is then loaded by the tests.
 
-import "../../lib/universal-rewards-distributor/src/UrdFactory.sol";
+import "../../lib/morpho-blue-irm/src/adaptive-curve-irm/AdaptiveCurveIrm.sol";
