@@ -5,7 +5,7 @@ import {BaseBundler} from "src/mocks/bundlers/BaseBundlerMock.sol";
 
 import "./helpers/LocalTest.sol";
 
-contract BaseBundlerLocalEnshrinedTest is BaseBundler, LocalTest {
+contract BaseBundlerEnshrinedLocalTest is BaseBundler, LocalTest {
     function checkInitiator(address expectedInitiator) public payable protected {
         require(initiator() == expectedInitiator, "unexpected initiator");
     }
