@@ -18,7 +18,7 @@ import {
   IAllowanceTransfer,
   ERC20WrapperBundler__factory,
 } from "../types";
-import { AuthorizationStruct, MarketParamsStruct } from "../types/src/MorphoBundler";
+import { AuthorizationStruct, MarketParamsStruct, WithdrawalStruct } from "../types/src/MorphoBundler";
 
 export type BundlerCall = string;
 
@@ -276,6 +276,22 @@ export class BundlerAction {
       asset,
       amount,
       BundlerAction.MORPHO_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
+    ]);
+  }
+
+  static metaMorphoReallocateTo(
+    publicAllocator: string,
+    vault: string,
+    value: BigNumberish,
+    withdrawals: WithdrawalStruct[],
+    supplyMarketParams: MarketParamsStruct,
+  ): BundlerCall {
+    return BundlerAction.MORPHO_BUNDLER_IFC.encodeFunctionData("reallocateTo", [
+      publicAllocator,
+      vault,
+      value,
+      withdrawals,
+      supplyMarketParams,
     ]);
   }
 
