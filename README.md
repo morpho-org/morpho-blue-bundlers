@@ -4,7 +4,66 @@
 
 ## Structure
 
-![image (4)](https://github.com/morpho-org/morpho-blue-bundlers/assets/44097430/5cb0796b-c20c-415e-840d-8b0705836dc8)
+```mermaid
+graph
+subgraph subgraph1 {
+    TransferBundler
+    WNativeBundler
+    Permit2Bundler
+    ERC20WrapperBundler
+    ERC4626Bundler
+    MorphoBundler
+    PermitBundler
+    UrdBundler
+    StEthBundler
+    style=invis;
+}
+subgraph "Migration Bundlers"
+    MigrationBundler
+    CompoundV3MigrationBundler
+    CompoundV2MigrationBundler
+    AaveV3MigrationBundler
+    AaveV3OptimizerMigrationBundler
+    AaveV2MigrationBundler
+end
+subgraph "General Bundlers"
+    EthereumPermitBundler
+    EthereumStEthBundler
+    EthereumBundler
+end
+BaseBundler --> TransferBundler
+BaseBundler --> WNativeBundler
+BaseBundler --> Permit2Bundler
+BaseBundler --> ERC20WrapperBundler
+BaseBundler --> ERC4626Bundler
+BaseBundler --> MorphoBundler
+BaseBundler --> PermitBundler
+BaseBundler --> UrdBundler
+BaseBundler --> StEthBundler
+TransferBundler --> MigrationBundler
+Permit2Bundler --> MigrationBundler
+ERC4626Bundler --> MigrationBundler
+MorphoBundler --> MigrationBundler
+PermitBundler --> MigrationBundler
+MigrationBundler --> CompoundV3MigrationBundler
+WNativeBundler --> CompoundV2MigrationBundler
+MigrationBundler --> CompoundV2MigrationBundler
+MigrationBundler --> AaveV3MigrationBundler
+MigrationBundler --> AaveV3OptimizerMigrationBundler
+MigrationBundler --> AaveV2MigrationBundler
+StEthBundler --> AaveV2MigrationBundler
+PermitBundler --> EthereumPermitBundler
+StEthBundler --> EthereumStEthBundler
+TransferBundler --> EthereumBundler
+WNativeBundler --> EthereumBundler
+Permit2Bundler --> EthereumBundler
+ERC20WrapperBundler --> EthereumBundler
+ERC4626Bundler --> EthereumBundler
+MorphoBundler --> EthereumBundler
+UrdBundler --> EthereumBundler
+EthereumPermitBundler --> EthereumBundler
+EthereumStEthBundler --> EthereumBundler
+```
 
 Each Bundler is a domain-specific abstract layer of contract that implements some functions that can be bundled in a single call by EOAs to a single contract. They all inherit from [`BaseBundler`](./src/BaseBundler.sol) that enables bundling multiple function calls into a single `multicall(bytes[] calldata data)` call to the end bundler contract. Each chain-specific bundler is available under their chain-specific folder (e.g. [`ethereum`](./src/ethereum/)).
 
@@ -15,8 +74,6 @@ User-end bundlers are provided in each chain-specific folder, instanciating all 
 ## Getting Started
 
 Install dependencies with `yarn`.
-
-The first time running the tests with `yarn test:forge` will build Morpho Blue.
 
 ## Audits
 
