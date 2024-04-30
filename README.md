@@ -6,7 +6,7 @@
 
 ```mermaid
 graph
-subgraph subgraph1 {
+subgraph " "
     TransferBundler
     WNativeBundler
     Permit2Bundler
@@ -16,8 +16,7 @@ subgraph subgraph1 {
     PermitBundler
     UrdBundler
     StEthBundler
-    style=invis;
-}
+end
 subgraph "Migration Bundlers"
     MigrationBundler
     CompoundV3MigrationBundler
