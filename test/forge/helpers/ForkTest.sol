@@ -1,151 +1,120 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.0;
 
-import {IStEth} from "../../../src/interfaces/IStEth.sol";
-import {IWstEth} from "../../../src/interfaces/IWstEth.sol";
-import {IAllowanceTransfer} from "../../../lib/permit2/src/interfaces/IAllowanceTransfer.sol";
-
-import {Permit2Lib} from "../../../lib/permit2/src/libraries/Permit2Lib.sol";
-
-import {Permit2Bundler} from "../../../src/Permit2Bundler.sol";
-import {WNativeBundler} from "../../../src/WNativeBundler.sol";
-import {StEthBundler} from "../../../src/StEthBundler.sol";
-
-import "../../../config/Configured.sol";
 import "./BaseTest.sol";
+import "../ethereum/helpers/Configs.sol";
 
-abstract contract ForkTest is BaseTest, Configured {
-    using ConfigLib for Config;
+abstract contract ForkTest is BaseTest {
     using SafeTransferLib for ERC20;
-
-    string internal network;
-    uint256 internal forkId;
-
-    uint256 internal snapshotId = type(uint256).max;
 
     MarketParams[] allMarketParams;
 
-    function setUp() public virtual override {
-        _initConfig();
-        _loadConfig();
+    Config internal config;
+    address[] internal allAssets;
+    address internal DAI;
+    address internal USDC;
+    address internal USDT;
+    address internal LINK;
+    address internal WBTC;
+    address internal WETH;
+    address internal ST_ETH;
+    address internal WST_ETH;
+    address internal CB_ETH;
+    address internal R_ETH;
+    address internal S_DAI;
+    address internal AAVE_V2_POOL;
+    address internal AAVE_V3_POOL;
+    address internal AAVE_V3_OPTIMIZER;
+    address internal COMPTROLLER;
+    address internal C_DAI_V2;
+    address internal C_ETH_V2;
+    address internal C_USDC_V2;
+    address internal C_WETH_V3;
 
+    // Setup.
+
+    function setUp() public virtual override {
+        Configs configs = new Configs();
+        config = configs.getConfig(block.chainid);
+
+        _setVariables();
         _fork();
-        _label();
 
         super.setUp();
 
-        for (uint256 i; i < configMarkets.length; ++i) {
-            ConfigMarket memory configMarket = configMarkets[i];
+        MarketParams memory configMarket = config.market;
+        MarketParams memory marketParams = MarketParams({
+            collateralToken: configMarket.collateralToken,
+            loanToken: configMarket.loanToken,
+            oracle: address(oracle),
+            irm: address(irm),
+            lltv: configMarket.lltv
+        });
 
-            MarketParams memory marketParams = MarketParams({
-                collateralToken: configMarket.collateralToken,
-                loanToken: configMarket.loanToken,
-                oracle: address(oracle),
-                irm: address(irm),
-                lltv: configMarket.lltv
-            });
+        vm.startPrank(OWNER);
+        if (!morpho.isLltvEnabled(marketParams.lltv)) morpho.enableLltv(marketParams.lltv);
+        morpho.createMarket(marketParams);
+        vm.stopPrank();
 
-            vm.startPrank(OWNER);
-            if (!morpho.isLltvEnabled(configMarket.lltv)) morpho.enableLltv(configMarket.lltv);
-            morpho.createMarket(marketParams);
-            vm.stopPrank();
-
-            allMarketParams.push(marketParams);
-        }
+        allMarketParams.push(marketParams);
     }
 
-    function _fork() internal virtual {
-        string memory rpcUrl = vm.rpcUrl(_network());
-        uint256 forkBlockNumber = CONFIG.getForkBlockNumber();
-
-        forkId = forkBlockNumber == 0 ? vm.createSelectFork(rpcUrl) : vm.createSelectFork(rpcUrl, forkBlockNumber);
-
-        vm.chainId(CONFIG.getChainId());
+    function _setVariables() internal {
+        DAI = config.DAI;
+        USDC = config.USDC;
+        USDT = config.USDT;
+        LINK = config.LINK;
+        WBTC = config.WBTC;
+        WETH = config.WETH;
+        ST_ETH = config.ST_ETH;
+        WST_ETH = config.WST_ETH;
+        CB_ETH = config.CB_ETH;
+        R_ETH = config.R_ETH;
+        S_DAI = config.S_DAI;
+        COMPTROLLER = config.COMPTROLLER;
+        AAVE_V2_POOL = config.AAVE_V2_POOL;
+        AAVE_V3_POOL = config.AAVE_V3_POOL;
+        AAVE_V3_OPTIMIZER = config.AAVE_V3_OPTIMIZER;
+        C_DAI_V2 = config.C_DAI_V2;
+        C_ETH_V2 = config.C_ETH_V2;
+        C_USDC_V2 = config.C_USDC_V2;
+        C_WETH_V3 = config.C_WETH_V3;
     }
 
-    function _label() internal virtual {
-        for (uint256 i; i < allAssets.length; ++i) {
-            address asset = allAssets[i];
-            string memory symbol = ERC20(asset).symbol();
-
-            vm.label(asset, symbol);
-        }
+    function _fork() internal {
+        vm.createSelectFork(getChain(block.chainid).rpcUrl, config.forkBlockNumber);
     }
+
+    // Modifiers.
+
+    // For tests that must be run only on Ethereum.
+    modifier onlyEthereum() {
+        vm.skip(block.chainid != 1);
+        _;
+    }
+
+    // Utils.
 
     function deal(address asset, address recipient, uint256 amount) internal virtual override {
-        if (amount == 0) return;
+        if (asset == WETH) super.deal(WETH, WETH.balance + amount); // Refill WETH in ETH.
 
-        if (asset == WETH) super.deal(WETH, WETH.balance + amount); // Refill wrapped Ether.
+        if (asset == ST_ETH) {
+            if (amount == 0) return;
+
+            deal(recipient, amount);
+
+            vm.prank(recipient);
+            uint256 stEthAmount = IStEth(ST_ETH).submit{value: amount}(address(0));
+
+            vm.assume(stEthAmount != 0);
+
+            return;
+        }
 
         return super.deal(asset, recipient, amount);
     }
 
-    /// @dev Reverts the fork to its initial fork state.
-    function _revert() internal {
-        if (snapshotId < type(uint256).max) vm.revertTo(snapshotId);
-        snapshotId = vm.snapshot();
-    }
-
-    function _assumeNotAsset(address input) internal view {
-        for (uint256 i; i < allAssets.length; ++i) {
-            vm.assume(input != allAssets[i]);
-        }
-    }
-
-    function _randomAsset(uint256 seed) internal view returns (address) {
-        return allAssets[seed % allAssets.length];
-    }
-
     function _randomMarketParams(uint256 seed) internal view returns (MarketParams memory) {
         return allMarketParams[seed % allMarketParams.length];
-    }
-
-    /* PERMIT2 ACTIONS */
-
-    function _approve2(uint256 privateKey, address asset, uint256 amount, uint256 nonce, bool skipRevert)
-        internal
-        view
-        returns (bytes memory)
-    {
-        IAllowanceTransfer.PermitSingle memory permitSingle = IAllowanceTransfer.PermitSingle({
-            details: IAllowanceTransfer.PermitDetails({
-                token: asset,
-                amount: uint160(amount),
-                expiration: type(uint48).max,
-                nonce: uint48(nonce)
-            }),
-            spender: address(bundler),
-            sigDeadline: SIGNATURE_DEADLINE
-        });
-
-        bytes32 digest = SigUtils.toTypedDataHash(Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(), permitSingle);
-
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, digest);
-
-        return abi.encodeCall(Permit2Bundler.approve2, (permitSingle, abi.encodePacked(r, s, v), skipRevert));
-    }
-
-    function _transferFrom2(address asset, uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(Permit2Bundler.transferFrom2, (asset, amount));
-    }
-
-    /* wstETH ACTIONS */
-
-    function _wrapStEth(uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(StEthBundler.wrapStEth, (amount));
-    }
-
-    function _unwrapStEth(uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(StEthBundler.unwrapStEth, (amount));
-    }
-
-    /* WRAPPED NATIVE ACTIONS */
-
-    function _wrapNative(uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(WNativeBundler.wrapNative, (amount));
-    }
-
-    function _unwrapNative(uint256 amount) internal pure returns (bytes memory) {
-        return abi.encodeCall(WNativeBundler.unwrapNative, (amount));
     }
 }

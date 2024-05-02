@@ -5,7 +5,19 @@ import {Authorization as AaveV3OptimizerAuthorization} from "../../../../src/mig
 
 import "../../../../src/migration/AaveV3OptimizerMigrationBundlerV2.sol";
 
-import "./helpers/EthereumMigrationTest.sol";
+import {
+    EthereumMigrationTest,
+    SafeTransferLib,
+    MarketParamsLib,
+    MorphoLib,
+    MorphoBalancesLib,
+    MarketParams,
+    IMorpho,
+    SigUtils,
+    SIGNATURE_DEADLINE,
+    MIN_AMOUNT,
+    MAX_AMOUNT
+} from "./helpers/EthereumMigrationTest.sol";
 
 contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
     using SafeTransferLib for ERC20;

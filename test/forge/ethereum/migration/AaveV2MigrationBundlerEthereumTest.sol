@@ -30,28 +30,28 @@ contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
         bundler = new AaveV2MigrationBundlerV2(address(morpho), AAVE_V2_POOL, WST_ETH);
     }
 
-    function testAaveV2RepayUninitiated(uint256 amount) public {
+    function testAaveV2RepayUninitiated(uint256 amount) public onlyEthereum {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
         AaveV2MigrationBundlerV2(address(bundler)).aaveV2Repay(marketParams.loanToken, amount, 1);
     }
 
-    function testAaveV2WithdrawUninitiated(uint256 amount) public {
+    function testAaveV2WithdrawUninitiated(uint256 amount) public onlyEthereum {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
         AaveV2MigrationBundlerV2(address(bundler)).aaveV2Withdraw(marketParams.loanToken, amount);
     }
 
-    function testAaveV2RepayZeroAmount() public {
+    function testAaveV2RepayZeroAmount() public onlyEthereum {
         bundle.push(_aaveV2Repay(marketParams.loanToken, 0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(bundle);
     }
 
-    function testMigrateBorrowerWithPermit2(uint256 privateKey) public {
+    function testMigrateBorrowerWithPermit2(uint256 privateKey) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
 
@@ -88,7 +88,7 @@ contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
     }
 
-    function testMigrateBorrowerDaiToSDaiWithPermit2(uint256 privateKey) public {
+    function testMigrateBorrowerDaiToSDaiWithPermit2(uint256 privateKey) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
 
@@ -129,7 +129,7 @@ contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
         _assertBorrowerPosition(sDaiAmount, borrowed, user, address(bundler));
     }
 
-    function testMigrateStEthPositionWithPermit2(uint256 privateKey) public {
+    function testMigrateStEthPositionWithPermit2(uint256 privateKey) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
 
@@ -175,7 +175,7 @@ contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
         _assertBorrowerPosition(wstEthAmount, borrowed, user, address(bundler));
     }
 
-    function testMigrateSupplierWithPermit2(uint256 privateKey, uint256 supplied) public {
+    function testMigrateSupplierWithPermit2(uint256 privateKey, uint256 supplied) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
@@ -204,7 +204,7 @@ contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
         _assertSupplierPosition(supplied, user, address(bundler));
     }
 
-    function testMigrateSupplierToVaultWithPermit2(uint256 privateKey, uint256 supplied) public {
+    function testMigrateSupplierToVaultWithPermit2(uint256 privateKey, uint256 supplied) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);

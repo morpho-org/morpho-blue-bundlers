@@ -4,10 +4,9 @@ pragma solidity ^0.8.0;
 import {ErrorsLib} from "../../../src/libraries/ErrorsLib.sol";
 
 import "../../../src/mocks/bundlers/WNativeBundlerMock.sol";
+import "../helpers/ForkTest.sol";
 
-import "./helpers/EthereumTest.sol";
-
-contract WNativeBundlerEthereumTest is EthereumTest {
+contract WNativeBundlerTest is ForkTest {
     function setUp() public override {
         super.setUp();
 

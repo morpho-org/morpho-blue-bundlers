@@ -26,21 +26,21 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         enteredMarkets.push(C_DAI_V2);
     }
 
-    function testCompoundV2RepayUninitiated(uint256 amount) public {
+    function testCompoundV2RepayUninitiated(uint256 amount) public onlyEthereum {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
         CompoundV2MigrationBundlerV2(payable(address(bundler))).compoundV2Repay(C_DAI_V2, amount);
     }
 
-    function testCompoundV2RepayCEthZeroAmount() public {
+    function testCompoundV2RepayCEthZeroAmount() public onlyEthereum {
         bundle.push(_compoundV2Repay(C_ETH_V2, 0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(bundle);
     }
 
-    function testMigrateBorrowerWithPermit2(uint256 privateKey) public {
+    function testMigrateBorrowerWithPermit2(uint256 privateKey) public onlyEthereum {
         uint256 collateral = 10_000 ether;
         uint256 borrowed = 1 ether;
 
@@ -82,7 +82,7 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         _assertBorrowerPosition(collateral, borrowed, user, address(bundler));
     }
 
-    function testMigrateSupplierWithPermit2(uint256 privateKey, uint256 supplied) public {
+    function testMigrateSupplierWithPermit2(uint256 privateKey, uint256 supplied) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 0.1 ether, 100 ether);
@@ -110,7 +110,7 @@ contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest 
         _assertSupplierPosition(supplied, user, address(bundler));
     }
 
-    function testMigrateSupplierToVaultWithPermit2(uint256 privateKey, uint256 supplied) public {
+    function testMigrateSupplierToVaultWithPermit2(uint256 privateKey, uint256 supplied) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 0.1 ether, 100 ether);

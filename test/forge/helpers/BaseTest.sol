@@ -8,9 +8,13 @@ import {
     Authorization as MorphoBlueAuthorization,
     Signature as MorphoBlueSignature
 } from "../../../lib/morpho-blue/src/interfaces/IMorpho.sol";
+import {IAllowanceTransfer} from "../../../lib/permit2/src/interfaces/IAllowanceTransfer.sol";
 import {IPublicAllocatorBase} from "../../../lib/public-allocator/src/interfaces/IPublicAllocator.sol";
+import {IStEth} from "../../../src/interfaces/IStEth.sol";
+import {IWstEth} from "../../../src/interfaces/IWStEth.sol";
 
 import {SigUtils} from "./SigUtils.sol";
+import {Permit2Lib} from "../../../lib/permit2/src/libraries/Permit2Lib.sol";
 import {MarketParamsLib} from "../../../lib/morpho-blue/src/libraries/MarketParamsLib.sol";
 import {SharesMathLib} from "../../../lib/morpho-blue/src/libraries/SharesMathLib.sol";
 import {MathLib, WAD} from "../../../lib/morpho-blue/src/libraries/MathLib.sol";
@@ -27,6 +31,9 @@ import {
 import {IrmMock} from "../../../lib/morpho-blue/src/mocks/IrmMock.sol";
 import {OracleMock} from "../../../lib/morpho-blue/src/mocks/OracleMock.sol";
 
+import {StEthBundler} from "../../../src/StEthBundler.sol";
+import {Permit2Bundler} from "../../../src/Permit2Bundler.sol";
+import {WNativeBundler} from "../../../src/WNativeBundler.sol";
 import {BaseBundler} from "../../../src/BaseBundler.sol";
 import {TransferBundler} from "../../../src/TransferBundler.sol";
 import {ERC4626Bundler} from "../../../src/ERC4626Bundler.sol";
@@ -35,7 +42,6 @@ import {MorphoBundler, Withdrawal} from "../../../src/MorphoBundler.sol";
 import {ERC20WrapperBundler} from "../../../src/ERC20WrapperBundler.sol";
 
 import "../../../lib/forge-std/src/Test.sol";
-import "../../../lib/forge-std/src/console2.sol";
 
 uint256 constant MIN_AMOUNT = 1000;
 uint256 constant MAX_AMOUNT = 2 ** 64; // Must be less than or equal to type(uint160).max.
@@ -167,6 +173,55 @@ abstract contract BaseTest is Test {
         bool skipRevert
     ) internal pure returns (bytes memory) {
         return abi.encodeCall(UrdBundler.urdClaim, (distributor, account, reward, amount, proof, skipRevert));
+    }
+
+    /* PERMIT2 ACTIONS */
+
+    function _approve2(uint256 privateKey, address asset, uint256 amount, uint256 nonce, bool skipRevert)
+        internal
+        view
+        returns (bytes memory)
+    {
+        IAllowanceTransfer.PermitSingle memory permitSingle = IAllowanceTransfer.PermitSingle({
+            details: IAllowanceTransfer.PermitDetails({
+                token: asset,
+                amount: uint160(amount),
+                expiration: type(uint48).max,
+                nonce: uint48(nonce)
+            }),
+            spender: address(bundler),
+            sigDeadline: SIGNATURE_DEADLINE
+        });
+
+        bytes32 digest = SigUtils.toTypedDataHash(Permit2Lib.PERMIT2.DOMAIN_SEPARATOR(), permitSingle);
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, digest);
+
+        return abi.encodeCall(Permit2Bundler.approve2, (permitSingle, abi.encodePacked(r, s, v), skipRevert));
+    }
+
+    function _transferFrom2(address asset, uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(Permit2Bundler.transferFrom2, (asset, amount));
+    }
+
+    /* wstETH ACTIONS */
+
+    function _wrapStEth(uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(StEthBundler.wrapStEth, (amount));
+    }
+
+    function _unwrapStEth(uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(StEthBundler.unwrapStEth, (amount));
+    }
+
+    /* WRAPPED NATIVE ACTIONS */
+
+    function _wrapNative(uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(WNativeBundler.wrapNative, (amount));
+    }
+
+    function _unwrapNative(uint256 amount) internal pure returns (bytes memory) {
+        return abi.encodeCall(WNativeBundler.unwrapNative, (amount));
     }
 
     /* MORPHO ACTIONS */
