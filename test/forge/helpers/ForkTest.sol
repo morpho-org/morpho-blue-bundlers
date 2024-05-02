@@ -96,6 +96,8 @@ abstract contract ForkTest is BaseTest {
     // Utils.
 
     function deal(address asset, address recipient, uint256 amount) internal virtual override {
+        if (amount == 0) return;
+
         if (asset == WETH) super.deal(WETH, WETH.balance + amount); // Refill WETH in ETH.
 
         if (asset == ST_ETH) {
