@@ -18,7 +18,6 @@ abstract contract ForkTest is BaseTest, Configured {
     using ConfigLib for Config;
     using SafeTransferLib for ERC20;
 
-    string internal network;
     uint256 internal forkId;
 
     uint256 internal snapshotId = type(uint256).max;
@@ -26,7 +25,6 @@ abstract contract ForkTest is BaseTest, Configured {
     MarketParams[] allMarketParams;
 
     function setUp() public virtual override {
-        _initConfig();
         _loadConfig();
 
         _fork();
@@ -55,7 +53,7 @@ abstract contract ForkTest is BaseTest, Configured {
     }
 
     function _fork() internal virtual {
-        string memory rpcUrl = vm.rpcUrl(_network());
+        string memory rpcUrl = vm.rpcUrl(network);
         uint256 forkBlockNumber = CONFIG.getForkBlockNumber();
 
         forkId = forkBlockNumber == 0 ? vm.createSelectFork(rpcUrl) : vm.createSelectFork(rpcUrl, forkBlockNumber);

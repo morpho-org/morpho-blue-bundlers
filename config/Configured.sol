@@ -5,6 +5,8 @@ import {Config, ConfigMarket, ConfigLib} from "./ConfigLib.sol";
 
 import {StdChains, VmSafe} from "../lib/forge-std/src/StdChains.sol";
 
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+
 abstract contract Configured is StdChains {
     using ConfigLib for Config;
 
@@ -19,6 +21,10 @@ abstract contract Configured is StdChains {
     address internal WBTC;
     address internal WETH;
     address internal WNATIVE;
+    address internal ST_ETH;
+    address internal WST_ETH;
+    address internal CB_ETH;
+    address internal S_DAI;
     address[] internal allAssets;
 
     address internal AAVE_V2_POOL;
@@ -32,20 +38,27 @@ abstract contract Configured is StdChains {
 
     ConfigMarket[] internal configMarkets;
 
-    function _network() internal view virtual returns (string memory);
+    string internal network;
 
-    function _initConfig() internal returns (Config storage) {
+    function _loadConfig() internal virtual {
+        if (block.chainid == 0) {
+            revert("chain id must be specified (`--chain <chainid>`)");
+        } else if (block.chainid == 1) {
+            network = "ethereum";
+        } else if (block.chainid == 8453) {
+            network = "base";
+        } else {
+            revert(string.concat("no config for chain ", Strings.toString(block.chainid)));
+        }
+
+        // Fetch config.
         if (bytes(CONFIG.json).length == 0) {
             string memory root = vm.projectRoot();
-            string memory path = string.concat(root, "/config/", _network(), ".json");
+            string memory path = string.concat(root, "/config/", network, ".json");
 
             CONFIG.json = vm.readFile(path);
         }
 
-        return CONFIG;
-    }
-
-    function _loadConfig() internal virtual {
         DAI = CONFIG.getAddress("DAI");
         USDC = CONFIG.getAddress("USDC");
         USDT = CONFIG.getAddress("USDT");
@@ -53,8 +66,12 @@ abstract contract Configured is StdChains {
         WBTC = CONFIG.getAddress("WBTC");
         WETH = CONFIG.getAddress("WETH");
         WNATIVE = CONFIG.getWrappedNative();
+        ST_ETH = CONFIG.getAddress("stETH");
+        WST_ETH = CONFIG.getAddress("wstETH");
+        CB_ETH = CONFIG.getAddress("cbETH");
+        S_DAI = CONFIG.getAddress("sDai");
 
-        allAssets = [DAI, USDC, USDT, LINK, WBTC, WETH];
+        allAssets = [DAI, USDC, USDT, LINK, WBTC, WETH, ST_ETH, WST_ETH, CB_ETH, S_DAI];
 
         ConfigMarket[] memory allConfigMarkets = CONFIG.getMarkets();
         for (uint256 i; i < allConfigMarkets.length; ++i) {
