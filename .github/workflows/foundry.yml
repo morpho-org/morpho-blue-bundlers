@@ -102,7 +102,7 @@ jobs:
 
       - uses: ./.github/actions/install-cache
 
-      - name: Run local tests in ${{ matrix.type }} mode
+      - name: Run local tests on chain ${{ matrix.chain }} in ${{ matrix.type }} mode
         run: yarn test:forge:local --chain ${{ matrix.chain }}
         env:
           FOUNDRY_FUZZ_RUNS: ${{ matrix.fuzz-runs }}
@@ -144,7 +144,7 @@ jobs:
 
       - uses: ./.github/actions/install-cache
 
-      - name: Run ethereum tests in ${{ matrix.type }} mode
+      - name: Run fork tests on chain ${{ matrix.chain }} in ${{ matrix.type }} mode
         run: yarn test:forge:ethereum --chain ${{ matrix.chain }}
         env:
           ALCHEMY_KEY: ${{ secrets.ALCHEMY_KEY }}
