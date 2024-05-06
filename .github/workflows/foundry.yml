@@ -76,6 +76,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
+        chain: [1, 8453]
         type: ["slow", "fast"]
         include:
           - type: "slow"
@@ -102,7 +103,7 @@ jobs:
       - uses: ./.github/actions/install-cache
 
       - name: Run local tests in ${{ matrix.type }} mode
-        run: yarn test:forge:local --chain 1
+        run: yarn test:forge:local --chain ${{ matrix.chain }}
         env:
           FOUNDRY_FUZZ_RUNS: ${{ matrix.fuzz-runs }}
           FOUNDRY_FUZZ_MAX_TEST_REJECTS: ${{ matrix.max-test-rejects }}
@@ -117,6 +118,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
+        chain: [1, 8453]
         type: ["slow", "fast"]
         include:
           - type: "slow"
@@ -143,7 +145,7 @@ jobs:
       - uses: ./.github/actions/install-cache
 
       - name: Run ethereum tests in ${{ matrix.type }} mode
-        run: yarn test:forge:ethereum --chain 1
+        run: yarn test:forge:ethereum --chain ${{ matrix.chain }}
         env:
           ALCHEMY_KEY: ${{ secrets.ALCHEMY_KEY }}
           FOUNDRY_FUZZ_RUNS: ${{ matrix.fuzz-runs }}
