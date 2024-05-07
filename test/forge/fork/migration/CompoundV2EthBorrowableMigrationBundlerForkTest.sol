@@ -5,9 +5,9 @@ import {IComptroller} from "../../../../src/migration/interfaces/IComptroller.so
 
 import "../../../../src/migration/CompoundV2MigrationBundlerV2.sol";
 
-import "./helpers/EthereumMigrationTest.sol";
+import "./helpers/MigrationForkTest.sol";
 
-contract CompoundV2EthLoanMigrationBundlerEthereumTest is EthereumMigrationTest {
+contract CompoundV2EthLoanMigrationBundlerEthereumTest is MigrationForkTest {
     using MathLib for uint256;
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;

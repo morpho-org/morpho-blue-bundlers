@@ -16,7 +16,7 @@ import {ERC4626Bundler} from "../../../../../src/ERC4626Bundler.sol";
 import {MorphoBundler} from "../../../../../src/MorphoBundler.sol";
 import {ERC4626Mock} from "../../../../../src/mocks/ERC4626Mock.sol";
 
-contract EthereumMigrationTest is ForkTest {
+contract MigrationForkTest is ForkTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;

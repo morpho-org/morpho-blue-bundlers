@@ -7,9 +7,9 @@ import {IAaveV3} from "../../../../src/migration/interfaces/IAaveV3.sol";
 import {SigUtils, Permit} from "../../helpers/SigUtils.sol";
 import "../../../../src/migration/AaveV3MigrationBundlerV2.sol";
 
-import "./helpers/EthereumMigrationTest.sol";
+import "./helpers/MigrationForkTest.sol";
 
-contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
+contract AaveV3MigrationBundlerEthereumTest is MigrationForkTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;

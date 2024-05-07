@@ -7,9 +7,9 @@ import {IERC4626} from "../../../../lib/openzeppelin-contracts/contracts/interfa
 
 import "../../../../src/migration/AaveV2MigrationBundlerV2.sol";
 
-import "./helpers/EthereumMigrationTest.sol";
+import "./helpers/MigrationForkTest.sol";
 
-contract AaveV2MigrationBundlerEthereumTest is EthereumMigrationTest {
+contract AaveV2MigrationBundlerEthereumTest is MigrationForkTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;

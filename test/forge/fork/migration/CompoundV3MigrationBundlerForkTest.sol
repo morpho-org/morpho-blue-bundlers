@@ -5,9 +5,9 @@ import {CompoundV3Authorization} from "../../helpers/SigUtils.sol";
 
 import "../../../../src/migration/CompoundV3MigrationBundlerV2.sol";
 
-import "./helpers/EthereumMigrationTest.sol";
+import "./helpers/MigrationForkTest.sol";
 
-contract CompoundV3MigrationBundlerEthereumTest is EthereumMigrationTest {
+contract CompoundV3MigrationBundlerEthereumTest is MigrationForkTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;
