@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.0;
 
-import {IStEth} from "../../../src/interfaces/IStEth.sol";
-import {IWstEth} from "../../../src/interfaces/IWstEth.sol";
-import {IAllowanceTransfer} from "../../../lib/permit2/src/interfaces/IAllowanceTransfer.sol";
+import {IStEth} from "../../../../src/interfaces/IStEth.sol";
+import {IWstEth} from "../../../../src/interfaces/IWstEth.sol";
+import {IAllowanceTransfer} from "../../../../lib/permit2/src/interfaces/IAllowanceTransfer.sol";
 
-import {Permit2Lib} from "../../../lib/permit2/src/libraries/Permit2Lib.sol";
+import {Permit2Lib} from "../../../../lib/permit2/src/libraries/Permit2Lib.sol";
 
-import {Permit2Bundler} from "../../../src/Permit2Bundler.sol";
-import {WNativeBundler} from "../../../src/WNativeBundler.sol";
-import {StEthBundler} from "../../../src/StEthBundler.sol";
+import {Permit2Bundler} from "../../../../src/Permit2Bundler.sol";
+import {WNativeBundler} from "../../../../src/WNativeBundler.sol";
+import {StEthBundler} from "../../../../src/StEthBundler.sol";
 
-import "../../../config/Configured.sol";
-import "./BaseTest.sol";
+import "../../../../config/Configured.sol";
+import "../../helpers/BaseTest.sol";
 
 abstract contract ForkTest is BaseTest, Configured {
     using ConfigLib for Config;
@@ -77,7 +77,25 @@ abstract contract ForkTest is BaseTest, Configured {
 
         if (asset == WETH) super.deal(WETH, WETH.balance + amount); // Refill wrapped Ether.
 
+        if (asset == ST_ETH) {
+            if (amount == 0) return;
+
+            deal(recipient, amount);
+
+            vm.prank(recipient);
+            uint256 stEthAmount = IStEth(ST_ETH).submit{value: amount}(address(0));
+
+            vm.assume(stEthAmount != 0);
+
+            return;
+        }
+
         return super.deal(asset, recipient, amount);
+    }
+
+    modifier onlyEthereum() {
+        vm.skip(block.chainid != 1);
+        _;
     }
 
     /// @dev Reverts the fork to its initial fork state.

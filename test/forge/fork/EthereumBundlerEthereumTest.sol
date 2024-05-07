@@ -6,9 +6,9 @@ import {IAllowanceTransfer} from "../../../lib/permit2/src/interfaces/IAllowance
 import {EthereumBundlerV2} from "../../../src/ethereum/EthereumBundlerV2.sol";
 import {BaseBundlerV2} from "../../../src/base/BaseBundlerV2.sol";
 
-import "./helpers/EthereumTest.sol";
+import "./helpers/ForkTest.sol";
 
-contract EthereumBundlerEthereumTest is EthereumTest {
+contract EthereumBundlerEthereumTest is ForkTest {
     using MathLib for uint256;
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;

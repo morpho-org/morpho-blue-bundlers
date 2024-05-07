@@ -5,11 +5,11 @@ import {ErrorsLib} from "../../../src/libraries/ErrorsLib.sol";
 
 import "../../../src/mocks/bundlers/Permit2BundlerMock.sol";
 
-import "./helpers/EthereumTest.sol";
+import "./helpers/ForkTest.sol";
 
 error InvalidNonce();
 
-contract Permit2BundlerEthereumTest is EthereumTest {
+contract Permit2BundlerEthereumTest is ForkTest {
     using SafeTransferLib for ERC20;
 
     function setUp() public override {

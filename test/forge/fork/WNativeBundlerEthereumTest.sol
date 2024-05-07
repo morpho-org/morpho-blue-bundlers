@@ -5,9 +5,9 @@ import {ErrorsLib} from "../../../src/libraries/ErrorsLib.sol";
 
 import "../../../src/mocks/bundlers/WNativeBundlerMock.sol";
 
-import "./helpers/EthereumTest.sol";
+import "./helpers/ForkTest.sol";
 
-contract WNativeBundlerEthereumTest is EthereumTest {
+contract WNativeBundlerEthereumTest is ForkTest {
     function setUp() public override {
         super.setUp();
 
