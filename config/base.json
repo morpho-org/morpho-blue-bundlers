@@ -3,8 +3,8 @@
     "forkBlockNumber": 14000000,
     "markets": [
         {
-            "loanToken": "USDC",
-            "collateralToken": "USDC",
+            "loanToken": "WETH",
+            "collateralToken": "WETH",
             "lltv": 800000000000000000
         }
     ],
