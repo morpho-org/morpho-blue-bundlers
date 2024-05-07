@@ -19,7 +19,7 @@ contract EthereumPermitBundlerEthereumTest is EthereumTest {
         bundler = new EthereumPermitBundlerMock();
     }
 
-    function testPermitDai(uint256 privateKey, uint256 expiry) public {
+    function testPermitDai(uint256 privateKey, uint256 expiry) public onlyEthereum {
         expiry = bound(expiry, block.timestamp, type(uint48).max);
         privateKey = bound(privateKey, 1, type(uint160).max);
 
@@ -34,12 +34,12 @@ contract EthereumPermitBundlerEthereumTest is EthereumTest {
         assertEq(ERC20(DAI).allowance(user, address(bundler)), type(uint256).max, "allowance(user, bundler)");
     }
 
-    function testPermitDaiUninitiated() public {
+    function testPermitDaiUninitiated() public onlyEthereum {
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
         EthereumPermitBundlerMock(address(bundler)).permitDai(0, SIGNATURE_DEADLINE, true, 0, 0, 0, true);
     }
 
-    function testPermitDaiRevert(uint256 privateKey, uint256 expiry) public {
+    function testPermitDaiRevert(uint256 privateKey, uint256 expiry) public onlyEthereum {
         expiry = bound(expiry, block.timestamp, type(uint48).max);
         privateKey = bound(privateKey, 1, type(uint160).max);
 

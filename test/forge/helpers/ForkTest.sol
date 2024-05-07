@@ -64,9 +64,11 @@ abstract contract ForkTest is BaseTest, Configured {
     function _label() internal virtual {
         for (uint256 i; i < allAssets.length; ++i) {
             address asset = allAssets[i];
-            string memory symbol = ERC20(asset).symbol();
+            if (asset != address(0)) {
+                string memory symbol = ERC20(asset).symbol();
 
-            vm.label(asset, symbol);
+                vm.label(asset, symbol);
+            }
         }
     }
 

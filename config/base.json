@@ -1,10 +1,10 @@
 {
     "chainId": 8453,
-    "forkBlockNumber": 13000000,
+    "forkBlockNumber": 14000000,
     "markets": [
         {
-            "loanToken": "WETH",
-            "collateralToken": "DAI",
+            "loanToken": "USDC",
+            "collateralToken": "USDC",
             "lltv": 800000000000000000
         }
     ],

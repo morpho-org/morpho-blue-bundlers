@@ -17,6 +17,8 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
     address[] internal enteredMarkets;
 
     function setUp() public override {
+        if (block.chainid != 1) return;
+
         super.setUp();
 
         _initMarket(WETH, DAI);
@@ -26,14 +28,14 @@ contract CompoundV2EthCollateralMigrationBundlerEthereumTest is EthereumMigratio
         enteredMarkets.push(C_ETH_V2);
     }
 
-    function testCompoundV2RepayZeroAmount() public {
+    function testCompoundV2RepayZeroAmount() public onlyEthereum {
         bundle.push(_compoundV2Repay(C_DAI_V2, 0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(bundle);
     }
 
-    function testMigrateBorrowerWithPermit2(uint256 privateKey) public {
+    function testMigrateBorrowerWithPermit2(uint256 privateKey) public onlyEthereum {
         uint256 collateral = 10 ether;
         uint256 borrowed = 1 ether;
 

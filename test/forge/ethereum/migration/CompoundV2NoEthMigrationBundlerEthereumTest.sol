@@ -17,6 +17,8 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
     address[] internal enteredMarkets;
 
     function setUp() public override {
+        if (block.chainid != 1) return;
+
         super.setUp();
 
         _initMarket(DAI, USDC);
@@ -26,14 +28,14 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
         enteredMarkets.push(C_DAI_V2);
     }
 
-    function testCompoundV2RedeemZeroAmount() public {
+    function testCompoundV2RedeemZeroAmount() public onlyEthereum {
         bundle.push(_compoundV2Redeem(C_USDC_V2, 0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(bundle);
     }
 
-    function testMigrateBorrowerWithPermit2(uint256 privateKey) public {
+    function testMigrateBorrowerWithPermit2(uint256 privateKey) public onlyEthereum {
         uint256 collateral = 10 ether;
         uint256 borrowed = 1e6;
 
@@ -73,7 +75,7 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
         _assertBorrowerPosition(collateral, borrowed, user, address(bundler));
     }
 
-    function testMigrateSupplierWithPermit2(uint256 privateKey, uint256 supplied) public {
+    function testMigrateSupplierWithPermit2(uint256 privateKey, uint256 supplied) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
@@ -102,7 +104,7 @@ contract CompoundV2NoEthMigrationBundlerEthereumTest is EthereumMigrationTest {
         _assertSupplierPosition(supplied, user, address(bundler));
     }
 
-    function testMigrateSupplierToVaultWithPermit2(uint256 privateKey, uint256 supplied) public {
+    function testMigrateSupplierToVaultWithPermit2(uint256 privateKey, uint256 supplied) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);

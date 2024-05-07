@@ -45,7 +45,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         bundler.multicall(bundle);
     }
 
-    function testMigrateBorrowerWithATokenPermit(uint256 privateKey) public {
+    function testMigrateBorrowerWithATokenPermit(uint256 privateKey) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
 
@@ -79,7 +79,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
     }
 
-    function testMigrateBorrowerWithPermit2(uint256 privateKey) public {
+    function testMigrateBorrowerWithPermit2(uint256 privateKey) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
 
@@ -116,7 +116,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
     }
 
-    function testMigrateUSDTPositionWithPermit2(uint256 privateKey) public {
+    function testMigrateUSDTPositionWithPermit2(uint256 privateKey) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
 

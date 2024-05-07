@@ -3,7 +3,8 @@ pragma solidity ^0.8.0;
 
 import {IAllowanceTransfer} from "../../../lib/permit2/src/interfaces/IAllowanceTransfer.sol";
 
-import "../../../src/ethereum/EthereumBundlerV2.sol";
+import {EthereumBundlerV2} from "../../../src/ethereum/EthereumBundlerV2.sol";
+import {BaseBundlerV2} from "../../../src/base/BaseBundlerV2.sol";
 
 import "./helpers/EthereumTest.sol";
 
@@ -17,7 +18,11 @@ contract EthereumBundlerEthereumTest is EthereumTest {
     function setUp() public override {
         super.setUp();
 
-        bundler = new EthereumBundlerV2(address(morpho));
+        if (block.chainid == 1) {
+            bundler = new EthereumBundlerV2(address(morpho));
+        } else if (block.chainid == 8453) {
+            bundler = new BaseBundlerV2(address(morpho));
+        }
 
         vm.prank(USER);
         morpho.setAuthorization(address(bundler), true);

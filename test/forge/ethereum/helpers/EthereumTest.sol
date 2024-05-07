@@ -6,6 +6,11 @@ import "../../../../config/Configured.sol";
 import "../../helpers/ForkTest.sol";
 
 contract EthereumTest is Configured, ForkTest {
+    modifier onlyEthereum() {
+        vm.skip(block.chainid != 1);
+        _;
+    }
+
     function deal(address asset, address recipient, uint256 amount) internal virtual override {
         if (asset == ST_ETH) {
             if (amount == 0) return;
