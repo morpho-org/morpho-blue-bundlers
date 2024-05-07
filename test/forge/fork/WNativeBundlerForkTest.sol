@@ -7,7 +7,7 @@ import "../../../src/mocks/bundlers/WNativeBundlerMock.sol";
 
 import "./helpers/ForkTest.sol";
 
-contract WNativeBundlerEthereumTest is ForkTest {
+contract WNativeBundlerForkTest is ForkTest {
     function setUp() public override {
         super.setUp();
 

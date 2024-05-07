@@ -8,7 +8,7 @@ import {BaseBundlerV2} from "../../../src/base/BaseBundlerV2.sol";
 
 import "./helpers/ForkTest.sol";
 
-contract EthereumBundlerEthereumTest is ForkTest {
+contract EthereumBundlerForkTest is ForkTest {
     using MathLib for uint256;
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;

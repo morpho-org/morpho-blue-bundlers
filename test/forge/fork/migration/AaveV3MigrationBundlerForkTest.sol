@@ -9,7 +9,7 @@ import "../../../../src/migration/AaveV3MigrationBundlerV2.sol";
 
 import "./helpers/MigrationForkTest.sol";
 
-contract AaveV3MigrationBundlerEthereumTest is MigrationForkTest {
+contract AaveV3MigrationBundlerForkTest is MigrationForkTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;

@@ -7,7 +7,7 @@ import "../../../../src/migration/CompoundV3MigrationBundlerV2.sol";
 
 import "./helpers/MigrationForkTest.sol";
 
-contract CompoundV3MigrationBundlerEthereumTest is MigrationForkTest {
+contract CompoundV3MigrationBundlerForkTest is MigrationForkTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;

@@ -9,7 +9,7 @@ import "./helpers/ForkTest.sol";
 
 error InvalidNonce();
 
-contract Permit2BundlerEthereumTest is ForkTest {
+contract Permit2BundlerForkTest is ForkTest {
     using SafeTransferLib for ERC20;
 
     function setUp() public override {

@@ -11,7 +11,7 @@ import "./helpers/ForkTest.sol";
 
 bytes32 constant BEACON_BALANCE_POSITION = 0xa66d35f054e68143c18f32c990ed5cb972bb68a68f500cd2dd3a16bbf3686483; // keccak256("lido.Lido.beaconBalance");
 
-contract EthereumStEthBundlerEthereumTest is ForkTest {
+contract EthereumStEthBundlerForkTest is ForkTest {
     using SafeTransferLib for ERC20;
 
     function setUp() public override {

@@ -12,7 +12,7 @@ import "./helpers/ForkTest.sol";
 /// @dev The unique EIP-712 domain domain separator for the DAI token contract on Ethereum.
 bytes32 constant DAI_DOMAIN_SEPARATOR = 0xdbb8cf42e1ecb028be3f3dbc922e1d878b963f411dc388ced501601c60f7c6f7;
 
-contract EthereumPermitBundlerEthereumTest is ForkTest {
+contract EthereumPermitBundlerForkTest is ForkTest {
     function setUp() public override {
         super.setUp();
 
