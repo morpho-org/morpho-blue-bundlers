@@ -3,7 +3,7 @@ pragma solidity 0.8.24;
 
 import {MainnetLib} from "./libraries/MainnetLib.sol";
 
-import {BaseBundler} from "../BaseBundler.sol";
+import {RootBundler} from "../RootBundler.sol";
 import {TransferBundler} from "../TransferBundler.sol";
 import {EthereumPermitBundler} from "./EthereumPermitBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
@@ -36,7 +36,7 @@ contract EthereumBundlerV2 is
     /* INTERNAL */
 
     /// @inheritdoc MorphoBundler
-    function _isSenderAuthorized() internal view override(BaseBundler, MorphoBundler) returns (bool) {
+    function _isSenderAuthorized() internal view override(RootBundler, MorphoBundler) returns (bool) {
         return MorphoBundler._isSenderAuthorized();
     }
 }

@@ -3,13 +3,13 @@ pragma solidity 0.8.24;
 
 import {IERC20Permit} from "../lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Permit.sol";
 
-import {BaseBundler} from "./BaseBundler.sol";
+import {RootBundler} from "./RootBundler.sol";
 
 /// @title PermitBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.xyz
 /// @notice Bundler contract managing interactions with tokens implementing EIP-2612.
-abstract contract PermitBundler is BaseBundler {
+abstract contract PermitBundler is RootBundler {
     /// @notice Permits the given `amount` of `asset` from sender to be spent by the bundler via EIP-2612 Permit with
     /// the given `deadline` & EIP-712 signature's `v`, `r` & `s`.
     /// @param asset The address of the token to be permitted.

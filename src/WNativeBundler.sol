@@ -7,14 +7,14 @@ import {Math} from "../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
 
-import {BaseBundler} from "./BaseBundler.sol";
+import {RootBundler} from "./RootBundler.sol";
 
 /// @title WNativeBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Bundler contract managing interactions with network's wrapped native token.
 /// @notice "wrapped native" refers to forks of WETH.
-abstract contract WNativeBundler is BaseBundler {
+abstract contract WNativeBundler is RootBundler {
     using SafeTransferLib for ERC20;
 
     /* IMMUTABLES */

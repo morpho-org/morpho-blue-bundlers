@@ -8,13 +8,13 @@ import {MarketParams, Signature, Authorization, IMorpho} from "../lib/morpho-blu
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
 
-import {BaseBundler} from "./BaseBundler.sol";
+import {RootBundler} from "./RootBundler.sol";
 
 /// @title MorphoBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Bundler contract managing interactions with Morpho.
-abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
+abstract contract MorphoBundler is RootBundler, IMorphoBundler {
     using SafeTransferLib for ERC20;
 
     /* IMMUTABLES */
@@ -264,7 +264,7 @@ abstract contract MorphoBundler is BaseBundler, IMorphoBundler {
         _multicall(abi.decode(data, (bytes[])));
     }
 
-    /// @inheritdoc BaseBundler
+    /// @inheritdoc RootBundler
     function _isSenderAuthorized() internal view virtual override returns (bool) {
         return super._isSenderAuthorized() || msg.sender == address(MORPHO);
     }

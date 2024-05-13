@@ -7,7 +7,7 @@ import {MorphoBundler} from "../../MorphoBundler.sol";
 contract MorphoBundlerMock is TransferBundler, MorphoBundler {
     constructor(address morpho) MorphoBundler(morpho) {}
 
-    function _isSenderAuthorized() internal view override(BaseBundler, MorphoBundler) returns (bool) {
+    function _isSenderAuthorized() internal view override(RootBundler, MorphoBundler) returns (bool) {
         return MorphoBundler._isSenderAuthorized();
     }
 }

@@ -3,7 +3,7 @@ pragma solidity 0.8.24;
 
 import {GoerliLib} from "./libraries/GoerliLib.sol";
 
-import {BaseBundler} from "../BaseBundler.sol";
+import {RootBundler} from "../RootBundler.sol";
 import {TransferBundler} from "../TransferBundler.sol";
 import {PermitBundler} from "../PermitBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
@@ -36,7 +36,7 @@ contract GoerliBundlerV2 is
     /* INTERNAL */
 
     /// @inheritdoc MorphoBundler
-    function _isSenderAuthorized() internal view override(BaseBundler, MorphoBundler) returns (bool) {
+    function _isSenderAuthorized() internal view override(RootBundler, MorphoBundler) returns (bool) {
         return MorphoBundler._isSenderAuthorized();
     }
 }
