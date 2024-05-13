@@ -3,7 +3,8 @@ pragma solidity ^0.8.0;
 
 import {SigUtils, Permit} from "./helpers/SigUtils.sol";
 
-import "../../src/mocks/bundlers/PermitBundlerMock.sol";
+import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
+import {IERC20Permit} from "openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Permit.sol";
 import {ERC20PermitMock} from "../../src/mocks/ERC20PermitMock.sol";
 
 import "./helpers/LocalTest.sol";
@@ -13,8 +14,6 @@ contract PermitBundlerLocalTest is LocalTest {
 
     function setUp() public override {
         super.setUp();
-
-        bundler = new PermitBundlerMock();
 
         permitToken = new ERC20PermitMock("Permit Token", "PT");
     }
@@ -39,7 +38,7 @@ contract PermitBundlerLocalTest is LocalTest {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        PermitBundlerMock(address(bundler)).permit(address(loanToken), amount, SIGNATURE_DEADLINE, 0, 0, 0, true);
+        PermitBundler(address(bundler)).permit(address(loanToken), amount, SIGNATURE_DEADLINE, 0, 0, 0, true);
     }
 
     function testPermitRevert(uint256 amount, uint256 privateKey, uint256 deadline) public {

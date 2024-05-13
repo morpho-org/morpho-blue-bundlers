@@ -3,20 +3,9 @@ pragma solidity ^0.8.0;
 
 import {ErrorsLib} from "../../../src/libraries/ErrorsLib.sol";
 
-import "../../../src/mocks/bundlers/WNativeBundlerMock.sol";
-
 import "./helpers/ForkTest.sol";
 
 contract WNativeBundlerForkTest is ForkTest {
-    function setUp() public override {
-        super.setUp();
-
-        bundler = new WNativeBundlerMock(WETH);
-
-        vm.prank(USER);
-        ERC20(WETH).approve(address(bundler), type(uint256).max);
-    }
-
     function testWrapZeroAmount() public {
         bundle.push(abi.encodeCall(WNativeBundler.wrapNative, (0)));
 
@@ -46,6 +35,9 @@ contract WNativeBundlerForkTest is ForkTest {
     }
 
     function testUnwrapZeroAmount() public {
+        vm.prank(USER);
+        ERC20(WETH).approve(address(bundler), type(uint256).max);
+
         bundle.push(abi.encodeCall(WNativeBundler.unwrapNative, (0)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
@@ -54,6 +46,9 @@ contract WNativeBundlerForkTest is ForkTest {
     }
 
     function testUnwrapNative(uint256 amount) public {
+        vm.prank(USER);
+        ERC20(WETH).approve(address(bundler), type(uint256).max);
+
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         bundle.push(_erc20TransferFrom(WETH, amount));

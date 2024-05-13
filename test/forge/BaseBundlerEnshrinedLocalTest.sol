@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {BaseBundler} from "src/mocks/bundlers/BaseBundlerMock.sol";
+import {BaseBundler} from "src/BaseBundler.sol";
 
 import "./helpers/LocalTest.sol";
 

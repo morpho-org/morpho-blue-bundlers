@@ -15,19 +15,6 @@ contract EthereumBundlerForkTest is ForkTest {
     using MarketParamsLib for MarketParams;
     using SafeTransferLib for ERC20;
 
-    function setUp() public override {
-        super.setUp();
-
-        if (block.chainid == 1) {
-            bundler = new EthereumBundlerV2(address(morpho));
-        } else if (block.chainid == 8453) {
-            bundler = new BaseBundlerV2(address(morpho));
-        }
-
-        vm.prank(USER);
-        morpho.setAuthorization(address(bundler), true);
-    }
-
     function testSupplyWithPermit2(uint256 seed, uint256 amount, address onBehalf, uint256 privateKey, uint256 deadline)
         public
     {

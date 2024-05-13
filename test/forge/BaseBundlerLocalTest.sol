@@ -3,17 +3,9 @@ pragma solidity ^0.8.0;
 
 import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
 
-import "src/mocks/bundlers/BaseBundlerMock.sol";
-
 import "./helpers/LocalTest.sol";
 
 contract BaseBundlerLocalTest is LocalTest {
-    function setUp() public override {
-        super.setUp();
-
-        bundler = new BaseBundlerMock();
-    }
-
     function testMulticallEmpty() public {
         bundler.multicall(bundle);
     }

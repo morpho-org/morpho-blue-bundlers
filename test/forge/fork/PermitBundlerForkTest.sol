@@ -5,20 +5,14 @@ import {ErrorsLib} from "../../../src/libraries/ErrorsLib.sol";
 
 import {DaiPermit} from "../helpers/SigUtils.sol";
 
-import "../../../src/mocks/bundlers/ethereum/EthereumPermitBundlerMock.sol";
+import "../../../src/ethereum/EthereumPermitBundler.sol";
 
 import "./helpers/ForkTest.sol";
 
 /// @dev The unique EIP-712 domain domain separator for the DAI token contract on Ethereum.
 bytes32 constant DAI_DOMAIN_SEPARATOR = 0xdbb8cf42e1ecb028be3f3dbc922e1d878b963f411dc388ced501601c60f7c6f7;
 
-contract EthereumPermitBundlerForkTest is ForkTest {
-    function setUp() public override {
-        super.setUp();
-
-        bundler = new EthereumPermitBundlerMock();
-    }
-
+contract PermitBundlerForkTest is ForkTest {
     function testPermitDai(uint256 privateKey, uint256 expiry) public onlyEthereum {
         expiry = bound(expiry, block.timestamp, type(uint48).max);
         privateKey = bound(privateKey, 1, type(uint160).max);
@@ -36,7 +30,7 @@ contract EthereumPermitBundlerForkTest is ForkTest {
 
     function testPermitDaiUninitiated() public onlyEthereum {
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        EthereumPermitBundlerMock(address(bundler)).permitDai(0, SIGNATURE_DEADLINE, true, 0, 0, 0, true);
+        EthereumPermitBundler(address(bundler)).permitDai(0, SIGNATURE_DEADLINE, true, 0, 0, 0, true);
     }
 
     function testPermitDaiRevert(uint256 privateKey, uint256 expiry) public onlyEthereum {

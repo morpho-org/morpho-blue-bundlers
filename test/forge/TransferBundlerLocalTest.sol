@@ -3,17 +3,9 @@ pragma solidity ^0.8.0;
 
 import {ErrorsLib} from "../../src/libraries/ErrorsLib.sol";
 
-import "../../src/mocks/bundlers/TransferBundlerMock.sol";
-
 import "./helpers/LocalTest.sol";
 
 contract TransferBundlerLocalTest is LocalTest {
-    function setUp() public override {
-        super.setUp();
-
-        bundler = new TransferBundlerMock();
-    }
-
     function testTransfer(uint256 amount) public {
         amount = bound(amount, 0, MAX_AMOUNT);
 
@@ -96,7 +88,7 @@ contract TransferBundlerLocalTest is LocalTest {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        TransferBundlerMock(address(bundler)).erc20TransferFrom(address(loanToken), amount);
+        TransferBundler(address(bundler)).erc20TransferFrom(address(loanToken), amount);
     }
 
     function testTranferFromZeroAddress(uint256 amount) public {

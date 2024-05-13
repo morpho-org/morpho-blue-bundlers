@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 
 import {ErrorsLib} from "../../src/libraries/ErrorsLib.sol";
 
-import {ERC20WrapperBundlerMock} from "../../src/mocks/bundlers/ERC20WrapperBundlerMock.sol";
 import {ERC20WrapperMock, ERC20Wrapper} from "../../src/mocks/ERC20WrapperMock.sol";
 
 import "./helpers/LocalTest.sol";
@@ -13,8 +12,6 @@ contract ERC20WrapperBundlerBundlerLocalTest is LocalTest {
 
     function setUp() public override {
         super.setUp();
-
-        bundler = new ERC20WrapperBundlerMock();
 
         loanWrapper = new ERC20WrapperMock(loanToken, "Wrapped Loan Token", "WLT");
     }

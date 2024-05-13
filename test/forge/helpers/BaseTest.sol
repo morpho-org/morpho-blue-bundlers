@@ -28,6 +28,7 @@ import {IrmMock} from "../../../lib/morpho-blue/src/mocks/IrmMock.sol";
 import {OracleMock} from "../../../lib/morpho-blue/src/mocks/OracleMock.sol";
 
 import {BaseBundler} from "../../../src/BaseBundler.sol";
+import {PermitBundler} from "../../../src/PermitBundler.sol";
 import {TransferBundler} from "../../../src/TransferBundler.sol";
 import {ERC4626Bundler} from "../../../src/ERC4626Bundler.sol";
 import {UrdBundler} from "../../../src/UrdBundler.sol";
