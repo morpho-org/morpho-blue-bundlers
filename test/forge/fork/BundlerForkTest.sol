@@ -21,7 +21,7 @@ contract EthereumBundlerForkTest is ForkTest {
         if (block.chainid == 1) {
             bundler = new EthereumBundlerV2(address(morpho));
         } else if (block.chainid == 8453) {
-            bundler = new BaseBundlerV2(address(morpho));
+            bundler = new BaseBundlerV2(address(morpho), address(WETH));
         }
 
         vm.prank(USER);

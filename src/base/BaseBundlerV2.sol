@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.24;
 
-import {BaseLib} from "./libraries/BaseLib.sol";
-
 import {BaseBundler} from "../BaseBundler.sol";
 import {TransferBundler} from "../TransferBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
@@ -27,7 +25,7 @@ contract BaseBundlerV2 is
 {
     /* CONSTRUCTOR */
 
-    constructor(address morpho) WNativeBundler(BaseLib.WETH) MorphoBundler(morpho) {}
+    constructor(address morpho, address weth) WNativeBundler(weth) MorphoBundler(morpho) {}
 
     /* INTERNAL */
 
