@@ -23,7 +23,7 @@ contract AaveV3MigrationBundlerForkTest is MigrationForkTest {
     function setUp() public override {
         super.setUp();
 
-        _initMarket(DAI, WETH);
+        _initMarket(WST_ETH, WETH);
 
         vm.label(AAVE_V3_POOL, "Aave V3 Pool");
 
@@ -45,7 +45,7 @@ contract AaveV3MigrationBundlerForkTest is MigrationForkTest {
         bundler.multicall(bundle);
     }
 
-    function testMigrateBorrowerWithATokenPermit(uint256 privateKey) public onlyEthereum {
+    function testMigrateBorrowerWithATokenPermit(uint256 privateKey) public {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
 
@@ -79,7 +79,7 @@ contract AaveV3MigrationBundlerForkTest is MigrationForkTest {
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
     }
 
-    function testMigrateBorrowerWithPermit2(uint256 privateKey) public onlyEthereum {
+    function testMigrateBorrowerWithPermit2(uint256 privateKey) public {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
 
