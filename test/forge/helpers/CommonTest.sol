@@ -41,7 +41,7 @@ uint256 constant MIN_AMOUNT = 1000;
 uint256 constant MAX_AMOUNT = 2 ** 64; // Must be less than or equal to type(uint160).max.
 uint256 constant SIGNATURE_DEADLINE = type(uint32).max;
 
-abstract contract BaseTest is Test {
+abstract contract CommonTest is Test {
     using MathLib for uint256;
     using SharesMathLib for uint256;
     using MarketParamsLib for MarketParams;
