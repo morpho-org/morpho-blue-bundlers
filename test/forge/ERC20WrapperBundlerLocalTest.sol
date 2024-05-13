@@ -7,11 +7,15 @@ import {ERC20WrapperMock, ERC20Wrapper} from "../../src/mocks/ERC20WrapperMock.s
 
 import "./helpers/LocalTest.sol";
 
+contract ERC20WrapperBundlerMock is ERC20WrapperBundler, TransferBundler {}
+
 contract ERC20WrapperBundlerBundlerLocalTest is LocalTest {
     ERC20WrapperMock internal loanWrapper;
 
     function setUp() public override {
         super.setUp();
+
+        bundler = new ERC20WrapperBundlerMock();
 
         loanWrapper = new ERC20WrapperMock(loanToken, "Wrapped Loan Token", "WLT");
     }

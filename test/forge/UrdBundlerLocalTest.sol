@@ -15,6 +15,8 @@ interface IUrdFactory {
     function createUrd(address, uint256, bytes32, bytes32, bytes32) external returns (address);
 }
 
+contract UrdBundlerMock is UrdBundler {}
+
 contract UrdBundlerLocalTest is LocalTest {
     IUrdFactory internal urdFactory;
     Merkle internal merkle;
@@ -23,6 +25,8 @@ contract UrdBundlerLocalTest is LocalTest {
 
     function setUp() public override {
         super.setUp();
+
+        bundler = new UrdBundlerMock();
 
         urdFactory = IUrdFactory(deployCode("UrdFactory.sol", ""));
         vm.label(address(urdFactory), "UrdFactory");

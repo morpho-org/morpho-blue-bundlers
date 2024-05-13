@@ -5,12 +5,24 @@ import {IAllowanceTransfer} from "../../../lib/permit2/src/interfaces/IAllowance
 
 import {ErrorsLib} from "../../../src/libraries/ErrorsLib.sol";
 
+import "../../../src/ethereum/EthereumStEthBundler.sol";
+
 import "./helpers/ForkTest.sol";
 
 bytes32 constant BEACON_BALANCE_POSITION = 0xa66d35f054e68143c18f32c990ed5cb972bb68a68f500cd2dd3a16bbf3686483; // keccak256("lido.Lido.beaconBalance");
 
+contract EthereumStEthBundlerMock is TransferBundler, Permit2Bundler, EthereumStEthBundler {}
+
 contract EthereumStEthBundlerForkTest is ForkTest {
     using SafeTransferLib for ERC20;
+
+    function setUp() public override {
+        if (block.chainid != 1) return;
+
+        super.setUp();
+
+        bundler = new EthereumStEthBundlerMock();
+    }
 
     function testStakeEthZeroAmount() public onlyEthereum {
         bundle.push(abi.encodeCall(StEthBundler.stakeEth, (0, 0, address(0))));

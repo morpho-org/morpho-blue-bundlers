@@ -5,7 +5,15 @@ import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
 
 import "./helpers/LocalTest.sol";
 
+contract BaseBundlerMock is BaseBundler {}
+
 contract BaseBundlerLocalTest is LocalTest {
+    function setUp() public override {
+        super.setUp();
+
+        bundler = new BaseBundlerMock();
+    }
+
     function testMulticallEmpty() public {
         bundler.multicall(bundle);
     }
