@@ -6,13 +6,13 @@ import {IUniversalRewardsDistributor} from
 
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 
-import {RootBundler} from "./RootBundler.sol";
+import {CoreBundler} from "./CoreBundler.sol";
 
 /// @title UrdBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.xyz
 /// @notice Bundler that allows to claim token rewards on the Universal Rewards Distributor.
-abstract contract UrdBundler is RootBundler {
+abstract contract UrdBundler is CoreBundler {
     /// @notice Claims `amount` of `reward` on behalf of `account` on the given rewards distributor, using `proof`.
     /// @dev Assumes the given distributor implements IUniversalRewardsDistributor.
     /// @param distributor The address of the reward distributor contract.

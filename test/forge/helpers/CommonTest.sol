@@ -27,7 +27,7 @@ import {
 import {IrmMock} from "../../../lib/morpho-blue/src/mocks/IrmMock.sol";
 import {OracleMock} from "../../../lib/morpho-blue/src/mocks/OracleMock.sol";
 
-import {RootBundler} from "../../../src/RootBundler.sol";
+import {CoreBundler} from "../../../src/CoreBundler.sol";
 import {TransferBundler} from "../../../src/TransferBundler.sol";
 import {ERC4626Bundler} from "../../../src/ERC4626Bundler.sol";
 import {UrdBundler} from "../../../src/UrdBundler.sol";
@@ -58,7 +58,7 @@ abstract contract CommonTest is Test {
     IrmMock internal irm;
     OracleMock internal oracle;
 
-    RootBundler internal bundler;
+    CoreBundler internal bundler;
 
     bytes[] internal bundle;
     bytes[] internal callbackBundle;

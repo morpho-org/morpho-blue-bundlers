@@ -9,13 +9,13 @@ import {Permit2Lib} from "../lib/permit2/src/libraries/Permit2Lib.sol";
 import {SafeCast160} from "../lib/permit2/src/libraries/SafeCast160.sol";
 import {ERC20} from "../lib/solmate/src/tokens/ERC20.sol";
 
-import {RootBundler} from "./RootBundler.sol";
+import {CoreBundler} from "./CoreBundler.sol";
 
 /// @title Permit2Bundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.xyz
 /// @notice Bundler contract managing interactions with Uniswap's Permit2.
-abstract contract Permit2Bundler is RootBundler {
+abstract contract Permit2Bundler is CoreBundler {
     using SafeCast160 for uint256;
 
     /* ACTIONS */

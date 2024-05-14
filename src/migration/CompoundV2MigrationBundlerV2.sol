@@ -7,7 +7,7 @@ import {ICToken} from "./interfaces/ICToken.sol";
 import {Math} from "../../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 
-import {RootBundler} from "../RootBundler.sol";
+import {CoreBundler} from "../CoreBundler.sol";
 import {WNativeBundler} from "../WNativeBundler.sol";
 import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 
@@ -80,7 +80,7 @@ contract CompoundV2MigrationBundlerV2 is WNativeBundler, MigrationBundler {
     /* INTERNAL */
 
     /// @inheritdoc MigrationBundler
-    function _isSenderAuthorized() internal view override(RootBundler, MigrationBundler) returns (bool) {
+    function _isSenderAuthorized() internal view override(CoreBundler, MigrationBundler) returns (bool) {
         return MigrationBundler._isSenderAuthorized();
     }
 }

@@ -9,7 +9,7 @@ import {Market} from "../../../../../lib/morpho-blue/src/interfaces/IMorpho.sol"
 import {MorphoBalancesLib} from "../../../../../lib/morpho-blue/src/libraries/periphery/MorphoBalancesLib.sol";
 
 import "../../helpers/ForkTest.sol";
-import {RootBundler} from "../../../../../src/RootBundler.sol";
+import {CoreBundler} from "../../../../../src/CoreBundler.sol";
 import {PermitBundler} from "../../../../../src/PermitBundler.sol";
 import {Permit2Bundler} from "../../../../../src/Permit2Bundler.sol";
 import {ERC4626Bundler} from "../../../../../src/ERC4626Bundler.sol";

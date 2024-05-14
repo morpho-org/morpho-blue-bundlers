@@ -7,13 +7,13 @@ import {Math} from "../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
 
-import {RootBundler} from "./RootBundler.sol";
+import {CoreBundler} from "./CoreBundler.sol";
 
 /// @title ERC4626Bundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Bundler contract managing interactions with ERC4626 compliant tokens.
-abstract contract ERC4626Bundler is RootBundler {
+abstract contract ERC4626Bundler is CoreBundler {
     using SafeTransferLib for ERC20;
 
     /* ACTIONS */
