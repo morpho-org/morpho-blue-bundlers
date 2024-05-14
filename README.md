@@ -16,7 +16,10 @@ User-end bundlers are provided in each chain-specific folder, instanciating all 
 
 Install dependencies with `yarn`.
 
-The first time running the tests with `yarn test:forge` will build Morpho Blue.
+Run tests with `yarn test:forge`.
+
+Note that the `EthereumBundlerV2` has been deployed with 80 000 optimizer runs.
+To compile contracts with the same configuration, run `FOUNDRY_PROFILE=ethereumBundlerV2 forge b`.
 
 ## Audits
 
