@@ -14,9 +14,9 @@ import {EthereumBundlerV2} from "../../../../src/ethereum/EthereumBundlerV2.sol"
 import {BaseBundlerV2} from "../../../../src/base/BaseBundlerV2.sol";
 
 import "../../../../config/Configured.sol";
-import "../../helpers/BaseTest.sol";
+import "../../helpers/CommonTest.sol";
 
-abstract contract ForkTest is BaseTest, Configured {
+abstract contract ForkTest is CommonTest, Configured {
     using ConfigLib for Config;
     using SafeTransferLib for ERC20;
 
@@ -37,7 +37,7 @@ abstract contract ForkTest is BaseTest, Configured {
         if (block.chainid == 1) {
             bundler = new EthereumBundlerV2(address(morpho));
         } else if (block.chainid == 8453) {
-            bundler = new BaseBundlerV2(address(morpho));
+            bundler = new BaseBundlerV2(address(morpho), address(WETH));
         }
 
         for (uint256 i; i < configMarkets.length; ++i) {

@@ -28,7 +28,7 @@ import {IrmMock} from "../../../lib/morpho-blue/src/mocks/IrmMock.sol";
 import {OracleMock} from "../../../lib/morpho-blue/src/mocks/OracleMock.sol";
 import {WETH} from "../../../lib/solmate/src/tokens/WETH.sol";
 
-import {BaseBundler} from "../../../src/BaseBundler.sol";
+import {CoreBundler} from "../../../src/CoreBundler.sol";
 import {PermitBundler} from "../../../src/PermitBundler.sol";
 import {TransferBundler} from "../../../src/TransferBundler.sol";
 import {ERC4626Bundler} from "../../../src/ERC4626Bundler.sol";
@@ -44,7 +44,7 @@ uint256 constant MIN_AMOUNT = 1000;
 uint256 constant MAX_AMOUNT = 2 ** 64; // Must be less than or equal to type(uint160).max.
 uint256 constant SIGNATURE_DEADLINE = type(uint32).max;
 
-abstract contract BaseTest is Test {
+abstract contract CommonTest is Test {
     using MathLib for uint256;
     using SharesMathLib for uint256;
     using MarketParamsLib for MarketParams;
@@ -61,7 +61,7 @@ abstract contract BaseTest is Test {
     IrmMock internal irm;
     OracleMock internal oracle;
 
-    BaseBundler internal bundler;
+    CoreBundler internal bundler;
 
     bytes[] internal bundle;
     bytes[] internal callbackBundle;

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {BaseBundler} from "../../src/BaseBundler.sol";
+import {CoreBundler} from "../../src/CoreBundler.sol";
 
 import "./helpers/LocalTest.sol";
 
-contract BaseBundlerEnshrinedLocalTest is BaseBundler, LocalTest {
+contract CoreBundlerEnshrinedLocalTest is CoreBundler, LocalTest {
     function checkInitiator(address expectedInitiator) public payable protected {
         require(initiator() == expectedInitiator, "unexpected initiator");
     }

@@ -6,7 +6,7 @@ import {IAaveV2} from "./interfaces/IAaveV2.sol";
 import {Math} from "../../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "../libraries/ErrorsLib.sol";
 
-import {BaseBundler} from "../BaseBundler.sol";
+import {CoreBundler} from "../CoreBundler.sol";
 import {StEthBundler} from "../StEthBundler.sol";
 import {MigrationBundler, ERC20} from "./MigrationBundler.sol";
 
@@ -62,7 +62,7 @@ contract AaveV2MigrationBundlerV2 is MigrationBundler, StEthBundler {
     /* INTERNAL */
 
     /// @inheritdoc MigrationBundler
-    function _isSenderAuthorized() internal view virtual override(BaseBundler, MigrationBundler) returns (bool) {
+    function _isSenderAuthorized() internal view virtual override(CoreBundler, MigrationBundler) returns (bool) {
         return MigrationBundler._isSenderAuthorized();
     }
 }

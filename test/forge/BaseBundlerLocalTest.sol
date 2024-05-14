@@ -5,13 +5,13 @@ import {ErrorsLib} from "../../src/libraries/ErrorsLib.sol";
 
 import "./helpers/LocalTest.sol";
 
-contract BaseBundlerLocalTest is LocalTest {
+contract CoreBundlerLocalTest is LocalTest {
     function testMulticallEmpty() public {
         bundler.multicall(bundle);
     }
 
     function testNestedMulticall() public {
-        bundle.push(abi.encodeCall(BaseBundler.multicall, (callbackBundle)));
+        bundle.push(abi.encodeCall(CoreBundler.multicall, (callbackBundle)));
 
         vm.expectRevert(bytes(ErrorsLib.ALREADY_INITIATED));
         bundler.multicall(bundle);
