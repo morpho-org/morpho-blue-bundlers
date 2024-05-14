@@ -26,13 +26,16 @@ import {
 
 import {IrmMock} from "../../../lib/morpho-blue/src/mocks/IrmMock.sol";
 import {OracleMock} from "../../../lib/morpho-blue/src/mocks/OracleMock.sol";
+import {WETH} from "../../../lib/solmate/src/tokens/WETH.sol";
 
 import {CoreBundler} from "../../../src/CoreBundler.sol";
+import {PermitBundler} from "../../../src/PermitBundler.sol";
 import {TransferBundler} from "../../../src/TransferBundler.sol";
 import {ERC4626Bundler} from "../../../src/ERC4626Bundler.sol";
 import {UrdBundler} from "../../../src/UrdBundler.sol";
 import {MorphoBundler, Withdrawal} from "../../../src/MorphoBundler.sol";
 import {ERC20WrapperBundler} from "../../../src/ERC20WrapperBundler.sol";
+import {AgnosticBundler} from "../../../src/mocks/AgnosticBundler.sol";
 
 import "../../../lib/forge-std/src/Test.sol";
 import "../../../lib/forge-std/src/console2.sol";
@@ -66,6 +69,8 @@ abstract contract CommonTest is Test {
     function setUp() public virtual {
         morpho = IMorpho(deployCode("Morpho.sol", abi.encode(OWNER)));
         vm.label(address(morpho), "Morpho");
+
+        bundler = new AgnosticBundler(address(morpho), address(new WETH()));
 
         irm = new IrmMock();
 

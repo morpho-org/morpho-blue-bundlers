@@ -9,8 +9,6 @@ import {ErrorsLib as UrdErrorsLib} from "../../lib/universal-rewards-distributor
 
 import {Merkle} from "../../lib/murky/src/Merkle.sol";
 
-import "../../src/mocks/bundlers/UrdBundlerMock.sol";
-
 import "./helpers/LocalTest.sol";
 
 interface IUrdFactory {
@@ -26,7 +24,6 @@ contract UrdBundlerLocalTest is LocalTest {
     function setUp() public override {
         super.setUp();
 
-        bundler = new UrdBundlerMock();
         urdFactory = IUrdFactory(deployCode("UrdFactory.sol", ""));
         vm.label(address(urdFactory), "UrdFactory");
         merkle = new Merkle();

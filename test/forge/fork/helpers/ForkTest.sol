@@ -10,6 +10,8 @@ import {Permit2Lib} from "../../../../lib/permit2/src/libraries/Permit2Lib.sol";
 import {Permit2Bundler} from "../../../../src/Permit2Bundler.sol";
 import {WNativeBundler} from "../../../../src/WNativeBundler.sol";
 import {StEthBundler} from "../../../../src/StEthBundler.sol";
+import {EthereumBundlerV2} from "../../../../src/ethereum/EthereumBundlerV2.sol";
+import {BaseBundlerV2} from "../../../../src/base/BaseBundlerV2.sol";
 
 import "../../../../config/Configured.sol";
 import "../../helpers/CommonTest.sol";
@@ -32,6 +34,12 @@ abstract contract ForkTest is CommonTest, Configured {
 
         super.setUp();
 
+        if (block.chainid == 1) {
+            bundler = new EthereumBundlerV2(address(morpho));
+        } else if (block.chainid == 8453) {
+            bundler = new BaseBundlerV2(address(morpho), address(WETH));
+        }
+
         for (uint256 i; i < configMarkets.length; ++i) {
             ConfigMarket memory configMarket = configMarkets[i];
 
@@ -50,6 +58,9 @@ abstract contract ForkTest is CommonTest, Configured {
 
             allMarketParams.push(marketParams);
         }
+
+        vm.prank(USER);
+        morpho.setAuthorization(address(bundler), true);
     }
 
     function _fork() internal virtual {
