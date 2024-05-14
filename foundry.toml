@@ -8,6 +8,9 @@ fs_permissions = [
     { access = "read", path = "./config/"}
 ]
 libs = ["lib"]
+via-ir = true
+optimizer_runs = 999999
+
 
 [profile.default.fuzz]
 runs = 16
@@ -18,19 +21,22 @@ ethereum = "https://eth-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}"
 base = "https://base-mainnet.g.alchemy.com/v2/${ALCHEMY_KEY}"
 tenderly = "https://rpc.tenderly.co/fork/${TENDERLY_FORK_ID}"
 
+
 [profile.default.fmt]
 wrap_comments = true
 
 
-[profile.build]
-via-ir = true
-test = "/dev/null"
-script = "/dev/null"
-optimizer_runs = 80000
-
-
 [profile.test]
 via-ir = false
+
+
+[profile.build]
+test = "/dev/null"
+script = "/dev/null"
+
+
+[profile.ethereumBundlerV2]
+optimizer_runs = 80000
 
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/crates/config
