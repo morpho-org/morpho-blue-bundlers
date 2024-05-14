@@ -6,15 +6,19 @@ import {ErrorsLib} from "../../../src/libraries/ErrorsLib.sol";
 import "./helpers/ForkTest.sol";
 
 contract WNativeBundlerForkTest is ForkTest {
+    function setUp() public override {
+        super.setUp();
+
+        vm.prank(USER);
+        ERC20(WETH).approve(address(bundler), type(uint256).max);
+    }
+
     function testWrapZeroAmount() public {
         bundle.push(abi.encodeCall(WNativeBundler.wrapNative, (0)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
         bundler.multicall(bundle);
-
-        vm.prank(USER);
-        ERC20(WETH).approve(address(bundler), type(uint256).max);
     }
 
     function testWrapNative(uint256 amount) public {
