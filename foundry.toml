@@ -29,6 +29,11 @@ wrap_comments = true
 via-ir = false
 
 
+[profile.build]
+test = "/dev/null"
+script = "/dev/null"
+
+
 [profile.ethereumBundlerV2]
 optimizer_runs = 80000
 
