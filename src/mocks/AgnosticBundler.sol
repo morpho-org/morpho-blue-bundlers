@@ -11,6 +11,7 @@ import {UrdBundler} from "../UrdBundler.sol";
 import {MorphoBundler} from "../MorphoBundler.sol";
 import {ERC20WrapperBundler} from "../ERC20WrapperBundler.sol";
 
+/// @dev Mock contract, agnostic of the chain, used only for tests.
 contract AgnosticBundler is
     TransferBundler,
     PermitBundler,
