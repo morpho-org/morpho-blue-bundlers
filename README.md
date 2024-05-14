@@ -16,7 +16,7 @@ User-end bundlers are provided in each chain-specific folder, instanciating all 
 
 Install dependencies with `yarn`.
 
-Run tests with `FOUNDRY_PROFILE=test forge t`.
+Run tests with `yarn test:forge`.
 
 Note that the `EthereumBundlerV2` has been deployed with 80 000 optimizer runs.
 To compile contracts with the same configuration, run `FOUNDRY_PROFILE=ethereumBundlerV2 forge b`.
