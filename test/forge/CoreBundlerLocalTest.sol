@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {ErrorsLib} from "src/libraries/ErrorsLib.sol";
 
-import "src/mocks/bundlers/BaseBundlerMock.sol";
+import "src/mocks/bundlers/CoreBundlerMock.sol";
 
 import "./helpers/LocalTest.sol";
 
@@ -11,7 +11,7 @@ contract BaseBundlerLocalTest is LocalTest {
     function setUp() public override {
         super.setUp();
 
-        bundler = new BaseBundlerMock();
+        bundler = new CoreBundlerMock();
     }
 
     function testMulticallEmpty() public {
@@ -19,7 +19,7 @@ contract BaseBundlerLocalTest is LocalTest {
     }
 
     function testNestedMulticall() public {
-        bundle.push(abi.encodeCall(BaseBundler.multicall, (callbackBundle)));
+        bundle.push(abi.encodeCall(CoreBundler.multicall, (callbackBundle)));
 
         vm.expectRevert(bytes(ErrorsLib.ALREADY_INITIATED));
         bundler.multicall(bundle);
