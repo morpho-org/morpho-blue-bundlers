@@ -5,14 +5,14 @@ import {Math} from "../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
 
-import {BaseBundler} from "./BaseBundler.sol";
+import {CoreBundler} from "./CoreBundler.sol";
 
 /// @title TransferBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Enables transfer of ERC20 and native tokens.
 /// @dev Assumes that any tokens left on the contract can be seized by anyone.
-abstract contract TransferBundler is BaseBundler {
+abstract contract TransferBundler is CoreBundler {
     using SafeTransferLib for ERC20;
 
     /* TRANSFER ACTIONS */

@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 import {ERC20Mock} from "../../../src/mocks/ERC20Mock.sol";
 
-import "./BaseTest.sol";
+import "./CommonTest.sol";
 
-abstract contract LocalTest is BaseTest {
+abstract contract LocalTest is CommonTest {
     using MathLib for uint256;
     using SharesMathLib for uint256;
     using MarketParamsLib for MarketParams;
