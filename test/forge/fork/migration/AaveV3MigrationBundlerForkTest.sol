@@ -17,7 +17,7 @@ contract AaveV3MigrationBundlerForkTest is MigrationForkTest {
 
     uint256 public constant RATE_MODE = 2;
 
-    uint256 collateralSupplied = 1_000 ether;
+    uint256 collateralSupplied;
     uint256 borrowed = 1 ether;
 
     function setUp() public override {
@@ -25,8 +25,12 @@ contract AaveV3MigrationBundlerForkTest is MigrationForkTest {
 
         if (block.chainid == 1) {
             _initMarket(DAI, WETH);
-        } else if (block.chainid == 8453) {
+            collateralSupplied = 10_000 ether;
+        }
+        if (block.chainid == 8358) {
             _initMarket(CB_ETH, WETH);
+            // To avoid get above the cap.
+            collateralSupplied = 2 ether;
         }
 
         vm.label(AAVE_V3_POOL, "Aave V3 Pool");
