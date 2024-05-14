@@ -29,7 +29,7 @@ contract AaveV3MigrationBundlerForkTest is MigrationForkTest {
         }
         if (block.chainid == 8453) {
             _initMarket(CB_ETH, WETH);
-            // To avoid get above the cap.
+            // To avoid getting above the Aave supply cap.
             collateralSupplied = 2 ether;
         }
 

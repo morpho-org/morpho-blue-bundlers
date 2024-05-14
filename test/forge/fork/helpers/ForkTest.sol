@@ -12,9 +12,9 @@ import {WNativeBundler} from "../../../../src/WNativeBundler.sol";
 import {StEthBundler} from "../../../../src/StEthBundler.sol";
 
 import "../../../../config/Configured.sol";
-import "../../helpers/BaseTest.sol";
+import "../../helpers/CommonTest.sol";
 
-abstract contract ForkTest is BaseTest, Configured {
+abstract contract ForkTest is CommonTest, Configured {
     using ConfigLib for Config;
     using SafeTransferLib for ERC20;
 
