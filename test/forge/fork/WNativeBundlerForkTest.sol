@@ -12,6 +12,9 @@ contract WNativeBundlerForkTest is ForkTest {
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         vm.prank(USER);
         bundler.multicall(bundle);
+
+        vm.prank(USER);
+        ERC20(WETH).approve(address(bundler), type(uint256).max);
     }
 
     function testWrapNative(uint256 amount) public {
@@ -35,9 +38,6 @@ contract WNativeBundlerForkTest is ForkTest {
     }
 
     function testUnwrapZeroAmount() public {
-        vm.prank(USER);
-        ERC20(WETH).approve(address(bundler), type(uint256).max);
-
         bundle.push(abi.encodeCall(WNativeBundler.unwrapNative, (0)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
@@ -46,9 +46,6 @@ contract WNativeBundlerForkTest is ForkTest {
     }
 
     function testUnwrapNative(uint256 amount) public {
-        vm.prank(USER);
-        ERC20(WETH).approve(address(bundler), type(uint256).max);
-
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         bundle.push(_erc20TransferFrom(WETH, amount));
