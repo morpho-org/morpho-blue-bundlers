@@ -9,15 +9,11 @@ import {ERC20PermitMock} from "../../src/mocks/ERC20PermitMock.sol";
 
 import "./helpers/LocalTest.sol";
 
-contract PermitBundlerMock is TransferBundler, PermitBundler {}
-
 contract PermitBundlerLocalTest is LocalTest {
     ERC20PermitMock internal permitToken;
 
     function setUp() public override {
         super.setUp();
-
-        bundler = new PermitBundlerMock();
 
         permitToken = new ERC20PermitMock("Permit Token", "PT");
     }

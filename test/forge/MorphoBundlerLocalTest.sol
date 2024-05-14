@@ -15,14 +15,6 @@ import {MarketParamsLib} from "../../lib/morpho-blue/src/libraries/MarketParamsL
 
 import "./helpers/MetaMorphoLocalTest.sol";
 
-contract MorphoBundlerMock is MorphoBundler, TransferBundler {
-    constructor(address morpho) MorphoBundler(morpho) {}
-
-    function _isSenderAuthorized() internal view override(BaseBundler, MorphoBundler) returns (bool) {
-        return MorphoBundler._isSenderAuthorized();
-    }
-}
-
 contract MorphoBundlerLocalTest is MetaMorphoLocalTest {
     using MathLib for uint256;
     using MorphoLib for IMorpho;
@@ -32,8 +24,6 @@ contract MorphoBundlerLocalTest is MetaMorphoLocalTest {
 
     function setUp() public override {
         super.setUp();
-
-        bundler = new MorphoBundlerMock(address(morpho));
 
         vm.startPrank(USER);
         loanToken.approve(address(morpho), type(uint256).max);

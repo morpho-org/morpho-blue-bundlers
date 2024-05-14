@@ -5,15 +5,7 @@ import {ErrorsLib} from "../../src/libraries/ErrorsLib.sol";
 
 import "./helpers/LocalTest.sol";
 
-contract TransferBundlerMock is TransferBundler {}
-
 contract TransferBundlerLocalTest is LocalTest {
-    function setUp() public override {
-        super.setUp();
-
-        bundler = new TransferBundlerMock();
-    }
-
     function testTransfer(uint256 amount) public {
         amount = bound(amount, 0, MAX_AMOUNT);
 

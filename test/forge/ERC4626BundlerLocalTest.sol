@@ -7,15 +7,11 @@ import {ERC4626Mock} from "../../src/mocks/ERC4626Mock.sol";
 
 import "./helpers/LocalTest.sol";
 
-contract ERC4626BundlerMock is ERC4626Bundler, TransferBundler {}
-
 contract ERC4626BundlerLocalTest is LocalTest {
     ERC4626Mock internal vault;
 
     function setUp() public override {
         super.setUp();
-
-        bundler = new ERC4626BundlerMock();
 
         vault = new ERC4626Mock(address(loanToken), "LoanToken Vault", "BV");
 
