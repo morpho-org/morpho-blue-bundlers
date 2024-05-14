@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity ^0.8.0;
 
-import {CoreBundler} from "../../src/CoreBundler.sol";
-
 import "./helpers/LocalTest.sol";
 
 contract CoreBundlerEnshrinedLocalTest is CoreBundler, LocalTest {
