@@ -9,7 +9,7 @@ fs_permissions = [
 ]
 libs = ["lib"]
 via-ir = true
-optimizer_runs = 80000
+optimizer_runs = 999999
 
 
 [profile.default.fuzz]
@@ -27,6 +27,10 @@ wrap_comments = true
 
 [profile.test]
 via-ir = false
+
+
+[profile.ethereumBundlerV2]
+optimizer_runs = 80000
 
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/crates/config
