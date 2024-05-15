@@ -27,6 +27,9 @@ abstract contract ForkTest is CommonTest, Configured {
     MarketParams[] allMarketParams;
 
     function setUp() public virtual override {
+        // Run fork tests on Ethereum by default.
+        if (block.chainid == 31337) vm.chainId(1);
+
         _loadConfig();
 
         _fork();
