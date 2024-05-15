@@ -4,6 +4,7 @@ pragma solidity 0.8.24;
 import {CoreBundler} from "../CoreBundler.sol";
 import {TransferBundler} from "../TransferBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
+import {PermitBundler} from "../PermitBundler.sol";
 import {ERC4626Bundler} from "../ERC4626Bundler.sol";
 import {WNativeBundler} from "../WNativeBundler.sol";
 import {UrdBundler} from "../UrdBundler.sol";
@@ -17,6 +18,7 @@ import {ERC20WrapperBundler} from "../ERC20WrapperBundler.sol";
 contract BaseBundlerV2 is
     TransferBundler,
     Permit2Bundler,
+    PermitBundler,
     ERC4626Bundler,
     WNativeBundler,
     UrdBundler,
