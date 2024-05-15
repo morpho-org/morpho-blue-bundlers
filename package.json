@@ -24,7 +24,7 @@
     "typecheck": "tsc --noEmit",
     "test:forge": "FOUNDRY_PROFILE=test forge test",
     "test:forge:local": "FOUNDRY_MATCH_CONTRACT=LocalTest yarn test:forge",
-    "test:forge:ethereum": "FOUNDRY_MATCH_CONTRACT=EthereumTest yarn test:forge",
+    "test:forge:fork": "FOUNDRY_MATCH_CONTRACT=ForkTest yarn test:forge",
     "test:hardhat": "hardhat test",
     "lint": "yarn lint:forge && yarn lint:ts",
     "lint:ts": "prettier --check pkg",

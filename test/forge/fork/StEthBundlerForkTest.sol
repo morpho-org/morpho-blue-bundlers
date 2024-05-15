@@ -5,22 +5,26 @@ import {IAllowanceTransfer} from "../../../lib/permit2/src/interfaces/IAllowance
 
 import {ErrorsLib} from "../../../src/libraries/ErrorsLib.sol";
 
-import "../../../src/mocks/bundlers/ethereum/EthereumStEthBundlerMock.sol";
+import "../../../src/ethereum/EthereumStEthBundler.sol";
 
-import "./helpers/EthereumTest.sol";
+import "./helpers/ForkTest.sol";
 
 bytes32 constant BEACON_BALANCE_POSITION = 0xa66d35f054e68143c18f32c990ed5cb972bb68a68f500cd2dd3a16bbf3686483; // keccak256("lido.Lido.beaconBalance");
 
-contract EthereumStEthBundlerEthereumTest is EthereumTest {
+contract EthereumStEthBundlerMock is TransferBundler, Permit2Bundler, EthereumStEthBundler {}
+
+contract EthereumStEthBundlerForkTest is ForkTest {
     using SafeTransferLib for ERC20;
 
     function setUp() public override {
+        if (block.chainid != 1) return;
+
         super.setUp();
 
         bundler = new EthereumStEthBundlerMock();
     }
 
-    function testStakeEthZeroAmount() public {
+    function testStakeEthZeroAmount() public onlyEthereum {
         bundle.push(abi.encodeCall(StEthBundler.stakeEth, (0, 0, address(0))));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
@@ -28,7 +32,7 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         bundler.multicall(bundle);
     }
 
-    function testStakeEth(uint256 amount) public {
+    function testStakeEth(uint256 amount) public onlyEthereum {
         amount = bound(amount, MIN_AMOUNT, 10_000 ether);
 
         uint256 shares = IStEth(ST_ETH).getSharesByPooledEth(amount);
@@ -49,7 +53,7 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         assertApproxEqAbs(ERC20(ST_ETH).balanceOf(RECEIVER), amount, 3, "balanceOf(RECEIVER)");
     }
 
-    function testStakeEthSlippageAdapts(uint256 amount) public {
+    function testStakeEthSlippageAdapts(uint256 amount) public onlyEthereum {
         amount = bound(amount, MIN_AMOUNT, 10_000 ether);
 
         uint256 shares = IStEth(ST_ETH).getSharesByPooledEth(amount);
@@ -66,7 +70,7 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         assertApproxEqAbs(IStEth(ST_ETH).sharesOf(USER), shares / 2, 2, "shares");
     }
 
-    function testStakeEthSlippageExceeded(uint256 amount) public {
+    function testStakeEthSlippageExceeded(uint256 amount) public onlyEthereum {
         amount = bound(amount, MIN_AMOUNT, 10_000 ether);
 
         uint256 shares = IStEth(ST_ETH).getSharesByPooledEth(amount);
@@ -82,7 +86,7 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         bundler.multicall{value: amount}(bundle);
     }
 
-    function testWrapZeroAmount() public {
+    function testWrapZeroAmount() public onlyEthereum {
         bundle.push(abi.encodeCall(StEthBundler.wrapStEth, (0)));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
@@ -90,7 +94,7 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         bundler.multicall(bundle);
     }
 
-    function testWrapStEth(uint256 privateKey, uint256 amount) public {
+    function testWrapStEth(uint256 privateKey, uint256 amount) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
@@ -121,7 +125,7 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         assertEq(ERC20(ST_ETH).balanceOf(RECEIVER), 0, "wstEth.balanceOf(RECEIVER)");
     }
 
-    function testUnwrapZeroAmount() public {
+    function testUnwrapZeroAmount() public onlyEthereum {
         bundle.push(_unwrapStEth(0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
@@ -129,7 +133,7 @@ contract EthereumStEthBundlerEthereumTest is EthereumTest {
         bundler.multicall(bundle);
     }
 
-    function testUnwrapWstEth(uint256 privateKey, uint256 amount) public {
+    function testUnwrapWstEth(uint256 privateKey, uint256 amount) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);

@@ -1,24 +1,25 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.0;
 
-import {IStEth} from "../../../src/interfaces/IStEth.sol";
-import {IWstEth} from "../../../src/interfaces/IWstEth.sol";
-import {IAllowanceTransfer} from "../../../lib/permit2/src/interfaces/IAllowanceTransfer.sol";
+import {IStEth} from "../../../../src/interfaces/IStEth.sol";
+import {IWstEth} from "../../../../src/interfaces/IWstEth.sol";
+import {IAllowanceTransfer} from "../../../../lib/permit2/src/interfaces/IAllowanceTransfer.sol";
 
-import {Permit2Lib} from "../../../lib/permit2/src/libraries/Permit2Lib.sol";
+import {Permit2Lib} from "../../../../lib/permit2/src/libraries/Permit2Lib.sol";
 
-import {Permit2Bundler} from "../../../src/Permit2Bundler.sol";
-import {WNativeBundler} from "../../../src/WNativeBundler.sol";
-import {StEthBundler} from "../../../src/StEthBundler.sol";
+import {Permit2Bundler} from "../../../../src/Permit2Bundler.sol";
+import {WNativeBundler} from "../../../../src/WNativeBundler.sol";
+import {StEthBundler} from "../../../../src/StEthBundler.sol";
+import {EthereumBundlerV2} from "../../../../src/ethereum/EthereumBundlerV2.sol";
+import {BaseBundlerV2} from "../../../../src/base/BaseBundlerV2.sol";
 
-import "../../../config/Configured.sol";
-import "./BaseTest.sol";
+import "../../../../config/Configured.sol";
+import "../../helpers/CommonTest.sol";
 
-abstract contract ForkTest is BaseTest, Configured {
+abstract contract ForkTest is CommonTest, Configured {
     using ConfigLib for Config;
     using SafeTransferLib for ERC20;
 
-    string internal network;
     uint256 internal forkId;
 
     uint256 internal snapshotId = type(uint256).max;
@@ -26,13 +27,21 @@ abstract contract ForkTest is BaseTest, Configured {
     MarketParams[] allMarketParams;
 
     function setUp() public virtual override {
-        _initConfig();
+        // Run fork tests on Ethereum by default.
+        if (block.chainid == 31337) vm.chainId(1);
+
         _loadConfig();
 
         _fork();
         _label();
 
         super.setUp();
+
+        if (block.chainid == 1) {
+            bundler = new EthereumBundlerV2(address(morpho));
+        } else if (block.chainid == 8453) {
+            bundler = new BaseBundlerV2(address(morpho), address(WETH));
+        }
 
         for (uint256 i; i < configMarkets.length; ++i) {
             ConfigMarket memory configMarket = configMarkets[i];
@@ -52,10 +61,13 @@ abstract contract ForkTest is BaseTest, Configured {
 
             allMarketParams.push(marketParams);
         }
+
+        vm.prank(USER);
+        morpho.setAuthorization(address(bundler), true);
     }
 
     function _fork() internal virtual {
-        string memory rpcUrl = vm.rpcUrl(_network());
+        string memory rpcUrl = vm.rpcUrl(network);
         uint256 forkBlockNumber = CONFIG.getForkBlockNumber();
 
         forkId = forkBlockNumber == 0 ? vm.createSelectFork(rpcUrl) : vm.createSelectFork(rpcUrl, forkBlockNumber);
@@ -66,9 +78,11 @@ abstract contract ForkTest is BaseTest, Configured {
     function _label() internal virtual {
         for (uint256 i; i < allAssets.length; ++i) {
             address asset = allAssets[i];
-            string memory symbol = ERC20(asset).symbol();
+            if (asset != address(0)) {
+                string memory symbol = ERC20(asset).symbol();
 
-            vm.label(asset, symbol);
+                vm.label(asset, symbol);
+            }
         }
     }
 
@@ -77,7 +91,25 @@ abstract contract ForkTest is BaseTest, Configured {
 
         if (asset == WETH) super.deal(WETH, WETH.balance + amount); // Refill wrapped Ether.
 
+        if (asset == ST_ETH) {
+            if (amount == 0) return;
+
+            deal(recipient, amount);
+
+            vm.prank(recipient);
+            uint256 stEthAmount = IStEth(ST_ETH).submit{value: amount}(address(0));
+
+            vm.assume(stEthAmount != 0);
+
+            return;
+        }
+
         return super.deal(asset, recipient, amount);
+    }
+
+    modifier onlyEthereum() {
+        vm.skip(block.chainid != 1);
+        _;
     }
 
     /// @dev Reverts the fork to its initial fork state.

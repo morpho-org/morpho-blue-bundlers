@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 import {ErrorsLib} from "../../src/libraries/ErrorsLib.sol";
 
 import {ERC4626Mock} from "../../src/mocks/ERC4626Mock.sol";
-import "../../src/mocks/bundlers/ERC4626BundlerMock.sol";
 
 import "./helpers/LocalTest.sol";
 
@@ -13,8 +12,6 @@ contract ERC4626BundlerLocalTest is LocalTest {
 
     function setUp() public override {
         super.setUp();
-
-        bundler = new ERC4626BundlerMock();
 
         vault = new ERC4626Mock(address(loanToken), "LoanToken Vault", "BV");
 
@@ -27,7 +24,7 @@ contract ERC4626BundlerLocalTest is LocalTest {
 
     function test4626MintUninitiated(uint256 shares) public {
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        ERC4626BundlerMock(address(bundler)).erc4626Mint(address(vault), 0, shares, RECEIVER);
+        ERC4626Bundler(address(bundler)).erc4626Mint(address(vault), 0, shares, RECEIVER);
     }
 
     function testErc4626MintZeroAdressVault(uint256 shares) public {
@@ -46,7 +43,7 @@ contract ERC4626BundlerLocalTest is LocalTest {
 
     function test4626DepositUninitiated(uint256 assets) public {
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        ERC4626BundlerMock(address(bundler)).erc4626Deposit(address(vault), assets, 0, RECEIVER);
+        ERC4626Bundler(address(bundler)).erc4626Deposit(address(vault), assets, 0, RECEIVER);
     }
 
     function testErc4626DepositZeroAdressVault(uint256 assets) public {
@@ -65,7 +62,7 @@ contract ERC4626BundlerLocalTest is LocalTest {
 
     function test4626WithdrawUninitiated(uint256 assets) public {
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        ERC4626BundlerMock(address(bundler)).erc4626Withdraw(address(vault), assets, 0, RECEIVER, address(bundler));
+        ERC4626Bundler(address(bundler)).erc4626Withdraw(address(vault), assets, 0, RECEIVER, address(bundler));
     }
 
     function testErc4626WithdrawZeroAdressVault(uint256 assets) public {
@@ -93,7 +90,7 @@ contract ERC4626BundlerLocalTest is LocalTest {
 
     function test4626RedeemUninitiated(uint256 shares) public {
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        ERC4626BundlerMock(address(bundler)).erc4626Redeem(address(vault), shares, 0, RECEIVER, address(bundler));
+        ERC4626Bundler(address(bundler)).erc4626Redeem(address(vault), shares, 0, RECEIVER, address(bundler));
     }
 
     function testErc4626RedeemZeroAdressVault(uint256 shares) public {

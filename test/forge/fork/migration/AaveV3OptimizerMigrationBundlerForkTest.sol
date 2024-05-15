@@ -5,9 +5,9 @@ import {Authorization as AaveV3OptimizerAuthorization} from "../../../../src/mig
 
 import "../../../../src/migration/AaveV3OptimizerMigrationBundlerV2.sol";
 
-import "./helpers/EthereumMigrationTest.sol";
+import "./helpers/MigrationForkTest.sol";
 
-contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
+contract AaveV3OptimizerMigrationBundlerForkTest is MigrationForkTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;
@@ -19,6 +19,8 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
     uint256 borrowed = 1 ether;
 
     function setUp() public override {
+        if (block.chainid != 1) return;
+
         super.setUp();
 
         _initMarket(DAI, WETH);
@@ -28,21 +30,21 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         bundler = new AaveV3OptimizerMigrationBundlerV2(address(morpho), address(AAVE_V3_OPTIMIZER));
     }
 
-    function testAaveV3OptimizerRepayUninitiated(uint256 amount) public {
+    function testAaveV3OptimizerRepayUninitiated(uint256 amount) public onlyEthereum {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
         AaveV3OptimizerMigrationBundlerV2(address(bundler)).aaveV3OptimizerRepay(marketParams.loanToken, amount);
     }
 
-    function testAaveV3Optimizer3RepayZeroAmount() public {
+    function testAaveV3Optimizer3RepayZeroAmount() public onlyEthereum {
         bundle.push(_aaveV3OptimizerRepay(marketParams.loanToken, 0));
 
         vm.expectRevert(bytes(ErrorsLib.ZERO_AMOUNT));
         bundler.multicall(bundle);
     }
 
-    function testAaveV3OtimizerAuthorizationWithSigRevert(uint256 privateKey, address owner) public {
+    function testAaveV3OtimizerAuthorizationWithSigRevert(uint256 privateKey, address owner) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
 
@@ -68,7 +70,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         bundler.multicall(bundle);
     }
 
-    function testMigrateBorrowerWithOptimizerPermit(uint256 privateKey) public {
+    function testMigrateBorrowerWithOptimizerPermit(uint256 privateKey) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
 
@@ -99,7 +101,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
     }
 
-    function testMigrateUSDTBorrowerWithOptimizerPermit(uint256 privateKey) public {
+    function testMigrateUSDTBorrowerWithOptimizerPermit(uint256 privateKey) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
 
@@ -135,7 +137,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         _assertBorrowerPosition(amountUsdt, borrowed, user, address(bundler));
     }
 
-    function testMigrateSupplierWithOptimizerPermit(uint256 privateKey, uint256 supplied) public {
+    function testMigrateSupplierWithOptimizerPermit(uint256 privateKey, uint256 supplied) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
@@ -158,7 +160,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         _assertSupplierPosition(supplied, user, address(bundler));
     }
 
-    function testMigrateSupplierToVaultWithOptimizerPermit(uint256 privateKey, uint256 supplied) public {
+    function testMigrateSupplierToVaultWithOptimizerPermit(uint256 privateKey, uint256 supplied) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
         supplied = bound(supplied, 100, 100 ether);
@@ -181,7 +183,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         _assertVaultSupplierPosition(supplied, user, address(bundler));
     }
 
-    function testAaveV3OptimizerApproveManagerUninitiated(uint256 amount) public {
+    function testAaveV3OptimizerApproveManagerUninitiated(uint256 amount) public onlyEthereum {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         Signature memory sig;
@@ -192,7 +194,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         );
     }
 
-    function testAaveV3OptimizerWithdrawUninitiated(uint256 amount) public {
+    function testAaveV3OptimizerWithdrawUninitiated(uint256 amount) public onlyEthereum {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
@@ -201,7 +203,7 @@ contract AaveV3OptimizerMigrationBundlerEthereumTest is EthereumMigrationTest {
         );
     }
 
-    function testAaveV3OptimizerWithdrawCollateralUninitiated(uint256 amount) public {
+    function testAaveV3OptimizerWithdrawCollateralUninitiated(uint256 amount) public onlyEthereum {
         amount = bound(amount, MIN_AMOUNT, MAX_AMOUNT);
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));

@@ -7,7 +7,7 @@ import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {UNSET_INITIATOR} from "./libraries/ConstantsLib.sol";
 import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
 
-/// @title BaseBundler
+/// @title CoreBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Enables calling multiple functions in a single call to the same contract (self).
@@ -15,7 +15,7 @@ import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.s
 /// @dev Every bundler inheriting from this contract must have their external functions payable as they will be
 /// delegate called by the `multicall` function (which is payable, and thus might pass a non-null ETH value). It is
 /// recommended not to rely on `msg.value` as the same value can be reused for multiple calls.
-abstract contract BaseBundler is IMulticall {
+abstract contract CoreBundler is IMulticall {
     using SafeTransferLib for ERC20;
 
     /* STORAGE */

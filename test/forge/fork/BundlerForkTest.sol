@@ -3,25 +3,17 @@ pragma solidity ^0.8.0;
 
 import {IAllowanceTransfer} from "../../../lib/permit2/src/interfaces/IAllowanceTransfer.sol";
 
-import "../../../src/ethereum/EthereumBundlerV2.sol";
+import {EthereumBundlerV2} from "../../../src/ethereum/EthereumBundlerV2.sol";
+import {BaseBundlerV2} from "../../../src/base/BaseBundlerV2.sol";
 
-import "./helpers/EthereumTest.sol";
+import "./helpers/ForkTest.sol";
 
-contract EthereumBundlerEthereumTest is EthereumTest {
+contract EthereumBundlerForkTest is ForkTest {
     using MathLib for uint256;
     using MorphoLib for IMorpho;
     using MorphoBalancesLib for IMorpho;
     using MarketParamsLib for MarketParams;
     using SafeTransferLib for ERC20;
-
-    function setUp() public override {
-        super.setUp();
-
-        bundler = new EthereumBundlerV2(address(morpho));
-
-        vm.prank(USER);
-        morpho.setAuthorization(address(bundler), true);
-    }
 
     function testSupplyWithPermit2(uint256 seed, uint256 amount, address onBehalf, uint256 privateKey, uint256 deadline)
         public

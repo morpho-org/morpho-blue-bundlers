@@ -104,22 +104,23 @@ jobs:
 
       - uses: ./.github/actions/install-cache
 
-      - name: Run local tests in ${{ matrix.type }} mode
+      - name: Run local tests on chain ${{ matrix.chain }} in ${{ matrix.type }} mode
         run: yarn test:forge:local
         env:
           FOUNDRY_FUZZ_RUNS: ${{ matrix.fuzz-runs }}
           FOUNDRY_FUZZ_MAX_TEST_REJECTS: ${{ matrix.max-test-rejects }}
           FOUNDRY_FUZZ_SEED: 0x${{ github.event.pull_request.base.sha || github.sha }}
 
-  test-ethereum:
+  test-fork:
     needs: build-no-ir
 
-    name: Ethereum tests
+    name: Fork tests (chainid=${{ matrix.chain }})
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: true
       matrix:
+        chain: [1, 8453]
         type: ["slow", "fast"]
         include:
           - type: "slow"
@@ -145,8 +146,8 @@ jobs:
 
       - uses: ./.github/actions/install-cache
 
-      - name: Run ethereum tests in ${{ matrix.type }} mode
-        run: yarn test:forge:ethereum
+      - name: Run fork tests on chain ${{ matrix.chain }} in ${{ matrix.type }} mode
+        run: yarn test:forge:fork --chain ${{ matrix.chain }}
         env:
           ALCHEMY_KEY: ${{ secrets.ALCHEMY_KEY }}
           FOUNDRY_FUZZ_RUNS: ${{ matrix.fuzz-runs }}

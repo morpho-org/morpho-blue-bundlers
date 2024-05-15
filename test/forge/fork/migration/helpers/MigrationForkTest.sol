@@ -8,15 +8,15 @@ import {MorphoLib} from "../../../../../lib/morpho-blue/src/libraries/periphery/
 import {Market} from "../../../../../lib/morpho-blue/src/interfaces/IMorpho.sol";
 import {MorphoBalancesLib} from "../../../../../lib/morpho-blue/src/libraries/periphery/MorphoBalancesLib.sol";
 
-import "../../helpers/EthereumTest.sol";
-import {BaseBundler} from "../../../../../src/BaseBundler.sol";
+import "../../helpers/ForkTest.sol";
+import {CoreBundler} from "../../../../../src/CoreBundler.sol";
 import {PermitBundler} from "../../../../../src/PermitBundler.sol";
 import {Permit2Bundler} from "../../../../../src/Permit2Bundler.sol";
 import {ERC4626Bundler} from "../../../../../src/ERC4626Bundler.sol";
 import {MorphoBundler} from "../../../../../src/MorphoBundler.sol";
 import {ERC4626Mock} from "../../../../../src/mocks/ERC4626Mock.sol";
 
-contract EthereumMigrationTest is EthereumTest {
+contract MigrationForkTest is ForkTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;

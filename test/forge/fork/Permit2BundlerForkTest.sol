@@ -3,20 +3,12 @@ pragma solidity ^0.8.0;
 
 import {ErrorsLib} from "../../../src/libraries/ErrorsLib.sol";
 
-import "../../../src/mocks/bundlers/Permit2BundlerMock.sol";
-
-import "./helpers/EthereumTest.sol";
+import "./helpers/ForkTest.sol";
 
 error InvalidNonce();
 
-contract Permit2BundlerEthereumTest is EthereumTest {
+contract Permit2BundlerForkTest is ForkTest {
     using SafeTransferLib for ERC20;
-
-    function setUp() public override {
-        super.setUp();
-
-        bundler = new Permit2BundlerMock();
-    }
 
     function testApprove2(uint256 seed, uint256 privateKey, uint256 deadline, uint256 amount) public {
         privateKey = bound(privateKey, 1, type(uint160).max);
@@ -46,7 +38,7 @@ contract Permit2BundlerEthereumTest is EthereumTest {
         bytes memory signature;
 
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        Permit2BundlerMock(address(bundler)).approve2(permitSingle, signature, false);
+        Permit2Bundler(address(bundler)).approve2(permitSingle, signature, false);
     }
 
     function testApprove2InvalidNonce(uint256 seed, uint256 privateKey, uint256 deadline, uint256 amount) public {
@@ -74,6 +66,6 @@ contract Permit2BundlerEthereumTest is EthereumTest {
 
     function testTransferFrom2Uninitiated() public {
         vm.expectRevert(bytes(ErrorsLib.UNINITIATED));
-        Permit2BundlerMock(address(bundler)).transferFrom2(address(0), 0);
+        Permit2Bundler(address(bundler)).transferFrom2(address(0), 0);
     }
 }

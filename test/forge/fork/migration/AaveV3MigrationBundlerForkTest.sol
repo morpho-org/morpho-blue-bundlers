@@ -7,9 +7,9 @@ import {IAaveV3} from "../../../../src/migration/interfaces/IAaveV3.sol";
 import {SigUtils, Permit} from "../../helpers/SigUtils.sol";
 import "../../../../src/migration/AaveV3MigrationBundlerV2.sol";
 
-import "./helpers/EthereumMigrationTest.sol";
+import "./helpers/MigrationForkTest.sol";
 
-contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
+contract AaveV3MigrationBundlerForkTest is MigrationForkTest {
     using SafeTransferLib for ERC20;
     using MarketParamsLib for MarketParams;
     using MorphoLib for IMorpho;
@@ -17,13 +17,21 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
 
     uint256 public constant RATE_MODE = 2;
 
-    uint256 collateralSupplied = 10_000 ether;
+    uint256 collateralSupplied;
     uint256 borrowed = 1 ether;
 
     function setUp() public override {
         super.setUp();
 
-        _initMarket(DAI, WETH);
+        if (block.chainid == 1) {
+            _initMarket(DAI, WETH);
+            collateralSupplied = 10_000 ether;
+        }
+        if (block.chainid == 8453) {
+            _initMarket(CB_ETH, WETH);
+            // To avoid getting above the Aave supply cap.
+            collateralSupplied = 2 ether;
+        }
 
         vm.label(AAVE_V3_POOL, "Aave V3 Pool");
 
@@ -116,7 +124,7 @@ contract AaveV3MigrationBundlerEthereumTest is EthereumMigrationTest {
         _assertBorrowerPosition(collateralSupplied, borrowed, user, address(bundler));
     }
 
-    function testMigrateUSDTPositionWithPermit2(uint256 privateKey) public {
+    function testMigrateUSDTPositionWithPermit2(uint256 privateKey) public onlyEthereum {
         address user;
         (privateKey, user) = _boundPrivateKey(privateKey);
 
