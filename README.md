@@ -12,6 +12,11 @@ Some chain-specific domains are also scoped to the chain-specific folder, becaus
 
 User-end bundlers are provided in each chain-specific folder, instanciating all the intermediary domain-specific bundlers and associated parameters (such as chain-specific protocol addresses, e.g. [`EthereumBundlerV2`](./src/ethereum/EthereumBundlerV2.sol)).
 
+## Deployments
+
+- [EthereumBundlerV2](https://github.com/morpho-org/morpho-blue-bundlers/releases/tag/v1.2.0)
+- (TODO) BaseBundlerV2
+
 ## Getting Started
 
 Install dependencies with `yarn`.
