@@ -5,7 +5,7 @@ import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {Math} from "../lib/morpho-utils/src/math/Math.sol";
 import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
 
-import {CoreBundler} from "./CoreBundler.sol";
+import {BaseBundler} from "./BaseBundler.sol";
 import {ERC20Wrapper} from "../lib/openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Wrapper.sol";
 
 /// @title ERC20WrapperBundler
@@ -14,7 +14,7 @@ import {ERC20Wrapper} from "../lib/openzeppelin-contracts/contracts/token/ERC20/
 /// @notice Enables the wrapping and unwrapping of ERC20 tokens. The largest usecase is to wrap permissionless tokens to
 /// their permissioned counterparts and access permissioned markets on Morpho Blue. Permissioned tokens can be built
 /// using: https://github.com/morpho-org/erc20-permissioned
-abstract contract ERC20WrapperBundler is CoreBundler {
+abstract contract ERC20WrapperBundler is BaseBundler {
     using SafeTransferLib for ERC20;
 
     /* WRAPPER ACTIONS */

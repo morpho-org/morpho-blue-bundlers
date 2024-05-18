@@ -3,7 +3,7 @@ pragma solidity 0.8.24;
 
 import {SepoliaLib} from "./libraries/SepoliaLib.sol";
 
-import {CoreBundler} from "../CoreBundler.sol";
+import {BaseBundler} from "../BaseBundler.sol";
 import {TransferBundler} from "../TransferBundler.sol";
 import {PermitBundler} from "../PermitBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
@@ -40,7 +40,7 @@ contract SepoliaBundlerV2 is
     /* INTERNAL */
 
     /// @inheritdoc MorphoBundler
-    function _isSenderAuthorized() internal view override(CoreBundler, MorphoBundler) returns (bool) {
+    function _isSenderAuthorized() internal view override(BaseBundler, MorphoBundler) returns (bool) {
         return MorphoBundler._isSenderAuthorized();
     }
 }
