@@ -14,8 +14,9 @@ User-end bundlers are provided in each chain-specific folder, instanciating all 
 
 ## Deployments
 
+- [EthereumBundlerV2](https://github.com/morpho-org/morpho-blue-bundlers/releases/tag/v1.0.0)
 - [EthereumBundlerV2](https://github.com/morpho-org/morpho-blue-bundlers/releases/tag/v1.2.0)
-- (TODO) BaseBundlerV2
+- (TODO) AgnosticBundlerV2 on Base
 
 ## Getting Started
 
