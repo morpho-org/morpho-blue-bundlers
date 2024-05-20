@@ -34,7 +34,7 @@
     "clean": "hardhat clean && forge clean"
   },
   "dependencies": {
-    "ethers": "^6.11.0",
+    "ethers": "^6.12.0",
     "evm-maths": "^6.0.0",
     "lodash": "^4.17.21"
   },
