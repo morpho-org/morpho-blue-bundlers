@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "./helpers/LocalTest.sol";
 
-contract CoreBundlerEnshrinedLocalTest is CoreBundler, LocalTest {
+contract BaseBundlerEnshrinedLocalTest is BaseBundler, LocalTest {
     function checkInitiator(address expectedInitiator) public payable protected {
         require(initiator() == expectedInitiator, "unexpected initiator");
     }

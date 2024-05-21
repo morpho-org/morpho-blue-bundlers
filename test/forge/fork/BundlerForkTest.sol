@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {IAllowanceTransfer} from "../../../lib/permit2/src/interfaces/IAllowanceTransfer.sol";
 
 import {EthereumBundlerV2} from "../../../src/ethereum/EthereumBundlerV2.sol";
-import {BaseBundlerV2} from "../../../src/base/BaseBundlerV2.sol";
+import {ChainAgnosticBundlerV2} from "../../../src/chain-agnostic/ChainAgnosticBundlerV2.sol";
 
 import "./helpers/ForkTest.sol";
 
