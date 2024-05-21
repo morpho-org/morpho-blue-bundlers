@@ -8,13 +8,13 @@ import {Math} from "../lib/morpho-utils/src/math/Math.sol";
 import {ErrorsLib} from "./libraries/ErrorsLib.sol";
 import {SafeTransferLib, ERC20} from "../lib/solmate/src/utils/SafeTransferLib.sol";
 
-import {CoreBundler} from "./CoreBundler.sol";
+import {BaseBundler} from "./BaseBundler.sol";
 
 /// @title StEthBundler
 /// @author Morpho Labs
 /// @custom:contact security@morpho.org
 /// @notice Contract allowing to bundle multiple interactions with stETH together.
-abstract contract StEthBundler is CoreBundler {
+abstract contract StEthBundler is BaseBundler {
     using SafeTransferLib for ERC20;
 
     /* IMMUTABLES */

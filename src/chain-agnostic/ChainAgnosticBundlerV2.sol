@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity 0.8.24;
 
-import {CoreBundler} from "../CoreBundler.sol";
+import {BaseBundler} from "../BaseBundler.sol";
 import {TransferBundler} from "../TransferBundler.sol";
 import {PermitBundler} from "../PermitBundler.sol";
 import {Permit2Bundler} from "../Permit2Bundler.sol";
@@ -11,8 +11,11 @@ import {UrdBundler} from "../UrdBundler.sol";
 import {MorphoBundler} from "../MorphoBundler.sol";
 import {ERC20WrapperBundler} from "../ERC20WrapperBundler.sol";
 
-/// @dev Mock contract, agnostic of the chain, used only for tests.
-contract AgnosticBundler is
+/// @title ChainAgnosticBundlerV2
+/// @author Morpho Labs
+/// @custom:contact security@morpho.org
+/// @notice Chain agnostic bundler contract.
+contract ChainAgnosticBundlerV2 is
     TransferBundler,
     PermitBundler,
     Permit2Bundler,
@@ -29,7 +32,7 @@ contract AgnosticBundler is
     /* INTERNAL */
 
     /// @inheritdoc MorphoBundler
-    function _isSenderAuthorized() internal view override(CoreBundler, MorphoBundler) returns (bool) {
+    function _isSenderAuthorized() internal view override(BaseBundler, MorphoBundler) returns (bool) {
         return MorphoBundler._isSenderAuthorized();
     }
 }
