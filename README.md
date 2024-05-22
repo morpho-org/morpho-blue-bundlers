@@ -4,13 +4,19 @@
 
 ## Structure
 
-![image (4)](https://github.com/morpho-org/morpho-blue-bundlers/assets/44097430/5cb0796b-c20c-415e-840d-8b0705836dc8)
+![bundler-3](https://github.com/morpho-org/morpho-blue-bundlers/assets/74971347/827630e1-7abc-4f9d-a494-fe3fa7aa7053)
 
 Each Bundler is a domain-specific abstract layer of contract that implements some functions that can be bundled in a single call by EOAs to a single contract. They all inherit from [`BaseBundler`](./src/BaseBundler.sol) that enables bundling multiple function calls into a single `multicall(bytes[] calldata data)` call to the end bundler contract. Each chain-specific bundler is available under their chain-specific folder (e.g. [`ethereum`](./src/ethereum/)).
 
 Some chain-specific domains are also scoped to the chain-specific folder, because they are not expected to be used on any other chain (e.g. DAI and its specific `permit` function is only available on Ethereum - see [`EthereumPermitBundler`](./src/ethereum/EthereumPermitBundler.sol)).
 
 User-end bundlers are provided in each chain-specific folder, instanciating all the intermediary domain-specific bundlers and associated parameters (such as chain-specific protocol addresses, e.g. [`EthereumBundlerV2`](./src/ethereum/EthereumBundlerV2.sol)).
+
+## Deployments
+
+- [EthereumBundler](https://github.com/morpho-org/morpho-blue-bundlers/releases/tag/v1.0.0)
+- [EthereumBundlerV2](https://github.com/morpho-org/morpho-blue-bundlers/releases/tag/v1.2.0)
+- (TODO) AgnosticBundlerV2 on Base
 
 ## Getting Started
 
