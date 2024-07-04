@@ -20,6 +20,82 @@ User-end bundlers are provided in each chain-specific folder, instanciating all 
 
 ## Getting Started
 
+### Installation
+
+```bash
+npm install @morpho-org/morpho-blue-bundlers
+```
+
+```bash
+yarn add @morpho-org/morpho-blue-bundlers
+```
+
+### Usage
+
+```typescript
+import { Signature } from "ethers";
+
+import { BundlerAction } from "@morpho-org/morpho-blue-bundlers";
+
+const permit2Address = "0x000000000022D473030F116dDEE9F6B43aC78BA3";
+
+const permit2Config = {
+  domain: {
+    name: "Permit2",
+    chainId: "0x1",
+    verifyingContract: permit2Address,
+  },
+  types: {
+    PermitSingle: [
+      {
+        name: "details",
+        type: "PermitDetails",
+      },
+      {
+        name: "spender",
+        type: "address",
+      },
+      {
+        name: "sigDeadline",
+        type: "uint256",
+      },
+    ],
+    PermitDetails: [
+      {
+        name: "token",
+        type: "address",
+      },
+      {
+        name: "amount",
+        type: "uint160",
+      },
+      {
+        name: "expiration",
+        type: "uint48",
+      },
+      {
+        name: "nonce",
+        type: "uint48",
+      },
+    ],
+  },
+};
+
+await bundler
+  .connect(supplier)
+  .multicall([
+    BundlerAction.approve2(
+      approve2,
+      Signature.from(await supplier.signTypedData(permit2Config.domain, permit2Config.types, approve2)),
+      false,
+    ),
+    BundlerAction.transferFrom2(collateralAddress, assets),
+    BundlerAction.erc4626Deposit(erc4626Address, assets, 0, supplier.address),
+  ]);
+```
+
+## Development
+
 Install dependencies with `yarn`.
 
 Run tests with `yarn test:forge --chain <chainid>` (chainid can be 1 or 8453).
