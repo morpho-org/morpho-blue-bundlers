@@ -20,7 +20,7 @@ User-end bundlers are provided in each chain-specific folder, instantiating all 
 
 ## Getting Started
 
-### Installation
+### Package installation
 
 ```bash
 npm install @morpho-org/morpho-blue-bundlers
@@ -31,6 +31,34 @@ yarn add @morpho-org/morpho-blue-bundlers
 ```
 
 ### Usage
+
+Bundle a collateral supply and a borrow:
+
+```typescript
+import { BundlerAction } from "@morpho-org/morpho-blue-bundlers";
+
+const collateral = 1_000000000000000000n;
+const borrowedAssets = 1000_000000n;
+
+const borrower = "0x...";
+const marketParams = {
+  collateralToken: "0x...",
+  loanToken: "0x...",
+  irm: "0x...",
+  oracle: "0x...",
+  lltv: 86_0000000000000000n,
+};
+
+await bundler
+  .connect(supplier)
+  .multicall([
+    BundlerAction.transferFrom(marketParams.collateralToken, collateral),
+    BundlerAction.morphoSupplyCollateral(marketParams, collateral, borrower, "0x"),
+    BundlerAction.morphoBorrow(marketParams, borrowedAssets, 0n, borrower, borrower),
+  ]);
+```
+
+Bundle a permit2 signature approval and a ERC-4626 deposit:
 
 ```typescript
 import { Signature } from "ethers";
@@ -81,16 +109,32 @@ const permit2Config = {
   },
 };
 
+const assetAddress = "0x...";
+const assets = 1000_000000n;
+
+const supplier = "0x...";
+const bundlerAddress = "0x...";
+const permitSingle = {
+  details: {
+    token: assetAddress,
+    amount: assets,
+    nonce: 0n,
+    expiration: 2n ** 48n - 1,
+  },
+  spender: bundlerAddress,
+  sigDeadline: 2n ** 48n - 1,
+};
+
 await bundler
   .connect(supplier)
   .multicall([
     BundlerAction.approve2(
-      approve2,
-      Signature.from(await supplier.signTypedData(permit2Config.domain, permit2Config.types, approve2)),
+      permitSingle,
+      Signature.from(await supplier.signTypedData(permit2Config.domain, permit2Config.types, permitSingle)),
       false,
     ),
-    BundlerAction.transferFrom2(collateralAddress, assets),
-    BundlerAction.erc4626Deposit(erc4626Address, assets, 0, supplier.address),
+    BundlerAction.transferFrom2(assetAddress, assets),
+    BundlerAction.erc4626Deposit(erc4626Address, assets, 0, supplier),
   ]);
 ```
 
