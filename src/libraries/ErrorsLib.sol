@@ -29,7 +29,7 @@ library ErrorsLib {
     /// @dev Thrown when a call is attempted with a zero shares as input.
     string internal constant ZERO_SHARES = "zero shares";
 
-    /// @dev Thrown when a call reverts with empty returndata.
+    /// @dev Thrown when a call reverts with empty `returnData`.
     string internal constant CALL_FAILED = "call failed";
 
     /// @dev Thrown when the given owner is unexpected.
