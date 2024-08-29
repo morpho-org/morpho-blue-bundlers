@@ -24,7 +24,6 @@ abstract contract WNativeBundler is BaseBundler {
 
     /* CONSTRUCTOR */
 
-    /// @dev Warning: assumes the given addresses are non-zero (they are not expected to be deployment arguments).
     /// @param wNative The address of the wNative token contract.
     constructor(address wNative) {
         require(wNative != address(0), ErrorsLib.ZERO_ADDRESS);
