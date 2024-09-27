@@ -1,6 +1,6 @@
 {
-  "name": "@morpho-org/bundlers-sdk-ethers",
-  "description": "Morpho Blue Bundlers SDK (ethers-based)",
+  "name": "@morpho-org/bundlers-sdk-viem",
+  "description": "Morpho Blue Bundlers SDK (viem-based)",
   "license": "GPL-2.0-or-later",
   "version": "1.0.0",
   "repository": {
@@ -24,8 +24,8 @@
     "test": "yarn prepare && hardhat test"
   },
   "peerDependencies": {
-    "ethers": "^6.12.0",
-    "evm-maths": "^6.0.0"
+    "evm-maths": "^6.0.0",
+    "viem": "^2.0.0"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
@@ -39,7 +39,6 @@
     "@types/node": "^20.8.6",
     "chai": "^4.3.10",
     "dotenv": "^16.3.1",
-    "ethers": "^6.13.2",
     "evm-maths": "^7.0.0",
     "hardhat": "^2.18.1",
     "hardhat-gas-reporter": "^1.0.9",
@@ -49,7 +48,8 @@
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typechain": "^8.3.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "viem": "^2.21.15"
   },
   "publishConfig": {
     "main": "dist/index.js",
