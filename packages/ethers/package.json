@@ -1,8 +1,8 @@
 {
   "name": "@morpho-org/bundlers-sdk-ethers",
-  "description": "Morpho Blue Bundlers SDK",
+  "description": "Morpho Blue Bundlers SDK (ethers-based)",
   "license": "GPL-2.0-or-later",
-  "version": "1.2.0",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/morpho-labs/morpho-blue-bundlers.git"
@@ -16,11 +16,6 @@
     "url": "https://github.com/morpho-labs/morpho-blue-bundlers/issues"
   },
   "homepage": "https://github.com/morpho-labs/morpho-blue-bundlers#readme",
-  "private": true,
-  "packageManager": "yarn@4.4.0",
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
     "prepublish": "yarn build",
     "prepare": "ln -sfn ../../src/ ./contracts && ln -sfn ../../lib/ ./lib",
