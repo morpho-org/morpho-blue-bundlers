@@ -4,7 +4,7 @@ sizes = true
 src = "src"
 fs_permissions = [
     { access = "read", path = "./out/"},
-    { access = "read", path = "./config/"}
+    { access = "read", path = "./test/config/"}
 ]
 libs = ["lib"]
 via-ir = true

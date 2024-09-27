@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {SigUtils, Permit} from "./helpers/SigUtils.sol";
 
 import {ErrorsLib} from "../src/libraries/ErrorsLib.sol";
-import {IERC20Permit} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Permit.sol";
+import {IERC20Permit} from "../lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Permit.sol";
 import {ERC20PermitMock} from "../src/mocks/ERC20PermitMock.sol";
 
 import "./helpers/LocalTest.sol";
