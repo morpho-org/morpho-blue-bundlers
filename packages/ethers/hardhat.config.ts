@@ -7,7 +7,7 @@ import "@nomicfoundation/hardhat-chai-matchers";
 import "@nomicfoundation/hardhat-ethers";
 import "@typechain/hardhat";
 
-import config from "../../hardhat.config";
+import config from "../hardhat.config";
 
 config.typechain = {
   outDir: "src/types/",
