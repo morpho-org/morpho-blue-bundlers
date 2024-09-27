@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {Config, ConfigMarket, ConfigLib} from "./ConfigLib.sol";
 
-import {StdChains, VmSafe} from "../lib/forge-std/src/StdChains.sol";
+import {StdChains, VmSafe} from "../../lib/forge-std/src/StdChains.sol";
 
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -54,7 +54,7 @@ abstract contract Configured is StdChains {
         // Fetch config.
         if (bytes(CONFIG.json).length == 0) {
             string memory root = vm.projectRoot();
-            string memory path = string.concat(root, "/config/", network, ".json");
+            string memory path = string.concat(root, "/test/config/", network, ".json");
 
             CONFIG.json = vm.readFile(path);
         }
