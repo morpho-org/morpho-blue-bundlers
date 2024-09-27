@@ -142,7 +142,7 @@ await bundler
 
 Install dependencies with `yarn`.
 
-Run tests with `yarn test:forge --chain <chainid>` (chainid can be 1 or 8453).
+Run tests with `yarn test --chain <chainid>` (chainid can be 1 or 8453).
 
 Note that the `EthereumBundlerV2` has been deployed with 80 000 optimizer runs.
 To compile contracts with the same configuration, run `FOUNDRY_PROFILE=ethereumBundlerV2 forge b`.
