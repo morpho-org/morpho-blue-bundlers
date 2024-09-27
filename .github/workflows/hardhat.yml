@@ -1,38 +1,45 @@
-name: Hardhat
+name: Hardhat Test Suite
 
 on:
   push:
     branches:
       - main
   pull_request:
+  workflow_call:
+    secrets:
+      ALCHEMY_KEY:
+        required: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: Test
+  hardhat:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        package:
+          - @morpho-org/bundlers-sdk-ethers
+
     steps:
-      - name: Generate a token
-        id: generate-token
-        uses: tibdex/github-app-token@v2
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
-          app_id: ${{ secrets.APP_ID }}
-          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+          node-version: 20
+          cache: yarn
 
-      - name: Checkout
-        uses: actions/checkout@v3
+      - run: yarn --immutable
+
+      - uses: actions/cache@v4
         with:
-          token: ${{ steps.generate-token.outputs.token }}
-          submodules: recursive
+          path: |
+            packages/${{ matrix.package }}/cache/
+            packages/${{ matrix.package }}/artifacts/
+          key: ${{ github.base_ref || github.ref_name }}-${{ matrix.package }}-hardhat
 
-      - name: Build contracts & package with hardhat
-        uses: ./.github/actions/build-hardhat
-
-      - name: Run hardhat tests
-        run: yarn test:hardhat
+      - run: yarn workspace ${{ matrix.package }} test
         env:
           ALCHEMY_KEY: ${{ secrets.ALCHEMY_KEY }}

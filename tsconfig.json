@@ -1,15 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es2020",
+    "target": "esnext",
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "outDir": "dist",
+    "outDir": "lib",
     "baseUrl": ".",
     "strict": true,
+    "declaration": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "declaration": true
-  },
-  "include": ["pkg", "test/hardhat", "types"],
-  "files": ["hardhat.config.ts"]
+    "skipLibCheck": true,
+    "noUncheckedIndexedAccess": true
+  }
 }

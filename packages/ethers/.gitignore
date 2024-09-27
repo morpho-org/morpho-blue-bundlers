@@ -1,0 +1,7 @@
+# hardhat
+contracts/
+artifacts/
+cache_hardhat/
+dist/
+lib/
+foundry.toml

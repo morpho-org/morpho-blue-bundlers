@@ -1,18 +1,5 @@
-import * as dotenv from "dotenv";
-import "evm-maths";
-import "hardhat-gas-reporter";
-import "hardhat-tracer";
 import { HardhatUserConfig } from "hardhat/config";
-import "solidity-coverage";
-import "tsconfig-paths/register";
-
-import "@nomicfoundation/hardhat-chai-matchers";
-import "@nomicfoundation/hardhat-ethers";
-import "@nomicfoundation/hardhat-foundry";
-import "@nomicfoundation/hardhat-network-helpers";
-import "@typechain/hardhat";
-
-dotenv.config();
+import "dotenv/config";
 
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
@@ -43,7 +30,8 @@ const config: HardhatUserConfig = {
           },
           viaIR: true,
         },
-      },      {
+      },
+      {
         version: "0.8.21",
         settings: {
           optimizer: {
@@ -67,11 +55,6 @@ const config: HardhatUserConfig = {
   },
   mocha: {
     timeout: 3000000,
-  },
-  typechain: {
-    target: "ethers-v6",
-    outDir: "types/",
-    externalArtifacts: ["deps/**/*.json"],
   },
   tracer: {
     defaultVerbosity: 1,
