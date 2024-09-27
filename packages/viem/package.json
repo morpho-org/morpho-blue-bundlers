@@ -24,7 +24,6 @@
     "test": "yarn prepare && hardhat test"
   },
   "peerDependencies": {
-    "evm-maths": "^6.0.0",
     "viem": "^2.0.0"
   },
   "devDependencies": {
@@ -32,13 +31,12 @@
     "@nomicfoundation/hardhat-ethers": "^3.0.4",
     "@nomicfoundation/hardhat-foundry": "^1.1.1",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.9",
-    "@typechain/ethers-v6": "^0.5.1",
-    "@typechain/hardhat": "^9.1.0",
     "@types/chai": "^4.3.8",
     "@types/mocha": "^10.0.2",
     "@types/node": "^20.8.6",
     "chai": "^4.3.10",
     "dotenv": "^16.3.1",
+    "ethers": "^6.13.2",
     "evm-maths": "^7.0.0",
     "hardhat": "^2.18.1",
     "hardhat-gas-reporter": "^1.0.9",
@@ -47,7 +45,6 @@
     "solmate": "6.2.0",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
-    "typechain": "^8.3.2",
     "typescript": "^5.2.2",
     "viem": "^2.21.15"
   },

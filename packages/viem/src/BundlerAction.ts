@@ -1,43 +1,58 @@
-import { BigNumberish, BytesLike, Signature } from "ethers";
-
 import {
-  AaveV2MigrationBundlerV2__factory,
-  AaveV3MigrationBundlerV2__factory,
-  AaveV3OptimizerMigrationBundlerV2__factory,
-  CompoundV2MigrationBundlerV2__factory,
-  CompoundV3MigrationBundlerV2__factory,
-  ERC20WrapperBundler__factory,
-  ERC4626Bundler__factory,
-  EthereumPermitBundler__factory,
-  IAllowanceTransfer,
-  MorphoBundler__factory,
-  Permit2Bundler__factory,
-  PermitBundler__factory,
-  StEthBundler__factory,
-  TransferBundler__factory,
-  UrdBundler__factory,
-  WNativeBundler__factory,
-} from "./types";
-import { AuthorizationStruct, MarketParamsStruct, WithdrawalStruct } from "./types/contracts/MorphoBundler";
+  aaveV2MigrationBundlerAbi,
+  aaveV3MigrationBundlerAbi,
+  aaveV3OptimizerMigrationBundlerAbi,
+  compoundV2MigrationBundlerAbi,
+  compoundV3MigrationBundlerAbi,
+  erc20WrapperBundlerAbi,
+  erc4626BundlerAbi,
+  ethereumPermitBundlerAbi,
+  morphoBundlerAbi,
+  permit2BundlerAbi,
+  permitBundlerAbi,
+  stEthBundlerAbi,
+  transferBundlerAbi,
+  urdBundlerAbi,
+  wNativeBundlerAbi,
+} from "./abis";
 
-export type BundlerCall = string;
+import { Address, Hex, encodeAbiParameters, encodeFunctionData, parseSignature } from "viem";
 
-const TRANSFER_BUNDLER_IFC = TransferBundler__factory.createInterface();
-const PERMIT_BUNDLER_IFC = PermitBundler__factory.createInterface();
-const PERMIT2_BUNDLER_IFC = Permit2Bundler__factory.createInterface();
-const ERC20_WRAPPER_BUNDLER_IFC = ERC20WrapperBundler__factory.createInterface();
-const ERC4626_BUNDLER_IFC = ERC4626Bundler__factory.createInterface();
-const MORPHO_BUNDLER_IFC = MorphoBundler__factory.createInterface();
-const URD_BUNDLER_IFC = UrdBundler__factory.createInterface();
-const WNATIVE_BUNDLER_IFC = WNativeBundler__factory.createInterface();
-const ST_ETH_BUNDLER_IFC = StEthBundler__factory.createInterface();
-const ETHEREUM_PERMIT_BUNDLER_IFC = EthereumPermitBundler__factory.createInterface();
+export type BundlerCall = Hex;
 
-const AAVE_V2_BUNDLER_IFC = AaveV2MigrationBundlerV2__factory.createInterface();
-const AAVE_V3_BUNDLER_IFC = AaveV3MigrationBundlerV2__factory.createInterface();
-const AAVE_V3_OPTIMIZER_BUNDLER_IFC = AaveV3OptimizerMigrationBundlerV2__factory.createInterface();
-const COMPOUND_V2_BUNDLER_IFC = CompoundV2MigrationBundlerV2__factory.createInterface();
-const COMPOUND_V3_BUNDLER_IFC = CompoundV3MigrationBundlerV2__factory.createInterface();
+export interface MarketParams {
+  loanToken: Address;
+  collateralToken: Address;
+  oracle: Address;
+  irm: Address;
+  lltv: bigint;
+}
+
+export interface Authorization {
+  authorizer: Address;
+  authorized: Address;
+  isAuthorized: boolean;
+  nonce: bigint;
+  deadline: bigint;
+}
+
+export interface ReallocationWithdrawal {
+  marketParams: MarketParams;
+  amount: bigint;
+}
+
+export interface Permit2PermitSingleDetails {
+  token: Address;
+  amount: bigint;
+  expiration: number;
+  nonce: number;
+}
+
+export interface Permit2PermitSingle {
+  details: Permit2PermitSingleDetails;
+  spender: Address;
+  sigDeadline: bigint;
+}
 
 /**
  * Namespace to easily encode calls to the Bundler contract, using ethers.
@@ -50,8 +65,8 @@ export namespace BundlerAction {
    * @param recipient The address to send native tokens to.
    * @param amount The amount of native tokens to send (in wei).
    */
-  export function nativeTransfer(recipient: string, amount: BigNumberish): BundlerCall {
-    return TRANSFER_BUNDLER_IFC.encodeFunctionData("nativeTransfer", [recipient, amount]);
+  export function nativeTransfer(recipient: Address, amount: bigint): BundlerCall {
+    return encodeFunctionData({ abi: transferBundlerAbi, functionName: "nativeTransfer", args: [recipient, amount] });
   }
 
   /**
@@ -60,8 +75,12 @@ export namespace BundlerAction {
    * @param recipient The address to send tokens to.
    * @param amount The amount of tokens to send.
    */
-  export function erc20Transfer(asset: string, recipient: string, amount: BigNumberish): BundlerCall {
-    return TRANSFER_BUNDLER_IFC.encodeFunctionData("erc20Transfer", [asset, recipient, amount]);
+  export function erc20Transfer(asset: Address, recipient: Address, amount: bigint): BundlerCall {
+    return encodeFunctionData({
+      abi: transferBundlerAbi,
+      functionName: "erc20Transfer",
+      args: [asset, recipient, amount],
+    });
   }
 
   /**
@@ -69,8 +88,8 @@ export namespace BundlerAction {
    * @param asset The address of the ERC20 token to transfer.
    * @param amount The amount of tokens to send.
    */
-  export function erc20TransferFrom(asset: string, amount: BigNumberish): BundlerCall {
-    return TRANSFER_BUNDLER_IFC.encodeFunctionData("erc20TransferFrom", [asset, amount]);
+  export function erc20TransferFrom(asset: Address, amount: bigint): BundlerCall {
+    return encodeFunctionData({ abi: transferBundlerAbi, functionName: "erc20TransferFrom", args: [asset, amount] });
   }
 
   /* Permit */
@@ -84,21 +103,19 @@ export namespace BundlerAction {
    * @param skipRevert Whether to allow the permit to revert without making the whole multicall revert.
    */
   export function permit(
-    asset: string,
-    amount: BigNumberish,
-    deadline: BigNumberish,
-    signature: Signature,
+    asset: Address,
+    amount: bigint,
+    deadline: bigint,
+    signature: Hex,
     skipRevert: boolean,
   ): BundlerCall {
-    return PERMIT_BUNDLER_IFC.encodeFunctionData("permit", [
-      asset,
-      amount,
-      deadline,
-      signature.v,
-      signature.r,
-      signature.s,
-      skipRevert,
-    ]);
+    const { r, s, yParity } = parseSignature(signature);
+
+    return encodeFunctionData({
+      abi: permitBundlerAbi,
+      functionName: "permit",
+      args: [asset, amount, deadline, yParity, r, s, skipRevert],
+    });
   }
 
   /**
@@ -110,21 +127,19 @@ export namespace BundlerAction {
    * @param skipRevert Whether to allow the permit to revert without making the whole multicall revert.
    */
   export function permitDai(
-    nonce: BigNumberish,
-    expiry: BigNumberish,
+    nonce: bigint,
+    expiry: bigint,
     allowed: boolean,
-    signature: Signature,
+    signature: Hex,
     skipRevert: boolean,
   ): BundlerCall {
-    return ETHEREUM_PERMIT_BUNDLER_IFC.encodeFunctionData("permitDai", [
-      nonce,
-      expiry,
-      allowed,
-      signature.v,
-      signature.r,
-      signature.s,
-      skipRevert,
-    ]);
+    const { r, s, yParity } = parseSignature(signature);
+
+    return encodeFunctionData({
+      abi: ethereumPermitBundlerAbi,
+      functionName: "permitDai",
+      args: [nonce, expiry, allowed, yParity, r, s, skipRevert],
+    });
   }
 
   /* Permit2 */
@@ -135,12 +150,12 @@ export namespace BundlerAction {
    * @param signature The Ethers signature to permit the tokens.
    * @param skipRevert Whether to allow the permit to revert without making the whole multicall revert.
    */
-  export function approve2(
-    permitSingle: IAllowanceTransfer.PermitSingleStruct,
-    signature: Signature,
-    skipRevert: boolean,
-  ): BundlerCall {
-    return PERMIT2_BUNDLER_IFC.encodeFunctionData("approve2", [permitSingle, signature.serialized, skipRevert]);
+  export function approve2(permitSingle: Permit2PermitSingle, signature: Hex, skipRevert: boolean): BundlerCall {
+    return encodeFunctionData({
+      abi: permit2BundlerAbi,
+      functionName: "approve2",
+      args: [permitSingle, signature, skipRevert],
+    });
   }
 
   /**
@@ -148,8 +163,8 @@ export namespace BundlerAction {
    * @param asset The address of the ERC20 token to transfer.
    * @param amount The amount of tokens to send.
    */
-  export function transferFrom2(asset: string, amount: BigNumberish): BundlerCall {
-    return PERMIT2_BUNDLER_IFC.encodeFunctionData("transferFrom2", [asset, amount]);
+  export function transferFrom2(asset: Address, amount: bigint): BundlerCall {
+    return encodeFunctionData({ abi: permit2BundlerAbi, functionName: "transferFrom2", args: [asset, amount] });
   }
 
   /* ERC20 Wrapper */
@@ -159,8 +174,12 @@ export namespace BundlerAction {
    * @param wrapper The address of the ERC20 wrapper token.
    * @param amount The amount of tokens to send.
    */
-  export function erc20WrapperDepositFor(wrapper: string, amount: BigNumberish): BundlerCall {
-    return ERC20_WRAPPER_BUNDLER_IFC.encodeFunctionData("erc20WrapperDepositFor", [wrapper, amount]);
+  export function erc20WrapperDepositFor(wrapper: Address, amount: bigint): BundlerCall {
+    return encodeFunctionData({
+      abi: erc20WrapperBundlerAbi,
+      functionName: "erc20WrapperDepositFor",
+      args: [wrapper, amount],
+    });
   }
 
   /**
@@ -169,8 +188,12 @@ export namespace BundlerAction {
    * @param account The address to send the underlying ERC20 tokens.
    * @param amount The amount of tokens to send.
    */
-  export function erc20WrapperWithdrawTo(wrapper: string, account: string, amount: BigNumberish): BundlerCall {
-    return ERC20_WRAPPER_BUNDLER_IFC.encodeFunctionData("erc20WrapperWithdrawTo", [wrapper, account, amount]);
+  export function erc20WrapperWithdrawTo(wrapper: Address, account: Address, amount: bigint): BundlerCall {
+    return encodeFunctionData({
+      abi: erc20WrapperBundlerAbi,
+      functionName: "erc20WrapperWithdrawTo",
+      args: [wrapper, account, amount],
+    });
   }
 
   /* ERC4626 */
@@ -182,13 +205,12 @@ export namespace BundlerAction {
    * @param maxAssets The maximum amount of assets to deposit (protects the sender from unexpected slippage).
    * @param receiver The address to send the shares to.
    */
-  export function erc4626Mint(
-    erc4626: string,
-    shares: BigNumberish,
-    maxAssets: BigNumberish,
-    receiver: string,
-  ): BundlerCall {
-    return ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Mint", [erc4626, shares, maxAssets, receiver]);
+  export function erc4626Mint(erc4626: Address, shares: bigint, maxAssets: bigint, receiver: Address): BundlerCall {
+    return encodeFunctionData({
+      abi: erc4626BundlerAbi,
+      functionName: "erc4626Mint",
+      args: [erc4626, shares, maxAssets, receiver],
+    });
   }
 
   /**
@@ -198,13 +220,12 @@ export namespace BundlerAction {
    * @param minShares The minimum amount of shares to mint (protects the sender from unexpected slippage).
    * @param receiver The address to send the shares to.
    */
-  export function erc4626Deposit(
-    erc4626: string,
-    assets: BigNumberish,
-    minShares: BigNumberish,
-    receiver: string,
-  ): BundlerCall {
-    return ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Deposit", [erc4626, assets, minShares, receiver]);
+  export function erc4626Deposit(erc4626: Address, assets: bigint, minShares: bigint, receiver: Address): BundlerCall {
+    return encodeFunctionData({
+      abi: erc4626BundlerAbi,
+      functionName: "erc4626Deposit",
+      args: [erc4626, assets, minShares, receiver],
+    });
   }
 
   /**
@@ -215,13 +236,17 @@ export namespace BundlerAction {
    * @param receiver The address to send the assets to.
    */
   export function erc4626Withdraw(
-    erc4626: string,
-    assets: BigNumberish,
-    maxShares: BigNumberish,
-    receiver: string,
-    owner: string,
+    erc4626: Address,
+    assets: bigint,
+    maxShares: bigint,
+    receiver: Address,
+    owner: Address,
   ): BundlerCall {
-    return ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Withdraw", [erc4626, assets, maxShares, receiver, owner]);
+    return encodeFunctionData({
+      abi: erc4626BundlerAbi,
+      functionName: "erc4626Withdraw",
+      args: [erc4626, assets, maxShares, receiver, owner],
+    });
   }
 
   /**
@@ -232,13 +257,17 @@ export namespace BundlerAction {
    * @param receiver The address to send the assets to.
    */
   export function erc4626Redeem(
-    erc4626: string,
-    shares: BigNumberish,
-    minAssets: BigNumberish,
-    receiver: string,
-    owner: string,
+    erc4626: Address,
+    shares: bigint,
+    minAssets: bigint,
+    receiver: Address,
+    owner: Address,
   ): BundlerCall {
-    return ERC4626_BUNDLER_IFC.encodeFunctionData("erc4626Redeem", [erc4626, shares, minAssets, receiver, owner]);
+    return encodeFunctionData({
+      abi: erc4626BundlerAbi,
+      functionName: "erc4626Redeem",
+      args: [erc4626, shares, minAssets, receiver, owner],
+    });
   }
 
   /* Morpho */
@@ -250,15 +279,17 @@ export namespace BundlerAction {
    * @param skipRevert Whether to allow the authorization call to revert without making the whole multicall revert.
    */
   export function morphoSetAuthorizationWithSig(
-    authorization: AuthorizationStruct,
-    signature: Signature,
+    authorization: Authorization,
+    signature: Hex,
     skipRevert: boolean,
   ): BundlerCall {
-    return MORPHO_BUNDLER_IFC.encodeFunctionData("morphoSetAuthorizationWithSig", [
-      authorization,
-      { v: signature.v, r: signature.r, s: signature.s },
-      skipRevert,
-    ]);
+    const { r, s, yParity } = parseSignature(signature);
+
+    return encodeFunctionData({
+      abi: morphoBundlerAbi,
+      functionName: "morphoSetAuthorizationWithSig",
+      args: [authorization, { v: yParity, r, s }, skipRevert],
+    });
   }
 
   /**
@@ -271,21 +302,25 @@ export namespace BundlerAction {
    * @param callbackCalls The array of calls to execute inside Morpho Blue's `onMorphoSupply` callback.
    */
   export function morphoSupply(
-    market: MarketParamsStruct,
-    assets: BigNumberish,
-    shares: BigNumberish,
-    slippageAmount: BigNumberish,
-    onBehalf: string,
+    market: MarketParams,
+    assets: bigint,
+    shares: bigint,
+    slippageAmount: bigint,
+    onBehalf: Address,
     callbackCalls: BundlerCall[],
   ): BundlerCall {
-    return MORPHO_BUNDLER_IFC.encodeFunctionData("morphoSupply", [
-      market,
-      assets,
-      shares,
-      slippageAmount,
-      onBehalf,
-      MORPHO_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
-    ]);
+    return encodeFunctionData({
+      abi: morphoBundlerAbi,
+      functionName: "morphoSupply",
+      args: [
+        market,
+        assets,
+        shares,
+        slippageAmount,
+        onBehalf,
+        encodeAbiParameters([{ type: "bytes[]" }], [callbackCalls]),
+      ],
+    });
   }
 
   /**
@@ -296,17 +331,16 @@ export namespace BundlerAction {
    * @param callbackCalls The array of calls to execute inside Morpho Blue's `onMorphoSupplyCollateral` callback.
    */
   export function morphoSupplyCollateral(
-    market: MarketParamsStruct,
-    assets: BigNumberish,
-    onBehalf: string,
+    market: MarketParams,
+    assets: bigint,
+    onBehalf: Address,
     callbackCalls: BundlerCall[],
   ): BundlerCall {
-    return MORPHO_BUNDLER_IFC.encodeFunctionData("morphoSupplyCollateral", [
-      market,
-      assets,
-      onBehalf,
-      MORPHO_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
-    ]);
+    return encodeFunctionData({
+      abi: morphoBundlerAbi,
+      functionName: "morphoSupplyCollateral",
+      args: [market, assets, onBehalf, encodeAbiParameters([{ type: "bytes[]" }], [callbackCalls])],
+    });
   }
 
   /**
@@ -318,13 +352,17 @@ export namespace BundlerAction {
    * @param receiver The address to send borrowed tokens to.
    */
   export function morphoBorrow(
-    market: MarketParamsStruct,
-    assets: BigNumberish,
-    shares: BigNumberish,
-    slippageAmount: BigNumberish,
-    receiver: string,
+    market: MarketParams,
+    assets: bigint,
+    shares: bigint,
+    slippageAmount: bigint,
+    receiver: Address,
   ): BundlerCall {
-    return MORPHO_BUNDLER_IFC.encodeFunctionData("morphoBorrow", [market, assets, shares, slippageAmount, receiver]);
+    return encodeFunctionData({
+      abi: morphoBundlerAbi,
+      functionName: "morphoBorrow",
+      args: [market, assets, shares, slippageAmount, receiver],
+    });
   }
 
   /**
@@ -337,21 +375,25 @@ export namespace BundlerAction {
    * @param callbackCalls The array of calls to execute inside Morpho Blue's `onMorphoSupply` callback.
    */
   export function morphoRepay(
-    market: MarketParamsStruct,
-    assets: BigNumberish,
-    shares: BigNumberish,
-    slippageAmount: BigNumberish,
-    onBehalf: string,
+    market: MarketParams,
+    assets: bigint,
+    shares: bigint,
+    slippageAmount: bigint,
+    onBehalf: Address,
     callbackCalls: BundlerCall[],
   ): BundlerCall {
-    return MORPHO_BUNDLER_IFC.encodeFunctionData("morphoRepay", [
-      market,
-      assets,
-      shares,
-      slippageAmount,
-      onBehalf,
-      MORPHO_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
-    ]);
+    return encodeFunctionData({
+      abi: morphoBundlerAbi,
+      functionName: "morphoRepay",
+      args: [
+        market,
+        assets,
+        shares,
+        slippageAmount,
+        onBehalf,
+        encodeAbiParameters([{ type: "bytes[]" }], [callbackCalls]),
+      ],
+    });
   }
 
   /**
@@ -363,13 +405,17 @@ export namespace BundlerAction {
    * @param receiver The address to send withdrawn tokens to.
    */
   export function morphoWithdraw(
-    market: MarketParamsStruct,
-    assets: BigNumberish,
-    shares: BigNumberish,
-    slippageAmount: BigNumberish,
-    receiver: string,
+    market: MarketParams,
+    assets: bigint,
+    shares: bigint,
+    slippageAmount: bigint,
+    receiver: Address,
   ): BundlerCall {
-    return MORPHO_BUNDLER_IFC.encodeFunctionData("morphoWithdraw", [market, assets, shares, slippageAmount, receiver]);
+    return encodeFunctionData({
+      abi: morphoBundlerAbi,
+      functionName: "morphoWithdraw",
+      args: [market, assets, shares, slippageAmount, receiver],
+    });
   }
 
   /**
@@ -378,12 +424,12 @@ export namespace BundlerAction {
    * @param assets The amount of assets to withdraw.
    * @param receiver The address to send withdrawn tokens to.
    */
-  export function morphoWithdrawCollateral(
-    market: MarketParamsStruct,
-    assets: BigNumberish,
-    receiver: string,
-  ): BundlerCall {
-    return MORPHO_BUNDLER_IFC.encodeFunctionData("morphoWithdrawCollateral", [market, assets, receiver]);
+  export function morphoWithdrawCollateral(market: MarketParams, assets: bigint, receiver: Address): BundlerCall {
+    return encodeFunctionData({
+      abi: morphoBundlerAbi,
+      functionName: "morphoWithdrawCollateral",
+      args: [market, assets, receiver],
+    });
   }
 
   /**
@@ -392,12 +438,12 @@ export namespace BundlerAction {
    * @param amount The amount of tokens to flash loan.
    * @param callbackCalls The array of calls to execute inside Morpho Blue's `onMorphoFlashLoan` callback.
    */
-  export function morphoFlashLoan(asset: string, amount: BigNumberish, callbackCalls: BundlerCall[]): BundlerCall {
-    return MORPHO_BUNDLER_IFC.encodeFunctionData("morphoFlashLoan", [
-      asset,
-      amount,
-      MORPHO_BUNDLER_IFC.getAbiCoder().encode(["bytes[]"], [callbackCalls]),
-    ]);
+  export function morphoFlashLoan(asset: Address, amount: bigint, callbackCalls: BundlerCall[]): BundlerCall {
+    return encodeFunctionData({
+      abi: morphoBundlerAbi,
+      functionName: "morphoFlashLoan",
+      args: [asset, amount, encodeAbiParameters([{ type: "bytes[]" }], [callbackCalls])],
+    });
   }
 
   /**
@@ -409,19 +455,17 @@ export namespace BundlerAction {
    * @param supplyMarketParams The market params to reallocate to.
    */
   export function metaMorphoReallocateTo(
-    publicAllocator: string,
-    vault: string,
-    value: BigNumberish,
-    withdrawals: WithdrawalStruct[],
-    supplyMarketParams: MarketParamsStruct,
+    publicAllocator: Address,
+    vault: Address,
+    value: bigint,
+    withdrawals: ReallocationWithdrawal[],
+    supplyMarketParams: MarketParams,
   ): BundlerCall {
-    return MORPHO_BUNDLER_IFC.encodeFunctionData("reallocateTo", [
-      publicAllocator,
-      vault,
-      value,
-      withdrawals,
-      supplyMarketParams,
-    ]);
+    return encodeFunctionData({
+      abi: morphoBundlerAbi,
+      functionName: "reallocateTo",
+      args: [publicAllocator, vault, value, withdrawals, supplyMarketParams],
+    });
   }
 
   /* Universal Rewards Distributor */
@@ -436,14 +480,18 @@ export namespace BundlerAction {
    * @param skipRevert Whether to allow the claim to revert without making the whole multicall revert.
    */
   export function urdClaim(
-    distributor: string,
-    account: string,
-    reward: string,
-    amount: BigNumberish,
-    proof: BytesLike[],
+    distributor: Address,
+    account: Address,
+    reward: Address,
+    amount: bigint,
+    proof: Hex[],
     skipRevert: boolean,
   ): BundlerCall {
-    return URD_BUNDLER_IFC.encodeFunctionData("urdClaim", [distributor, account, reward, amount, proof, skipRevert]);
+    return encodeFunctionData({
+      abi: urdBundlerAbi,
+      functionName: "urdClaim",
+      args: [distributor, account, reward, amount, proof, skipRevert],
+    });
   }
 
   /* Wrapped Native */
@@ -452,16 +500,16 @@ export namespace BundlerAction {
    * Encodes a call to the Bundler to wrap native tokens (ETH to WETH on ethereum, MATIC to WMATIC on polygon, etc).
    * @param amount The amount of native tokens to wrap (in wei).
    */
-  export function wrapNative(amount: BigNumberish): BundlerCall {
-    return WNATIVE_BUNDLER_IFC.encodeFunctionData("wrapNative", [amount]);
+  export function wrapNative(amount: bigint): BundlerCall {
+    return encodeFunctionData({ abi: wNativeBundlerAbi, functionName: "wrapNative", args: [amount] });
   }
 
   /**
    * Encodes a call to the Bundler to unwrap native tokens (WETH to ETH on ethereum, WMATIC to MATIC on polygon, etc).
    * @param amount The amount of native tokens to unwrap (in wei).
    */
-  export function unwrapNative(amount: BigNumberish): BundlerCall {
-    return WNATIVE_BUNDLER_IFC.encodeFunctionData("unwrapNative", [amount]);
+  export function unwrapNative(amount: bigint): BundlerCall {
+    return encodeFunctionData({ abi: wNativeBundlerAbi, functionName: "unwrapNative", args: [amount] });
   }
 
   /* stETH */
@@ -472,8 +520,8 @@ export namespace BundlerAction {
    * @param minShares The minimum amount of shares to mint (protects the sender from unexpected slippage).
    * @param referral The referral address to use.
    */
-  export function stakeEth(amount: BigNumberish, minShares: BigNumberish, referral: string): BundlerCall {
-    return ST_ETH_BUNDLER_IFC.encodeFunctionData("stakeEth", [amount, minShares, referral]);
+  export function stakeEth(amount: bigint, minShares: bigint, referral: Address): BundlerCall {
+    return encodeFunctionData({ abi: stEthBundlerAbi, functionName: "stakeEth", args: [amount, minShares, referral] });
   }
 
   /* Wrapped stETH */
@@ -482,16 +530,16 @@ export namespace BundlerAction {
    * Encodes a call to the Bundler to wrap stETH (stETH to wstETH on ethereum).
    * @param amount The amount of stETH to wrap (in wei).
    */
-  export function wrapStEth(amount: BigNumberish): BundlerCall {
-    return ST_ETH_BUNDLER_IFC.encodeFunctionData("wrapStEth", [amount]);
+  export function wrapStEth(amount: bigint): BundlerCall {
+    return encodeFunctionData({ abi: stEthBundlerAbi, functionName: "wrapStEth", args: [amount] });
   }
 
   /**
    * Encodes a call to the Bundler to unwrap wstETH (wstETH to stETH on ethereum).
    * @param amount The amount of wstETH to unwrap (in wei).
    */
-  export function unwrapStEth(amount: BigNumberish): BundlerCall {
-    return ST_ETH_BUNDLER_IFC.encodeFunctionData("unwrapStEth", [amount]);
+  export function unwrapStEth(amount: bigint): BundlerCall {
+    return encodeFunctionData({ abi: stEthBundlerAbi, functionName: "unwrapStEth", args: [amount] });
   }
 
   /* AaveV2 */
@@ -503,8 +551,12 @@ export namespace BundlerAction {
    * @param amount The amount of debt to repay.
    * @param rateMode The interest rate mode used by the debt to repay.
    */
-  export function aaveV2Repay(asset: string, amount: BigNumberish, rateMode: BigNumberish): BundlerCall {
-    return AAVE_V2_BUNDLER_IFC.encodeFunctionData("aaveV2Repay", [asset, amount, rateMode]);
+  export function aaveV2Repay(asset: Address, amount: bigint, rateMode: bigint): BundlerCall {
+    return encodeFunctionData({
+      abi: aaveV2MigrationBundlerAbi,
+      functionName: "aaveV2Repay",
+      args: [asset, amount, rateMode],
+    });
   }
 
   /**
@@ -513,8 +565,12 @@ export namespace BundlerAction {
    * @param asset The asset to withdraw.
    * @param amount The amount of asset to withdraw.
    */
-  export function aaveV2Withdraw(asset: string, amount: BigNumberish): BundlerCall {
-    return AAVE_V2_BUNDLER_IFC.encodeFunctionData("aaveV2Withdraw", [asset, amount]);
+  export function aaveV2Withdraw(asset: Address, amount: bigint): BundlerCall {
+    return encodeFunctionData({
+      abi: aaveV2MigrationBundlerAbi,
+      functionName: "aaveV2Withdraw",
+      args: [asset, amount],
+    });
   }
 
   /* AaveV3 */
@@ -526,8 +582,12 @@ export namespace BundlerAction {
    * @param amount The amount of debt to repay.
    * @param rateMode The interest rate mode used by the debt to repay.
    */
-  export function aaveV3Repay(asset: string, amount: BigNumberish, rateMode: BigNumberish): BundlerCall {
-    return AAVE_V3_BUNDLER_IFC.encodeFunctionData("aaveV3Repay", [asset, amount, rateMode]);
+  export function aaveV3Repay(asset: Address, amount: bigint, rateMode: bigint): BundlerCall {
+    return encodeFunctionData({
+      abi: aaveV3MigrationBundlerAbi,
+      functionName: "aaveV3Repay",
+      args: [asset, amount, rateMode],
+    });
   }
 
   /**
@@ -536,8 +596,12 @@ export namespace BundlerAction {
    * @param asset The asset to withdraw.
    * @param amount The amount of asset to withdraw.
    */
-  export function aaveV3Withdraw(asset: string, amount: BigNumberish): BundlerCall {
-    return AAVE_V3_BUNDLER_IFC.encodeFunctionData("aaveV3Withdraw", [asset, amount]);
+  export function aaveV3Withdraw(asset: Address, amount: bigint): BundlerCall {
+    return encodeFunctionData({
+      abi: aaveV3MigrationBundlerAbi,
+      functionName: "aaveV3Withdraw",
+      args: [asset, amount],
+    });
   }
 
   /* AaveV3 Optimizer */
@@ -549,8 +613,12 @@ export namespace BundlerAction {
    * @param amount The amount of debt to repay.
    * @param maxIterations The maximum amount of iterations to use for the repayment.
    */
-  export function aaveV3OptimizerRepay(underlying: string, amount: BigNumberish): BundlerCall {
-    return AAVE_V3_OPTIMIZER_BUNDLER_IFC.encodeFunctionData("aaveV3OptimizerRepay", [underlying, amount]);
+  export function aaveV3OptimizerRepay(underlying: Address, amount: bigint): BundlerCall {
+    return encodeFunctionData({
+      abi: aaveV3OptimizerMigrationBundlerAbi,
+      functionName: "aaveV3OptimizerRepay",
+      args: [underlying, amount],
+    });
   }
 
   /**
@@ -560,16 +628,12 @@ export namespace BundlerAction {
    * @param amount The amount to withdraw.
    * @param maxIterations The maximum amount of iterations to use for the withdrawal.
    */
-  export function aaveV3OptimizerWithdraw(
-    underlying: string,
-    amount: BigNumberish,
-    maxIterations: BigNumberish,
-  ): BundlerCall {
-    return AAVE_V3_OPTIMIZER_BUNDLER_IFC.encodeFunctionData("aaveV3OptimizerWithdraw", [
-      underlying,
-      amount,
-      maxIterations,
-    ]);
+  export function aaveV3OptimizerWithdraw(underlying: Address, amount: bigint, maxIterations: bigint): BundlerCall {
+    return encodeFunctionData({
+      abi: aaveV3OptimizerMigrationBundlerAbi,
+      functionName: "aaveV3OptimizerWithdraw",
+      args: [underlying, amount, maxIterations],
+    });
   }
 
   /**
@@ -578,8 +642,12 @@ export namespace BundlerAction {
    * @param underlying The underlying asset to withdraw.
    * @param amount The amount to withdraw.
    */
-  export function aaveV3OptimizerWithdrawCollateral(underlying: string, amount: BigNumberish): BundlerCall {
-    return AAVE_V3_OPTIMIZER_BUNDLER_IFC.encodeFunctionData("aaveV3OptimizerWithdrawCollateral", [underlying, amount]);
+  export function aaveV3OptimizerWithdrawCollateral(underlying: Address, amount: bigint): BundlerCall {
+    return encodeFunctionData({
+      abi: aaveV3OptimizerMigrationBundlerAbi,
+      functionName: "aaveV3OptimizerWithdrawCollateral",
+      args: [underlying, amount],
+    });
   }
 
   /**
@@ -593,18 +661,18 @@ export namespace BundlerAction {
    */
   export function aaveV3OptimizerApproveManagerWithSig(
     isApproved: boolean,
-    nonce: BigNumberish,
-    deadline: BigNumberish,
-    signature: Signature,
+    nonce: bigint,
+    deadline: bigint,
+    signature: Hex,
     skipRevert: boolean,
   ): BundlerCall {
-    return AAVE_V3_OPTIMIZER_BUNDLER_IFC.encodeFunctionData("aaveV3OptimizerApproveManagerWithSig", [
-      isApproved,
-      nonce,
-      deadline,
-      { v: signature.v, r: signature.r, s: signature.s },
-      skipRevert,
-    ]);
+    const { r, s, yParity } = parseSignature(signature);
+
+    return encodeFunctionData({
+      abi: aaveV3OptimizerMigrationBundlerAbi,
+      functionName: "aaveV3OptimizerApproveManagerWithSig",
+      args: [isApproved, nonce, deadline, { v: yParity, r, s }, skipRevert],
+    });
   }
 
   /* CompoundV2 */
@@ -615,8 +683,12 @@ export namespace BundlerAction {
    * @param cToken The cToken on which to repay the debt.
    * @param amount The amount of debt to repay.
    */
-  export function compoundV2Repay(cToken: string, amount: BigNumberish): BundlerCall {
-    return COMPOUND_V2_BUNDLER_IFC.encodeFunctionData("compoundV2Repay", [cToken, amount]);
+  export function compoundV2Repay(cToken: Address, amount: bigint): BundlerCall {
+    return encodeFunctionData({
+      abi: compoundV2MigrationBundlerAbi,
+      functionName: "compoundV2Repay",
+      args: [cToken, amount],
+    });
   }
 
   /**
@@ -625,8 +697,12 @@ export namespace BundlerAction {
    * @param cToken The cToken on which to withdraw.
    * @param amount The amount to withdraw.
    */
-  export function compoundV2Redeem(cToken: string, amount: BigNumberish): BundlerCall {
-    return COMPOUND_V2_BUNDLER_IFC.encodeFunctionData("compoundV2Redeem", [cToken, amount]);
+  export function compoundV2Redeem(cToken: Address, amount: bigint): BundlerCall {
+    return encodeFunctionData({
+      abi: compoundV2MigrationBundlerAbi,
+      functionName: "compoundV2Redeem",
+      args: [cToken, amount],
+    });
   }
 
   /* CompoundV3 */
@@ -637,8 +713,12 @@ export namespace BundlerAction {
    * @param instance The CompoundV3 instance on which to repay the debt.
    * @param amount The amount of debt to repay.
    */
-  export function compoundV3Repay(instance: string, amount: BigNumberish): BundlerCall {
-    return COMPOUND_V3_BUNDLER_IFC.encodeFunctionData("compoundV3Repay", [instance, amount]);
+  export function compoundV3Repay(instance: Address, amount: bigint): BundlerCall {
+    return encodeFunctionData({
+      abi: compoundV3MigrationBundlerAbi,
+      functionName: "compoundV3Repay",
+      args: [instance, amount],
+    });
   }
 
   /**
@@ -647,8 +727,12 @@ export namespace BundlerAction {
    * @param instance The CompoundV3 instance on which to withdraw.
    * @param amount The amount to withdraw.
    */
-  export function compoundV3WithdrawFrom(instance: string, asset: string, amount: BigNumberish): BundlerCall {
-    return COMPOUND_V3_BUNDLER_IFC.encodeFunctionData("compoundV3WithdrawFrom", [instance, asset, amount]);
+  export function compoundV3WithdrawFrom(instance: Address, asset: Address, amount: bigint): BundlerCall {
+    return encodeFunctionData({
+      abi: compoundV3MigrationBundlerAbi,
+      functionName: "compoundV3WithdrawFrom",
+      args: [instance, asset, amount],
+    });
   }
 
   /**
@@ -662,23 +746,20 @@ export namespace BundlerAction {
    * @param skipRevert Whether to allow the signature to revert without making the whole multicall revert.
    */
   export function compoundV3AllowBySig(
-    instance: string,
+    instance: Address,
     isAllowed: boolean,
-    nonce: BigNumberish,
-    expiry: BigNumberish,
-    signature: Signature,
+    nonce: bigint,
+    expiry: bigint,
+    signature: Hex,
     skipRevert: boolean,
   ): BundlerCall {
-    return COMPOUND_V3_BUNDLER_IFC.encodeFunctionData("compoundV3AllowBySig", [
-      instance,
-      isAllowed,
-      nonce,
-      expiry,
-      signature.v,
-      signature.r,
-      signature.s,
-      skipRevert,
-    ]);
+    const { r, s, yParity } = parseSignature(signature);
+
+    return encodeFunctionData({
+      abi: compoundV3MigrationBundlerAbi,
+      functionName: "compoundV3AllowBySig",
+      args: [instance, isAllowed, nonce, expiry, yParity, r, s, skipRevert],
+    });
   }
 }
 
