@@ -28,5 +28,6 @@ node_modules/
 /types
 /cache_hardhat
 /artifacts
+/pkg/types
 
 *.log
