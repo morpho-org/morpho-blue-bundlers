@@ -43,7 +43,8 @@ const config: HardhatUserConfig = {
           },
           viaIR: true,
         },
-      },      {
+      },
+      {
         version: "0.8.21",
         settings: {
           optimizer: {
@@ -70,7 +71,7 @@ const config: HardhatUserConfig = {
   },
   typechain: {
     target: "ethers-v6",
-    outDir: "types/",
+    outDir: "pkg/types/",
     externalArtifacts: ["deps/**/*.json"],
   },
   tracer: {

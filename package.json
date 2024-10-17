@@ -16,6 +16,10 @@
     "url": "https://github.com/morpho-labs/morpho-blue-bundlers/issues"
   },
   "homepage": "https://github.com/morpho-labs/morpho-blue-bundlers#readme",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "prepare": "husky install && forge install",
     "build:pkg": "yarn build:hardhat --force && tsc --build ./tsconfig.build.json",
