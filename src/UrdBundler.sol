@@ -10,7 +10,7 @@ import {BaseBundler} from "./BaseBundler.sol";
 
 /// @title UrdBundler
 /// @author Morpho Labs
-/// @custom:contact security@morpho.xyz
+/// @custom:contact security@morpho.org
 /// @notice Bundler that allows to claim token rewards on the Universal Rewards Distributor.
 abstract contract UrdBundler is BaseBundler {
     /// @notice Claims `amount` of `reward` on behalf of `account` on the given rewards distributor, using `proof`.

@@ -7,7 +7,7 @@ import {BaseBundler} from "./BaseBundler.sol";
 
 /// @title PermitBundler
 /// @author Morpho Labs
-/// @custom:contact security@morpho.xyz
+/// @custom:contact security@morpho.org
 /// @notice Bundler contract managing interactions with tokens implementing EIP-2612.
 abstract contract PermitBundler is BaseBundler {
     /// @notice Permits the given `amount` of `asset` from sender to be spent by the bundler via EIP-2612 Permit with
