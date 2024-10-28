@@ -105,7 +105,7 @@ jobs:
       - uses: ./.github/actions/install-cache
 
       - name: Run local tests on chain ${{ matrix.chain }} in ${{ matrix.type }} mode
-        run: yarn test:forge:local --chain matrix.chain
+        run: yarn test:forge:local
         env:
           FOUNDRY_FUZZ_RUNS: ${{ matrix.fuzz-runs }}
           FOUNDRY_FUZZ_MAX_TEST_REJECTS: ${{ matrix.max-test-rejects }}
