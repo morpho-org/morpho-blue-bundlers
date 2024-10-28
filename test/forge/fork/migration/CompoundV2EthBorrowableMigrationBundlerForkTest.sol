@@ -17,9 +17,9 @@ contract CompoundV2EthLoanMigrationBundlerForkTest is MigrationForkTest {
     address[] internal enteredMarkets;
 
     function setUp() public override {
-        if (block.chainid != 1) return;
-
         super.setUp();
+
+        if (block.chainid != 1) return;
 
         _initMarket(DAI, WETH);
 
