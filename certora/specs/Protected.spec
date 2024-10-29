@@ -8,7 +8,11 @@ methods {
 }
 
 
-rule protectedMethodsComplete(method f, env e, calldataarg data) filtered {
+// Check that all methods except those noted below comply with the `protected` modifier when an initiator has been set.
+rule protectedWithSetInitiator(method f, env e, calldataarg data) filtered {
+    // Do not check view functions.
+    // Do not check the fallback function.
+    // Do not check multicall, which is used to start a new bundle.
     f -> !f.isView && !f.isFallback && f.selector != sig:multicall(bytes[]).selector
 }
 {
