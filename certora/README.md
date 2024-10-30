@@ -1,4 +1,4 @@
-# Bundlers Formal Verification
+# Bundlers formal verification
 
 This folder contains the [CVL](https://docs.certora.com/en/latest/docs/cvl/index.html) specification and verification setup for the following bundler contracts:
 
