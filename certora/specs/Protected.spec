@@ -13,8 +13,7 @@ rule protectedWithSetInitiator(method f, env e, calldataarg data) filtered {
     f -> !f.isView && !f.isFallback && f.selector != sig:multicall(bytes[]).selector
 }
 {
-    require e.msg.sender != initiator();
-    require e.msg.sender != MORPHO();
     f@withrevert(e,data);
-    assert lastReverted;
+    bool reverted = lastReverted;
+    assert e.msg.sender != initiator() && e.msg.sender != MORPHO() => reverted;
 }

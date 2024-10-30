@@ -10,7 +10,7 @@ This folder contains the [CVL](https://docs.certora.com/en/latest/docs/cvl/index
 - [CompoundV3MigrationBundlerV2](../src/migration/CompoundV3MigrationBundlerV2.sol)
 - [EthereumBundlerV2](../src/ethereum/EthereumBundlerV2.sol)
 
-## Getting Started
+## Getting started
 
 To verify a specification, run the command `certoraRun Spec.conf` where `Spec.conf` is one of the configuration files in [`certora/confs`](confs).
 
@@ -19,7 +19,7 @@ You must have set the `CERTORAKEY` environment variable to a valid Certora key.
 ## Overview
 
 Bundler methods used during a bundle execution have the `protected` modifier. This modifier ensures that:
-- An initiator has been set, and
+- an initiator has been set;
 - the caller is the bundle initiator or the Morpho contract.
 
 The `Protected.spec` file checks that all bundler functions, except noted exceptions, respect the requirements of the `protected` modifier when an initiator has been set.
