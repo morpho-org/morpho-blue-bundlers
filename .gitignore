@@ -30,3 +30,6 @@ node_modules/
 /artifacts
 
 *.log
+
+# Certora
+.certora_internal
