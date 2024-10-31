@@ -17,8 +17,8 @@ import {
   EthereumPermitBundler__factory,
   IAllowanceTransfer,
   ERC20WrapperBundler__factory,
-} from "../types";
-import { AuthorizationStruct, MarketParamsStruct, WithdrawalStruct } from "../types/src/MorphoBundler";
+} from "./types";
+import { AuthorizationStruct, MarketParamsStruct, WithdrawalStruct } from "./types/src/MorphoBundler";
 
 export type BundlerCall = string;
 
