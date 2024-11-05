@@ -2,10 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {
-    Withdrawal,
-    FlowCapsConfig,
-    MAX_SETTABLE_FLOW_CAP,
-    IPublicAllocator
+    Withdrawal, FlowCapsConfig, MAX_SETTABLE_FLOW_CAP, IPublicAllocator
 } from "../src/interfaces/IPublicAllocator.sol";
 
 import {SigUtils} from "./helpers/SigUtils.sol";
