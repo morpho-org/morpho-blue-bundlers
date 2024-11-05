@@ -2,7 +2,7 @@
 names = true
 sizes = true
 src = "src"
-test = "test/forge"
+test = "test"
 fs_permissions = [
     { access = "read", path = "./out/"},
     { access = "read", path = "./config/"}
