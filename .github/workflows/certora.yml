@@ -16,13 +16,7 @@ jobs:
 
       matrix:
         conf:
-          - AaveV2MigrationBundlerV2
-          - AaveV3MigrationBundlerV2
-          - AaveV3OptimizerMigrationBundlerV2
-          - ChainAgnosticBundlerV2
-          - CompoundV2MigrationBundlerV2
-          - CompoundV3MigrationBundlerV2
-          - EthereumBundlerV2
+          - Protected
 
     steps:
       - uses: actions/checkout@v4
